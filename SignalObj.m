@@ -474,8 +474,8 @@ classdef SignalObj < handle
             yunits=sObj.yunits; 
             dataLabels=sObj.dataLabels;
             plotProps=sObj.plotProps;
-            evalstring = strcat('s=',class(sObj),'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps)');
-            eval(evalstring);
+            ctorHandle = str2func(class(sObj));
+            s = ctorHandle(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);
             %s = SignalObj(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);
         end
         function val        = getValueAt(sObj,x)

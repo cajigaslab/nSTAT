@@ -4105,7 +4105,7 @@ pools=0;
                     IMc(:,:,c)=ScoreVec*ScoreVec';    
                 end
             else %Use the parallel toolbox
-                parfor c=1:Mc
+                for c=1:Mc
                     x_K=xKDraw(:,:,c);
                     x_0=x0Draw(:,c);
 
@@ -5240,7 +5240,7 @@ pools=0;
                 if(strcmp(fitType,'poisson'))
                     for c=1:numCells
                         HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             Wk = WKFinal(:,:,k);
@@ -5269,7 +5269,7 @@ pools=0;
                 else
                     for c=1:numCells
                         HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             Wk = WKFinal(:,:,k);
@@ -5357,7 +5357,7 @@ pools=0;
                 for c=1:numCells
                     if(strcmp(fitType,'poisson'))
                         HessianTerm = zeros(K,1);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             if(size(Hk,1)==numCells)
@@ -5377,7 +5377,7 @@ pools=0;
                         end
                     elseif(strcmp(fitType,'binomial'))
                         HessianTerm = zeros(K,1);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             if(size(Hk,1)==numCells)
@@ -5466,7 +5466,7 @@ pools=0;
                     for c=1:numCells
                        if(strcmp(fitType,'poisson'))
                             HessianTerm = zeros(size(HkAll,2),size(HkAll,2),K);
-                            parfor k=1:K
+                            for k=1:K
     %                             Hk = squeeze(HkAll(:,:,c));
                                 Hk = (HkAll(k,:,c));
                                 if(size(Hk,1)==numCells)
@@ -5488,7 +5488,7 @@ pools=0;
                         elseif(strcmp(fitType,'binomial'))
                             HessianTerm = zeros(size(HkAll,2),size(HkAll,2),K);
 
-                            parfor k=1:K
+                            for k=1:K
                                 Hk = (HkAll(k,:,c));
                                 if(size(Hk,1)==numCells)
                                    Hk = Hk';
@@ -5748,7 +5748,7 @@ pools=0;
                     IMc(:,:,c)=ScoreVec*ScoreVec';    
                 end
             else %Use the parallel toolbox
-                parfor c=1:Mc
+                for c=1:Mc
                     x_K=xKDraw(:,:,c);
                     x_0=x0Draw(:,c);
 
@@ -7015,7 +7015,7 @@ pools=0;
                     GradTerm = zeros(size(betahat,1),numCells);
                     betahat_newTemp=betahat_new;
                     xkPerm = permute(xKDrawExp,[1 3 2]);
-                    parfor c=1:numCells
+                    for c=1:numCells
                         converged=0;
                         iter = 1;
                         maxIter=100;
@@ -7207,7 +7207,7 @@ pools=0;
                     HessianTerm = zeros(1,numCells);
                     GradTerm = zeros(1,numCells);
                     xkPerm = permute(xKDrawExp,[1 3 2]);
-                    parfor c=1:numCells
+                    for c=1:numCells
                         converged=0;
                         iter = 1;
                         maxIter=100;
@@ -7398,7 +7398,7 @@ pools=0;
                          HessianTerm = zeros(size(gammahat,1),size(gammahat,1),numCells);
                          GradTerm = zeros(size(gammahat,1),numCells);
                          xkPerm = permute(xKDrawExp,[1 3 2]);
-                         parfor c=1:numCells
+                         for c=1:numCells
                             converged=0;
                             iter = 1;
                             maxIter=100;
@@ -7830,7 +7830,7 @@ pools=0;
            if(strcmp(fitType,'poisson'))
                 for c=1:numCells
                     HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
-                    parfor k=1:K
+                    for k=1:K
 %                         Hk = squeeze(HkAll(:,:,c));
                         Hk = (HkAll(k,:,c));
                         Wk = WKFinal(:,:,k);
@@ -7859,7 +7859,7 @@ pools=0;
             else
                 for c=1:numCells
                     HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
-                    parfor k=1:K
+                    for k=1:K
 %                         Hk = squeeze(HkAll(:,:,c));
                         Hk = (HkAll(k,:,c));
                         Wk = WKFinal(:,:,k);
@@ -7945,7 +7945,7 @@ pools=0;
                 for c=1:numCells
                     if(strcmp(fitType,'poisson'))
                         HessianTerm = zeros(K,1);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             if(size(Hk,1)==numCells)
@@ -7965,7 +7965,7 @@ pools=0;
                         end
                     elseif(strcmp(fitType,'binomial'))
                         HessianTerm = zeros(K,1);
-                        parfor k=1:K
+                        for k=1:K
     %                         Hk = squeeze(HkAll(:,:,c));
                             Hk = (HkAll(k,:,c));
                             if(size(Hk,1)==numCells)
@@ -8054,7 +8054,7 @@ pools=0;
                     for c=1:numCells
                        if(strcmp(fitType,'poisson'))
                             HessianTerm = zeros(size(HkAll,2),size(HkAll,2),K);
-                            parfor k=1:K
+                            for k=1:K
     %                             Hk = squeeze(HkAll(:,:,c));
                                 Hk = (HkAll(k,:,c));
                                 if(size(Hk,1)==numCells)
@@ -8076,7 +8076,7 @@ pools=0;
                         elseif(strcmp(fitType,'binomial'))
                             HessianTerm = zeros(size(HkAll,2),size(HkAll,2),K);
 
-                            parfor k=1:K
+                            for k=1:K
                                 Hk = (HkAll(k,:,c));
                                 if(size(Hk,1)==numCells)
                                    Hk = Hk';
@@ -8292,7 +8292,7 @@ pools=0;
                     IMc(:,:,c)=ScoreVec*ScoreVec';    
                 end
             else %Use the parallel toolbox
-                parfor c=1:Mc
+                for c=1:Mc
                     x_K=xKDraw(:,:,c);
                     x_0=x0Draw(:,c);
 
@@ -9874,7 +9874,7 @@ pools=0;
                     HessianTerm = zeros(size(betahat,1),size(betahat,1),numCells);
                     GradTerm = zeros(size(betahat,1),numCells);
                     betahat_newTemp=betahat_new;
-                    parfor c=1:numCells
+                    for c=1:numCells
                         converged=0;
                         iter = 1;
                         maxIter=100;
@@ -10065,7 +10065,7 @@ pools=0;
                  else
                     HessianTerm = zeros(1,numCells);
                     GradTerm = zeros(1,numCells);
-                    parfor c=1:numCells
+                    for c=1:numCells
                         converged=0;
                         iter = 1;
                         maxIter=100;
@@ -10257,7 +10257,7 @@ pools=0;
                      else
                          HessianTerm = zeros(size(gammahat,1),size(gammahat,1),numCells);
                          GradTerm = zeros(size(gammahat,1),numCells);
-                         parfor c=1:numCells
+                         for c=1:numCells
                             converged=0;
                             iter = 1;
                             maxIter=100;

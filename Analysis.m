@@ -260,7 +260,7 @@ end
                 else %use parallel toolbox
                     if(batchMode==0)
                         fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNumber)));
-                        parfor j=1:numNeurons
+                        for j=1:numNeurons
                             %clear tempLabels;
                             %tObj.setCurrentNeuron(neuronNumber);
                             otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
@@ -290,7 +290,7 @@ end
                     elseif(batchMode==1)
                         neuronNames=neuronNumber; % This is an index of names in the batchMode case
                         fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNames)));
-                        parfor j=1:numNeurons
+                        for j=1:numNeurons
 
                             %clear tempLabels;
                             %tObj.setCurrentNeuron(neuronNumber);

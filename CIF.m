@@ -423,8 +423,7 @@ classdef CIF < handle
             end
             
            val = [stimVal;histVal];
-           evalString = strcat('outVal = cifObj.lambdaDeltaFunction(',cifObj.argstr,');');
-           eval(evalString);
+           outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaFunction,val);
         end
         function outVal = evalGradient(cifObj,stimVal,time_index,nst)
             % outVal = evalGradient(cifObj,stimVal,nst)
@@ -456,8 +455,7 @@ classdef CIF < handle
             end
             
             val = [stimVal;histVal];
-            evalString = strcat('outVal = cifObj.gradientFunction(',cifObj.argstr,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientFunction,val);
             
         end
         
@@ -491,8 +489,7 @@ classdef CIF < handle
             end
             
             val = [stimVal;histVal];
-            evalString = strcat('outVal = cifObj.gradientLogFunction(',cifObj.argstr,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientLogFunction,val);
             
          end
         
@@ -527,8 +524,7 @@ classdef CIF < handle
                 end
             end
             val = [stimVal;histVal];
-            evalString = strcat('outVal = cifObj.jacobianFunction(',cifObj.argstr,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianFunction,val);
         end      
         
         function outVal = evalJacobianLog(cifObj,stimVal,time_index,nst)
@@ -561,8 +557,7 @@ classdef CIF < handle
                 end
             end
             val = [stimVal;histVal];
-            evalString = strcat('outVal = cifObj.jacobianLogFunction(',cifObj.argstr,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianLogFunction,val);
         end      
         
 
@@ -598,8 +593,7 @@ classdef CIF < handle
             end
             
            val = [stimVal;histVal;gamma];
-           evalString = strcat('outVal = cifObj.lambdaDeltaGammaFunction(',cifObj.argstrLDGamma,');');
-           eval(evalString);
+           outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaGammaFunction,val);
         end
          
         function outVal = evalLogLDGamma(cifObj,stimVal,time_index,nst,gamma)
@@ -631,8 +625,7 @@ classdef CIF < handle
             end
             
            val = [stimVal;histVal;gamma];
-           evalString = strcat('outVal = cifObj.LogLambdaDeltaGammaFunction(',cifObj.argstrLDGamma,');');
-           eval(evalString);
+           outVal = CIF.evalFunctionWithVectorArgs(cifObj.LogLambdaDeltaGammaFunction,val);
         end
         
         
@@ -666,8 +659,7 @@ classdef CIF < handle
             end
             
             val = [stimVal;histVal;gamma];
-            evalString = strcat('outVal = cifObj.gradientFunctionGamma(',cifObj.argstrLDGamma,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientFunctionGamma,val);
             
         end
         function outVal = evalGradientLogLDGamma(cifObj,stimVal,time_index,nst,gamma)
@@ -701,8 +693,7 @@ classdef CIF < handle
 
             
             val = [stimVal;histVal;gamma];
-            evalString = strcat('outVal = cifObj.gradientLogFunctionGamma(',cifObj.argstrLDGamma,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientLogFunctionGamma,val);
             
         end
         
@@ -738,8 +729,7 @@ classdef CIF < handle
                 end
             end
             val = [stimVal;histVal;gamma];
-            evalString = strcat('outVal = cifObj.jacobianLogFunctionGamma(',cifObj.argstrLDGamma,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianLogFunctionGamma,val);
         end
         function outVal = evalJacobianLDGamma(cifObj,stimVal,time_index,nst,gamma)
            
@@ -771,8 +761,7 @@ classdef CIF < handle
                 end
             end
             val = [stimVal;histVal;gamma];
-            evalString = strcat('outVal = cifObj.jacobianFunctionGamma(',cifObj.argstrLDGamma,');');
-            eval(evalString);
+            outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianFunctionGamma,val);
         end
         
         function ans = isSymBeta(cifObj)
@@ -921,6 +910,7 @@ classdef CIF < handle
                 assignin('base','simTypeSelect',simTypeSelect);
                 
                 options = simget;
+                CIF.verifySimulinkModelAvailable('PointProcessSimulationThinning');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 t=inputStimSignal.time;
                 u=[inputStimSignal.data, inputEnsSignal.data];
@@ -933,9 +923,10 @@ classdef CIF < handle
                                 'SaveState','on','StateSaveName','xout',...
                                 'SaveOutput','on','OutputSaveName','yout',...
                                 'SaveTime','on','TimeSaveName','tout',...
+                                'SaveFormat','StructureWithTime',...
                                 'StopTime', num2str(inputStimSignal.maxTime),...
                                 'StartTime', num2str(inputStimSignal.minTime));
-                    simOutVars = simOut.who;
+
                     yout = simOut.get('yout');
                     tout = yout.time;
 %                     [tout,~,yout] = sim('PointProcessSimulationThinning',[inputStimSignal.minTime inputStimSignal.maxTime],options,inputStimSignal.dataToStructure, inputEnsSignal.dataToStructure);
@@ -1008,9 +999,16 @@ classdef CIF < handle
                 assignin('base','simTypeSelect',simTypeSelect);
                 
                 options = simget;
+                CIF.verifySimulinkModelAvailable('PointProcessSimulation');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 for i=1:numRealizations
-                    [tout,~,yout] = sim('PointProcessSimulation',[inputStimSignal.minTime inputStimSignal.maxTime],options,inputStimSignal.dataToStructure, inputEnsSignal.dataToStructure);
+                    try
+                        [tout,~,yout] = sim('PointProcessSimulation',[inputStimSignal.minTime inputStimSignal.maxTime],options,inputStimSignal.dataToStructure, inputEnsSignal.dataToStructure);
+                    catch simErr
+                        error('CIF:PointProcessSimulationFailed',...
+                            ['PointProcessSimulation failed. In MATLAB 2025b run Simulink Upgrade Advisor for this model ',...
+                             'and verify model dependencies are on path. Original error: %s'], simErr.message);
+                    end
                     spikeTimes = tout(yout(:,1)>.5);
                     nst{i} = nspikeTrain(spikeTimes);
                     nst{i}.setName(num2str(1));
@@ -1026,6 +1024,32 @@ classdef CIF < handle
             end
             
         end
-    
+    end
+
+    methods (Static, Access = private)
+        function outVal = evalFunctionWithVectorArgs(funHandle,val)
+            if(isempty(funHandle))
+                error('CIF:EmptyFunctionHandle','CIF function handle is empty and cannot be evaluated.');
+            end
+            args = num2cell(val(:).');
+            outVal = funHandle(args{:});
+        end
+
+        function verifySimulinkModelAvailable(modelName)
+            hasSLX = (exist([modelName '.slx'],'file') == 2);
+            hasMDL = (exist([modelName '.mdl'],'file') == 2);
+            if(~hasSLX && ~hasMDL)
+                error('CIF:MissingSimulinkModel',...
+                    'Simulink model %s was not found on the MATLAB path.',modelName);
+            end
+
+            try
+                load_system(modelName);
+            catch modelErr
+                error('CIF:SimulinkModelLoadFailed',...
+                    ['Could not load Simulink model %s. In MATLAB 2025b run Simulink Upgrade Advisor for this model. ',...
+                     'Original error: %s'],modelName,modelErr.message);
+            end
+        end
     end
 end

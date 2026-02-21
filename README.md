@@ -22,5 +22,14 @@ http://doi.org/10.1016/j.jneumeth.2012.08.009
 If you use nSTAT in your work, please remember to cite the above paper in any publications.
 nSTAT is protected by the GPL v2 Open Source License.
 
-The code respository for nSTAT is hosted on GitHub at https://github.com/iahncajigas/nSTAT. 
+The code repository for nSTAT is hosted on GitHub at https://github.com/cajigaslab/nSTAT.
 You can download the example data file from the paper at: https://doi.org/10.6084/m9.figshare.4834640
+
+Python nSTAT
+============
+
+The Python port is in active development.
+
+Use this page for Python scope, status, and development guidance:
+
+- docs/python-nstat.md

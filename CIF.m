@@ -1036,13 +1036,16 @@ classdef CIF < handle
         end
 
         function modelName = resolveSimulinkModelName(baseModelName)
-            if(exist([baseModelName '.slx'],'file') == 2)
-                modelPath = [baseModelName '.slx'];
-            elseif(exist([baseModelName '.mdl'],'file') == 2)
-                modelPath = [baseModelName '.mdl'];
+            modelPath = which([baseModelName '.slx']);
+            if(isempty(modelPath))
+                modelPath = which([baseModelName '.mdl']);
+            end
+
+            if(~isempty(modelPath))
+                modelPath = char(modelPath);
             else
-                legacyModelPath = [baseModelName '.mdl.r2011a'];
-                if(exist(legacyModelPath,'file') ~= 2)
+                legacyModelPath = which([baseModelName '.mdl.r2011a']);
+                if(isempty(legacyModelPath))
                     error('CIF:MissingSimulinkModel',...
                         'Simulink model %s (.slx/.mdl) was not found on the MATLAB path.',baseModelName);
                 end
@@ -1052,6 +1055,7 @@ classdef CIF < handle
                     mkdir(compatDir);
                 end
                 modelPath = fullfile(compatDir,[baseModelName '.mdl']);
+                legacyModelPath = char(legacyModelPath);
                 copyfile(legacyModelPath,modelPath,'f');
             end
 

@@ -35,7 +35,8 @@ Quick start:
 ```bash
 cd python
 python3 -m pip install -e .
-python3 examples/nstat_paper_examples.py --repo-root .. --no-plots
+python3 examples/nstat_paper_examples.py --repo-root ..
 ```
 
 The Python paper example script is the equivalent workflow to `helpfiles/nSTATPaperExamples.m` (starting from Experiment 2) and uses local files from `data/`.
+By default it writes plots to `python/plots/nstat_paper_examples/`. Use `--no-plots` for a metrics-only run.

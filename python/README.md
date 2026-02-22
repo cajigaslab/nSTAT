@@ -35,7 +35,8 @@ python3 -m pip install -e .
 
 ```bash
 cd python
-python3 examples/nstat_paper_examples.py --repo-root .. --no-plots
+python3 examples/nstat_paper_examples.py --repo-root ..
 ```
 
 This runs a Python equivalent of the `nSTATPaperExamples.m` workflow (starting at Experiment 2), loading local data files from `../data`.
+Plots are saved to `plots/nstat_paper_examples/` by default. Use `--no-plots` to skip plot generation.

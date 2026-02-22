@@ -1,2 +1,4 @@
 .DS_Store
 .svn
+__pycache__/
+*.pyc

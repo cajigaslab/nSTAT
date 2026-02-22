@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nstat-toolbox"
+version = "0.1.0"
+description = "Python port of the nSTAT toolbox"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Cajigas Lab" }
+]
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "matplotlib>=3.7"
+]
+
+[tool.setuptools]
+packages = ["nstat"]
+
+[project.scripts]
+nstat-paper-examples = "nstat.paper_examples:main"

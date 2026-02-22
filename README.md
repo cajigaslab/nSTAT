@@ -24,3 +24,18 @@ nSTAT is protected by the GPL v2 Open Source License.
 
 The code respository for nSTAT is hosted on GitHub at https://github.com/iahncajigas/nSTAT. 
 You can download the example data file from the paper at: https://doi.org/10.6084/m9.figshare.4834640
+
+Python port
+-----------
+
+This repository now includes a standalone Python version in `python/`.
+
+Quick start:
+
+```bash
+cd python
+python3 -m pip install -e .
+python3 examples/nstat_paper_examples.py --repo-root .. --no-plots
+```
+
+The Python paper example script is the equivalent workflow to `helpfiles/nSTATPaperExamples.m` (starting from Experiment 2) and uses local files from `data/`.

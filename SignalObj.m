@@ -2087,11 +2087,25 @@ classdef SignalObj < handle
             end
             
             if(~sObj.areDataLabelsEmpty) %%&& sObj.dimension<10)
-%                 labelArray= cell(1,length(sArray));
-                labelArray =sObj.dataLabels(sArray);
-%                 for i=1:length(sArray)
-%                     labelArray{i} = strcat('$$',sObj.dataLabels{sArray(i)},'$$');
-%                 end
+                rawLabels = sObj.dataLabels(sArray);
+                labelArray = cell(1,length(rawLabels));
+                for i=1:length(rawLabels)
+                    currLabel = rawLabels{i};
+                    while iscell(currLabel) && numel(currLabel)==1
+                        currLabel = currLabel{1};
+                    end
+                    if isstring(currLabel)
+                        currLabel = char(currLabel);
+                    elseif isnumeric(currLabel) || islogical(currLabel)
+                        currLabel = num2str(currLabel);
+                    elseif ~ischar(currLabel)
+                        currLabel = '';
+                    end
+                    if isempty(currLabel)
+                        currLabel = sprintf('Signal %d',sArray(i));
+                    end
+                    labelArray{i} = currLabel;
+                end
                 legend(handle,labelArray);%,'Interpreter','latex');
             end
             axis tight;

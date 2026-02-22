@@ -19,7 +19,9 @@
 % Under a constant Magnesium concentration, it is seen that the mEPSCs
 % behave as a homogeneous poisson process (constant arrival rate).
     close all; clear all;
-    epsc2 = importdata('epsc2.txt');
+    [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+        getPaperDataDirs();
+    epsc2 = importdata(fullfile(mEPSCDir,'epsc2.txt'));
     sampleRate = 1000;
     spikeTimes = epsc2.data(:,2)*1/sampleRate; %in seconds
     nstConst = nspikeTrain(spikeTimes);
@@ -84,8 +86,8 @@
  % piecewise constant rate model with history.
     close all;
  % load the data;
-    washout1 = importdata('washout1.txt');
-    washout2 = importdata('washout2.txt');
+    washout1 = importdata(fullfile(mEPSCDir,'washout1.txt'));
+    washout2 = importdata(fullfile(mEPSCDir,'washout2.txt'));
     
     sampleRate  = 1000;
     % Magnesium removed at t=0
@@ -212,16 +214,12 @@ close all;
 
 %% Load the data
 % clear all; 
-close all; currdir = pwd;
-index = strfind(currdir,'helpfiles')-1;
-rootpath = currdir(1:index);
+close all;
 
 Direction=3; Neuron=1; Stim=2;
-% datapath = strcat(rootpath,['data/Explicit Stimulus/Dir' num2str(Direction)...
-%     '\Neuron' num2str(Neuron) '\Stim' num2str(Stim) '\']);
-datapath = strcat(rootpath,['data/Explicit Stimulus/Dir' num2str(Direction)...
-    '/Neuron' num2str(Neuron) '/Stim' num2str(Stim) '/']);
-data=load(strcat(datapath,'trngdataBis.mat'));
+datapath = fullfile(explicitStimulusDir,['Dir' num2str(Direction)], ...
+    ['Neuron' num2str(Neuron)],['Stim' num2str(Stim)]);
+data = load(fullfile(datapath,'trngdataBis.mat'));
 
 time=0:.001:(length(data.t)-1)*.001;
 stimData = data.t;
@@ -444,6 +442,8 @@ subplot(7,2,[10 12 14]); results.plotCoeffs; legend off;
 % generate distinct realizations of point processes consistent with this
 % rate function. We use the method of thinning to simulate a point process.
 clear all;
+[dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+    getPaperDataDirs();
 close all;
 delta = 0.001;
 Tmax = 1;
@@ -479,13 +479,7 @@ xlabel('time [s]','Interpreter','none','FontName', 'Arial',...
 hy=get(gca,'YLabel');
 set(hy,'FontName', 'Arial','FontSize',14,'FontWeight','bold');
             
-fileLocation = which('nSTAT_Install'); 
-index = strfind(fileLocation,'nSTAT_Install.m')-1;
-nSTATDir =fileLocation(1:index);
-
-rootDir = [nSTATDir 'data' filesep 'PSTH' filesep];
-filename = 'Results.mat';
-x=load(strcat(rootDir,filename));
+x = load(fullfile(psthDir,'Results.mat'));
 numTrials = x.Results.Data.Spike_times_STC.balanced_SUA.Nr_trials;
 cellNum=6; clear nst;
 for i=1:numTrials
@@ -616,6 +610,8 @@ ylabel('Trial [k]','Interpreter','none','FontName', 'Arial',...
 
 close all; 
 clear all;
+[dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+    getPaperDataDirs();
 % set(0,'DefaultFigureRenderer','ZBuffer')
 delta = 0.001; Tmax = 1;
 time = 0:delta:Tmax;
@@ -792,7 +788,18 @@ CompilingHelpFile=1;
     end
 % save SSGLMExampleData psthR fR xK WK WkuFinal Qhat gammahat fitResults stimulus stimCIs logll QhatAll gammahatAll nIter;
 %%
-load SSGLMExampleData;
+clear classes;
+installPath = which('nSTAT_Install');
+if isempty(installPath)
+    error('nSTATPaperExamples:MissingInstallPath', ...
+        'Could not locate nSTAT_Install.m on MATLAB path.');
+end
+nstatRoot = fileparts(installPath);
+addpath(genpath(nstatRoot),'-begin');
+addpath(nstatRoot,'-begin');
+disp(['NSTAT_INSTALL_PATH=' installPath]);
+disp(['FITRESULT_PATH=' which('FitResult')]);
+load(fullfile(nstatRoot,'data','SSGLMExampleData.mat'));
 fitResults = FitResult.fromStructure(fR);
 psthResult = FitResult.fromStructure(psthR);
 
@@ -1033,7 +1040,7 @@ set(h_legend, 'position',[pos(1)+.03 pos(2)+.01 pos(3:4)]);
 % in red. The position coordinates have been normalized to be between -1
 % and 1 to allow to simplify the analysis. 
     close all;
-    load(strcat('PlaceCellDataAnimal1.mat'));    
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));    
     exampleCell = [2 21 25 49];
 %     exampleCell = 1:length(neuron);
 %     figure(1);
@@ -1067,7 +1074,7 @@ if(~CompilingHelpFile)
     for n=1:numAnimals
         % load the data
         clear x y neuron time nst tc tcc z;
-        load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
+        load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
 
         % Create the spikeTrains for each cell
         for i=1:length(neuron)
@@ -1126,7 +1133,7 @@ if(~CompilingHelpFile)
 
         % Save results
             resStruct =FitResult.CellArrayToStructure(results);
-            filename = ['PlaceCellAnimal' num2str(n) 'Results'];
+            filename = fullfile(dataDir,['PlaceCellAnimal' num2str(n) 'Results']);
             save(filename,'resStruct');
     end
 end
@@ -1138,7 +1145,7 @@ clear Summary;
 numAnimals =2;
  
 for n=1:numAnimals
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    resData = load(fullfile(dataDir,['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     Summary{n} = FitResSummary(results);
 %     Summary{n}.plotSummary;
@@ -1212,8 +1219,8 @@ end
 for n=1:numAnimals 
     
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
+    resData = load(fullfile(dataDir,['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)
@@ -1301,8 +1308,8 @@ end
 
 %%
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal1.mat'));
-    resData=load(strcat('PlaceCellAnimal1Results.mat'));
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));
+    resData = load(fullfile(dataDir,'PlaceCellAnimal1Results.mat'));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)
@@ -1354,6 +1361,8 @@ end
 %% Generate the conditional Intensity Function
 
     close all; clear all;
+    [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+        getPaperDataDirs();
     delta = 0.001; Tmax = 1;
     time = 0:delta:Tmax;
     numRealizations = 20;
@@ -1470,6 +1479,8 @@ set([hx, hy],'FontName', 'Arial','FontSize',22,'FontWeight','bold');
 
     close all;
     clear all;
+    [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+        getPaperDataDirs();
     %Process noise covariance only drives the movement velocity
     q=1e-4;
     Q=diag([1e-12 1e-12 q q]); 
@@ -1782,6 +1793,8 @@ end
 %% Generated Simulated Arm Reach
 
 clear all;
+[dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+    getPaperDataDirs();
 close all;
 delta=0.001;
 Tmax=2;
@@ -1852,7 +1865,7 @@ for i = 1:length(time)
 end
 %%
 %save paperHybridFilterExample time Tmax delta mstate X p_ij ind A Q Px0
-load paperHybridFilterExample;
+load(fullfile(fileparts(which('nSTATPaperExamples')),'paperHybridFilterExample.mat'));
 Q{1}=minCovVal*eye(2,2);
 numCells=40;
 close all;
@@ -2167,4 +2180,34 @@ end
     hy=ylabel('v_{y}(t) [cm/s]'); hx=xlabel('time [s]');
     set([hx, hy],'FontName', 'Arial','FontSize',10,'FontWeight','bold');
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
+
+function [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+    getPaperDataDirs()
+% Resolve local data folders regardless of the current working directory
+scriptPath = mfilename('fullpath');
+if isempty(scriptPath)
+    scriptPath = which('nSTATPaperExamples');
+end
+if isempty(scriptPath)
+    installPath = which('nSTAT_Install');
+    if isempty(installPath)
+        error('nSTATPaperExamples:MissingInstallPath', ...
+            'Could not find nSTATPaperExamples.m or nSTAT_Install.m on MATLAB path.');
+    end
+    nSTATDir = fileparts(installPath);
+else
+    nSTATDir = fileparts(fileparts(scriptPath));
+end
+
+dataDir = fullfile(nSTATDir,'data');
+mEPSCDir = fullfile(dataDir,'mEPSCs');
+explicitStimulusDir = fullfile(dataDir,'Explicit Stimulus');
+psthDir = fullfile(dataDir,'PSTH');
+placeCellDataDir = fullfile(dataDir,'Place Cells');
+
+if exist(dataDir,'dir') ~= 7
+    error('nSTATPaperExamples:MissingDataDir', ...
+        'Could not find local nSTAT data folder at %s', dataDir);
+end
+end
 

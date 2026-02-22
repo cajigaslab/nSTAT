@@ -143,13 +143,48 @@ classdef nspikeTrain < handle
             nst.sigRep = [];
             nst.isSigRepBin=[];
 
-            nst.computeStatistics(makePlots);            
+            if(makePlots>=0)
+                nst.computeStatistics(makePlots);
+            else
+                nst.avgFiringRate = [];
+                nst.B = [];
+                nst.An = [];
+                nst.burstTimes = [];
+                nst.burstRate = [];
+                nst.burstDuration = [];
+                nst.burstSig = [];
+                nst.burstIndex = [];
+                nst.numBursts = [];
+                nst.numSpikesPerBurst = [];
+                nst.avgSpikesPerBurst = [];
+                nst.stdSpikesPerBurst = [];
+                nst.Lstatistic = [];
+            end
         end
         function Lstat = getLStatistic(nstObj)
-           mISIs = mean(nstObj.getISIs); 
+           mISIs = mean(nstObj.getISIs);
+           if isempty(mISIs) || ~isfinite(mISIs) || mISIs<=0
+               Lstat = NaN;
+               return;
+           end
+
+           duration = nstObj.maxTime - nstObj.minTime;
+           if ~isfinite(duration) || duration<=0
+               Lstat = NaN;
+               return;
+           end
+
+           % Prevent pathological allocations when legacy data has very
+           % fine bin widths or near-duplicate spikes.
+           maxBinsForL = 1e6;
+           estBins = duration./mISIs + 1;
+           if isfinite(estBins) && estBins > maxBinsForL
+               mISIs = duration./(maxBinsForL-1);
+           end
+
            Pt = nstObj.getSigRep(mISIs);
            Lstat = length(unique(Pt.data));
-         
+
         end
 %         function shift(nstObj,deltaT)
 %            nstObj.spikeTimes = nstObj.spikeTimes + deltaT;
@@ -361,6 +396,20 @@ classdef nspikeTrain < handle
                 end
                 precision =2*ceil(log10(1/binwidth));
                 binwidth = roundn(binwidth,-precision); 
+
+                if(and(~isempty(maxTime),~isempty(minTime)))
+                    duration = maxTime-minTime;
+                    if isfinite(duration) && duration>0 && isfinite(binwidth) && binwidth>0
+                        maxBinsSigRep = 1e6;
+                        estBins = duration./binwidth + 1;
+                        if ~isfinite(estBins) || estBins > maxBinsSigRep
+                            binwidth = duration./(maxBinsSigRep-1);
+                            precision =2*ceil(log10(1/binwidth));
+                            binwidth = roundn(binwidth,-precision);
+                        end
+                    end
+                end
+
                 if(and(~isempty(maxTime),~isempty(minTime)))
                 %                     timeVec=linspace(minTime,maxTime,ceil((1/binwidth)*abs(maxTime-minTime)/binwidth)*binwidth+1); %scaling by binwidth to avoid roundoff error
                 timeVec=linspace(minTime,maxTime,(maxTime-minTime)./binwidth +1);%:binwidth:maxTime;
@@ -954,7 +1003,7 @@ classdef nspikeTrain < handle
             xunits     = structure.xunits;
             yunits     = structure.yunits;
             dataLabels = structure.dataLabels;
-            nstObj=nspikeTrain(spikeTimes,name,binwidth,minTime,maxTime,xlabelval, xunits, yunits,dataLabels);
+            nstObj=nspikeTrain(spikeTimes,name,binwidth,minTime,maxTime,xlabelval, xunits, yunits,dataLabels,-1);
         end
     end
     

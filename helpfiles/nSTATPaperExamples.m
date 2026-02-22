@@ -21,6 +21,10 @@
     close all; clear all;
     [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
         getPaperDataDirs();
+    nSTATRootDir = fileparts(dataDir);
+    if exist(nSTATRootDir,'dir') == 7 && ~strcmp(pwd,nSTATRootDir)
+        cd(nSTATRootDir);
+    end
     epsc2 = importdata(fullfile(mEPSCDir,'epsc2.txt'));
     sampleRate = 1000;
     spikeTimes = epsc2.data(:,2)*1/sampleRate; %in seconds
@@ -215,6 +219,12 @@ close all;
 %% Load the data
 % clear all; 
 close all;
+[dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
+    getPaperDataDirs();
+nSTATRootDir = fileparts(dataDir);
+if exist(nSTATRootDir,'dir') == 7 && ~strcmp(pwd,nSTATRootDir)
+    cd(nSTATRootDir);
+end
 
 Direction=3; Neuron=1; Stim=2;
 datapath = fullfile(explicitStimulusDir,['Dir' num2str(Direction)], ...
@@ -788,17 +798,16 @@ CompilingHelpFile=1;
     end
 % save SSGLMExampleData psthR fR xK WK WkuFinal Qhat gammahat fitResults stimulus stimCIs logll QhatAll gammahatAll nIter;
 %%
-clear classes;
 installPath = which('nSTAT_Install');
 if isempty(installPath)
     error('nSTATPaperExamples:MissingInstallPath', ...
         'Could not locate nSTAT_Install.m on MATLAB path.');
 end
 nstatRoot = fileparts(installPath);
-addpath(genpath(nstatRoot),'-begin');
+if exist(nstatRoot,'dir') == 7 && ~strcmp(pwd,nstatRoot)
+    cd(nstatRoot);
+end
 addpath(nstatRoot,'-begin');
-disp(['NSTAT_INSTALL_PATH=' installPath]);
-disp(['FITRESULT_PATH=' which('FitResult')]);
 load(fullfile(nstatRoot,'data','SSGLMExampleData.mat'));
 fitResults = FitResult.fromStructure(fR);
 psthResult = FitResult.fromStructure(psthR);

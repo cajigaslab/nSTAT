@@ -2,7 +2,7 @@ classdef nstColl < handle
 % NSTCOLL A collection of nspikeTrains
 %   
 % <a href="matlab: methods('nstColl')">methods</a>    
-% <a href="matlab:web('nstCollExamples.html', '-helpbrowser')">nstColl Examples</a> 
+% <a href="nstCollExamples.html">nstColl Examples</a> 
 %
 % see also <a href="matlab:help('CovColl')">CovColl</a>, <a
 % href="matlab:help('Covariate')">Covariate</a>, <a
@@ -735,7 +735,7 @@ classdef nstColl < handle
             % histogram of the neural firing. Uses the implementation Baysian Adaptive Regression
             % Splines (developed by Wallstrom, Leibner and Kass) available
             % on Ryan C. Kelly's website:
-            % <a href="matlab:web('http://www.cnbc.cmu.edu/~rkelly/code.html', '-helpbrowser')">Ryan C. Kelly's BARS for Matlab</a> 
+            % <a href="http://www.cnbc.cmu.edu/~rkelly/code.html">Ryan C. Kelly's BARS for Matlab</a> 
             % Requires that: barsP.m, defaultParams.m, and nlsd_mex.c be in
             % the Matlab path and that nlsd_mex.c be compiled to the
             % corresponding mex file.

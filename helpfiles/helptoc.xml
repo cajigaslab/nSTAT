@@ -1,43 +1,41 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
-<!-- $Revision: 1.1.6.2 $ $Date: 2007/09/18 01:15:51 $ -->
+<?xml version="1.0" encoding="utf-8"?>
+<toc version="2.0">
+  <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.ROOT" id="nstat_home">nSTAT Neural Spike Train Analysis Toolbox
+    <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.FUNCTION" id="nstat_overview">Overview</tocitem>
+    <tocitem target="DocumentationSetup2025b.html" image="HelpIcon.FUNCTION" id="nstat_2025b_setup">MATLAB 2025b Help Integration</tocitem>
 
-<toc version="0.1">
+    <tocitem target="ClassDefinitions.html" image="HelpIcon.FUNCTION" id="nstat_class_definitions">Class Definitions</tocitem>
+    <tocitem target="SignalObj.html" image="HelpIcon.FUNCTION" id="nstat_signalobj_reference">SignalObj Reference</tocitem>
+    <tocitem target="FitResult.html" image="HelpIcon.FUNCTION" id="nstat_fitresult_reference">FitResult Reference</tocitem>
 
-<tocitem target="NeuralSpikeAnalysis_top.html">Neural Spike Analysis Toolbox
+    <tocitem target="Examples.html" image="HelpIcon.EXAMPLES" id="nstat_examples">Examples
+      <tocitem target="SignalObjExamples.html" id="nstat_signalobj_examples">Using the SignalObj Class</tocitem>
+      <tocitem target="CovariateExamples.html" id="nstat_covariate_examples">Using the Covariate Class</tocitem>
+      <tocitem target="CovCollExamples.html" id="nstat_covcoll_examples">Using the CovColl Class</tocitem>
+      <tocitem target="nSpikeTrainExamples.html" id="nstat_nspiketrain_examples">Using the nSpikeTrain Class</tocitem>
+      <tocitem target="nstCollExamples.html" id="nstat_nstcoll_examples">Using the nstColl Class</tocitem>
+      <tocitem target="EventsExamples.html" id="nstat_events_examples">Using the Events Class</tocitem>
+      <tocitem target="HistoryExamples.html" id="nstat_history_examples">Using the History Class</tocitem>
+      <tocitem target="TrialExamples.html" id="nstat_trial_examples">Using the Trial Class</tocitem>
+      <tocitem target="TrialConfigExamples.html" id="nstat_trialconfig_examples">Using the TrialConfig Class</tocitem>
+      <tocitem target="ConfigCollExamples.html" id="nstat_configcoll_examples">Using the ConfigColl Class</tocitem>
+      <tocitem target="AnalysisExamples.html" id="nstat_analysis_examples">Using the Analysis Class</tocitem>
+      <tocitem target="FitResultExamples.html" id="nstat_fitresult_examples">Using the FitResult Class</tocitem>
+      <tocitem target="FitResSummaryExamples.html" id="nstat_fitressummary_examples">Using the FitResSummary Class</tocitem>
+      <tocitem target="PPThinning.html" id="nstat_ppthinning_example">Point Process Simulation via Thinning</tocitem>
+      <tocitem target="PSTHEstimation.html" id="nstat_psth_example">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</tocitem>
+      <tocitem target="ValidationDataSet.html" id="nstat_validation_example">Example Data Analysis - Simulated Constant (Piecewise Constant) Rate Poisson</tocitem>
+      <tocitem target="mEPSCAnalysis.html" id="nstat_mepsc_example">Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)</tocitem>
+      <tocitem target="PPSimExample.html" id="nstat_ppsim_example">Example Data Analysis - Simulated Explicit Stimulus and History</tocitem>
+      <tocitem target="ExplicitStimulusWhiskerData.html" id="nstat_explicitstimulus_example">Example Data Analysis - Explicit Stimulus</tocitem>
+      <tocitem target="HippocampalPlaceCellExample.html" id="nstat_placecell_example">Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation</tocitem>
+      <tocitem target="DecodingExample.html" id="nstat_decoding_example">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</tocitem>
+      <tocitem target="DecodingExampleWithHist.html" id="nstat_decodinghist_example">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</tocitem>
+      <tocitem target="StimulusDecode2D.html" id="nstat_stimulusdecode2d_example">Example Data Analysis - Decoding Bivariate Simulated Stimuli</tocitem>
+      <tocitem target="NetworkTutorial.html" id="nstat_networktutorial_example">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</tocitem>
+      <tocitem target="nSTATPaperExamples.html" id="nstat_paper_examples">nSTAT Paper Examples</tocitem>
+    </tocitem>
 
-<tocitem target="ClassDefinitions.html" image="$toolbox/matlab/icons/greencircleicon.gif">Class Definitions </tocitem>
-
-<tocitem target="Examples.html" image="$toolbox/matlab/icons/greencircleicon.gif">Examples
-    <tocitem target="SignalObjExamples.html">Using the SignalObj Class</tocitem>
-    <tocitem target="CovariateExamples.html">Using the Covariate Class</tocitem>
-    <tocitem target="CovCollExamples.html">Using the CovColl Class</tocitem>
-    <tocitem target="nSpikeTrainExamples.html">Using the nSpikeTrain Class</tocitem>
-    <tocitem target="nstCollExamples.html">Using the nstColl Class</tocitem>
-    <tocitem target="EventsExamples.html">Using the Events Class</tocitem>
-    <tocitem target="HistoryExamples.html">Using the History Class</tocitem>
-    <tocitem target="TrialExamples.html">Using the Trial Class</tocitem>
-    <tocitem target="TrialConfigExamples.html">Using the TrialConfig Class</tocitem>
-    <tocitem target="ConfigCollExamples.html">Using the ConfigColl Class</tocitem>
-    <tocitem target="AnalysisExamples.html">Using the Analysis Class</tocitem>
-    <tocitem target="FitResultExamples.html">Using the FitResult Class</tocitem>    
-    <tocitem target="FitResSummary">Using the FitResSummary Class</tocitem>
-    <tocitem target="PPThinning.html">Point Process simulation via Thinning</tocitem>
-    <tocitem target="PSTHEstimation.html">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</tocitem>
-    <tocitem target="ValidationDataSet.html">Example Data Analysis - Simulated Constant (Piecewise Constant) Rate Poisson</tocitem>
-    <tocitem target="mEPSCAnalysis.html">Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)</tocitem>
-    <tocitem target="PPSimExample.html">Example Data Analysis - Simulated Explicit Stimulus and History</tocitem>
-    <tocitem target="ExplicitStimulusWhiskerData.html">Example Data Analysis - Explicit Stimulus</tocitem>
-    <tocitem target="HippocampalPlaceCellExample.html">Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation</tocitem>
-    <tocitem target="DecodingExample.html">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</tocitem>
-    <tocitem target="DecodingExampleWithHist.html">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</tocitem>
-    <tocitem target="StimulusDecode2D.html">Example Data Analysis - Decoding Bivariate Simulated Stimuli</tocitem>
-    <tocitem target="NetworkTutorial.html">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</tocitem>
-    <tocitem target="nSTATPaperExamples.html">nSTAT Paper Examples</tocitem>
-
-
-</tocitem>
-
-<tocitem target="http://neurostat.mit.edu" image="$toolbox/matlab/icons/webicon.gif">Neuroscience Statistics Research Laboratory</tocitem>
-
-</tocitem>
+    <tocitem target="https://neurostat.mit.edu" image="HelpIcon.WEB_SITE" id="nstat_lab_website">Neuroscience Statistics Research Laboratory</tocitem>
+  </tocitem>
 </toc>

@@ -20,15 +20,25 @@
 % along with this program; if not, write to the Free Software Foundation, 
 % Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-fileLocation = which('nSTAT_Install'); 
-index = strfind(fileLocation,'nSTAT_Install.m')-1;
-rootDir =fileLocation(1:index);
-helpDir = strcat(rootDir,'helpfiles');
-display('Adding nSTAT help files to the matlab search database');
-builddocsearchdb(helpDir); %make the toolbox files searchable
+fileLocation = mfilename('fullpath');
+rootDir = fileparts(fileLocation);
+helpDir = fullfile(rootDir, 'helpfiles');
 
 display('Adding nSTAT to the top of the search path');
-addpath(genpath(rootDir),'-begin');
+addpath(genpath(rootDir), '-begin');
+
+if isfolder(helpDir)
+    display('Building nSTAT help search database');
+    builddocsearchdb(helpDir);
+else
+    warning('nSTAT:MissingHelpFolder', ...
+        'Help folder was not found at: %s', helpDir);
+end
+
+display('Refreshing MATLAB toolbox cache');
+rehash toolboxcache;
+
 display('Saving path');
 savepath;
-clear fileLocation index rootDir helpDir dataDir libraries;
+
+clear fileLocation rootDir helpDir;

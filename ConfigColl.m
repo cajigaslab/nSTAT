@@ -1,7 +1,7 @@
 classdef ConfigColl < handle
 %CONFIGCOLL - a collection of different configurations
 % <a href="matlab: methods('ConfigColl')">methods</a>
-% <a href="matlab:web('ConfigCollExamples.html', '-helpbrowser')">ConfigColl Examples</a> 
+% <a href="ConfigCollExamples.html">ConfigColl Examples</a> 
 %
 % see also <a href="matlab:help('TrialConfig')">TrialConfig</a>, <a
 % href="matlab:help('CovColl')">Trial</a>, <a

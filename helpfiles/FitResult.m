@@ -4,7 +4,7 @@ classdef FitResult < handle
 % The results are for a single neuron over a range of configurations
 %
 % <a href="matlab: methods('FitResult')">methods</a>
-% <a href="matlab:web('FitResultExamples.html', '-helpbrowser')">FitResult Examples</a> 
+% <a href="FitResultExamples.html">FitResult Examples</a> 
 %
 % see also <a href="matlab:help('Analysis')">Analysis</a>
 %

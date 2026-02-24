@@ -1,12 +1,9 @@
-<productinfo
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="optional">
-<?xml-stylesheet type="text/xsl" href="optional"?>
-
-<matlabrelease>R2008b</matlabrelease>
-<name>nSTAT-Neural Spike Train Analysis </name>
-<type>toolbox</type>
-<icon></icon>
-<help_location>helpfiles</help_location>
-
+<?xml version="1.0" encoding="utf-8"?>
+<productinfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://www.mathworks.com/help/schema/productinfo.xsd">
+  <matlabrelease>R2025b</matlabrelease>
+  <name>nSTAT Neural Spike Train Analysis</name>
+  <type>toolbox</type>
+  <icon>helpfiles/LogoSmall.png</icon>
+  <help_location>helpfiles</help_location>
 </productinfo>

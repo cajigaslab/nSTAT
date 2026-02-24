@@ -15,7 +15,7 @@ classdef Events
 % The length of eventTimes and eventLabels must match for an Events
 % object to be successfully created.
 % <a href="matlab: methods('Events')">methods</a>
-% <a href="matlab:web('EventsExamples.html', '-helpbrowser')">Events Examples</a> 
+% <a href="EventsExamples.html">Events Examples</a> 
 %
 % Reference page in Help browser
 % <a href="matlab: doc('Events')">doc Events</a>

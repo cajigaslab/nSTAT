@@ -2,7 +2,7 @@ classdef Analysis
 % ANALYSIS Collection of functions (static methods) used for GLM analysis
 % of point process data.
 % <a href="matlab: methods('Analysis')">methods</a>
-% <a href="matlab:web('AnalysisExamples.html', '-helpbrowser')">Analysis Examples</a> 
+% <a href="AnalysisExamples.html">Analysis Examples</a> 
 %
 % see also <a href="matlab:help('Trial')">Trial</a>, <a
 % href="matlab:help('CovColl')">CovColl</a>, <a

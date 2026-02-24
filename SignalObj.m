@@ -51,7 +51,7 @@ classdef SignalObj < handle
 %
 %
 % <a href="matlab: methods('SignalObj')">methods</a>
-% <a href="matlab:web('SignalObjExamples.html', '-helpbrowser')">SignalObj Examples</a> 
+% <a href="SignalObjExamples.html">SignalObj Examples</a> 
 %
 % Reference page in Help browser
 % <a href="matlab:doc('SignalObj')">doc SignalObj</a>

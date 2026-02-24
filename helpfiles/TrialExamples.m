@@ -50,6 +50,6 @@ figure; trial1.plot;
 trial1.getHistForNeurons([1:2]);
 %% Example 2: Analyzing Trial Data
 % Examples of neural spike analysis using the 
-% <matlab:web('AnalysisExamples2.html','-helpbrowser') Neural Spike Analysis Toolbox>
+% <AnalysisExamples2.html Neural Spike Analysis Toolbox>
 % or using standard methods
-% <matlab:web('AnalysisExamples.html','-helpbrowser') standard methods>
+% <AnalysisExamples.html standard methods>

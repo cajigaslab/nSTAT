@@ -10,7 +10,7 @@ classdef CovColl <handle
 % to the signal right before it is returned.
 % 
 % <a href="matlab: methods('CovColl')">methods</a>
-% <a href="matlab:web('CovCollExamples.html', '-helpbrowser')">CovColl Examples</a> 
+% <a href="CovCollExamples.html">CovColl Examples</a> 
 %
 % see also <a href="matlab:help('SignalObj')">SignalObj</a>, <a href="matlab:help('Covariate')">Covariate</a>
 %

@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Examples</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-02-10"><meta name="DC.source" content="Examples.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Examples</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-24">
+<meta name="DC.source" content="Examples.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,41 +72,109 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Examples</h1><p>Example files are provided for each of the classes defined in the Neural Spike Analysis Toolbox so that the user can understand the functionality of each in more detail.</p><div><ul><li><a href="matlab:web('SignalObjExamples.html','-helpbrowser')">Using the SignalObj Class</a></li><li><a href="matlab:web('CovariateExamples.html','-helpbrowser')">Using the Covariate Class</a></li><li><a href="matlab:web('CovCollExamples.html','-helpbrowser')">Using the CovColl Class</a></li><li><a href="matlab:web('nSpikeTrainExamples.html','-helpbrowser')">Using the nSpikeTrain Class</a></li><li><a href="matlab:web('nstCollExamples.html','-helpbrowser')">Using the nstColl Class</a></li><li><a href="matlab:web('EventsExamples.html','-helpbrowser')">Using the Events Class</a></li><li><a href="matlab:web('HistoryExamples.html','-helpbrowser')">Using the History Class</a></li><li><a href="matlab:web('TrialExamples.html','-helpbrowser')">Using the Trial Class</a></li><li><a href="matlab:web('TrialConfigExamples.html','-helpbrowser')">Using the TrialConfig Class</a></li><li><a href="matlab:web('ConfigCollExamples.html','-helpbrowser')">Using the ConfigColl Class</a></li><li><a href="matlab:web('AnalysisExamples.html','-helpbrowser')">Using the Analysis Class</a></li><li><a href="matlab:web('FitResultExamples.html','-helpbrowser')">Using the FitResult Class</a></li><li><a href="matlab:web('FitResSummaryExamples.html','-helpbrowser')">Using the FitResSummary Class</a></li><li><a href="matlab:web('PPThinning.html','-helpbrowser')">Point Process simulation via Thinning</a></li><li><a href="matlab:web('PSTHEstimation.html','-helpbrowser')">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</a></li><li><a href="matlab:web('ValidationDataSet.html','-helpbrowser')">Example Data Analysis - Simulated Constant (&amp;Piecewise Constant) Rate Poisson</a></li><li><a href="matlab:web('mEPSCAnalysis.html','-helpbrowser')">Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)</a></li><li><a href="matlab:web('PPSimExample.html','-helpbrowser')">Example Data Analysis - Simulated Explicit Stimulus and History</a></li><li><a href="matlab:web('ExplicitStimulusWhiskerData.html','-helpbrowser')">Example Data Analysis - Explicit Stimulus</a></li><li><a href="matlab:web('HippocampalPlaceCellExample.html','-helpbrowser')">Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation</a></li><li><a href="matlab:web('DecodingExample.html','-helpbrowser')">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</a></li><li><a href="matlab:web('DecodingExampleWithHist.html','-helpbrowser')">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</a></li><li><a href="matlab:web('StimulusDecode2D.html','-helpbrowser')">Example Data Analysis - Decoding Bivariate Simulated Stimuli</a></li><li><a href="matlab:web('NetworkTutorial.html','-helpbrowser')">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</a></li><li><a href="matlab:web('nSTATPaperExamples.html','-helpbrowser')">nSTAT J. Neuroscience Methods Examples</a></li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Examples</h1>
+<p>Example files are provided for each of the classes defined in the Neural Spike Analysis Toolbox so that the user can understand the functionality of each in more detail.</p>
+<div>
+<ul>
+<li> <a href="SignalObjExamples.html">Using the SignalObj Class</a>
+</li>
+<li> <a href="CovariateExamples.html">Using the Covariate Class</a>
+</li>
+<li> <a href="CovCollExamples.html">Using the CovColl Class</a>
+</li>
+<li> <a href="nSpikeTrainExamples.html">Using the nSpikeTrain Class</a>
+</li>
+<li> <a href="nstCollExamples.html">Using the nstColl Class</a>
+</li>
+<li> <a href="EventsExamples.html">Using the Events Class</a>
+</li>
+<li> <a href="HistoryExamples.html">Using the History Class</a>
+</li>
+<li> <a href="TrialExamples.html">Using the Trial Class</a>
+</li>
+<li> <a href="TrialConfigExamples.html">Using the TrialConfig Class</a>
+</li>
+<li> <a href="ConfigCollExamples.html">Using the ConfigColl Class</a>
+</li>
+<li> <a href="AnalysisExamples.html">Using the Analysis Class</a>
+</li>
+<li> <a href="FitResultExamples.html">Using the FitResult Class</a>
+</li>
+<li> <a href="FitResSummaryExamples.html">Using the FitResSummary Class</a>
+</li>
+<li> <a href="PPThinning.html">Point Process simulation via Thinning</a>
+</li>
+<li> <a href="PSTHEstimation.html">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</a>
+</li>
+<li> <a href="ValidationDataSet.html">Example Data Analysis - Simulated Constant (&amp;Piecewise Constant) Rate Poisson</a>
+</li>
+<li> <a href="mEPSCAnalysis.html">Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)</a>
+</li>
+<li> <a href="PPSimExample.html">Example Data Analysis - Simulated Explicit Stimulus and History</a>
+</li>
+<li> <a href="ExplicitStimulusWhiskerData.html">Example Data Analysis - Explicit Stimulus</a>
+</li>
+<li> <a href="HippocampalPlaceCellExample.html">Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation</a>
+</li>
+<li> <a href="DecodingExample.html">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</a>
+</li>
+<li> <a href="DecodingExampleWithHist.html">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</a>
+</li>
+<li> <a href="StimulusDecode2D.html">Example Data Analysis - Decoding Bivariate Simulated Stimuli</a>
+</li>
+<li> <a href="NetworkTutorial.html">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</a>
+</li>
+<li> <a href="nSTATPaperExamples.html">nSTAT J. Neuroscience Methods Examples</a>
+</li>
+</ul>
+</div>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Examples
 % Example files are provided for each of the classes defined in the Neural
 % Spike Analysis Toolbox so that the user can understand the functionality
 % of each in more detail.
 %
-% *   <matlab:web('SignalObjExamples.html','-helpbrowser') Using the SignalObj Class>
-% *   <matlab:web('CovariateExamples.html','-helpbrowser') Using the Covariate Class>
-% *   <matlab:web('CovCollExamples.html','-helpbrowser') Using the CovColl Class>
-% *   <matlab:web('nSpikeTrainExamples.html','-helpbrowser') Using the nSpikeTrain Class>
-% *   <matlab:web('nstCollExamples.html','-helpbrowser') Using the nstColl Class>
-% *   <matlab:web('EventsExamples.html','-helpbrowser') Using the Events Class>
-% *   <matlab:web('HistoryExamples.html','-helpbrowser') Using the History Class>
-% *   <matlab:web('TrialExamples.html','-helpbrowser') Using the Trial Class>
-% *   <matlab:web('TrialConfigExamples.html','-helpbrowser') Using the TrialConfig Class>
-% *   <matlab:web('ConfigCollExamples.html','-helpbrowser') Using the ConfigColl Class>
-% *   <matlab:web('AnalysisExamples.html','-helpbrowser') Using the Analysis Class>
-% *   <matlab:web('FitResultExamples.html','-helpbrowser') Using the FitResult Class>
-% *   <matlab:web('FitResSummaryExamples.html','-helpbrowser') Using the FitResSummary Class>
-% *   <matlab:web('PPThinning.html','-helpbrowser') Point Process simulation via Thinning>
-% *   <matlab:web('PSTHEstimation.html','-helpbrowser') Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)>
-% *   <matlab:web('ValidationDataSet.html','-helpbrowser') Example Data Analysis - Simulated Constant (&Piecewise Constant) Rate Poisson>
-% *   <matlab:web('mEPSCAnalysis.html','-helpbrowser') Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)>
-% *   <matlab:web('PPSimExample.html','-helpbrowser') Example Data Analysis - Simulated Explicit Stimulus and History>
-% *   <matlab:web('ExplicitStimulusWhiskerData.html','-helpbrowser') Example Data Analysis - Explicit Stimulus>
-% *   <matlab:web('HippocampalPlaceCellExample.html','-helpbrowser') Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation>
-% *   <matlab:web('DecodingExample.html','-helpbrowser') Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)>
-% *   <matlab:web('DecodingExampleWithHist.html','-helpbrowser') Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect>
-% *   <matlab:web('StimulusDecode2D.html','-helpbrowser') Example Data Analysis - Decoding Bivariate Simulated Stimuli>
-% *   <matlab:web('NetworkTutorial.html','-helpbrowser') Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect>
-% *   <matlab:web('nSTATPaperExamples.html','-helpbrowser') nSTAT J. Neuroscience Methods Examples>
+% *   <SignalObjExamples.html Using the SignalObj Class>
+% *   <CovariateExamples.html Using the Covariate Class>
+% *   <CovCollExamples.html Using the CovColl Class>
+% *   <nSpikeTrainExamples.html Using the nSpikeTrain Class>
+% *   <nstCollExamples.html Using the nstColl Class>
+% *   <EventsExamples.html Using the Events Class>
+% *   <HistoryExamples.html Using the History Class>
+% *   <TrialExamples.html Using the Trial Class>
+% *   <TrialConfigExamples.html Using the TrialConfig Class>
+% *   <ConfigCollExamples.html Using the ConfigColl Class>
+% *   <AnalysisExamples.html Using the Analysis Class>
+% *   <FitResultExamples.html Using the FitResult Class>
+% *   <FitResSummaryExamples.html Using the FitResSummary Class>
+% *   <PPThinning.html Point Process simulation via Thinning>
+% *   <PSTHEstimation.html Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)>
+% *   <ValidationDataSet.html Example Data Analysis - Simulated Constant (&Piecewise Constant) Rate Poisson>
+% *   <mEPSCAnalysis.html Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)>
+% *   <PPSimExample.html Example Data Analysis - Simulated Explicit Stimulus and History>
+% *   <ExplicitStimulusWhiskerData.html Example Data Analysis - Explicit Stimulus>
+% *   <HippocampalPlaceCellExample.html Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation>
+% *   <DecodingExample.html Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)>
+% *   <DecodingExampleWithHist.html Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect>
+% *   <StimulusDecode2D.html Example Data Analysis - Decoding Bivariate Simulated Stimuli>
+% *   <NetworkTutorial.html Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect>
+% *   <nSTATPaperExamples.html nSTAT J. Neuroscience Methods Examples>
 
 
 
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

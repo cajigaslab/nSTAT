@@ -4,7 +4,7 @@
 % Neuroscience '08 Workshop on  
 % <http://www.sfn.org/index.aspx?pagename=ShortCourse3_2008 Workshop on Neural Signal Processing>
 % Compare to analysis with 
-% <matlab:web('AnalysisExamples2.html','-helpbrowser') Neural Spike Analysis Toolbox>
+% <AnalysisExamples2.html Neural Spike Analysis Toolbox>
 %% Example 1: Tradition Preliminary Analysis 
 
 % Script glm_part1.m

@@ -1,6 +1,6 @@
 %% Analysis Examples 2
 % Compare with traditional Neural Spike Train Analysis
-% <matlab:web('AnalysisExamples.html','-helpbrowser') here>
+% <AnalysisExamples.html here>
 
 % load the rat trajectory and spiking data;
 close all;

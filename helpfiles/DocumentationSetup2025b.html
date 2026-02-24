@@ -6,11 +6,11 @@
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
       -->
-<title>Neural Spike Train Analysis Toolbox (nSTAT)</title>
+<title>MATLAB 2025b Help Integration for nSTAT</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
 <meta name="DC.date" content="2026-02-24">
-<meta name="DC.source" content="NeuralSpikeAnalysis_top.m">
+<meta name="DC.source" content="DocumentationSetup2025b.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
@@ -76,34 +76,69 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </head>
 <body>
 <div class="content">
-<h1>Neural Spike Train Analysis Toolbox (nSTAT)</h1>
-<p>
-<img vspace="5" hspace="5" src="LogoSmall.png" alt=""> </p>
-<p>
-<b>Author</b>: Iahn Cajigas (<a href="mailto:icajigas@upenn.edu">icajigas@upenn.edu</a> and <a href="mailto:iahn.cajigas@gmail.com">iahn.cajigas@gmail.com</a>)</p>
-<p>
-<b>Original Release Date</b>: 9/10/2009</p>
-<p>
-<b>Current Release Date</b>: 2/24/2026</p>
-<p>
-<b>Purpose:</b> The Neural Spike Analysis Toolbox consolidates point-process and GLM-based neural data analysis workflows into a coherent MATLAB toolbox.</p>
-<p>
-<b>Documentation Navigation</b>
-</p>
+<h1>MATLAB 2025b Help Integration for nSTAT</h1>
+<!--introduction-->
+<p>This page documents the help-file structure used by nSTAT so it appears as supplemental software documentation in MATLAB.</p>
+<p>The configuration in this release is aligned with MATLAB R2025b.</p>
+<!--/introduction-->
+<h2>Contents</h2>
 <div>
 <ul>
+<li>
+<a href="#1">Required Files</a>
+</li>
+<li>
+<a href="#2">Build and Refresh the Search Database</a>
+</li>
+<li>
+<a href="#3">MATLAB 2025b Behavior</a>
+</li>
+<li>
+<a href="#4">Troubleshooting</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Required Files</h2>
+<p>nSTAT uses the standard external toolbox documentation layout:</p>
+<div>
+<ul>
+<li>`info.xml` in the toolbox root.</li>
+<li>`helpfiles/helptoc.xml` with `toc version="2.0"`.</li>
+<li>HTML help content referenced by each `target` in `helptoc.xml`.</li>
+</ul>
+</div>
+<h2 id="2">Build and Refresh the Search Database</h2>
+<p>Run the installer script from the nSTAT root folder:</p>
+<pre class="language-matlab">nSTAT_Install
+</pre>
+<p>or run these commands manually:</p>
+<pre class="language-matlab">rootDir = fileparts(which(<span class="string">'nSTAT_Install'</span>));
+helpDir = fullfile(rootDir,<span class="string">'helpfiles'</span>);
+builddocsearchdb(helpDir);
+rehash <span class="string">toolboxcache</span>;
+</pre>
+<h2 id="3">MATLAB 2025b Behavior</h2>
+<p>Starting in R2024b, toolbox documentation is shown in the system browser. External toolbox documentation appears in MATLAB documentation under Supplemental Software.</p>
+<p>Use these pages as entry points:</p>
+<div>
+<ul>
+<li>
+<a href="NeuralSpikeAnalysis_top.html">nSTAT Home</a>
+</li>
 <li>
 <a href="ClassDefinitions.html">Class Definitions</a>
 </li>
 <li>
 <a href="Examples.html">Example Index</a>
 </li>
-<li>
-<a href="nSTATPaperExamples.html">nSTAT Paper Examples</a>
-</li>
-<li>
-<a href="DocumentationSetup2025b.html">MATLAB 2025b Help Integration Guide</a>
-</li>
+</ul>
+</div>
+<h2 id="4">Troubleshooting</h2>
+<div>
+<ul>
+<li>If the nSTAT docs are not visible, run `rehash toolboxcache`.</li>
+<li>If nSTAT pages do not appear in search, run `builddocsearchdb` again.</li>
+<li>Ensure all `target` entries in `helptoc.xml` map to real HTML files.</li>
 </ul>
 </div>
 <p class="footer">
@@ -114,29 +149,46 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </div>
 <!--
 ##### SOURCE BEGIN #####
-%% Neural Spike Train Analysis Toolbox (nSTAT)
+%% MATLAB 2025b Help Integration for nSTAT
+% This page documents the help-file structure used by nSTAT so it appears as
+% supplemental software documentation in MATLAB.
 %
-% <<LogoSmall.png>>
+% The configuration in this release is aligned with MATLAB R2025b.
 %
-% *Author*: Iahn Cajigas (icajigas@upenn.edu and iahn.cajigas@gmail.com)
+%% Required Files
+% nSTAT uses the standard external toolbox documentation layout:
 %
-% *Original Release Date*: 9/10/2009
+% * `info.xml` in the toolbox root.
+% * `helpfiles/helptoc.xml` with `toc version="2.0"`.
+% * HTML help content referenced by each `target` in `helptoc.xml`.
 %
-% *Current Release Date*: 2/24/2026
+%% Build and Refresh the Search Database
+% Run the installer script from the nSTAT root folder:
 %
-% *Purpose:*
-% The Neural Spike Analysis Toolbox consolidates point-process and GLM-based
-% neural data analysis workflows into a coherent MATLAB toolbox.
+%   nSTAT_Install
 %
-% *Documentation Navigation*
+% or run these commands manually:
 %
+%   rootDir = fileparts(which('nSTAT_Install'));
+%   helpDir = fullfile(rootDir,'helpfiles');
+%   builddocsearchdb(helpDir);
+%   rehash toolboxcache;
+%
+%% MATLAB 2025b Behavior
+% Starting in R2024b, toolbox documentation is shown in the system browser.
+% External toolbox documentation appears in MATLAB documentation under
+% Supplemental Software.
+%
+% Use these pages as entry points:
+%
+% * <NeuralSpikeAnalysis_top.html nSTAT Home>
 % * <ClassDefinitions.html Class Definitions>
 % * <Examples.html Example Index>
-% * <nSTATPaperExamples.html nSTAT Paper Examples>
-% * <DocumentationSetup2025b.html MATLAB 2025b Help Integration Guide>
-
-
-
+%
+%% Troubleshooting
+% * If the nSTAT docs are not visible, run `rehash toolboxcache`.
+% * If nSTAT pages do not appear in search, run `builddocsearchdb` again.
+% * Ensure all `target` entries in `helptoc.xml` map to real HTML files.
 
 ##### SOURCE END #####
 -->

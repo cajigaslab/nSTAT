@@ -15,7 +15,7 @@ classdef Covariate < SignalObj
 % cov.getSigRep('zero-mean') is a zero mean version of the Signal 
 %
 % <a href="matlab: methods('Covariate')">methods</a>
-% <a href="CovariateExamples.html">Covariate Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate Examples</a> 
 %
 % see also <a href="matlab:help('SignalObj')">SignalObj</a>, <a href="matlab:help('CovColl')">CovColl</a>  
 %

@@ -883,7 +883,7 @@ classdef CIF < handle
             %                  the conditional intensity function will be
             %                  simulated this number of times to generated
             %                  distinct realizations of the point process.
-            % <a href="PPSimExample.html">Example use of simulateCIF</a> 
+            % <a href="matlab:nstatOpenHelpPage('PPSimExample.html')">Example use of simulateCIF</a> 
             %
 
             if(nargin<8 || isempty(simType))
@@ -973,7 +973,7 @@ classdef CIF < handle
             %                  the conditional intensity function will be
             %                  simulated this number of times to generated
             %                  distinct realizations of the point process.
-            % <a href="PPSimExample.html">Example use of simulateCIF</a> 
+            % <a href="matlab:nstatOpenHelpPage('PPSimExample.html')">Example use of simulateCIF</a> 
             %
 
             if(nargin<8 || isempty(simType))

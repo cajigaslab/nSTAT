@@ -24,7 +24,7 @@ classdef nspikeTrain < handle
 %      the neural spike train.
 %
 % <a href="matlab: methods('nspikeTrain')">methods</a>
-% <a href="nSpikeTrainExamples.html">nSpikeTrain Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('nSpikeTrainExamples.html')">nSpikeTrain Examples</a> 
 %
 % see also <a href="matlab:help('Covariate')">Covariate</a>, <a 
 % href="matlab:help('SignalObj')">SignalObj</a>

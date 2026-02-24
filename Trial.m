@@ -10,7 +10,7 @@ classdef Trial <handle
 %           nspikeColl: nstColl Obj
 %
 % <a href="matlab: methods('Trial')">methods</a>
-% <a href="TrialExamples.html">Trial Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('TrialExamples.html')">Trial Examples</a> 
 %
 % see also <a href="matlab:help('CovColl')">CovColl</a>, 
 % <a href="matlab:help('Covariate')">Covariate</a>, 

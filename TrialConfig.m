@@ -5,7 +5,7 @@ classdef TrialConfig <handle
 %
 % All parameters are optional
 % <a href="matlab: methods('TrialConfig')">methods</a>
-% <a href="TrialConfigExamples.html">TrialConfig Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('TrialConfigExamples.html')">TrialConfig Examples</a> 
 %
 % see also <a href="matlab:help('Trial')">Trial</a>, 
 % <a href="matlab:help('CovColl')">CovColl</a>, 

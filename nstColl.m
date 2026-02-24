@@ -2,7 +2,7 @@ classdef nstColl < handle
 % NSTCOLL A collection of nspikeTrains
 %   
 % <a href="matlab: methods('nstColl')">methods</a>    
-% <a href="nstCollExamples.html">nstColl Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl Examples</a> 
 %
 % see also <a href="matlab:help('CovColl')">CovColl</a>, <a
 % href="matlab:help('Covariate')">Covariate</a>, <a

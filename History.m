@@ -10,7 +10,7 @@ classdef History <handle
 %           interested in computing the history;
 %        
 % <a href="matlab: methods('History')">methods</a>
-% <a href="HistoryExamples.html">History Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('HistoryExamples.html')">History Examples</a> 
 % Reference page in Help browser
 % <a href="matlab: doc('History')">doc History</a>
 

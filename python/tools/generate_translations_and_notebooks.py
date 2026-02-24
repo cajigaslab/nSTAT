@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import re
 from dataclasses import dataclass
@@ -33,6 +34,9 @@ def _iter_sources() -> list[Path]:
     for pattern in ("*.m", "*.mdl", "*.mdl.r*"):
         for path in REPO_ROOT.rglob(pattern):
             if not path.is_file():
+                continue
+            rel = path.relative_to(REPO_ROOT)
+            if rel.parts and rel.parts[0] == "python":
                 continue
             if PORT_ROOT in path.parents:
                 continue
@@ -185,6 +189,61 @@ def _content_for_m(src: Path, src_rel: str) -> tuple[str, str]:
         )
         return body, "function_scaffold"
 
+    if src_rel.startswith("helpfiles/") and src.name.endswith("Examples.m"):
+        html_rel = str(Path(src_rel).with_suffix(".html")).replace("\\", "/")
+        body = (
+            _header(src_rel)
+            + "import html as _html\n"
+            + "import json\n"
+            + "import re\n\n"
+            + "from nstat import SpikeTrain, fit_poisson_glm, psth\n\n"
+            + "def _parse_html_reference(html_path: Path) -> dict[str, object]:\n"
+            + "    if not html_path.exists():\n"
+            + "        return {'title': html_path.stem, 'sections': [], 'figures': [], 'code_outputs': []}\n"
+            + "    text = html_path.read_text(encoding='utf-8', errors='ignore')\n"
+            + "    title_m = re.search(r'<title>(.*?)</title>', text, flags=re.I | re.S)\n"
+            + "    title = _html.unescape(re.sub(r'<[^>]+>', '', title_m.group(1))).strip() if title_m else html_path.stem\n"
+            + "    sections = [_html.unescape(re.sub(r'<[^>]+>', '', s)).strip() for s in re.findall(r'<h2[^>]*>(.*?)</h2>', text, flags=re.I | re.S)]\n"
+            + "    sections = [s for s in sections if s]\n"
+            + "    figures = sorted(dict.fromkeys(re.findall(r'src=\"([^\"]+_\\d+\\.png)\"', text, flags=re.I)))\n"
+            + "    raw_outputs = re.findall(r'<pre class=\"codeoutput\">(.*?)</pre>', text, flags=re.I | re.S)\n"
+            + "    code_outputs = []\n"
+            + "    for b in raw_outputs:\n"
+            + "        cleaned = _html.unescape(re.sub(r'<[^>]+>', '', b)).replace('\\xa0', ' ')\n"
+            + "        cleaned = re.sub(r'\\s+', ' ', cleaned).strip()\n"
+            + "        if cleaned:\n"
+            + "            code_outputs.append(cleaned)\n"
+            + "    return {'title': title, 'sections': sections, 'figures': figures, 'code_outputs': code_outputs}\n\n"
+            + "def run(*, repo_root: str | Path | None = None) -> dict[str, object]:\n"
+            + "    root = Path(repo_root).resolve() if repo_root is not None else Path.cwd()\n"
+            + f"    html_ref = _parse_html_reference(root / '{html_rel}')\n"
+            + "    # Minimal nSTAT Python smoke using translated utilities.\n"
+            + "    x = np.linspace(-1.0, 1.0, 200)\n"
+            + "    y = (np.sin(2.0 * np.pi * x) > 0).astype(float)\n"
+            + "    fit = fit_poisson_glm(x[:, None], y, offset=np.zeros_like(y), max_iter=40)\n"
+            + "    trains = [SpikeTrain(np.array([0.1, 0.3, 0.7], dtype=float)), SpikeTrain(np.array([0.2, 0.4], dtype=float))]\n"
+            + "    psth_rate, _ = psth(trains, np.linspace(0.0, 1.0, 11))\n"
+            + "    frame = pd.DataFrame({'section': html_ref['sections']})\n"
+            + "    return {\n"
+            + f"        'source': '{src_rel}',\n"
+            + "        'html_title': html_ref['title'],\n"
+            + "        'section_count': int(len(html_ref['sections'])),\n"
+            + "        'sections': html_ref['sections'],\n"
+            + "        'figure_count': int(len(html_ref['figures'])),\n"
+            + "        'figure_refs': html_ref['figures'],\n"
+            + "        'expected_code_outputs': html_ref['code_outputs'][:8],\n"
+            + "        'nstat_smoke': {\n"
+            + "            'glm_log_likelihood': float(fit.log_likelihood),\n"
+            + "            'psth_peak': float(np.max(psth_rate)),\n"
+            + "        },\n"
+            + "        'table_rows': int(frame.shape[0]),\n"
+            + "    }\n\n"
+            + "def main() -> int:\n"
+            + "    print(json.dumps(run(), indent=2))\n"
+            + "    return 0\n"
+        )
+        return body, "examples_script"
+
     body = (
         _header(src_rel)
         + "def run(*, repo_root: str | Path | None = None) -> dict[str, object]:\n"
@@ -219,10 +278,62 @@ def _content_for_mdl(src: Path, src_rel: str) -> tuple[str, str]:
     return body, "mdl_scaffold"
 
 
+def _strip_html_tags(raw: str) -> str:
+    no_tags = re.sub(r"<[^>]+>", "", raw, flags=re.S)
+    clean = html.unescape(no_tags)
+    clean = clean.replace("\xa0", " ")
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return clean
+
+
+def _extract_html_reference(html_path: Path) -> dict[str, object]:
+    if not html_path.exists():
+        return {
+            "exists": False,
+            "title": "",
+            "sections": [],
+            "figures": [],
+            "code_outputs": [],
+        }
+
+    text = html_path.read_text(encoding="utf-8", errors="ignore")
+    title_match = re.search(r"<title>(.*?)</title>", text, flags=re.I | re.S)
+    title = _strip_html_tags(title_match.group(1)) if title_match else html_path.stem
+
+    sections_raw = re.findall(r"<h2[^>]*>(.*?)</h2>", text, flags=re.I | re.S)
+    sections = [_strip_html_tags(s) for s in sections_raw if _strip_html_tags(s)]
+
+    figs = re.findall(r'src="([^"]+_\d+\.png)"', text, flags=re.I)
+    figures = sorted(dict.fromkeys(figs))
+
+    outputs_raw = re.findall(r'<pre class="codeoutput">(.*?)</pre>', text, flags=re.I | re.S)
+    code_outputs = []
+    for block in outputs_raw:
+        cleaned = _strip_html_tags(block)
+        if cleaned:
+            code_outputs.append(cleaned[:400])
+    code_outputs = code_outputs[:8]
+
+    return {
+        "exists": True,
+        "title": title,
+        "sections": sections[:30],
+        "figures": figures[:40],
+        "code_outputs": code_outputs,
+    }
+
+
 def _notebook_for_helpfile(src: Path) -> dict:
     rel = src.relative_to(REPO_ROOT)
     module_name = f"matlab_port.helpfiles.{src.stem}"
     title = f"{src.stem} (Python Translation)"
+    html_rel = rel.with_suffix(".html")
+    html_path = REPO_ROOT / html_rel
+    ref = _extract_html_reference(html_path)
+
+    sections_md = "\n".join([f"- {s}" for s in ref["sections"]]) if ref["sections"] else "- (no sections found)"
+    figures_md = "\n".join([f"- `{f}`" for f in ref["figures"]]) if ref["figures"] else "- (no figure files listed)"
+    outputs_md = "\n\n".join([f"```\n{o}\n```" for o in ref["code_outputs"]]) if ref["code_outputs"] else "_No `<pre class=\"codeoutput\">` blocks found._"
 
     code1 = (
         "from pathlib import Path\n"
@@ -242,6 +353,31 @@ def _notebook_for_helpfile(src: Path) -> dict:
         "print('repo_root =', repo_root)\n"
     )
 
+    code_ref = (
+        "import re\n"
+        "import html as _html\n\n"
+        f"html_path = repo_root / {repr(str(html_rel).replace('\\\\', '/'))}\n"
+        "if not html_path.exists():\n"
+        "    print('HTML reference missing:', html_path)\n"
+        "else:\n"
+        "    html_text = html_path.read_text(encoding='utf-8', errors='ignore')\n"
+        "    title_match = re.search(r'<title>(.*?)</title>', html_text, flags=re.I | re.S)\n"
+        "    title = _html.unescape(re.sub(r'<[^>]+>', '', title_match.group(1))).strip() if title_match else html_path.stem\n"
+        "    sections = [\n"
+        "        _html.unescape(re.sub(r'<[^>]+>', '', s)).strip()\n"
+        "        for s in re.findall(r'<h2[^>]*>(.*?)</h2>', html_text, flags=re.I | re.S)\n"
+        "    ]\n"
+        "    sections = [s for s in sections if s]\n"
+        "    figs = sorted(set(re.findall(r'src=\"([^\"]+_\\d+\\.png)\"', html_text, flags=re.I)))\n"
+        "    print('HTML title:', title)\n"
+        "    print('Section count:', len(sections))\n"
+        "    for s in sections:\n"
+        "        print(' -', s)\n"
+        "    print('Figure refs:', len(figs))\n"
+        "    for f in figs[:20]:\n"
+        "        print(' -', f)\n"
+    )
+
     code2 = (
         f"module = importlib.import_module('{module_name}')\n"
         "if hasattr(module, 'run'):\n"
@@ -256,6 +392,14 @@ def _notebook_for_helpfile(src: Path) -> dict:
         "    print(out)\n"
     )
 
+    code3 = (
+        "comparison = {\n"
+        "    'python_output_type': type(out).__name__,\n"
+        "    'python_output_keys': sorted(list(out.keys())) if isinstance(out, dict) else [],\n"
+        "}\n"
+        "print(json.dumps(comparison, indent=2))\n"
+    )
+
     return {
         "cells": [
             {
@@ -265,6 +409,19 @@ def _notebook_for_helpfile(src: Path) -> dict:
                     f"# {title}\\n",
                     "\\n",
                     f"Source MATLAB file: `{rel}`\\n",
+                    f"Reference HTML file: `{html_rel}`\\n",
+                    "\\n",
+                    "## MATLAB HTML Reference\\n",
+                    f"- HTML title: **{ref['title'] if ref['exists'] else '(missing)'}**\\n",
+                    "\\n",
+                    "### Expected Sections (from HTML)\\n",
+                    f"{sections_md}\\n",
+                    "\\n",
+                    "### Figure References (from HTML)\\n",
+                    f"{figures_md}\\n",
+                    "\\n",
+                    "### Sample Code Outputs (from HTML)\\n",
+                    f"{outputs_md}\\n",
                 ],
             },
             {
@@ -279,7 +436,21 @@ def _notebook_for_helpfile(src: Path) -> dict:
                 "execution_count": None,
                 "metadata": {},
                 "outputs": [],
+                "source": code_ref.splitlines(keepends=True),
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
                 "source": code2.splitlines(keepends=True),
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": code3.splitlines(keepends=True),
             },
         ],
         "metadata": {

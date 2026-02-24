@@ -154,12 +154,11 @@ classdef SignalObj < handle
                 plotProps = cell(s.dimension,1);
             end
             deltaT=mean(diff(s.time));
-            if(isnan(deltaT))%diff not well defined 
+            if(~isfinite(deltaT) || deltaT<=0) %diff not well defined 
                 deltaT=0.001;
             end
-            precision =2*ceil(log10(1/deltaT));
-            deltaT = roundn(deltaT,-precision);             
-%             deltaT = roundn(mean(diff(s.time)),-3); %To avoid round-off error, when computing samplerate
+            % Keep sample-rate estimation stable without rounding large
+            % deltaT values to zero (which yields Inf sample rates).
             s.sampleRate = 1/deltaT; 
             s.origSampleRate = s.sampleRate;
             s.name=name;

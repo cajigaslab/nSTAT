@@ -8,7 +8,8 @@
       "alias": 1,
       "mdl_scaffold": 6,
       "function_scaffold": 8,
-      "script_scaffold": 32,
+      "examples_script": 14,
+      "script_scaffold": 18,
       "paper_examples_entrypoint": 1
     },
     "helpfile_notebooks": 32
@@ -117,7 +118,7 @@
     {
       "source": "helpfiles/AnalysisExamples.m",
       "target": "python/matlab_port/helpfiles/AnalysisExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/AnalysisExamples2.m",
@@ -132,17 +133,17 @@
     {
       "source": "helpfiles/ConfigCollExamples.m",
       "target": "python/matlab_port/helpfiles/ConfigCollExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/CovCollExamples.m",
       "target": "python/matlab_port/helpfiles/CovCollExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/CovariateExamples.m",
       "target": "python/matlab_port/helpfiles/CovariateExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/DecodingExample.m",
@@ -157,12 +158,12 @@
     {
       "source": "helpfiles/EventsExamples.m",
       "target": "python/matlab_port/helpfiles/EventsExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/Examples.m",
       "target": "python/matlab_port/helpfiles/Examples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/ExplicitStimulusWhiskerData.m",
@@ -172,7 +173,7 @@
     {
       "source": "helpfiles/FitResSummaryExamples.m",
       "target": "python/matlab_port/helpfiles/FitResSummaryExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/FitResult.m",
@@ -182,7 +183,7 @@
     {
       "source": "helpfiles/FitResultExamples.m",
       "target": "python/matlab_port/helpfiles/FitResultExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/HippocampalPlaceCellExample.m",
@@ -192,7 +193,7 @@
     {
       "source": "helpfiles/HistoryExamples.m",
       "target": "python/matlab_port/helpfiles/HistoryExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/HybridFilterExample.m",
@@ -227,7 +228,7 @@
     {
       "source": "helpfiles/SignalObjExamples.m",
       "target": "python/matlab_port/helpfiles/SignalObjExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/SimulatedNetwork2.mdl",
@@ -242,12 +243,12 @@
     {
       "source": "helpfiles/TrialConfigExamples.m",
       "target": "python/matlab_port/helpfiles/TrialConfigExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/TrialExamples.m",
       "target": "python/matlab_port/helpfiles/TrialExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/ValidationDataSet.m",
@@ -267,12 +268,12 @@
     {
       "source": "helpfiles/nSpikeTrainExamples.m",
       "target": "python/matlab_port/helpfiles/nSpikeTrainExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/nstCollExamples.m",
       "target": "python/matlab_port/helpfiles/nstCollExamples.py",
-      "kind": "script_scaffold"
+      "kind": "examples_script"
     },
     {
       "source": "helpfiles/temp.m",

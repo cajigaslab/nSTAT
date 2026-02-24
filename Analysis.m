@@ -564,6 +564,16 @@ end
 %             end
 %             size(X)
 %             size(y)
+                y = y(:);
+                if(size(X,1)~=numel(y))
+                    nObs = min(size(X,1),numel(y));
+                    X = X(1:nObs,:);
+                    y = y(1:nObs);
+                    if(exist('lambdaTime','var') && ~isempty(lambdaTime))
+                        lambdaTime = lambdaTime(1:min(numel(lambdaTime),nObs));
+                    end
+                end
+
                 if(strcmp(Algorithm,'GLM'))
                     distribution = 'poisson';
                     linkfunction = 'log';

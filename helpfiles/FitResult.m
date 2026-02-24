@@ -1463,7 +1463,12 @@ classdef FitResult < handle
                     ensHistObject{i} = History.fromStructure(structure.ensHistObjects{i});
                 end
                 configColl = ConfigColl.fromStructure(structure.configs);
-                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,configColl,structure.XvalData,structure.XvalTime,structure.fitType);
+                if(isfield(structure,'logLL'))
+                    logLL = structure.logLL;
+                else
+                    logLL = zeros(size(structure.AIC));
+                end
+                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,logLL,configColl,structure.XvalData,structure.XvalTime,structure.fitType);
                 fitObj.setKSStats(structure.Z,structure.U, structure.KSStats.xAxis, structure.KSStats.KSSorted, structure.KSStats.ks_stat);
                 fitObj.setInvGausStats(structure.X,rhoSig,confBoundSig);
                 fitObj.setFitResidual(M);

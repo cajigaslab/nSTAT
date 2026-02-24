@@ -358,6 +358,15 @@ classdef DecodingAlgorithms
             [C,N]   = size(dN); % N time samples, C cells
             ns=size(A,1); % number of states
 
+            if(isvector(mu) && numel(mu)==C)
+                mu = mu(:);
+            end
+            if(isvector(beta) && ns==1 && numel(beta)==C)
+                beta = reshape(beta,1,C);
+            elseif(size(beta,1)==C && size(beta,2)==ns)
+                beta = beta';
+            end
+
             if(nargin<14 || isempty(estimateTarget))
                 estimateTarget=0;
             end

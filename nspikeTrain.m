@@ -389,30 +389,51 @@ classdef nspikeTrain < handle
                 if((nargin<3) || isempty(minTime))
                     minTime=nstObj.minTime;
                 end
+                maxBinsSigRep = 1e6;
                 if((nargin<2) || isempty(binwidth))
                     binwidth=1/nstObj.sampleRate; 
                     precision =2*ceil(log10(nstObj.sampleRate));
+                    precision=max(0,precision);
                     binwidth = roundn(binwidth,-precision); 
                 end
                 precision =2*ceil(log10(1/binwidth));
+                precision=max(0,precision);
                 binwidth = roundn(binwidth,-precision); 
 
                 if(and(~isempty(maxTime),~isempty(minTime)))
                     duration = maxTime-minTime;
                     if isfinite(duration) && duration>0 && isfinite(binwidth) && binwidth>0
-                        maxBinsSigRep = 1e6;
                         estBins = duration./binwidth + 1;
                         if ~isfinite(estBins) || estBins > maxBinsSigRep
                             binwidth = duration./(maxBinsSigRep-1);
                             precision =2*ceil(log10(1/binwidth));
+                            precision=max(0,precision);
                             binwidth = roundn(binwidth,-precision);
                         end
+                    end
+                end
+                if(~isfinite(binwidth) || binwidth<=0)
+                    duration = maxTime-minTime;
+                    if isfinite(duration) && duration>0
+                        binwidth = duration./(maxBinsSigRep-1);
+                    else
+                        binwidth = 1/max(nstObj.sampleRate,1);
                     end
                 end
 
                 if(and(~isempty(maxTime),~isempty(minTime)))
                 %                     timeVec=linspace(minTime,maxTime,ceil((1/binwidth)*abs(maxTime-minTime)/binwidth)*binwidth+1); %scaling by binwidth to avoid roundoff error
-                timeVec=linspace(minTime,maxTime,(maxTime-minTime)./binwidth +1);%:binwidth:maxTime;
+                numBins=floor((maxTime-minTime)./binwidth +1);
+                if(~isfinite(numBins) || numBins<2)
+                    numBins=2;
+                end
+                if(numBins>maxBinsSigRep)
+                    numBins=maxBinsSigRep;
+                end
+                timeVec=linspace(minTime,maxTime,numBins);%:binwidth:maxTime;
+                if(numel(timeVec)>1)
+                    binwidth = mean(diff(timeVec));
+                end
                 windowTimes=[minTime-binwidth/2 timeVec+binwidth/2];
                 else
                   timeVec = [];

@@ -2192,20 +2192,50 @@ end
 
 function [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
     getPaperDataDirs()
-% Resolve local data folders regardless of the current working directory
+% Resolve local data folders robustly when Live Editor executes from a temp
+% location (e.g., /private/var/.../T).
+candidateRoots = {};
+
 scriptPath = mfilename('fullpath');
-if isempty(scriptPath)
-    scriptPath = which('nSTATPaperExamples');
+if ~isempty(scriptPath)
+    candidateRoots = appendCandidateRoot(candidateRoots, fileparts(fileparts(scriptPath)));
 end
-if isempty(scriptPath)
-    installPath = which('nSTAT_Install');
-    if isempty(installPath)
-        error('nSTATPaperExamples:MissingInstallPath', ...
-            'Could not find nSTATPaperExamples.m or nSTAT_Install.m on MATLAB path.');
+
+paperPath = which('nSTATPaperExamples');
+if ~isempty(paperPath)
+    candidateRoots = appendCandidateRoot(candidateRoots, fileparts(fileparts(paperPath)));
+end
+
+installPath = which('nSTAT_Install');
+if ~isempty(installPath)
+    candidateRoots = appendCandidateRoot(candidateRoots, fileparts(installPath));
+end
+
+try
+    activeFile = matlab.desktop.editor.getActiveFilename;
+catch
+    activeFile = '';
+end
+if ~isempty(activeFile)
+    candidateRoots = appendCandidateRoot(candidateRoots, fileparts(fileparts(activeFile)));
+end
+
+candidateRoots = appendCandidateRoot(candidateRoots, pwd);
+
+nSTATDir = '';
+for iRoot = 1:numel(candidateRoots)
+    candidateDataDir = fullfile(candidateRoots{iRoot}, 'data');
+    if exist(candidateDataDir, 'dir') == 7
+        nSTATDir = candidateRoots{iRoot};
+        break;
     end
-    nSTATDir = fileparts(installPath);
-else
-    nSTATDir = fileparts(fileparts(scriptPath));
+end
+
+if isempty(nSTATDir)
+    error('nSTATPaperExamples:MissingInstallPath', ...
+        ['Could not resolve the nSTAT root path. Checked roots derived from ', ...
+         'mfilename, which(''nSTATPaperExamples''), which(''nSTAT_Install''), ', ...
+         'the active editor file, and pwd.']);
 end
 
 dataDir = fullfile(nSTATDir,'data');
@@ -2217,6 +2247,24 @@ placeCellDataDir = fullfile(dataDir,'Place Cells');
 if exist(dataDir,'dir') ~= 7
     error('nSTATPaperExamples:MissingDataDir', ...
         'Could not find local nSTAT data folder at %s', dataDir);
+end
+end
+
+function roots = appendCandidateRoot(roots, startDir)
+if isempty(startDir)
+    return;
+end
+
+thisDir = startDir;
+while true
+    if ~any(strcmp(roots, thisDir))
+        roots{end+1} = thisDir; %#ok<AGROW>
+    end
+    parentDir = fileparts(thisDir);
+    if strcmp(parentDir, thisDir)
+        break;
+    end
+    thisDir = parentDir;
 end
 end
 

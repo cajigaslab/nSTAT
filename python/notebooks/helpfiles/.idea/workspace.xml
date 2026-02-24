@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="27ee7b19-19bb-4554-96a0-51c4b6692418" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/TRANSLATION_MAP.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/TRANSLATION_MAP.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/AnalysisExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/AnalysisExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/ConfigCollExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/ConfigCollExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/CovCollExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/CovCollExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/CovariateExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/CovariateExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/EventsExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/EventsExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/Examples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/Examples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/FitResSummaryExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/FitResSummaryExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/FitResultExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/FitResultExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/HistoryExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/HistoryExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/SignalObjExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/SignalObjExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/TrialConfigExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/TrialConfigExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/TrialExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/TrialExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/nSpikeTrainExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/nSpikeTrainExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../matlab_port/helpfiles/nstCollExamples.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../matlab_port/helpfiles/nstCollExamples.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AnalysisExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/AnalysisExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AnalysisExamples2.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/AnalysisExamples2.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ClassDefinitions.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ClassDefinitions.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigCollExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigCollExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CovCollExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CovCollExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CovariateExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/CovariateExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DecodingExample.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/DecodingExample.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DecodingExampleWithHist.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/DecodingExampleWithHist.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EventsExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/EventsExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Examples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Examples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ExplicitStimulusWhiskerData.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ExplicitStimulusWhiskerData.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FitResSummaryExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/FitResSummaryExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FitResult.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/FitResult.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FitResultExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/FitResultExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HippocampalPlaceCellExample.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/HippocampalPlaceCellExample.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HistoryExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/HistoryExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HybridFilterExample.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/HybridFilterExample.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NetworkTutorial.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/NetworkTutorial.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NeuralSpikeAnalysis_top.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/NeuralSpikeAnalysis_top.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPSimExample.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/PPSimExample.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPThinning.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/PPThinning.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PSTHEstimation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/PSTHEstimation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SignalObjExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/SignalObjExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StimulusDecode2D.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/StimulusDecode2D.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrialConfigExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/TrialConfigExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrialExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/TrialExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ValidationDataSet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ValidationDataSet.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mEPSCAnalysis.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/mEPSCAnalysis.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nSTATPaperExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/nSTATPaperExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nSpikeTrainExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/nSpikeTrainExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nstCollExamples.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/nstCollExamples.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/temp.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../tools/generate_translations_and_notebooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../tools/generate_translations_and_notebooks.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="3A5y1UhIgpCR8Oqf1nxbJiNKqAt" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-65c742565061-c6172f9078bd-com.jetbrains.pycharm.ds.sharedIndexes.bundled-DS-233.14475.37" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+</project>

@@ -1,0 +1,859 @@
+{
+  "summary": {
+    "total_examples": 15,
+    "python_modules_ok": 15,
+    "notebooks_ok": 15,
+    "matlab_ok": 15,
+    "structure_match_ok": 15,
+    "matlab_vs_notebook_output_alignment_ok": 14
+  },
+  "rows": [
+    {
+      "example": "AnalysisExamples",
+      "matlab_source": "helpfiles/AnalysisExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 4,
+      "matlab_vars": 40,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 2,
+        "section_count_got": 2,
+        "figure_count_expected": 4,
+        "figure_count_got": 4,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "ConfigCollExamples",
+      "matlab_source": "helpfiles/ConfigCollExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 0,
+      "matlab_vars": 6,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 0,
+        "figure_count_got": 0,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "CovCollExamples",
+      "matlab_source": "helpfiles/CovCollExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 2,
+      "matlab_vars": 7,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 2,
+        "figure_count_got": 2,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "CovariateExamples",
+      "matlab_source": "helpfiles/CovariateExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 2,
+      "matlab_vars": 16,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 2,
+        "section_count_got": 2,
+        "figure_count_expected": 2,
+        "figure_count_got": 2,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "EventsExamples",
+      "matlab_source": "helpfiles/EventsExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 3,
+      "matlab_vars": 8,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 3,
+        "figure_count_got": 3,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "Examples",
+      "matlab_source": "helpfiles/Examples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 0,
+      "matlab_vars": 3,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 0,
+        "figure_count_got": 0,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "FitResSummaryExamples",
+      "matlab_source": "helpfiles/FitResSummaryExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 0,
+      "matlab_vars": 3,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 0,
+        "figure_count_got": 0,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "FitResultExamples",
+      "matlab_source": "helpfiles/FitResultExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 0,
+      "matlab_vars": 3,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 0,
+        "figure_count_got": 0,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "HistoryExamples",
+      "matlab_source": "helpfiles/HistoryExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 3,
+      "matlab_vars": 12,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 4,
+        "section_count_got": 4,
+        "figure_count_expected": 3,
+        "figure_count_got": 3,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "SignalObjExamples",
+      "matlab_source": "helpfiles/SignalObjExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 16,
+      "matlab_vars": 18,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 7,
+        "section_count_got": 7,
+        "figure_count_expected": 17,
+        "figure_count_got": 17,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 2,
+      "matlab_snippet_hits": {
+        "hits": 2,
+        "total": 2,
+        "matched_snippets": [
+          "ans = 1001 1",
+          "Name successfully set"
+        ]
+      },
+      "notebook_snippet_hits": {
+        "hits": 2,
+        "total": 2,
+        "matched_snippets": [
+          "ans = 1001 1",
+          "Name successfully set"
+        ]
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "TrialConfigExamples",
+      "matlab_source": "helpfiles/TrialConfigExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 0,
+      "matlab_vars": 6,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 0,
+        "section_count_got": 0,
+        "figure_count_expected": 0,
+        "figure_count_got": 0,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "TrialExamples",
+      "matlab_source": "helpfiles/TrialExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 6,
+      "matlab_vars": 16,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 3,
+        "section_count_got": 3,
+        "figure_count_expected": 6,
+        "figure_count_got": 6,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "nSTATPaperExamples",
+      "matlab_source": "helpfiles/nSTATPaperExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "experiment1",
+        "experiment2",
+        "experiment3",
+        "experiment3b",
+        "experiment4",
+        "experiment5",
+        "experiment5b",
+        "experiment6"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 1,
+      "matlab_vars": 78,
+      "structure_check": {
+        "dict_output": true,
+        "paper_examples_key_match": true,
+        "missing_keys": [],
+        "extra_keys": [],
+        "keys": [
+          "experiment1",
+          "experiment2",
+          "experiment3",
+          "experiment3b",
+          "experiment4",
+          "experiment5",
+          "experiment5b",
+          "experiment6"
+        ]
+      },
+      "expected_output_snippets_considered": 8,
+      "matlab_snippet_hits": {
+        "hits": 5,
+        "total": 8,
+        "matched_snippets": [
+          "Analyzing Configuration #1: Neuron #1 Analyzing Configuration #2: Neuron #1",
+          "Analyzing Configuration #1: Neuron #1",
+          "Analyzing Configuration #1: Neuron #1 Analyzing Configuration #2: Neuron #1",
+          "Analyzing Configuration #1: Neuron #1 Analyzing Configuration #2: Neuron #1 Analyzing Configuration #3: Neuron #1 Analyzing Configuration #4: Neuron #1 Analyzing Configuration #5: Neuron #1 Analyzing Configuration #6: Neuron #1 Analyzing Configuration #7: Neuron #1 Analyzing Configuration #8: Neuron #1 Analyzing Configuration #9: Neuron #1 Analyzing Configuration #10: Neuron #1 Analyzing Configuration #11: Neuron #1 Analyzing Configuration #12: Neuron #1 Analyzing Configuration #13: Neuron #1 An",
+          "Running in batch mode: neurons with same name are fit simultaneously Analyzing Configuration #1: Neuron #1 Running in batch mode: neurons with same name are fit simultaneously Analyzing Configuration #1: Neuron #6 Running in batch mode: neurons with same name are fit simultaneously Analyzing Configuration #1: Neuron #1"
+        ]
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 8,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": false
+    },
+    {
+      "example": "nSpikeTrainExamples",
+      "matlab_source": "helpfiles/nSpikeTrainExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 4,
+      "matlab_vars": 6,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 2,
+        "section_count_got": 2,
+        "figure_count_expected": 4,
+        "figure_count_got": 4,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    },
+    {
+      "example": "nstCollExamples",
+      "matlab_source": "helpfiles/nstCollExamples.m",
+      "python_module_ok": true,
+      "python_module_error": "",
+      "python_output_keys": [
+        "expected_code_outputs",
+        "figure_count",
+        "figure_refs",
+        "html_title",
+        "nstat_smoke",
+        "section_count",
+        "sections",
+        "source",
+        "table_rows"
+      ],
+      "notebook_ok": true,
+      "notebook_error": "",
+      "notebook_code_cells": 4,
+      "matlab_ok": true,
+      "matlab_error": "",
+      "matlab_figures": 3,
+      "matlab_vars": 8,
+      "structure_check": {
+        "dict_output": true,
+        "section_count_match": true,
+        "figure_count_match": true,
+        "section_count_expected": 2,
+        "section_count_got": 2,
+        "figure_count_expected": 3,
+        "figure_count_got": 3,
+        "keys": [
+          "expected_code_outputs",
+          "figure_count",
+          "figure_refs",
+          "html_title",
+          "nstat_smoke",
+          "section_count",
+          "sections",
+          "source",
+          "table_rows"
+        ]
+      },
+      "expected_output_snippets_considered": 0,
+      "matlab_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "notebook_snippet_hits": {
+        "hits": 0,
+        "total": 0,
+        "matched_snippets": []
+      },
+      "matlab_notebook_output_aligned": true
+    }
+  ]
+}

@@ -1,0 +1,593 @@
+{
+  "summary": {
+    "total_m_files": 58,
+    "python_ok": 58,
+    "python_runnable_ok": 33,
+    "matlab_runnable_ok": 24,
+    "runnable_parity_pass": 24,
+    "interface_only": 25,
+    "runnable_total": 33
+  },
+  "rows": [
+    {
+      "source": "Analysis.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/Analysis.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "CIF.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/CIF.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "ConfidenceInterval.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/ConfidenceInterval.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "ConfigColl.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/ConfigColl.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "CovColl.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/CovColl.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "Covariate.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/Covariate.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "DecodingAlgorithms.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/DecodingAlgorithms.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "Events.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/Events.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "FitResSummary.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/FitResSummary.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "FitResult.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/FitResult.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "History.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/History.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "SignalObj.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/SignalObj.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "Trial.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/Trial.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "TrialConfig.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/TrialConfig.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "data/Explicit Stimulus/GenCovMat.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/data/Explicit Stimulus/GenCovMat.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "helpfiles/AnalysisExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/AnalysisExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/AnalysisExamples2.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/AnalysisExamples2.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "Analyzing Configuration #1: Neuron #1CODEX_SMOKE_FAIL\nstats:glmfit:InputSizeMismatchX | Number of observations in X and Y must match.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/ClassDefinitions.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/ClassDefinitions.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/ConfigCollExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/ConfigCollExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/CovCollExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/CovCollExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/CovariateExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/CovariateExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/DecodingExample.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/DecodingExample.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "Analyzing Configuration #1: Neuron #1,2,3,4,5,6,7,8,9,10\nAnalyzing Configuration #2: Neuron #1,2,3,4,5,6,7,8,9,10\nCODEX_SMOKE_FAIL\nMATLAB:innerdim | Incorrect dimensions for matrix multiplication. Check that the number of columns in the first matrix matches the number of rows in the second matrix. To operate on each element of the matrix individually, use TIMES (.*) for elementwise multiplication.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/DecodingExampleWithHist.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/DecodingExampleWithHist.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "matlab_timeout",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/EventsExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/EventsExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/Examples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/Examples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/ExplicitStimulusWhiskerData.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/ExplicitStimulusWhiskerData.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/FitResSummaryExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/FitResSummaryExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/FitResult.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/helpfiles/FitResult.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "helpfiles/FitResultExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/FitResultExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/HippocampalPlaceCellExample.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/HippocampalPlaceCellExample.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "CODEX_SMOKE_FAIL\nMATLAB:pmaxsize | Requested array exceeds the maximum possible variable size.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/HistoryExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/HistoryExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/HybridFilterExample.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/HybridFilterExample.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/NetworkTutorial.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/NetworkTutorial.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/NeuralSpikeAnalysis_top.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/NeuralSpikeAnalysis_top.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/PPSimExample.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/PPSimExample.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/PPThinning.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/PPThinning.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/PSTHEstimation.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/PSTHEstimation.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/SignalObjExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/SignalObjExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "ans =\n        1001           1\nName successfully set \nCODEX_SMOKE_FAIL\nMATLAB:sizeDimensionsMustMatch | Arrays have incompatible sizes for this operation.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/StimulusDecode2D.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/StimulusDecode2D.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "CODEX_SMOKE_FAIL\nsymbolic:sym:sym:ArgumentMustBeVarnameOrNumber | Each character vector or string in input arguments must specify a variable or a number. To evaluate a character vector or a string representing symbolic expression, use 'str2sym'.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/TrialConfigExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/TrialConfigExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/TrialExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/TrialExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/ValidationDataSet.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/ValidationDataSet.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "lambda =\n    10\nmu =\n   -4.5951\nAnalyzing Configuration #1: Neuron #1CODEX_SMOKE_FAIL\nstats:glmfit:InputSizeMismatchX | Number of observations in X and Y must match.",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/mEPSCAnalysis.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/mEPSCAnalysis.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/nSTATPaperExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/nSTATPaperExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "matlab_timeout",
+      "parity": "fail"
+    },
+    {
+      "source": "helpfiles/nSpikeTrainExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/nSpikeTrainExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/nstCollExamples.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/nstCollExamples.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "helpfiles/temp.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/helpfiles/temp.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "libraries/NearestSymmetricPositiveDefinite/NearestSymmetricPositiveDefinite/nearestSPD.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/NearestSymmetricPositiveDefinite/NearestSymmetricPositiveDefinite/nearestSPD.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/NearestSymmetricPositiveDefinite/NearestSymmetricPositiveDefinite/nearestSPD_demo.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/libraries/NearestSymmetricPositiveDefinite/NearestSymmetricPositiveDefinite/nearestSPD_demo.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": false,
+      "matlab_message": "  Columns 15 through 21\n    0.3714    0.3922    0.6373    0.7147    0.8857    1.2443    1.3638\n  Columns 22 through 25\n    1.4439    1.5006    1.8153   13.0417\np =\n     3\nCODEX_SMOKE_FAIL\nMATLAB:UndefinedFunction | Undefined function 'nearest_posdef' for input arguments of type 'double'.",
+      "parity": "fail"
+    },
+    {
+      "source": "libraries/fixPSlinestyle.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/fixPSlinestyle.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/rotateXLabels/rotateXLabels.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/rotateXLabels/rotateXLabels.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/xticklabel_rotate.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/xticklabel_rotate.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/zernike/zernfun.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/zernike/zernfun.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/zernike/zernfun2.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/zernike/zernfun2.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "libraries/zernike/zernpol.m",
+      "kind": "function_args",
+      "python_target": "python/matlab_port/libraries/zernike/zernpol.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "nSTAT_Install.m",
+      "kind": "script",
+      "python_target": "python/matlab_port/nSTAT_Install.py",
+      "python_ok": true,
+      "python_message": "run_ok",
+      "matlab_ok": true,
+      "matlab_message": "ok",
+      "parity": "pass"
+    },
+    {
+      "source": "nspikeTrain.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/nspikeTrain.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    },
+    {
+      "source": "nstColl.m",
+      "kind": "classdef",
+      "python_target": "python/matlab_port/nstColl.py",
+      "python_ok": true,
+      "python_message": "interface_checked",
+      "matlab_ok": null,
+      "matlab_message": "not_run",
+      "parity": "interface_only"
+    }
+  ]
+}

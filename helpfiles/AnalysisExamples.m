@@ -84,14 +84,14 @@ timestep = 1;
 lambdaInt = 0;
 j=0;
 KS=[];
-for t=1:length(spikes_binned),
+for t=1:length(spikes_binned)
     lambdaInt = lambdaInt + lambdaEst(t,:)*timestep;
-    if (spikes_binned(t)),
+    if (spikes_binned(t))
         j = j + 1;
         KS(j,:) = 1-exp(-lambdaInt);
         lambdaInt = [0 0];
-    end;
-end;
+    end
+end
 KSSorted = sort( KS );
 N = length( KSSorted);
 figure;

@@ -3,7 +3,7 @@
 % 
 % <<LogoSmall.PNG>>
 % 
-% *Author*: Iahn Cajigas (iahn@mit.edu)
+% *Author*: Iahn Cajigas (icajigas@upenn.edu and iahn.cajigas@gmail.com)
 %
 % *Original Release Date*: 9/10/2009
 %

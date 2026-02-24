@@ -3,13 +3,12 @@ classdef FitResult < handle
 % stores results of a fit using the Analysis object
 % The results are for a single neuron over a range of configurations
 %
-% <a href="matlab: methods('FitResult')">methods</a>
 % <a href="FitResultExamples.html">FitResult Examples</a> 
 %
-% see also <a href="matlab:help('Analysis')">Analysis</a>
+% see also <a href="Analysis.html">Analysis</a>
 %
 % Reference page in Help browser
-% <a href="matlab:doc('FitResult')">doc FitResult</a>
+% <a href="FitResult.html">FitResult Reference</a>
 
 
 %

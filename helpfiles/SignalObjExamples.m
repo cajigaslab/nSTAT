@@ -1,7 +1,7 @@
 %% Using the SignalObj Class
 % In this file we will give several examples of how the SignalObj can be
 % used. A description of all of the properties of SignalObj can be found
-% at: <matlab:doc('SignalObj') SignalObj Class Definition>
+% at: <SignalObj.html SignalObj Class Definition>
 
 
 %% Example 1: Defining and Plotting Signals

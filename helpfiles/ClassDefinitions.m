@@ -4,21 +4,21 @@
 
 %%
 % 
-% *  <matlab:doc('SignalObj') SignalObj>
-% *  <matlab:doc('Covariate') Covariate>
-% *  <matlab:doc('ConfidenceInterval') ConfidenceInterval>
-% *  <matlab:doc('CovColl') Covariate Collection>
-% *  <matlab:doc('Events') Event>
-% *  <matlab:doc('History') History>
-% *  <matlab:doc('Trial') Trial>
-% *  <matlab:doc('TrialConfig') TrialConfig>
-% *  <matlab:doc('ConfigColl') Config Collection>
-% *  <matlab:doc('nSpikeTrain') Neural Spike Train>
-% *  <matlab:doc('nstColl') Neural Spike Train Collection>
-% *  <matlab:doc('Analysis') Analysis>
-% *  <matlab:doc('FitResult') FitResult>
-% *  <matlab:doc('FitResSummary') FitResSummary>
-% *  <matlab:doc('CIF') CIF-Conditional Intensity Function>
-% *  <matlab:doc('DecodingAlgorithms') Decoding Algorithms>
+% *  <SignalObj.html SignalObj>
+% *  <CovariateExamples.html Covariate>
+% *  <ConfidenceIntervalOverview.html ConfidenceInterval>
+% *  <CovCollExamples.html Covariate Collection>
+% *  <EventsExamples.html Event>
+% *  <HistoryExamples.html History>
+% *  <TrialExamples.html Trial>
+% *  <TrialConfigExamples.html TrialConfig>
+% *  <ConfigCollExamples.html Config Collection>
+% *  <nSpikeTrainExamples.html Neural Spike Train>
+% *  <nstCollExamples.html Neural Spike Train Collection>
+% *  <Analysis.html Analysis>
+% *  <FitResult.html FitResult>
+% *  <FitResSummaryExamples.html FitResSummary>
+% *  <PPSimExample.html CIF-Conditional Intensity Function>
+% *  <DecodingExample.html Decoding Algorithms>
 % 
 % 

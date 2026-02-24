@@ -62,7 +62,7 @@ p.footer {
   color: gray;
 }
 
-  </style></head><body><div class="content"><h1>Using the SignalObj Class</h1><!--introduction--><p>In this file we will give several examples of how the SignalObj can be used. A description of all of the properties of SignalObj can be found at: <a href="matlab:doc('SignalObj')">SignalObj Class Definition</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Example 1: Defining and Plotting Signals</a></li><li><a href="#4">Example 2: Changing Signal Properties</a></li><li><a href="#8">Example 3:  Resampling and Windowing SignalObjs</a></li><li><a href="#10">Example 4: SignalObj Mathematical Operations</a></li><li><a href="#12">Example 5: Spectra</a></li><li><a href="#13">Example 6: View signal variability</a></li></ul></div><h2>Example 1: Defining and Plotting Signals<a name="1"></a></h2><p>Define a two dimensional SignalObj, <img src="SignalObjExamples_eq72999.png" alt="$s$">, representing two voltage signals that were <img src="SignalObjExamples_eq57658.png" alt="$v1$"> and <img src="SignalObjExamples_eq68144.png" alt="$v2$"> aquired simultaneously at 100Hz. Another SignalObj, <img src="SignalObjExamples_eq40692.png" alt="$s1$"> , is created from just <img src="SignalObjExamples_eq57658.png" alt="$v1$">. Both signals are plotted.</p><pre class="codeinput">close <span class="string">all</span>;
+  </style></head><body><div class="content"><h1>Using the SignalObj Class</h1><!--introduction--><p>In this file we will give several examples of how the SignalObj can be used. A description of all of the properties of SignalObj can be found at: <a href="SignalObj.html">SignalObj Class Definition</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Example 1: Defining and Plotting Signals</a></li><li><a href="#4">Example 2: Changing Signal Properties</a></li><li><a href="#8">Example 3:  Resampling and Windowing SignalObjs</a></li><li><a href="#10">Example 4: SignalObj Mathematical Operations</a></li><li><a href="#12">Example 5: Spectra</a></li><li><a href="#13">Example 6: View signal variability</a></li></ul></div><h2>Example 1: Defining and Plotting Signals<a name="1"></a></h2><p>Define a two dimensional SignalObj, <img src="SignalObjExamples_eq72999.png" alt="$s$">, representing two voltage signals that were <img src="SignalObjExamples_eq57658.png" alt="$v1$"> and <img src="SignalObjExamples_eq68144.png" alt="$v2$"> aquired simultaneously at 100Hz. Another SignalObj, <img src="SignalObjExamples_eq40692.png" alt="$s1$"> , is created from just <img src="SignalObjExamples_eq57658.png" alt="$v1$">. Both signals are plotted.</p><pre class="codeinput">close <span class="string">all</span>;
 sampleRate=100; t=0:1/sampleRate:10; freq=2;
 v1=sin(2*pi*freq*t); v2=sin(v1.^2); v=[v1;v2];
 s=SignalObj(t,v,<span class="string">'Voltage'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'v1'</span>,<span class="string">'v2'</span>});
@@ -161,7 +161,7 @@ subplot(3,1,3); s.plotAllVariability(<span class="string">'c'</span>,3,2,1);
 %% Using the SignalObj Class
 % In this file we will give several examples of how the SignalObj can be
 % used. A description of all of the properties of SignalObj can be found
-% at: <matlab:doc('SignalObj') SignalObj Class Definition>
+% at: <SignalObj.html SignalObj Class Definition>
 
 
 %% Example 1: Defining and Plotting Signals

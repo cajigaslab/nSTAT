@@ -1,16 +1,15 @@
 classdef Analysis
 % ANALYSIS Collection of functions (static methods) used for GLM analysis
 % of point process data.
-% <a href="matlab: methods('Analysis')">methods</a>
 % <a href="AnalysisExamples.html">Analysis Examples</a> 
 %
-% see also <a href="matlab:help('Trial')">Trial</a>, <a
-% href="matlab:help('CovColl')">CovColl</a>, <a
-% href="matlab:help('nstColl')">nstColl</a>,<a
-% href="matlab:help('History')">History</a>
+% see also <a href="TrialExamples.html">Trial</a>, <a
+% href="CovCollExamples.html">CovColl</a>, <a
+% href="nstCollExamples.html">nstColl</a>,<a
+% href="HistoryExamples.html">History</a>
 %
 % Reference page in Help browser
-% <a href="matlab: doc('Analysis')">doc Analysis</a>
+% <a href="Analysis.html">Analysis Reference</a>
 
 %%
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

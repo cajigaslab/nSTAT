@@ -62,13 +62,20 @@ jobs:
           python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
 
       - name: Freeze similarity baseline
+        if: always()
         run: |
-          python3 python/tools/freeze_similarity_baseline.py
+          if [ -f python/reports/python_vs_matlab_similarity_report.json ]; then
+            python3 python/tools/freeze_similarity_baseline.py
+          else
+            echo "Similarity report missing; skipping baseline freeze."
+          fi
 
       - name: Upload parity reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nstat-matlab-parity-reports
+          if-no-files-found: warn
           path: |
             python/reports/python_vs_matlab_similarity_report.json
             python/reports/python_vs_matlab_similarity_baseline.json

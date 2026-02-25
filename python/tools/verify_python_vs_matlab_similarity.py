@@ -17,7 +17,6 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REPORT_DIR = REPO_ROOT / "python" / "reports"
 MATLAB_BIN = Path("/Applications/MATLAB_R2025b.app/bin/matlab")
 MATLAB_EXTRA_ARGS = [arg for arg in os.environ.get("NSTAT_MATLAB_EXTRA_ARGS", "").split() if arg]
 FORCE_M_HELP_SCRIPTS = os.environ.get("NSTAT_FORCE_M_HELP_SCRIPTS", "").strip().lower() in {"1", "true", "yes", "on"}
@@ -64,6 +63,21 @@ FORCE_M_SCRIPT_TOPICS: set[str] = {
     "PSTHEstimation",
     "StimulusDecode2D",
     "nSTATPaperExamples",
+}
+DEFAULT_HELP_TOPIC_TIMEOUT_S = 120
+DEFAULT_TOPIC_TIMEOUT_OVERRIDES: dict[str, int] = {
+    "SignalObjExamples": 180,
+    "CovariateExamples": 180,
+    "CovCollExamples": 180,
+    "nSpikeTrainExamples": 180,
+    "nstCollExamples": 180,
+    "EventsExamples": 180,
+    "HistoryExamples": 180,
+    "TrialExamples": 180,
+    "AnalysisExamples": 180,
+    "DecodingExampleWithHist": 360,
+    "StimulusDecode2D": 180,
+    "nSTATPaperExamples": 240,
 }
 
 
@@ -271,6 +285,49 @@ def _example_topics() -> list[tuple[str, str]]:
     return out
 
 
+def _parse_topics_arg(topics_arg: list[str] | None) -> set[str] | None:
+    if not topics_arg:
+        return None
+    topics: set[str] = set()
+    for raw in topics_arg:
+        for part in raw.split(","):
+            stem = part.strip()
+            if stem:
+                topics.add(stem)
+    return topics or None
+
+
+def _parse_topic_timeout_overrides(specs: list[str]) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for spec in specs:
+        key, sep, value = spec.partition("=")
+        topic = key.strip()
+        raw_seconds = value.strip()
+        if sep != "=" or not topic or not raw_seconds:
+            raise ValueError(f"invalid --topic-timeout '{spec}'; expected TOPIC=SECONDS")
+        try:
+            seconds = int(raw_seconds)
+        except ValueError as exc:
+            raise ValueError(f"invalid timeout value in '{spec}': {raw_seconds}") from exc
+        if seconds <= 0:
+            raise ValueError(f"timeout must be positive in '{spec}'")
+        out[topic] = seconds
+    return out
+
+
+def _resolve_topics(requested_topics: set[str] | None) -> list[tuple[str, str]]:
+    topics = _example_topics()
+    if requested_topics is None:
+        return topics
+
+    available = {Path(target).stem for _, target in topics}
+    missing = sorted(requested_topics - available)
+    if missing:
+        raise ValueError(f"unknown topic(s): {missing}")
+
+    return [(title, target) for title, target in topics if Path(target).stem in requested_topics]
+
+
 def _run_python_topic(stem: str) -> dict[str, Any]:
     try:
         mod = importlib.import_module(f"examples.help_topics.{stem}")
@@ -429,9 +486,12 @@ def _compare_topic_scalars(py_scalars: dict[str, float], ml_scalars: dict[str, f
     }
 
 
-def _help_similarity() -> dict[str, Any]:
+def _help_similarity(
+    topics: list[tuple[str, str]],
+    default_timeout_s: int = DEFAULT_HELP_TOPIC_TIMEOUT_S,
+    topic_timeout_overrides: dict[str, int] | None = None,
+) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
-    topics = _example_topics()
 
     summary = {
         "total_topics": len(topics),
@@ -444,10 +504,9 @@ def _help_similarity() -> dict[str, Any]:
     }
 
     scores: list[float] = []
-    topic_timeouts = {
-        "DecodingExampleWithHist": 240,
-        "nSTATPaperExamples": 240,
-    }
+    topic_timeouts = dict(DEFAULT_TOPIC_TIMEOUT_OVERRIDES)
+    if topic_timeout_overrides:
+        topic_timeouts.update(topic_timeout_overrides)
     for idx, (title, target) in enumerate(topics, start=1):
         stem = Path(target).stem
         m_rel = f"helpfiles/{stem}.m"
@@ -464,7 +523,7 @@ def _help_similarity() -> dict[str, Any]:
         print(f"[help {idx}/{len(topics)}] {stem}", flush=True)
 
         py = _run_python_topic(stem)
-        timeout_s = topic_timeouts.get(stem, 120)
+        timeout_s = topic_timeouts.get(stem, default_timeout_s)
         ml = _run_matlab_help_script(script_rel, timeout_s=timeout_s)
 
         if py.get("ok"):
@@ -512,6 +571,7 @@ def _help_similarity() -> dict[str, Any]:
                 "matlab_script_used": ml.get("script_used", script_rel),
                 "matlab_fallback_script_used": ml.get("fallback_script_used", ""),
                 "matlab_runtime_s": ml.get("runtime_s"),
+                "matlab_timeout_s": timeout_s,
                 "scalar_overlap": scalar_cmp,
                 "similarity_score": score,
             }
@@ -521,12 +581,20 @@ def _help_similarity() -> dict[str, Any]:
     return {"summary": summary, "rows": rows}
 
 
-def _evaluate_parity_contract(help_rows: list[dict[str, Any]]) -> dict[str, Any]:
+def _evaluate_parity_contract(help_rows: list[dict[str, Any]], topics_filter: set[str] | None = None) -> dict[str, Any]:
     by_topic = {str(r.get("topic", "")): r for r in help_rows}
     rows: list[dict[str, Any]] = []
     failures: list[str] = []
+    if topics_filter is None:
+        contract_items = list(PARITY_CONTRACT.items())
+    else:
+        contract_items = [(topic, required_keys) for topic, required_keys in PARITY_CONTRACT.items() if topic in topics_filter]
+        missing_contract_entries = sorted(topics_filter - set(PARITY_CONTRACT))
+        for topic in missing_contract_entries:
+            failures.append(f"{topic}: missing parity contract entry")
+            rows.append({"topic": topic, "required_keys": [], "status": "missing_contract"})
 
-    for topic, required_keys in PARITY_CONTRACT.items():
+    for topic, required_keys in contract_items:
         row = by_topic.get(topic)
         if row is None:
             failures.append(f"{topic}: missing topic row")
@@ -586,12 +654,18 @@ def _evaluate_parity_contract(help_rows: list[dict[str, Any]]) -> dict[str, Any]
 
 
 def _evaluate_regression_gate(report: dict[str, Any]) -> dict[str, Any]:
+    topic_selection = report.get("topic_selection", {})
     class_summary = report.get("class_similarity", {}).get("summary", {})
     help_summary = report.get("helpfile_similarity", {}).get("summary", {})
     help_rows = report.get("helpfile_similarity", {}).get("rows", [])
     parity_contract = report.get("parity_contract", {})
 
     failures: list[str] = []
+    full_suite = bool(topic_selection.get("full_suite", True))
+    selected_topics = int(topic_selection.get("total_topics", help_summary.get("total_topics", 0)))
+    python_required = HELP_PYTHON_REQUIRED_OK if full_suite else selected_topics
+    matlab_required = HELP_MATLAB_MIN_OK if full_suite else selected_topics
+    scalar_required = SCALAR_OVERLAP_PASS_MIN_TOPICS if full_suite else selected_topics
 
     class_passed = int(class_summary.get("passed", 0))
     class_total = int(class_summary.get("total", 0))
@@ -602,18 +676,34 @@ def _evaluate_regression_gate(report: dict[str, Any]) -> dict[str, Any]:
 
     python_ok = int(help_summary.get("python_ok", 0))
     total_topics = int(help_summary.get("total_topics", 0))
-    if python_ok < HELP_PYTHON_REQUIRED_OK or python_ok != total_topics:
-        failures.append(f"python help gate failed: expected all topics ok, got {python_ok}/{total_topics}")
+    if python_ok < python_required or python_ok != total_topics:
+        if full_suite:
+            failures.append(f"python help gate failed: expected all topics ok, got {python_ok}/{total_topics}")
+        else:
+            failures.append(
+                f"python help gate failed for selected topics: expected {python_required}/{selected_topics}, "
+                f"got {python_ok}/{total_topics}"
+            )
 
     matlab_ok = int(help_summary.get("matlab_ok", 0))
-    if matlab_ok < HELP_MATLAB_MIN_OK:
-        failures.append(f"matlab help gate failed: minimum {HELP_MATLAB_MIN_OK}, got {matlab_ok}")
+    if matlab_ok < matlab_required:
+        if full_suite:
+            failures.append(f"matlab help gate failed: minimum {HELP_MATLAB_MIN_OK}, got {matlab_ok}")
+        else:
+            failures.append(
+                f"matlab help gate failed for selected topics: minimum {matlab_required}, got {matlab_ok}"
+            )
 
     scalar_overlap_pass_topics = int(help_summary.get("scalar_overlap_pass_topics", 0))
-    if scalar_overlap_pass_topics < SCALAR_OVERLAP_PASS_MIN_TOPICS:
-        failures.append(
-            f"scalar overlap gate failed: minimum {SCALAR_OVERLAP_PASS_MIN_TOPICS}, got {scalar_overlap_pass_topics}"
-        )
+    if scalar_overlap_pass_topics < scalar_required:
+        if full_suite:
+            failures.append(
+                f"scalar overlap gate failed: minimum {SCALAR_OVERLAP_PASS_MIN_TOPICS}, got {scalar_overlap_pass_topics}"
+            )
+        else:
+            failures.append(
+                f"scalar overlap gate failed for selected topics: minimum {scalar_required}, got {scalar_overlap_pass_topics}"
+            )
 
     matlab_failed_topics = sorted([str(r.get("topic", "")) for r in help_rows if not bool(r.get("matlab_ok"))])
     unexpected_failures = sorted(set(matlab_failed_topics) - KNOWN_MATLAB_HELP_FAILURES)
@@ -642,12 +732,57 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Return non-zero exit code if regression gate fails.",
     )
+    parser.add_argument(
+        "--topics",
+        nargs="+",
+        default=None,
+        help="Optional help-topic stems to run (space/comma separated). Default is all topics.",
+    )
+    parser.add_argument(
+        "--default-topic-timeout",
+        type=int,
+        default=DEFAULT_HELP_TOPIC_TIMEOUT_S,
+        help=f"Default MATLAB timeout per topic in seconds (default: {DEFAULT_HELP_TOPIC_TIMEOUT_S}).",
+    )
+    parser.add_argument(
+        "--topic-timeout",
+        action="append",
+        default=[],
+        help="Override per-topic MATLAB timeout using TOPIC=SECONDS (repeatable).",
+    )
+    parser.add_argument(
+        "--report-path",
+        default="python/reports/python_vs_matlab_similarity_report.json",
+        help="Output report path (absolute or repo-relative).",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     report: dict[str, Any] = {}
+    if args.default_topic_timeout <= 0:
+        print("--default-topic-timeout must be positive", file=sys.stderr)
+        return 2
+    try:
+        requested_topics = _parse_topics_arg(args.topics)
+        topics = _resolve_topics(requested_topics)
+        topic_timeout_overrides = _parse_topic_timeout_overrides(args.topic_timeout)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    selected_topic_stems = [Path(target).stem for _, target in topics]
+    full_suite = requested_topics is None
+    report["topic_selection"] = {
+        "full_suite": full_suite,
+        "requested_topics": sorted(requested_topics) if requested_topics else [],
+        "selected_topics": selected_topic_stems,
+        "total_topics": len(selected_topic_stems),
+        "default_timeout_s": args.default_topic_timeout,
+        "topic_timeout_overrides": topic_timeout_overrides,
+        "force_m_help_scripts": FORCE_M_HELP_SCRIPTS,
+    }
 
     print("[class] running Python/MATLAB class checks", flush=True)
     py_cls = _python_class_checks()
@@ -667,16 +802,28 @@ def main(argv: list[str] | None = None) -> int:
             "comparisons": [],
         }
 
-    report["helpfile_similarity"] = _help_similarity()
-    report["parity_contract"] = _evaluate_parity_contract(report["helpfile_similarity"]["rows"])
+    report["helpfile_similarity"] = _help_similarity(
+        topics=topics,
+        default_timeout_s=args.default_topic_timeout,
+        topic_timeout_overrides=topic_timeout_overrides,
+    )
+    contract_topics = None if full_suite else set(selected_topic_stems)
+    report["parity_contract"] = _evaluate_parity_contract(report["helpfile_similarity"]["rows"], topics_filter=contract_topics)
     report["regression_gate"] = _evaluate_regression_gate(report)
 
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    out = REPORT_DIR / "python_vs_matlab_similarity_report.json"
+    out = Path(args.report_path)
+    if not out.is_absolute():
+        out = REPO_ROOT / out
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    try:
+        out_print = str(out.relative_to(REPO_ROOT))
+    except ValueError:
+        out_print = str(out)
 
     printable = {
-        "report": str(out.relative_to(REPO_ROOT)),
+        "report": out_print,
+        "topic_selection": report["topic_selection"],
         "class_similarity": report["class_similarity"]["summary"],
         "helpfile_similarity": report["helpfile_similarity"]["summary"],
         "parity_contract": report["parity_contract"],

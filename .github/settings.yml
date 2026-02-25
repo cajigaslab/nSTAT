@@ -1,0 +1,14 @@
+repository:
+  default_branch: master
+
+branches:
+  - name: master
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - test-and-build
+          - parity-gate
+      enforce_admins: false
+      required_pull_request_reviews: null
+      restrictions: null

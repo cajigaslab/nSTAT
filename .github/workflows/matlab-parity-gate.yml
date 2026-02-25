@@ -8,6 +8,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   parity-gate:
     # Requires a self-hosted macOS runner with MATLAB installed at:

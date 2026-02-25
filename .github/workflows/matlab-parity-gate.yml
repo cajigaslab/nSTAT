@@ -16,6 +16,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS Objects
+        run: git lfs pull
 
       - name: Setup Python
         uses: actions/setup-python@v5

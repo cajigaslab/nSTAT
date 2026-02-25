@@ -116,7 +116,22 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
         report["steps"] = steps
 
     report["runtime_matlab_scan"] = _runtime_matlab_dependency_scan()
-    report["pass"] = all(step["ok"] for step in report["steps"]) and bool(report["runtime_matlab_scan"]["ok"])
+    report["target_install_ok"] = bool(report["steps"][0]["ok"])
+    report["post_install_checks_ok"] = bool(
+        report["steps"][1]["ok"]
+        and report["steps"][2]["ok"]
+        and (not full_notebooks or report["steps"][-1]["ok"])
+    )
+    report["source_fallback_ok"] = bool((not report["target_install_ok"]) and report["post_install_checks_ok"])
+    report["install_mode"] = (
+        "target_install"
+        if report["target_install_ok"]
+        else ("source_fallback" if report["source_fallback_ok"] else "failed")
+    )
+    report["pass_strict_target_install"] = bool(
+        report["target_install_ok"] and report["post_install_checks_ok"] and report["runtime_matlab_scan"]["ok"]
+    )
+    report["pass"] = bool(report["post_install_checks_ok"] and report["runtime_matlab_scan"]["ok"])
     REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
@@ -124,17 +139,26 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Verify standalone offline Python nSTAT usage from source checkout.")
     parser.add_argument("--full-notebooks", action="store_true", help="Also execute all generated notebooks.")
+    parser.add_argument(
+        "--require-target-install",
+        action="store_true",
+        help="Fail unless pip --target install succeeds (no source fallback mode).",
+    )
     args = parser.parse_args()
 
     report = verify(full_notebooks=args.full_notebooks)
+    effective_pass = bool(report["pass_strict_target_install"] if args.require_target_install else report["pass"])
     printable = {
         "report": str(REPORT_PATH.relative_to(REPO_ROOT)),
-        "pass": report["pass"],
+        "pass": effective_pass,
         "steps_ok": [step["ok"] for step in report["steps"]],
         "runtime_matlab_scan_ok": report["runtime_matlab_scan"]["ok"],
+        "target_install_ok": report["target_install_ok"],
+        "install_mode": report["install_mode"],
+        "pass_strict_target_install": report["pass_strict_target_install"],
     }
     print(json.dumps(printable, indent=2))
-    return 0 if report["pass"] else 1
+    return 0 if effective_pass else 1
 
 
 if __name__ == "__main__":

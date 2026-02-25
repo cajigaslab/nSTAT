@@ -20,6 +20,7 @@
   - `python3 python/tools/freeze_similarity_baseline.py`
 - [ ] Verify standalone offline workflow:
   - `python3 python/tools/verify_offline_standalone.py`
+  - Strict install gate (release hardening): `python3 python/tools/verify_offline_standalone.py --require-target-install`
 - [ ] Run full test suite:
   - `cd python && python3 -m pytest -q`
 - [ ] Confirm release criteria:

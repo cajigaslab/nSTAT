@@ -47,5 +47,9 @@
     "ok": true,
     "hits": []
   },
-  "pass": true
+  "pass": true,
+  "run_context": {
+    "path": "/usr/bin:/bin:/usr/sbin:/sbin",
+    "matlab_on_path": false
+  }
 }

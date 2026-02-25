@@ -24,12 +24,16 @@
 - Added CI workflows:
   - `.github/workflows/python-ci.yml`
   - `.github/workflows/matlab-parity-gate.yml`
+- Standardized docs artifact policy:
+  - Generated Sphinx output under `python/docs/_build/` is now treated as a build artifact and excluded from source control.
+- Expanded parity contract coverage:
+  - The MATLAB/Python scalar parity contract now requires one numeric parity key for all 25 help topics.
 
 ## Release criteria (v1.0 gate)
 
 - Class similarity gate: `9/9` pass.
 - Help-topic execution gate: Python `25/25`, MATLAB `25/25`.
-- Parity contract gate: required topic keys pass scalar tolerance checks.
+- Parity contract gate: required keys pass for all `25/25` help topics.
 - Regression gate must pass with no unexpected failures.
 - Standalone/offline source checkout workflow must pass `verify_offline_standalone.py`.
 

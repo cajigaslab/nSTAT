@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-02-25T04:02:50.188234+00:00",
+  "generated_at_utc": "2026-02-25T13:25:15.139328+00:00",
   "reports": {
     "mfile_parity": {
       "path": "python/reports/mfile_parity_report.json",
@@ -19,8 +19,8 @@
     "examples_notebooks": {
       "path": "python/reports/examples_notebook_verification.json",
       "exists": true,
-      "sha256": "62ac461f6deb0e894cdcad18b7d2f8f5f720d0c0a2b32bd434cc81aa2ba6f0ce",
-      "size_bytes": 12093,
+      "sha256": "e7823adb5d5634a3ed345679dd4134f87b7c18246a27b1ef12d24fdeee5602ca",
+      "size_bytes": 12417,
       "summary": {
         "total_examples": 25,
         "python_modules_ok": 25,

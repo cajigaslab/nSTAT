@@ -132,9 +132,9 @@
       "both_ok": 25,
       "python_ok": 25,
       "matlab_ok": 25,
-      "scalar_overlap_topics": 5,
-      "scalar_overlap_pass_topics": 5,
-      "avg_similarity_score": 0.7599999999999997
+      "scalar_overlap_topics": 25,
+      "scalar_overlap_pass_topics": 25,
+      "avg_similarity_score": 1.0
     },
     "rows": [
       {
@@ -148,7 +148,7 @@
           "sample_rate",
           "topic"
         ],
-        "python_scalar_count": 4,
+        "python_scalar_count": 6,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -159,7 +159,7 @@
         "matlab_scalar_count": 6,
         "matlab_script_used": "helpfiles/SignalObjExamples.m [shadow_safe_copy]",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 16.99935007095337,
+        "matlab_runtime_s": 12.859008073806763,
         "scalar_overlap": {
           "overlaps": [
             {
@@ -168,6 +168,14 @@
               "python": 5000.00000000055,
               "matlab": 5000.0,
               "abs_diff": 5.502442945726216e-10,
+              "pass": true
+            },
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 16.0,
+              "matlab": 16.0,
+              "abs_diff": 0.0,
               "pass": true
             },
             {
@@ -187,8 +195,8 @@
               "pass": true
             }
           ],
-          "overlap_count": 3,
-          "overlap_passed": 3
+          "overlap_count": 4,
+          "overlap_passed": 4
         },
         "similarity_score": 1.0
       },
@@ -199,10 +207,11 @@
         "python_error": "",
         "python_output_keys": [
           "mean",
+          "parity",
           "std",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -213,13 +222,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/CovariateExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 13.563185930252075,
+        "matlab_runtime_s": 10.382561206817627,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 2.0,
+              "matlab": 2.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "CovCollExamples",
@@ -229,9 +247,10 @@
         "python_output_keys": [
           "labels",
           "matrix_shape",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 0,
+        "python_scalar_count": 2,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -242,13 +261,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/CovCollExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 13.499962091445923,
+        "matlab_runtime_s": 10.461670160293579,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 2.0,
+              "matlab": 2.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "nSpikeTrainExamples",
@@ -257,10 +285,11 @@
         "python_error": "",
         "python_output_keys": [
           "n_spikes",
+          "parity",
           "rate_hz",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -271,13 +300,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/nSpikeTrainExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 13.323217153549194,
+        "matlab_runtime_s": 30.248419046401978,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 4.0,
+              "matlab": 4.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "nstCollExamples",
@@ -286,10 +324,11 @@
         "python_error": "",
         "python_output_keys": [
           "num_trains",
+          "parity",
           "psth_points",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -300,13 +339,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/nstCollExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 34.19615578651428,
+        "matlab_runtime_s": 10.848538875579834,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 3.0,
+              "matlab": 3.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "EventsExamples",
@@ -315,9 +363,10 @@
         "python_error": "",
         "python_output_keys": [
           "n_events",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 1,
+        "python_scalar_count": 3,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -328,13 +377,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/EventsExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 13.341931104660034,
+        "matlab_runtime_s": 9.690116167068481,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 3.0,
+              "matlab": 3.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "HistoryExamples",
@@ -344,9 +402,10 @@
         "python_output_keys": [
           "design_shape",
           "lags",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 0,
+        "python_scalar_count": 2,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -357,13 +416,22 @@
         "matlab_scalar_count": 3,
         "matlab_script_used": "helpfiles/HistoryExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 14.219819068908691,
+        "matlab_runtime_s": 30.391725063323975,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 3.0,
+              "matlab": 3.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "TrialExamples",
@@ -373,9 +441,10 @@
         "python_output_keys": [
           "covariate_rows",
           "neurons",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -386,13 +455,22 @@
         "matlab_scalar_count": 3,
         "matlab_script_used": "helpfiles/TrialExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 15.49249005317688,
+        "matlab_runtime_s": 13.00658917427063,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 6.0,
+              "matlab": 6.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "TrialConfigExamples",
@@ -401,10 +479,11 @@
         "python_error": "",
         "python_output_keys": [
           "covariates",
+          "parity",
           "sample_rate",
           "topic"
         ],
-        "python_scalar_count": 1,
+        "python_scalar_count": 3,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -415,13 +494,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/TrialConfigExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 10.814358949661255,
+        "matlab_runtime_s": 7.838926076889038,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 0.0,
+              "matlab": 0.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "ConfigCollExamples",
@@ -431,9 +519,10 @@
         "python_output_keys": [
           "names",
           "num_configs",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 1,
+        "python_scalar_count": 3,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -444,13 +533,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/ConfigCollExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 11.199660062789917,
+        "matlab_runtime_s": 8.061589002609253,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 0.0,
+              "matlab": 0.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "AnalysisExamples",
@@ -460,9 +558,10 @@
         "python_output_keys": [
           "first_aic",
           "num_results",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -473,13 +572,22 @@
         "matlab_scalar_count": 21,
         "matlab_script_used": "helpfiles/AnalysisExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 13.788961172103882,
+        "matlab_runtime_s": 10.786340713500977,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 4.0,
+              "matlab": 4.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "FitResultExamples",
@@ -489,9 +597,10 @@
         "python_output_keys": [
           "bic",
           "coeffs",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 1,
+        "python_scalar_count": 3,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -502,13 +611,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/FitResultExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 11.24156379699707,
+        "matlab_runtime_s": 8.028863906860352,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 0.0,
+              "matlab": 0.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "FitResSummaryExamples",
@@ -518,9 +636,10 @@
         "python_output_keys": [
           "mean_aic",
           "mean_bic",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 0,
+        "python_scalar_count": 2,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -531,13 +650,22 @@
         "matlab_scalar_count": 2,
         "matlab_script_used": "helpfiles/FitResSummaryExamples.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 10.893274068832397,
+        "matlab_runtime_s": 8.054399967193604,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 0.0,
+              "matlab": 0.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "PPThinning",
@@ -549,7 +677,7 @@
           "parity",
           "topic"
         ],
-        "python_scalar_count": 2,
+        "python_scalar_count": 4,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -560,7 +688,7 @@
         "matlab_scalar_count": 10,
         "matlab_script_used": "helpfiles/PPThinning.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 43.648070096969604,
+        "matlab_runtime_s": 20.007148027420044,
         "scalar_overlap": {
           "overlaps": [
             {
@@ -568,6 +696,14 @@
               "matlab_key": "num_realizations",
               "python": 20.0,
               "matlab": 20.0,
+              "abs_diff": 0.0,
+              "pass": true
+            },
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 3.0,
+              "matlab": 3.0,
               "abs_diff": 0.0,
               "pass": true
             },
@@ -580,8 +716,8 @@
               "pass": true
             }
           ],
-          "overlap_count": 2,
-          "overlap_passed": 2
+          "overlap_count": 3,
+          "overlap_passed": 3
         },
         "similarity_score": 1.0
       },
@@ -596,7 +732,7 @@
           "peak_rate",
           "topic"
         ],
-        "python_scalar_count": 3,
+        "python_scalar_count": 5,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -607,7 +743,7 @@
         "matlab_scalar_count": 13,
         "matlab_script_used": "helpfiles/PSTHEstimation.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 19.79235601425171,
+        "matlab_runtime_s": 19.249541997909546,
         "scalar_overlap": {
           "overlaps": [
             {
@@ -617,10 +753,18 @@
               "matlab": 20.0,
               "abs_diff": 0.0,
               "pass": true
+            },
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 2.0,
+              "matlab": 2.0,
+              "abs_diff": 0.0,
+              "pass": true
             }
           ],
-          "overlap_count": 1,
-          "overlap_passed": 1
+          "overlap_count": 2,
+          "overlap_passed": 2
         },
         "similarity_score": 1.0
       },
@@ -631,12 +775,13 @@
         "python_error": "",
         "python_output_keys": [
           "num_trials",
+          "parity",
           "psth_mean_hz",
           "psth_peak_hz",
           "topic",
           "total_spikes"
         ],
-        "python_scalar_count": 4,
+        "python_scalar_count": 6,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -647,13 +792,22 @@
         "matlab_scalar_count": 21,
         "matlab_script_used": "helpfiles/ValidationDataSet.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 30.937012910842896,
+        "matlab_runtime_s": 26.339579105377197,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 8.0,
+              "matlab": 8.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "mEPSCAnalysis",
@@ -666,13 +820,14 @@
           "const_model_bic",
           "decreasing_condition_spikes",
           "dt_seconds",
+          "parity",
           "piecewise_history_model_aic",
           "piecewise_history_model_bic",
           "piecewise_model_aic",
           "piecewise_model_bic",
           "topic"
         ],
-        "python_scalar_count": 9,
+        "python_scalar_count": 11,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -683,13 +838,22 @@
         "matlab_scalar_count": 8,
         "matlab_script_used": "helpfiles/mEPSCAnalysis.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 56.38188695907593,
+        "matlab_runtime_s": 51.48474884033203,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 4.0,
+              "matlab": 4.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "PPSimExample",
@@ -704,9 +868,10 @@
           "model3_aic",
           "model3_bic",
           "n_samples",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 7,
+        "python_scalar_count": 9,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -717,13 +882,22 @@
         "matlab_scalar_count": 10,
         "matlab_script_used": "helpfiles/PPSimExample.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 52.985209941864014,
+        "matlab_runtime_s": 44.576667070388794,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 3.0,
+              "matlab": 3.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "ExplicitStimulusWhiskerData",
@@ -738,9 +912,10 @@
           "model3_aic",
           "model3_bic",
           "n_samples",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 7,
+        "python_scalar_count": 9,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -751,13 +926,22 @@
         "matlab_scalar_count": 22,
         "matlab_script_used": "helpfiles/ExplicitStimulusWhiskerData.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 31.9288911819458,
+        "matlab_runtime_s": 27.45716691017151,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 8.0,
+              "matlab": 8.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "HippocampalPlaceCellExample",
@@ -768,9 +952,10 @@
           "mean_delta_aic_gaussian_minus_zernike",
           "mean_delta_bic_gaussian_minus_zernike",
           "num_cells_fit",
+          "parity",
           "topic"
         ],
-        "python_scalar_count": 3,
+        "python_scalar_count": 5,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -781,13 +966,22 @@
         "matlab_scalar_count": 11,
         "matlab_script_used": "helpfiles/HippocampalPlaceCellExample.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 47.517066955566406,
+        "matlab_runtime_s": 42.86396503448486,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 9.0,
+              "matlab": 9.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "DecodingExample",
@@ -800,7 +994,7 @@
           "parity",
           "topic"
         ],
-        "python_scalar_count": 3,
+        "python_scalar_count": 5,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -811,13 +1005,22 @@
         "matlab_scalar_count": 11,
         "matlab_script_used": "helpfiles/DecodingExample.mlx",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 23.76700496673584,
+        "matlab_runtime_s": 20.125417232513428,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 5.0,
+              "matlab": 5.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "DecodingExampleWithHist",
@@ -832,7 +1035,7 @@
           "parity",
           "topic"
         ],
-        "python_scalar_count": 5,
+        "python_scalar_count": 7,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -843,13 +1046,22 @@
         "matlab_scalar_count": 16,
         "matlab_script_used": "helpfiles/DecodingExampleWithHist.m [shadow_safe_copy]",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 148.15137028694153,
+        "matlab_runtime_s": 129.56473088264465,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 2.0,
+              "matlab": 2.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "StimulusDecode2D",
@@ -864,7 +1076,7 @@
           "parity",
           "topic"
         ],
-        "python_scalar_count": 7,
+        "python_scalar_count": 9,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -875,7 +1087,7 @@
         "matlab_scalar_count": 13,
         "matlab_script_used": "helpfiles/StimulusDecode2D.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 18.70381212234497,
+        "matlab_runtime_s": 15.194157123565674,
         "scalar_overlap": {
           "overlaps": [
             {
@@ -883,6 +1095,14 @@
               "matlab_key": "num_cells",
               "python": 80.0,
               "matlab": 80.0,
+              "abs_diff": 0.0,
+              "pass": true
+            },
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 4.0,
+              "matlab": 4.0,
               "abs_diff": 0.0,
               "pass": true
             },
@@ -895,8 +1115,8 @@
               "pass": true
             }
           ],
-          "overlap_count": 2,
-          "overlap_passed": 2
+          "overlap_count": 3,
+          "overlap_passed": 3
         },
         "similarity_score": 1.0
       },
@@ -907,11 +1127,12 @@
         "python_error": "",
         "python_output_keys": [
           "neuron_count",
+          "parity",
           "psth_peak",
           "samples",
           "topic"
         ],
-        "python_scalar_count": 3,
+        "python_scalar_count": 5,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -922,13 +1143,22 @@
         "matlab_scalar_count": 13,
         "matlab_script_used": "helpfiles/NetworkTutorial.m",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 38.79691791534424,
+        "matlab_runtime_s": 33.98667907714844,
         "scalar_overlap": {
-          "overlaps": [],
-          "overlap_count": 0,
-          "overlap_passed": 0
+          "overlaps": [
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 4.0,
+              "matlab": 4.0,
+              "abs_diff": 0.0,
+              "pass": true
+            }
+          ],
+          "overlap_count": 1,
+          "overlap_passed": 1
         },
-        "similarity_score": 0.7
+        "similarity_score": 1.0
       },
       {
         "topic": "nSTATPaperExamples",
@@ -941,7 +1171,7 @@
           "summary",
           "topic"
         ],
-        "python_scalar_count": 28,
+        "python_scalar_count": 30,
         "matlab_ok": true,
         "matlab_error": "",
         "matlab_error_report": "",
@@ -952,7 +1182,7 @@
         "matlab_scalar_count": 14,
         "matlab_script_used": "helpfiles/nSTATPaperExamples.m [shadow_safe_copy]",
         "matlab_fallback_script_used": "",
-        "matlab_runtime_s": 179.85588097572327,
+        "matlab_runtime_s": 162.30554699897766,
         "scalar_overlap": {
           "overlaps": [
             {
@@ -960,6 +1190,14 @@
               "matlab_key": "num_cells",
               "python": 40.0,
               "matlab": 40.0,
+              "abs_diff": 0.0,
+              "pass": true
+            },
+            {
+              "python_key": "figs",
+              "matlab_key": "figs",
+              "python": 1.0,
+              "matlab": 1.0,
               "abs_diff": 0.0,
               "pass": true
             },
@@ -972,8 +1210,8 @@
               "pass": true
             }
           ],
-          "overlap_count": 2,
-          "overlap_passed": 2
+          "overlap_count": 3,
+          "overlap_passed": 3
         },
         "similarity_score": 1.0
       }
@@ -993,6 +1231,114 @@
         "status": "pass"
       },
       {
+        "topic": "CovariateExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "CovCollExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "nSpikeTrainExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "nstCollExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "EventsExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "HistoryExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "TrialExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "TrialConfigExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "ConfigCollExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "AnalysisExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "FitResultExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "FitResSummaryExamples",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
         "topic": "PPThinning",
         "required_keys": [
           "num_realizations"
@@ -1011,9 +1357,81 @@
         "status": "pass"
       },
       {
+        "topic": "ValidationDataSet",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "mEPSCAnalysis",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "PPSimExample",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "ExplicitStimulusWhiskerData",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "HippocampalPlaceCellExample",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "DecodingExample",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "DecodingExampleWithHist",
+        "required_keys": [
+          "figs"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
         "topic": "StimulusDecode2D",
         "required_keys": [
           "num_cells"
+        ],
+        "missing_keys": [],
+        "failing_keys": [],
+        "status": "pass"
+      },
+      {
+        "topic": "NetworkTutorial",
+        "required_keys": [
+          "figs"
         ],
         "missing_keys": [],
         "failing_keys": [],

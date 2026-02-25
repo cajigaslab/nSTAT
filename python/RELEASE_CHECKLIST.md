@@ -9,6 +9,8 @@
 - [ ] Generate docs and notebooks:
   - `python3 python/tools/generate_help_topic_docs.py`
   - `python3 python/tools/generate_example_notebooks.py`
+- [ ] Confirm docs build artifacts are not tracked:
+  - `python/docs/_build/` must remain gitignored and excluded from commits.
 - [ ] Build docs and execute examples:
   - `python3 python/tools/verify_examples_notebooks.py`
   - `sphinx-build -b html python/docs python/docs/_build/html`
@@ -23,8 +25,11 @@
 - [ ] Confirm release criteria:
   - Class parity: `9/9`
   - Help/notebook parity: `25/25` Python and `25/25` MATLAB
-  - Scalar parity contract: required topics pass
+  - Scalar parity contract: `25/25` help topics pass required keys
   - Regression gate: pass with no allowlist-required failures
 - [ ] Confirm compatibility adapters still import and emit `DeprecationWarning`.
 - [ ] Update `python/RELEASE_NOTES.md` with API changes and known differences.
+- [ ] Verify both release-gate workflows complete on the release candidate commit:
+  - `.github/workflows/python-ci.yml`
+  - `.github/workflows/matlab-parity-gate.yml`
 - [ ] Create and tag GitHub release.

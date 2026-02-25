@@ -26,16 +26,42 @@ if str(PY_ROOT) not in sys.path:
 EXPECTED_CLASS_TOTAL = 9
 HELP_PYTHON_REQUIRED_OK = 25
 HELP_MATLAB_MIN_OK = 25
-SCALAR_OVERLAP_PASS_MIN_TOPICS = 5
+SCALAR_OVERLAP_PASS_MIN_TOPICS = 25
 KNOWN_MATLAB_HELP_FAILURES: set[str] = set()
 PARITY_CONTRACT: dict[str, list[str]] = {
     "SignalObjExamples": ["sample_rate_hz"],
+    "CovariateExamples": ["figs"],
+    "CovCollExamples": ["figs"],
+    "nSpikeTrainExamples": ["figs"],
+    "nstCollExamples": ["figs"],
+    "EventsExamples": ["figs"],
+    "HistoryExamples": ["figs"],
+    "TrialExamples": ["figs"],
+    "TrialConfigExamples": ["figs"],
+    "ConfigCollExamples": ["figs"],
+    "AnalysisExamples": ["figs"],
+    "FitResultExamples": ["figs"],
+    "FitResSummaryExamples": ["figs"],
     "PPThinning": ["num_realizations"],
     "PSTHEstimation": ["num_realizations"],
+    "ValidationDataSet": ["figs"],
+    "mEPSCAnalysis": ["figs"],
+    "PPSimExample": ["figs"],
+    "ExplicitStimulusWhiskerData": ["figs"],
+    "HippocampalPlaceCellExample": ["figs"],
+    "DecodingExample": ["figs"],
+    "DecodingExampleWithHist": ["figs"],
     "StimulusDecode2D": ["num_cells"],
+    "NetworkTutorial": ["figs"],
     "nSTATPaperExamples": ["num_cells"],
 }
-FORCE_M_SCRIPT_TOPICS: set[str] = set(PARITY_CONTRACT.keys())
+FORCE_M_SCRIPT_TOPICS: set[str] = {
+    "SignalObjExamples",
+    "PPThinning",
+    "PSTHEstimation",
+    "StimulusDecode2D",
+    "nSTATPaperExamples",
+}
 
 
 def _normalize_key(s: str) -> str:

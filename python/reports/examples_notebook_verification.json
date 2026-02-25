@@ -31,6 +31,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "mean",
+        "parity",
         "std",
         "topic"
       ],
@@ -48,6 +49,7 @@
       "python_output_keys": [
         "labels",
         "matrix_shape",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -63,6 +65,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "n_spikes",
+        "parity",
         "rate_hz",
         "topic"
       ],
@@ -79,6 +82,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "num_trains",
+        "parity",
         "psth_points",
         "topic"
       ],
@@ -95,6 +99,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "n_events",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -111,6 +116,7 @@
       "python_output_keys": [
         "design_shape",
         "lags",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -127,6 +133,7 @@
       "python_output_keys": [
         "covariate_rows",
         "neurons",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -142,6 +149,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "covariates",
+        "parity",
         "sample_rate",
         "topic"
       ],
@@ -159,6 +167,7 @@
       "python_output_keys": [
         "names",
         "num_configs",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -175,6 +184,7 @@
       "python_output_keys": [
         "first_aic",
         "num_results",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -191,6 +201,7 @@
       "python_output_keys": [
         "bic",
         "coeffs",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -207,6 +218,7 @@
       "python_output_keys": [
         "mean_aic",
         "mean_bic",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -255,6 +267,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "num_trials",
+        "parity",
         "psth_mean_hz",
         "psth_peak_hz",
         "topic",
@@ -277,6 +290,7 @@
         "const_model_bic",
         "decreasing_condition_spikes",
         "dt_seconds",
+        "parity",
         "piecewise_history_model_aic",
         "piecewise_history_model_bic",
         "piecewise_model_aic",
@@ -302,6 +316,7 @@
         "model3_aic",
         "model3_bic",
         "n_samples",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -323,6 +338,7 @@
         "model3_aic",
         "model3_bic",
         "n_samples",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -340,6 +356,7 @@
         "mean_delta_aic_gaussian_minus_zernike",
         "mean_delta_bic_gaussian_minus_zernike",
         "num_cells_fit",
+        "parity",
         "topic"
       ],
       "notebook_ok": true,
@@ -410,6 +427,7 @@
       "python_module_error": "",
       "python_output_keys": [
         "neuron_count",
+        "parity",
         "psth_peak",
         "samples",
         "topic"

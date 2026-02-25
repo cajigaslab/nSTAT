@@ -3,3 +3,5 @@
 __pycache__/
 *.pyc
 python/plots/
+
+python/docs/_build/

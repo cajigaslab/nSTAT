@@ -20,6 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 REPORT_DIR = REPO_ROOT / "python" / "reports"
 MATLAB_BIN = Path("/Applications/MATLAB_R2025b.app/bin/matlab")
 MATLAB_EXTRA_ARGS = [arg for arg in os.environ.get("NSTAT_MATLAB_EXTRA_ARGS", "").split() if arg]
+FORCE_M_HELP_SCRIPTS = os.environ.get("NSTAT_FORCE_M_HELP_SCRIPTS", "").strip().lower() in {"1", "true", "yes", "on"}
 TOC_PATH = REPO_ROOT / "helpfiles" / "helptoc.xml"
 PY_ROOT = REPO_ROOT / "python"
 if str(PY_ROOT) not in sys.path:
@@ -451,7 +452,7 @@ def _help_similarity() -> dict[str, Any]:
         stem = Path(target).stem
         m_rel = f"helpfiles/{stem}.m"
         mlx_rel = f"helpfiles/{stem}.mlx"
-        if stem in FORCE_M_SCRIPT_TOPICS and (REPO_ROOT / m_rel).exists():
+        if (FORCE_M_HELP_SCRIPTS or stem in FORCE_M_SCRIPT_TOPICS) and (REPO_ROOT / m_rel).exists():
             script_rel = m_rel
         elif (REPO_ROOT / mlx_rel).exists():
             script_rel = mlx_rel

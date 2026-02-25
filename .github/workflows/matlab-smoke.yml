@@ -12,4 +12,4 @@ jobs:
     runs-on: [self-hosted, macOS]
     steps:
       - name: Print MATLAB version
-        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -batch "disp(version); exit"
+        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -noopengl -batch "disp(version); exit"

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from nstat import Analysis, CIFModel, ConfigCollection, Covariate, CovariateCollection, SpikeTrain, SpikeTrainCollection, Trial, TrialConfig
 from nstat.DecodingAlgorithms import DecodingAlgorithms
@@ -87,6 +89,8 @@ def test_implemented_method_set_matches_matrix(repo_root) -> None:
 
 
 def test_implemented_methods_smoke_execute() -> None:
+    if os.environ.get("NSTAT_CI_LIGHT") == "1":
+        pytest.skip("Heavy method execution smoke is skipped in CI-light mode")
     trial, cfgs, fits = _build_trial_and_fits()
 
     # nstColl / Trial / CovColl / TrialConfig / ConfigColl / History

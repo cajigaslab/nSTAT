@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 
 
 def test_implemented_method_coverage_report(repo_root) -> None:
     cp = subprocess.run(
-        ["python3", "python/tools/generate_implemented_method_coverage.py"],
+        [sys.executable, "python/tools/generate_implemented_method_coverage.py"],
         cwd=str(repo_root),
         capture_output=True,
         text=True,

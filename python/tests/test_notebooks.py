@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 
 
 def test_generated_notebooks_execute(repo_root) -> None:
     cp = subprocess.run(
-        ["python3", "python/tools/verify_examples_notebooks.py"],
+        [sys.executable, "python/tools/verify_examples_notebooks.py"],
         cwd=str(repo_root),
         capture_output=True,
         text=True,

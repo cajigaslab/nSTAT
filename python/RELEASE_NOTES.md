@@ -53,12 +53,25 @@
 | `CIF` | `nstat.cif.CIFModel` |
 | `DecodingAlgorithms` | `nstat.decoding.DecoderSuite` |
 
+## Final migration status
+
+| Area | Status | Notes |
+|---|---|---|
+| Core classes | Complete | Canonical APIs implemented under `nstat.*`. |
+| MATLAB-style import adapters | Transitional | Compatibility modules emit `DeprecationWarning` and forward to canonical APIs. |
+| Help topic docs | Complete | All topics listed in `helpfiles/helptoc.xml` are represented in Sphinx docs. |
+| Example notebooks | Complete | 25/25 help examples are generated as executable notebooks. |
+| Parity contract | Complete | Scalar parity keys required for all 25 help topics. |
+| Standalone runtime | Complete | No MATLAB runtime required for Python package execution. MATLAB is only required for parity validation workflows. |
+
 ## Compatibility adapters
 
 MATLAB-style adapters remain importable under `nstat/*.py` compatibility modules and emit `DeprecationWarning` with migration targets.
 
 ## Known differences / omissions
 
-- Not all legacy MATLAB plotting helpers are ported as core API methods; visualization is notebook/doc driven.
-- Method-level parity status is tracked in `python/reports/method_parity_matrix.json`.
-- Scalar parity comparisons are tolerance-based and may vary when seeds/parameters diverge from MATLAB defaults.
+| Topic | Current behavior |
+|---|---|
+| Legacy plotting helpers | Not all MATLAB plotting helpers are direct API ports; plotting is primarily notebook/doc-driven. |
+| Parity tolerance | MATLAB/Python scalar comparisons are tolerance-based; stochastic workflows rely on seeded aggregate metrics. |
+| Method surface differences | Some low-value legacy MATLAB methods are intentionally omitted and documented in `python/reports/method_parity_matrix.json`. |

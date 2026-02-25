@@ -33,4 +33,9 @@
 - [ ] Verify both release-gate workflows complete on the release candidate commit:
   - `.github/workflows/python-ci.yml`
   - `.github/workflows/matlab-parity-gate.yml`
+- [ ] Run MATLAB preflight before parity verification:
+  - Trigger `.github/workflows/matlab-smoke.yml` on the target branch and confirm success.
+- [ ] Verify required branch checks are enforced on `master`:
+  - `Python CI / test-and-build`
+  - `MATLAB Parity Gate / parity-gate`
 - [ ] Create and tag GitHub release.

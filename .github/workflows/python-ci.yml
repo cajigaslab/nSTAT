@@ -47,7 +47,7 @@ jobs:
       - name: Run pytest
         run: |
           cd python
-          pytest -q
+          python -m pytest -q
 
       - name: Upload reports
         uses: actions/upload-artifact@v4

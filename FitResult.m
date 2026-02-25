@@ -1467,8 +1467,35 @@ classdef FitResult < handle
                     ensHistObject{i} = History.fromStructure(structure.ensHistObjects{i});
                 end
                 configColl = ConfigColl.fromStructure(structure.configs);
+
+                % Support legacy saved structures that predate select fields.
+                logLL = NaN(1,max(1,structure.numResults));
+                if isfield(structure,'logLL')
+                    logLL = structure.logLL;
+                    if isscalar(logLL) && structure.numResults > 1
+                        logLL = repmat(logLL,1,structure.numResults);
+                    end
+                end
+
+                XvalData = [];
+                if isfield(structure,'XvalData')
+                    XvalData = structure.XvalData;
+                end
+
+                XvalTime = [];
+                if isfield(structure,'XvalTime')
+                    XvalTime = structure.XvalTime;
+                end
+
+                fitType = '';
+                if isfield(structure,'fitType')
+                    fitType = structure.fitType;
+                elseif isfield(structure,'distribution')
+                    fitType = structure.distribution;
+                end
+
 %                 fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL, configColl,XvalData,XvalTime,distribution)
-                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,structure.logLL,configColl,structure.XvalData,structure.XvalTime,structure.fitType);
+                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,logLL,configColl,XvalData,XvalTime,fitType);
                 fitObj.setKSStats(structure.Z,structure.U, structure.KSStats.xAxis, structure.KSStats.KSSorted, structure.KSStats.ks_stat);
                 fitObj.setInvGausStats(structure.X,rhoSig,confBoundSig);
                 fitObj.setFitResidual(M);

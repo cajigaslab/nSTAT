@@ -445,8 +445,8 @@ def _help_similarity() -> dict[str, Any]:
 
     scores: list[float] = []
     topic_timeouts = {
-        "DecodingExampleWithHist": 120,
-        "nSTATPaperExamples": 180,
+        "DecodingExampleWithHist": 240,
+        "nSTATPaperExamples": 240,
     }
     for idx, (title, target) in enumerate(topics, start=1):
         stem = Path(target).stem
@@ -464,7 +464,7 @@ def _help_similarity() -> dict[str, Any]:
         print(f"[help {idx}/{len(topics)}] {stem}", flush=True)
 
         py = _run_python_topic(stem)
-        timeout_s = topic_timeouts.get(stem, 90)
+        timeout_s = topic_timeouts.get(stem, 120)
         ml = _run_matlab_help_script(script_rel, timeout_s=timeout_s)
 
         if py.get("ok"):

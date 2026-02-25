@@ -22,7 +22,7 @@ jobs:
       AGENT_TOOLSDIRECTORY: /Users/iahncajigas/actions-runner/_work/_tool
       RUNNER_TEMP: /Users/iahncajigas/actions-runner/_work/_temp
       TMPDIR: /Users/iahncajigas/actions-runner/_work/_temp
-      NSTAT_MATLAB_EXTRA_ARGS: -maca64 -noopengl
+      NSTAT_MATLAB_EXTRA_ARGS: -maca64 -nodisplay
     steps:
       - name: Prepare runner directories
         run: |
@@ -34,7 +34,7 @@ jobs:
           lfs: true
 
       - name: MATLAB smoke preflight
-        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -batch "disp(version); exit"
+        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -nodisplay -batch "disp(version); exit"
 
       - name: Pull LFS Objects
         run: git lfs pull

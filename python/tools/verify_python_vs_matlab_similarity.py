@@ -4,6 +4,7 @@ import argparse
 import importlib
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -18,6 +19,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REPORT_DIR = REPO_ROOT / "python" / "reports"
 MATLAB_BIN = Path("/Applications/MATLAB_R2025b.app/bin/matlab")
+MATLAB_EXTRA_ARGS = [arg for arg in os.environ.get("NSTAT_MATLAB_EXTRA_ARGS", "").split() if arg]
 TOC_PATH = REPO_ROOT / "helpfiles" / "helptoc.xml"
 PY_ROOT = REPO_ROOT / "python"
 if str(PY_ROOT) not in sys.path:
@@ -62,6 +64,10 @@ FORCE_M_SCRIPT_TOPICS: set[str] = {
     "StimulusDecode2D",
     "nSTATPaperExamples",
 }
+
+
+def _matlab_batch_command(batch_cmd: str) -> list[str]:
+    return [str(MATLAB_BIN), *MATLAB_EXTRA_ARGS, "-batch", batch_cmd]
 
 
 def _normalize_key(s: str) -> str:
@@ -181,7 +187,7 @@ def _matlab_class_checks(timeout_s: int = 180) -> dict[str, Any]:
 
     try:
         cp = subprocess.run(
-            [str(MATLAB_BIN), "-batch", cmd],
+            _matlab_batch_command(cmd),
             cwd=str(REPO_ROOT),
             capture_output=True,
             text=True,
@@ -329,7 +335,7 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
         t0 = time.time()
         try:
             cp = subprocess.run(
-                [str(MATLAB_BIN), "-batch", cmd],
+                _matlab_batch_command(cmd),
                 cwd=str(REPO_ROOT),
                 capture_output=True,
                 text=True,

@@ -67,4 +67,37 @@ jobs:
 
       - name: Enforce pytest pass
         if: steps.pytest.outcome == 'failure'
-        run: exit 1
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          xml_path = Path("python/reports/pytest.xml")
+          log_path = Path("python/reports/pytest.log")
+
+          if xml_path.exists():
+              root = ET.parse(xml_path).getroot()
+              emitted = False
+              for testcase in root.iter("testcase"):
+                  failures = list(testcase.findall("failure")) + list(testcase.findall("error"))
+                  if not failures:
+                      continue
+                  emitted = True
+                  case_id = f"{testcase.attrib.get('classname', '')}.{testcase.attrib.get('name', '')}".strip(".")
+                  for fail in failures:
+                      msg = (fail.attrib.get("message", "") or "pytest failure").replace("\n", " ").strip()
+                      print(f"::error title={case_id}::{msg}")
+                      text = (fail.text or "").strip()
+                      if text:
+                          print(text[:3000])
+              if not emitted:
+                  print("::error title=pytest::Pytest failed without testcase-level failures in junit XML")
+          else:
+              print("::error title=pytest::Missing python/reports/pytest.xml")
+
+          if log_path.exists():
+              tail = log_path.read_text(encoding="utf-8", errors="ignore")[-4000:]
+              print("---- pytest.log tail ----")
+              print(tail)
+          PY
+          exit 1

@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 
+import pytest
+
 
 def test_generated_notebooks_execute(repo_root) -> None:
+    if os.environ.get("NSTAT_CI_LIGHT") == "1":
+        pytest.skip("Notebook validation already executed in dedicated CI workflow step")
     cp = subprocess.run(
         [sys.executable, "python/tools/verify_examples_notebooks.py"],
         cwd=str(repo_root),

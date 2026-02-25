@@ -45,12 +45,26 @@ jobs:
           python python/tools/verify_offline_standalone.py
 
       - name: Run pytest
+        id: pytest
+        continue-on-error: true
+        env:
+          NSTAT_CI_LIGHT: "1"
         run: |
           cd python
-          python -m pytest -q
+          mkdir -p reports
+          set -o pipefail
+          python -m pytest -vv --maxfail=1 --durations=20 --junitxml=reports/pytest.xml 2>&1 | tee reports/pytest.log
 
       - name: Upload reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nstat-python-reports
-          path: python/reports/*.json
+          path: |
+            python/reports/*.json
+            python/reports/pytest.xml
+            python/reports/pytest.log
+
+      - name: Enforce pytest pass
+        if: steps.pytest.outcome == 'failure'
+        run: exit 1

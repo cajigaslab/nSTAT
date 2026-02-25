@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 
+import pytest
+
 
 def test_implemented_method_coverage_report(repo_root) -> None:
+    if os.environ.get("NSTAT_CI_LIGHT") == "1":
+        pytest.skip("Method coverage report already generated in dedicated CI workflow step")
     cp = subprocess.run(
         [sys.executable, "python/tools/generate_implemented_method_coverage.py"],
         cwd=str(repo_root),

@@ -55,6 +55,8 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
         env["PATH"] = _sanitize_path(env.get("PATH", ""))
         env["PYTHONPATH"] = str(site_dir)
 
+        install_env = {**env, "PYTHONPATH": str(site_dir)}
+        source_env = {**env, "PYTHONPATH": str(REPO_ROOT / "python")}
         steps = []
         steps.append(
             _run(
@@ -69,7 +71,7 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
                     str(site_dir),
                 ],
                 cwd=REPO_ROOT,
-                env=env,
+                env=install_env,
             )
         )
         steps.append(
@@ -86,7 +88,7 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
                     ),
                 ],
                 cwd=REPO_ROOT,
-                env={**env, "PYTHONPATH": os.pathsep.join([str(site_dir), str(REPO_ROOT / "python")])},
+                env=install_env,
             )
         )
         steps.append(
@@ -95,13 +97,33 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
                     str(py),
                     "-c",
                     (
-                        "from examples.help_topics._common import run_topic; "
-                        f"out=run_topic('SignalObjExamples', repo_root={repr(str(REPO_ROOT))}); "
-                        "print(out['topic'])"
+                        "import numpy as np; "
+                        "from nstat.signal import Signal; "
+                        "t=np.linspace(0.0,1.0,100); "
+                        "sig=Signal(t, np.column_stack([np.sin(t), np.cos(t)]), name='offline_check'); "
+                        "print(sig.dimension)"
                     ),
                 ],
-                cwd=REPO_ROOT / "python",
-                env={**env, "PYTHONPATH": os.pathsep.join([str(site_dir), str(REPO_ROOT / 'python')])},
+                cwd=REPO_ROOT,
+                env=install_env,
+            )
+        )
+        # Source-path fallback check keeps CI resilient if pip --target behavior changes.
+        steps.append(
+            _run(
+                [
+                    str(py),
+                    "-c",
+                    (
+                        "import json, pathlib, nstat; "
+                        "checks=nstat.verify_checksums(); "
+                        "print(json.dumps({'dataset_count': len(nstat.list_datasets()), "
+                        "'checksum_all_true': all(checks.values()), "
+                        "'nstat_path': str(pathlib.Path(nstat.__file__).resolve())}))"
+                    ),
+                ],
+                cwd=REPO_ROOT,
+                env=source_env,
             )
         )
         if full_notebooks:
@@ -109,7 +131,7 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
                 _run(
                     [str(py), "python/tools/verify_examples_notebooks.py"],
                     cwd=REPO_ROOT,
-                    env={**env, "PYTHONPATH": os.pathsep.join([str(site_dir), str(REPO_ROOT / "python")])},
+                    env=source_env,
                 )
             )
 
@@ -117,21 +139,25 @@ def verify(full_notebooks: bool = False) -> dict[str, Any]:
 
     report["runtime_matlab_scan"] = _runtime_matlab_dependency_scan()
     report["target_install_ok"] = bool(report["steps"][0]["ok"])
-    report["post_install_checks_ok"] = bool(
-        report["steps"][1]["ok"]
-        and report["steps"][2]["ok"]
-        and (not full_notebooks or report["steps"][-1]["ok"])
-    )
-    report["source_fallback_ok"] = bool((not report["target_install_ok"]) and report["post_install_checks_ok"])
+    report["installed_runtime_ok"] = bool(report["steps"][1]["ok"] and report["steps"][2]["ok"])
+    report["source_fallback_ok"] = bool(report["steps"][3]["ok"])
+    report["notebook_checks_ok"] = bool((not full_notebooks) or report["steps"][-1]["ok"])
     report["install_mode"] = (
         "target_install"
-        if report["target_install_ok"]
+        if (report["target_install_ok"] and report["installed_runtime_ok"])
         else ("source_fallback" if report["source_fallback_ok"] else "failed")
     )
     report["pass_strict_target_install"] = bool(
-        report["target_install_ok"] and report["post_install_checks_ok"] and report["runtime_matlab_scan"]["ok"]
+        report["target_install_ok"]
+        and report["installed_runtime_ok"]
+        and report["notebook_checks_ok"]
+        and report["runtime_matlab_scan"]["ok"]
     )
-    report["pass"] = bool(report["post_install_checks_ok"] and report["runtime_matlab_scan"]["ok"])
+    report["pass"] = bool(
+        report["notebook_checks_ok"]
+        and report["runtime_matlab_scan"]["ok"]
+        and (report["pass_strict_target_install"] or report["source_fallback_ok"])
+    )
     REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 

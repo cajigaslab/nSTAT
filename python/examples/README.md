@@ -18,3 +18,15 @@ python3 examples/basic_data_workflow.py
 python3 examples/fit_poisson_glm.py
 python3 examples/simulate_population_psth.py
 ```
+
+## MATLAB help-topic source scripts
+
+Executable source scripts used for notebook generation live in:
+
+- `python/examples/help_topics/`
+
+Regenerate all help-topic notebooks:
+
+```bash
+python3 python/tools/generate_example_notebooks.py
+```

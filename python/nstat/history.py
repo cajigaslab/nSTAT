@@ -4,10 +4,12 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .signal import Covariate
+
 
 @dataclass
-class History:
-    """Simple spike-history basis description."""
+class HistoryBasis:
+    """Spike-history basis using lagged spike-count regressors."""
 
     lags: np.ndarray
     name: str = "History"
@@ -27,3 +29,21 @@ class History:
         for j, lag in enumerate(self.lags):
             x[lag:, j] = y[:-lag]
         return x
+
+    def compute_history(self, spike_indicator: np.ndarray, time: np.ndarray) -> Covariate:
+        x = self.design_matrix(spike_indicator)
+        labels = [f"hist_lag_{int(l)}" for l in self.lags]
+        return Covariate(time, x, self.name, "time", "s", "count", labels)
+
+    # MATLAB-compatible method names.
+    def computeHistory(self, nst) -> Covariate:
+        y = np.asarray(getattr(nst, "getSigRep")().data[:, 0], dtype=float)
+        t = np.asarray(getattr(nst, "getSigRep")().time, dtype=float)
+        return self.compute_history(y, t)
+
+
+# Backward-compatible alias.
+History = HistoryBasis
+
+
+__all__ = ["HistoryBasis", "History"]

@@ -1,0 +1,30 @@
+# nSTAT Python Release Checklist
+
+- [ ] Install from source in a clean environment:
+  - `python3 -m pip install -e python/`
+- [ ] Refresh parity and coverage artifacts:
+  - `python3 python/tools/freeze_port_baseline.py`
+  - `python3 python/tools/generate_method_parity_matrix.py`
+  - `python3 python/tools/generate_implemented_method_coverage.py`
+- [ ] Generate docs and notebooks:
+  - `python3 python/tools/generate_help_topic_docs.py`
+  - `python3 python/tools/generate_example_notebooks.py`
+- [ ] Build docs and execute examples:
+  - `python3 python/tools/verify_examples_notebooks.py`
+  - `sphinx-build -b html python/docs python/docs/_build/html`
+- [ ] Run similarity gate (requires MATLAB):
+  - `python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate`
+- [ ] Freeze similarity baseline:
+  - `python3 python/tools/freeze_similarity_baseline.py`
+- [ ] Verify standalone offline workflow:
+  - `python3 python/tools/verify_offline_standalone.py`
+- [ ] Run full test suite:
+  - `cd python && python3 -m pytest -q`
+- [ ] Confirm release criteria:
+  - Class parity: `9/9`
+  - Help/notebook parity: `25/25` Python and `25/25` MATLAB
+  - Scalar parity contract: required topics pass
+  - Regression gate: pass with no allowlist-required failures
+- [ ] Confirm compatibility adapters still import and emit `DeprecationWarning`.
+- [ ] Update `python/RELEASE_NOTES.md` with API changes and known differences.
+- [ ] Create and tag GitHub release.

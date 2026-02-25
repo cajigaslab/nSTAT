@@ -160,3 +160,7 @@ subplot(3,1,2); s.plotAllVariability('g',2);
 %cyan, lineWidth=3, 2*std for top CI, and 1*std for bottom CI
 subplot(3,1,3); s.plotAllVariability('c',3,2,1);
 
+% Parity contract scalars for MATLAB/Python verification.
+parity = struct();
+parity.sample_rate_hz = sampleRate;
+

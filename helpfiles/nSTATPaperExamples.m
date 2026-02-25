@@ -2190,6 +2190,15 @@ end
     set([hx, hy],'FontName', 'Arial','FontSize',10,'FontWeight','bold');
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
 
+% Parity contract scalars for MATLAB/Python verification.
+parity = struct();
+if exist('numCells','var')
+    parity.num_cells = numCells;
+end
+if exist('numRealizations','var')
+    parity.num_realizations = numRealizations;
+end
+
 function [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
     getPaperDataDirs()
 % Resolve local data folders robustly when Live Editor executes from a temp

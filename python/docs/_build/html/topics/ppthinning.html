@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Point Process Simulation via Thinning &#8212; nSTAT Python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=61cd365c" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)" href="psthestimation.html" />
+    <link rel="prev" title="Using the FitResSummary Class" href="fitressummaryexamples.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="point-process-simulation-via-thinning">
+<h1>Point Process Simulation via Thinning<a class="headerlink" href="#point-process-simulation-via-thinning" title="Link to this heading">¶</a></h1>
+<p>MATLAB help target: <code class="docutils literal notranslate"><span class="pre">PPThinning.html</span></code></p>
+<section id="concept">
+<h2>Concept<a class="headerlink" href="#concept" title="Link to this heading">¶</a></h2>
+<p>This page mirrors the corresponding MATLAB help topic and documents the Python standalone equivalent.</p>
+</section>
+<section id="api-mapping-matlab-python">
+<h2>API Mapping (MATLAB -&gt; Python)<a class="headerlink" href="#api-mapping-matlab-python" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>MATLAB API</p></th>
+<th class="head"><p>Python API</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PPThinning</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nstat.cif.CIFModel.simulate</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="migration-callout">
+<h2>Migration Callout<a class="headerlink" href="#migration-callout" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>MATLAB-style compatibility adapters remain importable for one major cycle and emit <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p></li>
+<li><p>Prefer canonical Python modules under <code class="docutils literal notranslate"><span class="pre">nstat</span></code> for new code.</p></li>
+</ul>
+</section>
+<section id="python-usage">
+<h2>Python Usage<a class="headerlink" href="#python-usage" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nstat</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nstat</span><span class="o">.</span><span class="n">__all__</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="data-requirements">
+<h2>Data Requirements<a class="headerlink" href="#data-requirements" title="Link to this heading">¶</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">nstat.datasets.list_datasets()</span></code> and <code class="docutils literal notranslate"><span class="pre">nstat.datasets.get_dataset_path(...)</span></code> to access bundled datasets.</p>
+</section>
+<section id="expected-outputs">
+<h2>Expected Outputs<a class="headerlink" href="#expected-outputs" title="Link to this heading">¶</a></h2>
+<p>This topic should execute without MATLAB and produce deterministic summary metrics where applicable.</p>
+</section>
+<section id="known-differences">
+<h2>Known Differences<a class="headerlink" href="#known-differences" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Some legacy plotting helpers are represented via notebooks/docs instead of full method parity.</p></li>
+<li><p>Numerical outputs may vary if random seeds, bin widths, or sample rates differ from MATLAB defaults.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">nSTAT Python</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../help_topics.html">Help Topics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="neuralspikeanalysis_top.html">nSTAT Neural Spike Train Analysis Toolbox Overview MATLAB 2025b Help Integration Class Definitions SignalObj Reference FitResult Reference Examples Using the SignalObj Class Using the Covariate Class Using the CovColl Class Using the nSpikeTrain Class Using the nstColl Class Using the Events Class Using the History Class Using the Trial Class Using the TrialConfig Class Using the ConfigColl Class Using the Analysis Class Using the FitResult Class Using the FitResSummary Class Point Process Simulation via Thinning Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH) Example Data Analysis - Simulated Constant (Piecewise Constant) Rate Poisson Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs) Example Data Analysis - Simulated Explicit Stimulus and History Example Data Analysis - Explicit Stimulus Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect) Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect Example Data Analysis - Decoding Bivariate Simulated Stimuli Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect nSTAT Paper Examples Neuroscience Statistics Research Laboratory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentationsetup2025b.html">MATLAB 2025b Help Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classdefinitions.html">Class Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signalobj.html">SignalObj Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fitresult.html">FitResult Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples Using the SignalObj Class Using the Covariate Class Using the CovColl Class Using the nSpikeTrain Class Using the nstColl Class Using the Events Class Using the History Class Using the Trial Class Using the TrialConfig Class Using the ConfigColl Class Using the Analysis Class Using the FitResult Class Using the FitResSummary Class Point Process Simulation via Thinning Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH) Example Data Analysis - Simulated Constant (Piecewise Constant) Rate Poisson Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs) Example Data Analysis - Simulated Explicit Stimulus and History Example Data Analysis - Explicit Stimulus Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect) Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect Example Data Analysis - Decoding Bivariate Simulated Stimuli Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect nSTAT Paper Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signalobjexamples.html">Using the SignalObj Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covariateexamples.html">Using the Covariate Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covcollexamples.html">Using the CovColl Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nspiketrainexamples.html">Using the nSpikeTrain Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nstcollexamples.html">Using the nstColl Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eventsexamples.html">Using the Events Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="historyexamples.html">Using the History Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trialexamples.html">Using the Trial Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trialconfigexamples.html">Using the TrialConfig Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configcollexamples.html">Using the ConfigColl Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysisexamples.html">Using the Analysis Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fitresultexamples.html">Using the FitResult Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fitressummaryexamples.html">Using the FitResSummary Class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Point Process Simulation via Thinning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="psthestimation.html">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validationdataset.html">Example Data Analysis - Simulated Constant (Piecewise Constant) Rate Poisson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mepscanalysis.html">Example Data Analysis - Miniature Excitatory Post-Synaptic Currents (mEPSCs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppsimexample.html">Example Data Analysis - Simulated Explicit Stimulus and History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicitstimuluswhiskerdata.html">Example Data Analysis - Explicit Stimulus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hippocampalplacecellexample.html">Example Data Analysis - Hippocampal Place Cell Receptive Field Estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decodingexample.html">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decodingexamplewithhist.html">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stimulusdecode2d.html">Example Data Analysis - Decoding Bivariate Simulated Stimuli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="networktutorial.html">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nstatpaperexamples.html">nSTAT Paper Examples</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../help_topics.html">Help Topics</a><ul>
+      <li>Previous: <a href="fitressummaryexamples.html" title="previous chapter">Using the FitResSummary Class</a></li>
+      <li>Next: <a href="psthestimation.html" title="next chapter">Example Data Analysis - Simulated Data - Computing a Peri-Stimulus Time Histogram (PSTH)</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/topics/ppthinning.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Iterable
 
 import numpy as np
 
-from .core import Covariate, SignalObj, nspikeTrain
+from .core import nspikeTrain
+from .signal import Covariate
 
 
 @dataclass
@@ -90,7 +91,6 @@ class FitResult:
         return self.fits[fit_num - 1].coefficients.copy()
 
     def getHistCoeffs(self, fit_num: int = 1) -> np.ndarray:
-        # Placeholder for compatibility.
         return np.array([], dtype=float)
 
     def mergeResults(self, other: "FitResult") -> "FitResult":
@@ -173,14 +173,24 @@ class FitResult:
         return FitResult(train, lam, fits)
 
 
-class FitResSummary:
-    def __init__(self, fit_result: FitResult) -> None:
-        self.fit_result = fit_result
-        self.AIC = fit_result.AIC.copy()
-        self.BIC = fit_result.BIC.copy()
-        # Keep KS as 2D for compatibility with MATLAB usage.
-        self.KSStats = np.column_stack([fit_result.KSStats.reshape(-1), np.zeros(fit_result.numResults)])
-        self.numNeurons = 1
+class FitSummary:
+    """Cross-fit summary statistics for one or more FitResult objects."""
+
+    def __init__(self, fit_results: FitResult | Iterable[FitResult]) -> None:
+        if isinstance(fit_results, FitResult):
+            self.fit_results = [fit_results]
+        else:
+            self.fit_results = list(fit_results)
+            if not self.fit_results:
+                raise ValueError("FitSummary requires at least one FitResult")
+
+        aic = np.vstack([fr.AIC for fr in self.fit_results])
+        bic = np.vstack([fr.BIC for fr in self.fit_results])
+        ks = np.vstack([fr.KSStats.reshape(1, -1) for fr in self.fit_results])
+        self.AIC = np.mean(aic, axis=0)
+        self.BIC = np.mean(bic, axis=0)
+        self.KSStats = np.column_stack([np.mean(ks, axis=0), np.std(ks, axis=0)])
+        self.numNeurons = len(self.fit_results)
 
     def getDiffAIC(self, idx: int = 1) -> np.ndarray:
         base = self.AIC[idx - 1]
@@ -194,4 +204,8 @@ class FitResSummary:
         return None
 
 
-__all__ = ["FitResult", "FitResSummary", "_SingleFit"]
+class FitResSummary(FitSummary):
+    """MATLAB-compatible alias for FitSummary."""
+
+
+__all__ = ["FitResult", "FitSummary", "FitResSummary", "_SingleFit"]

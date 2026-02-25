@@ -60,4 +60,8 @@ lambda.plot;
 v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
 
+% Parity contract scalars for MATLAB/Python verification.
+parity = struct();
+parity.num_realizations = numRealizations;
+
 

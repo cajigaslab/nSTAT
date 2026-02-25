@@ -17,8 +17,19 @@ dependencies = [
   "matplotlib>=3.7"
 ]
 
-[tool.setuptools]
-packages = ["nstat"]
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "nbformat>=5.9",
+  "sphinx>=7.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nstat*"]
+
+[tool.setuptools.package-data]
+"nstat.data" = ["manifest.json"]
 
 [project.scripts]
 nstat-paper-examples = "nstat.paper_examples:main"

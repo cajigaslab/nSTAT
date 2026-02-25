@@ -31,12 +31,21 @@ figure;
 binsize = .5; %500ms window
 psth    = spikeColl.psth(binsize);
 psthGLM = spikeColl.psthGLM(binsize);
-true = lambda; %rate*delta = expected number of arrivals per bin
-h1=true.plot; 
+trueRate = lambda; %rate*delta = expected number of arrivals per bin
+h1=trueRate.plot; 
 h3=psthGLM.plot([],{{' ''k'',''Linewidth'',4'}});
 h2=psth.plot([],{{' ''rx'',''Linewidth'',4'}});
 legend off;
 legend([h1(1) h2(1)  h3(1)],'true','PSTH','PSTH_{glm}');
+
+% Scalar summaries for automated parity checks.
+psth_mean_hz = mean(psth.data);
+psth_glm_mean_hz = mean(psthGLM.data);
+lambda_mean_hz = mean(lambda.data);
+parity = struct();
+parity.psth_mean_hz = psth_mean_hz;
+parity.psth_glm_mean_hz = psth_glm_mean_hz;
+parity.lambda_mean_hz = lambda_mean_hz;
 
 % Because currently the psthGLM estimated the psth coefficients in each bin
 % for each realization, we want the show the mean and standard error of the

@@ -1,0 +1,47 @@
+name: MATLAB Parity Gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  parity-gate:
+    # Requires a self-hosted macOS runner with MATLAB installed at:
+    # /Applications/MATLAB_R2025b.app/bin/matlab
+    runs-on: [self-hosted, macOS]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./python[dev]
+
+      - name: Generate docs/notebooks/parity prerequisites
+        run: |
+          python python/tools/generate_help_topic_docs.py
+          python python/tools/generate_example_notebooks.py
+          python python/tools/generate_method_parity_matrix.py
+          python python/tools/generate_implemented_method_coverage.py
+
+      - name: Run MATLAB/Python similarity gate
+        run: |
+          python python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
+
+      - name: Freeze similarity baseline
+        run: |
+          python python/tools/freeze_similarity_baseline.py
+
+      - name: Upload parity reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: nstat-matlab-parity-reports
+          path: |
+            python/reports/python_vs_matlab_similarity_report.json
+            python/reports/python_vs_matlab_similarity_baseline.json

@@ -1,0 +1,38 @@
+{
+  "generated_at_utc": "2026-02-25T04:02:50.188234+00:00",
+  "reports": {
+    "mfile_parity": {
+      "path": "python/reports/mfile_parity_report.json",
+      "exists": true,
+      "sha256": "14550105d488cd5f91d47dbbb1bd6ad96e34e2dd74d102d85b3f9b0c392a1e7a",
+      "size_bytes": 19449,
+      "summary": {
+        "total_m_files": 58,
+        "python_ok": 58,
+        "python_runnable_ok": 33,
+        "matlab_runnable_ok": 24,
+        "runnable_parity_pass": 24,
+        "interface_only": 25,
+        "runnable_total": 33
+      }
+    },
+    "examples_notebooks": {
+      "path": "python/reports/examples_notebook_verification.json",
+      "exists": true,
+      "sha256": "62ac461f6deb0e894cdcad18b7d2f8f5f720d0c0a2b32bd434cc81aa2ba6f0ce",
+      "size_bytes": 12093,
+      "summary": {
+        "total_examples": 25,
+        "python_modules_ok": 25,
+        "notebooks_ok": 25,
+        "topic_alignment_ok": 25
+      }
+    },
+    "matlab_smoke_input": {
+      "path": "python/reports/matlab_smoke_input.json",
+      "exists": true,
+      "sha256": "3e5ffe693d440c094c529163ca403f791cc5f4c4210d379a220652cc487eb713",
+      "size_bytes": 3510
+    }
+  }
+}

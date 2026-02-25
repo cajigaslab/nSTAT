@@ -1,0 +1,33 @@
+{
+  "datasets": {
+    "mepcs_epsc2": {
+      "path": "data/mEPSCs/epsc2.txt",
+      "sha256": "65a130b7af4bc34eeaf943da76df6ebf9ba0ae9720eb98b6813f9f44a43ff435"
+    },
+    "mepcs_washout1": {
+      "path": "data/mEPSCs/washout1.txt",
+      "sha256": "4791531b54dd3f98c8cf756bd253d61d09113338b0dbe98ed09ef2df2d18e00e"
+    },
+    "mepcs_washout2": {
+      "path": "data/mEPSCs/washout2.txt",
+      "sha256": "ab35f26d4bccc48d2dc91e5007ba64d2527891666d2653e0a6118e397a4985fa"
+    },
+    "explicit_stimulus_dir3_neuron1_stim2_train": {
+      "path": "data/Explicit Stimulus/Dir3/Neuron1/Stim2/trngdataBis.mat",
+      "sha256": "f4b4299a1e977db37bab8a11d107b6d2a73541d3e5bb017ab68b1d9885def3f2"
+    },
+    "ssglm_example": {
+      "path": "data/SSGLMExampleData.mat",
+      "sha256": "fc1d4730267b49e3af534f6572b28ce1ba746708a49a1e4f1e8fb082cdabc360"
+    },
+    "place_cell_animal1": {
+      "path": "data/Place Cells/PlaceCellDataAnimal1.mat",
+      "sha256": "8806ab38c62a04ee1bec9cabab907a8f9fa3d66e0799fa09de8acd01789fc77b"
+    },
+    "hybrid_filter_example": {
+      "path": "helpfiles/paperHybridFilterExample.mat",
+      "sha256": "0a9941cc9cf564f1aaffdcd6dac766ada1f514926b610949bf0545c1b1bf401d"
+    }
+  },
+  "notes": "Core offline datasets required by canonical paper/help workflows."
+}

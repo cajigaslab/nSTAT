@@ -217,13 +217,15 @@ def run_experiment4(data_dir: Path) -> dict[str, float]:
     }
 
 
-def run_experiment5(seed: int = 11) -> dict[str, float]:
+def run_experiment5(seed: int = 11, n_cells: int = 20) -> dict[str, float]:
     rng = np.random.default_rng(seed)
     dt = 0.001
     time = np.arange(0.0, 1.0 + dt, dt)
     stim = np.sin(2.0 * np.pi * 2.0 * time)
 
-    n_cells = 20
+    n_cells = int(n_cells)
+    if n_cells < 1:
+        raise ValueError("n_cells must be >= 1")
     spikes = np.zeros((time.shape[0], n_cells), dtype=float)
     for i in range(n_cells):
         b1 = rng.normal(1.0, 0.5)
@@ -238,7 +240,7 @@ def run_experiment5(seed: int = 11) -> dict[str, float]:
     return {"num_cells": float(n_cells), "decode_rmse": rmse}
 
 
-def run_experiment5b(seed: int = 19) -> dict[str, float]:
+def run_experiment5b(seed: int = 19, n_cells: int = 30) -> dict[str, float]:
     rng = np.random.default_rng(seed)
 
     dt = 0.01
@@ -248,7 +250,9 @@ def run_experiment5b(seed: int = 19) -> dict[str, float]:
     vx = np.gradient(x_true, dt)
     vy = np.gradient(y_true, dt)
 
-    n_cells = 30
+    n_cells = int(n_cells)
+    if n_cells < 1:
+        raise ValueError("n_cells must be >= 1")
     spikes = np.zeros((time.shape[0], n_cells), dtype=float)
     for i in range(n_cells):
         wx = rng.normal(0.0, 1.0)

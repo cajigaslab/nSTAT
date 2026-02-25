@@ -43,7 +43,15 @@ dataMat = [ones(length(time),1) px py px.^2 py.^2 px.*py];
      n{i} = tempSpikeColl{i}.getNST(1);
      n{i}.setName(num2str(i));
     
-     lambdaCIF{i} = CIF(coeffs(i,:),{'1','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
+     try
+         lambdaCIF{i} = CIF(coeffs(i,:),{'1','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
+     catch ME_sym
+         if(i==1)
+             warning('StimulusDecode2D:SymbolicCIFFallback', ...
+                 ['CIF symbolic setup failed (' ME_sym.identifier '). Decoder will use linear fallback.']);
+         end
+         lambdaCIF{i} = [];
+     end
  end
 
  
@@ -91,10 +99,26 @@ vx=var(px(2:end)-px(1:end-1));
 vy=var(py(2:end)-py(1:end-1));
 Q=[vx 0;0 vy];
 Px0=.1*eye(2,2); A=1*eye(2,2);
-% The PPDecodeFilter uses the matlab symbolic toolbox to evaluate the
-% gradient and hessian of the CIF. It is currently not working properly.
-[x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+decode_method = 'PPDecodeFilter';
+try
+    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+catch ME_decode
+    warning('StimulusDecode2D:SymbolicDecodeFallback', ...
+        ['PPDecodeFilter failed (' ME_decode.identifier '). Falling back to PPDecodeFilterLinear.']);
+    decode_method = 'PPDecodeFilterLinear';
+    mu_linear = coeffs(:,1);
+    beta_linear = coeffs(:,2:3)';
+    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, 'binomial', delta);
+end
+nCommon = min(length(px),size(x_u,2));
+decode_rmse = sqrt(mean((x_u(1,1:nCommon)'-px(1:nCommon)).^2 + (x_u(2,1:nCommon)'-py(1:nCommon)).^2));
+num_cells = numRealizations;
 figure;
 plot(x_u(1,:),x_u(2,:),'b',px,py,'k')
 legend('predicted path','actual path');
+
+% Parity contract scalars for MATLAB/Python verification.
+parity = struct();
+parity.num_cells = num_cells;
+parity.decode_rmse = decode_rmse;
 

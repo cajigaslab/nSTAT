@@ -14,14 +14,15 @@ concurrency:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    env:
+      # Keep Python CI runnable even when Git LFS budget is exhausted.
+      # Data-heavy example loaders fall back to deterministic synthetic data in this mode.
+      NSTAT_ALLOW_SYNTHETIC_DATA: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true
-
-      - name: Pull LFS Objects
-        run: git lfs pull
+          lfs: false
 
       - name: Setup Python
         uses: actions/setup-python@v5

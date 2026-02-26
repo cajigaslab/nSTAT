@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
-MATLAB_EXTRA_ARGS="${NSTAT_MATLAB_EXTRA_ARGS:--maca64 -nodisplay -noFigureWindows}"
+MATLAB_EXTRA_ARGS="${NSTAT_MATLAB_EXTRA_ARGS:--maca64 -nodisplay -noFigureWindows -softwareopengl}"
 SET_ACTIONS_RUNNER_SVC="${NSTAT_SET_ACTIONS_RUNNER_SVC:-1}"
 RUNTIME_MULTIPLIER="${NSTAT_PARITY_RUNTIME_MULTIPLIER:-2.5}"
 

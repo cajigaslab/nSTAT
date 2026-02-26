@@ -7,6 +7,7 @@ import math
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -83,6 +84,102 @@ DEFAULT_TOPIC_TIMEOUT_OVERRIDES: dict[str, int] = {
 
 def _matlab_batch_command(batch_cmd: str) -> list[str]:
     return [str(MATLAB_BIN), *MATLAB_EXTRA_ARGS, "-batch", batch_cmd]
+
+
+def _runner_service_mode() -> bool:
+    return os.environ.get("ACTIONS_RUNNER_SVC", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _matlab_process_snapshot(max_lines: int = 40) -> str:
+    try:
+        cp = subprocess.run(
+            ["ps", "-axo", "pid,ppid,etime,pcpu,pmem,command"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except Exception:
+        return ""
+    if cp.returncode != 0:
+        return ""
+    patterns = (
+        "MATLAB_R2025b.app/bin/maca64/MATLAB",
+        "MATLABWindow.app/Contents/MacOS/MATLABWindow",
+        "matlabwindowhelper.app/Contents/MacOS/matlabwindowhelper",
+        "MathWorksCrashReporter",
+    )
+    lines = [ln for ln in (cp.stdout or "").splitlines() if any(p in ln for p in patterns)]
+    return "\n".join(lines[-max_lines:])
+
+
+def _cleanup_runner_matlab_processes() -> None:
+    if not _runner_service_mode():
+        return
+    kill_patterns = [
+        "/Applications/MATLAB_R2025b.app/bin/maca64/MATLAB -nodisplay -noFigureWindows -batch",
+        "MATLABWindow.app/Contents/MacOS/MATLABWindow",
+        "matlabwindowhelper.app/Contents/MacOS/matlabwindowhelper",
+    ]
+    for pat in kill_patterns:
+        try:
+            subprocess.run(["pkill", "-f", pat], capture_output=True, text=True, check=False)
+        except Exception:
+            pass
+    time.sleep(0.5)
+
+
+def _kill_process_group(pid: int) -> None:
+    try:
+        os.killpg(pid, signal.SIGKILL)
+        return
+    except Exception:
+        pass
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except Exception:
+        pass
+
+
+def _run_matlab_batch_logged(batch_cmd: str, timeout_s: int) -> dict[str, Any]:
+    cmd = _matlab_batch_command(batch_cmd)
+    with tempfile.NamedTemporaryFile(prefix="nstat_matlab_", suffix=".log", delete=False) as tf:
+        log_path = Path(tf.name)
+
+    timed_out = False
+    returncode: int | None = None
+    t0 = time.time()
+    try:
+        with log_path.open("w", encoding="utf-8", errors="replace") as fh:
+            proc = subprocess.Popen(
+                cmd,
+                cwd=str(REPO_ROOT),
+                stdout=fh,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
+            try:
+                returncode = int(proc.wait(timeout=timeout_s))
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                _kill_process_group(proc.pid)
+                try:
+                    proc.wait(timeout=5)
+                except Exception:
+                    pass
+        out = log_path.read_text(encoding="utf-8", errors="ignore")
+    finally:
+        try:
+            log_path.unlink()
+        except OSError:
+            pass
+
+    return {
+        "timed_out": timed_out,
+        "returncode": returncode,
+        "runtime_s": float(time.time() - t0),
+        "output": out,
+    }
 
 
 def _normalize_key(s: str) -> str:
@@ -201,18 +298,24 @@ def _matlab_class_checks(timeout_s: int = 180) -> dict[str, Any]:
     )
 
     try:
-        cp = subprocess.run(
-            _matlab_batch_command(cmd),
-            cwd=str(REPO_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=timeout_s,
-            check=False,
-        )
-    except subprocess.TimeoutExpired:
-        return {"ok": False, "error": "matlab_timeout"}
+        run = _run_matlab_batch_logged(cmd, timeout_s)
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": f"matlab_subprocess_error: {exc}"}
 
-    out = (cp.stdout or "") + "\n" + (cp.stderr or "")
+    if bool(run.get("timed_out", False)):
+        snapshot_before = _matlab_process_snapshot()
+        _cleanup_runner_matlab_processes()
+        snapshot_after = _matlab_process_snapshot()
+        return {
+            "ok": False,
+            "error": "matlab_timeout",
+            "runtime_s": float(timeout_s),
+            "timeout_process_snapshot_before_cleanup": snapshot_before,
+            "timeout_process_snapshot_after_cleanup": snapshot_after,
+            "runner_service_cleanup": _runner_service_mode(),
+        }
+
+    out = str(run.get("output", ""))
     m = re.search(r"CODEX_JSON:(\{.*\})", out, flags=re.S)
     if not m:
         tail = "\n".join([ln for ln in out.splitlines() if ln.strip()][-12:])
@@ -393,24 +496,31 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
 
         t0 = time.time()
         try:
-            cp = subprocess.run(
-                _matlab_batch_command(cmd),
-                cwd=str(REPO_ROOT),
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                check=False,
-            )
-        except subprocess.TimeoutExpired:
+            run = _run_matlab_batch_logged(cmd, timeout)
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ok": False,
+                "error": f"matlab_subprocess_error: {exc}",
+                "runtime_s": float(time.time() - t0),
+                "script_used": script_used,
+            }
+
+        if bool(run.get("timed_out", False)):
+            snapshot_before = _matlab_process_snapshot()
+            _cleanup_runner_matlab_processes()
+            snapshot_after = _matlab_process_snapshot()
             return {
                 "ok": False,
                 "error": "matlab_timeout",
                 "runtime_s": float(timeout),
                 "script_used": script_used,
+                "timeout_process_snapshot_before_cleanup": snapshot_before,
+                "timeout_process_snapshot_after_cleanup": snapshot_after,
+                "runner_service_cleanup": _runner_service_mode(),
             }
 
-        runtime = float(time.time() - t0)
-        out = (cp.stdout or "") + "\n" + (cp.stderr or "")
+        runtime = float(run.get("runtime_s", time.time() - t0))
+        out = str(run.get("output", ""))
         m = re.search(r"CODEX_JSON:(\{.*\})", out, flags=re.S)
         if not m:
             tail = "\n".join([ln for ln in out.splitlines() if ln.strip()][-10:])
@@ -587,6 +697,9 @@ def _help_similarity(
                 "matlab_fallback_script_used": ml.get("fallback_script_used", ""),
                 "matlab_runtime_s": ml.get("runtime_s"),
                 "matlab_timeout_s": timeout_s,
+                "matlab_timeout_snapshot_before_cleanup": ml.get("timeout_process_snapshot_before_cleanup", ""),
+                "matlab_timeout_snapshot_after_cleanup": ml.get("timeout_process_snapshot_after_cleanup", ""),
+                "matlab_runner_service_cleanup": bool(ml.get("runner_service_cleanup", False)),
                 "scalar_overlap": scalar_cmp,
                 "similarity_score": score,
             }

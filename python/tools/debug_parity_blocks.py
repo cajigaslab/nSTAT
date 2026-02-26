@@ -82,7 +82,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--matlab-extra-args",
-        default="-maca64 -nodisplay -noFigureWindows",
+        default="-maca64 -nodisplay -noFigureWindows -softwareopengl",
         help="Value for NSTAT_MATLAB_EXTRA_ARGS.",
     )
     parser.add_argument(

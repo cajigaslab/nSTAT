@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,33 @@ from .analysis import psth
 from .decoding_algorithms import DecodingAlgorithms
 from .glm import fit_poisson_glm
 from .simulation import simulate_poisson_from_rate
+
+
+def _allow_synthetic_data() -> bool:
+    return os.environ.get("NSTAT_ALLOW_SYNTHETIC_DATA", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _is_lfs_pointer(path: Path) -> bool:
+    try:
+        head = path.read_bytes()[:200]
+    except OSError:
+        return False
+    return head.startswith(b"version https://git-lfs.github.com/spec/v1")
+
+
+def _loadmat_checked(path: Path):
+    if path.exists() and not _is_lfs_pointer(path):
+        return loadmat(path, squeeze_me=True, struct_as_record=False)
+    if _allow_synthetic_data():
+        return None
+    if not path.exists():
+        raise FileNotFoundError(f"Missing MAT file: {path}")
+    if _is_lfs_pointer(path):
+        raise RuntimeError(
+            f"MAT file is a Git LFS pointer, not dataset content: {path}. "
+            "Fetch LFS assets or set NSTAT_ALLOW_SYNTHETIC_DATA=1 for synthetic CI fallback."
+        )
+    raise RuntimeError(f"Unable to load MAT file: {path}")
 
 
 def _aic_bic(log_likelihood: float, n_obs: int, n_params: int) -> tuple[float, float]:
@@ -80,9 +108,18 @@ def run_experiment1(data_dir: Path) -> dict[str, float]:
 
 
 def run_experiment2(data_dir: Path) -> dict[str, float]:
-    d = loadmat(data_dir / "Explicit Stimulus" / "Dir3" / "Neuron1" / "Stim2" / "trngdataBis.mat", squeeze_me=True, struct_as_record=False)
-    stim_raw = np.asarray(d["t"], dtype=float).reshape(-1)
-    y = np.asarray(d["y"], dtype=float).reshape(-1)
+    path = data_dir / "Explicit Stimulus" / "Dir3" / "Neuron1" / "Stim2" / "trngdataBis.mat"
+    d = _loadmat_checked(path)
+    if d is None:
+        rng = np.random.default_rng(2002)
+        n = 5000
+        t = np.linspace(0.0, 2.0 * np.pi, n, dtype=float)
+        stim_raw = np.sin(1.8 * t) + 0.25 * np.sin(0.4 * t + 0.2)
+        p = np.clip(0.015 + 0.02 * np.maximum(stim_raw, 0.0), 1e-4, 0.35)
+        y = (rng.random(n) < p).astype(float)
+    else:
+        stim_raw = np.asarray(d["t"], dtype=float).reshape(-1)
+        y = np.asarray(d["y"], dtype=float).reshape(-1)
 
     dt = 0.001
     stim = stim_raw / 10.0
@@ -137,13 +174,24 @@ def run_experiment3(seed: int = 7) -> dict[str, float]:
 
 
 def run_experiment3b(data_dir: Path) -> dict[str, float]:
-    d = loadmat(data_dir / "SSGLMExampleData.mat", squeeze_me=False, struct_as_record=False)
-    stimulus = np.asarray(d["stimulus"], dtype=float)
-    xk = np.asarray(d["xK"], dtype=float)
-    stim_cis = np.asarray(d["stimCIs"], dtype=float)
-    qhat = np.asarray(d["Qhat"], dtype=float).reshape(-1)
-    gammahat = np.asarray(d["gammahat"], dtype=float).reshape(-1)
-    logll = float(np.asarray(d["logll"], dtype=float).reshape(-1)[0])
+    path = data_dir / "SSGLMExampleData.mat"
+    d = _loadmat_checked(path)
+    if d is None:
+        rng = np.random.default_rng(3003)
+        stimulus = rng.normal(0.0, 1.0, size=(15, 250))
+        xk = stimulus + rng.normal(0.0, 0.2, size=stimulus.shape)
+        ci_half = np.abs(rng.normal(0.35, 0.08, size=stimulus.shape))
+        stim_cis = np.stack([xk - ci_half, xk + ci_half], axis=-1)
+        qhat = np.abs(rng.normal(0.12, 0.03, size=stimulus.shape[0]))
+        gammahat = np.abs(rng.normal(0.08, 0.02, size=stimulus.shape[0]))
+        logll = float(-np.mean((xk - stimulus) ** 2) * stimulus.size)
+    else:
+        stimulus = np.asarray(d["stimulus"], dtype=float)
+        xk = np.asarray(d["xK"], dtype=float)
+        stim_cis = np.asarray(d["stimCIs"], dtype=float)
+        qhat = np.asarray(d["Qhat"], dtype=float).reshape(-1)
+        gammahat = np.asarray(d["gammahat"], dtype=float).reshape(-1)
+        logll = float(np.asarray(d["logll"], dtype=float).reshape(-1)[0])
 
     coverage = np.mean((stimulus >= stim_cis[:, :, 0]) & (stimulus <= stim_cis[:, :, 1]))
     rmse = np.sqrt(np.mean((xk - stimulus) ** 2))
@@ -186,11 +234,26 @@ def _zernike_like_basis(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 
 def run_experiment4(data_dir: Path) -> dict[str, float]:
-    d = loadmat(data_dir / "Place Cells" / "PlaceCellDataAnimal1.mat", squeeze_me=True, struct_as_record=False)
-    x = np.asarray(d["x"], dtype=float).reshape(-1)
-    y = np.asarray(d["y"], dtype=float).reshape(-1)
-    time = np.asarray(d["time"], dtype=float).reshape(-1)
-    neurons = np.asarray(d["neuron"], dtype=object).reshape(-1)
+    path = data_dir / "Place Cells" / "PlaceCellDataAnimal1.mat"
+    d = _loadmat_checked(path)
+    if d is None:
+        rng = np.random.default_rng(4004)
+        time = np.linspace(0.0, 20.0, 2400, dtype=float)
+        x = 0.8 * np.sin(0.6 * time) + 0.2 * np.sin(1.7 * time + 0.5)
+        y = 0.7 * np.cos(0.5 * time + 0.3)
+        n_cells = 8
+        neurons = []
+        for _ in range(n_cells):
+            field = np.exp(-((x - rng.uniform(-0.5, 0.5)) ** 2 + (y - rng.uniform(-0.5, 0.5)) ** 2) / 0.2)
+            p = np.clip(0.001 + 0.03 * field, 1e-6, 0.25)
+            spikes = time[rng.random(time.shape[0]) < p]
+            neurons.append(type("N", (), {"spikeTimes": spikes})())
+        neurons = np.asarray(neurons, dtype=object)
+    else:
+        x = np.asarray(d["x"], dtype=float).reshape(-1)
+        y = np.asarray(d["y"], dtype=float).reshape(-1)
+        time = np.asarray(d["time"], dtype=float).reshape(-1)
+        neurons = np.asarray(d["neuron"], dtype=object).reshape(-1)
 
     dt = float(np.median(np.diff(time)))
     offset = np.full(time.shape[0], np.log(max(dt, 1e-12)), dtype=float)
@@ -316,11 +379,27 @@ def _hybrid_state_filter(spikes: np.ndarray, x: np.ndarray, dt: float, p_ij: np.
 
 
 def run_experiment6(repo_root: Path, seed: int = 37) -> dict[str, float]:
-    d = loadmat(repo_root / "helpfiles" / "paperHybridFilterExample.mat", squeeze_me=True, struct_as_record=False)
-    x = np.asarray(d["X"], dtype=float)
-    mstate = np.asarray(d["mstate"], dtype=int).reshape(-1)
-    p_ij = np.asarray(d["p_ij"], dtype=float)
-    dt = float(np.asarray(d["delta"], dtype=float).reshape(-1)[0])
+    path = repo_root / "helpfiles" / "paperHybridFilterExample.mat"
+    d = _loadmat_checked(path)
+    if d is None:
+        rng = np.random.default_rng(seed)
+        dt = 0.01
+        t = np.arange(0.0, 30.0, dt, dtype=float)
+        x_pos = 0.3 * np.sin(0.2 * t)
+        y_pos = 0.25 * np.cos(0.15 * t)
+        x_vel = np.gradient(x_pos, dt)
+        y_vel = np.gradient(y_pos, dt)
+        x = np.vstack([x_pos, y_pos, x_vel, y_vel])
+        mstate = np.where(np.sin(0.05 * t + 0.4) > 0.0, 1, 2).astype(int)
+        # Add mild stochasticity so state filter is non-trivial.
+        flip = rng.random(t.shape[0]) < 0.02
+        mstate[flip] = 3 - mstate[flip]
+        p_ij = np.array([[0.985, 0.015], [0.02, 0.98]], dtype=float)
+    else:
+        x = np.asarray(d["X"], dtype=float)
+        mstate = np.asarray(d["mstate"], dtype=int).reshape(-1)
+        p_ij = np.asarray(d["p_ij"], dtype=float)
+        dt = float(np.asarray(d["delta"], dtype=float).reshape(-1)[0])
 
     n_cells = 24
     spikes, wvx, wvy, b1, b2 = _simulate_hybrid_spikes(x, mstate, dt, n_cells=n_cells, seed=seed)

@@ -24,6 +24,8 @@ jobs:
       TMPDIR: /Users/iahncajigas/actions-runner/_work/_temp
       NSTAT_MATLAB_EXTRA_ARGS: -maca64 -nodisplay -noFigureWindows -softwareopengl
       NSTAT_FORCE_M_HELP_SCRIPTS: "1"
+      NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS: "1"
+      NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS: timeout_front
     steps:
       - name: Prepare runner directories
         run: |

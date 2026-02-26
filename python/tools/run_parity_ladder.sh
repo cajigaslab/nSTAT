@@ -5,8 +5,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 MATLAB_EXTRA_ARGS="${NSTAT_MATLAB_EXTRA_ARGS:--maca64 -nodisplay -noFigureWindows -softwareopengl}"
+MATLAB_BIN="${NSTAT_MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
 SET_ACTIONS_RUNNER_SVC="${NSTAT_SET_ACTIONS_RUNNER_SVC:-1}"
 RUNTIME_MULTIPLIER="${NSTAT_PARITY_RUNTIME_MULTIPLIER:-2.5}"
+RETRY_TIMEOUT_BLOCKS="${NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS:-0}"
+TIMEOUT_RETRY_BLOCKS="${NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS:-timeout_front}"
 
 DEFAULT_BLOCKS=(core_smoke timeout_front graphics_mid heavy_tail full_suite)
 if [[ $# -gt 0 ]]; then
@@ -26,6 +29,50 @@ baseline_runtime_sum_s() {
   esac
 }
 
+block_retry_enabled() {
+  local block="$1"
+  [[ "${RETRY_TIMEOUT_BLOCKS}" == "1" ]] || return 1
+  local token
+  for token in ${TIMEOUT_RETRY_BLOCKS//,/ }; do
+    [[ "${token}" == "${block}" ]] && return 0
+  done
+  return 1
+}
+
+is_timeout_only_regression() {
+  local report_path="$1"
+  "${PYTHON_BIN}" - "${report_path}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.exists():
+    raise SystemExit(1)
+payload = json.loads(path.read_text(encoding="utf-8"))
+rows = payload.get("helpfile_similarity", {}).get("rows", [])
+if not rows:
+    raise SystemExit(1)
+failed = [r for r in rows if not bool(r.get("matlab_ok"))]
+if not failed or len(failed) != len(rows):
+    raise SystemExit(1)
+if not all(str(r.get("matlab_error", "")).strip() == "matlab_timeout" for r in failed):
+    raise SystemExit(1)
+topics = [str(r.get("topic", "")) for r in failed]
+print(f"[ladder] timeout-only regression detected across {len(topics)} topic(s): {topics}")
+raise SystemExit(0)
+PY
+}
+
+warmup_matlab() {
+  if [[ ! -x "${MATLAB_BIN}" ]]; then
+    echo "[ladder] matlab warmup skipped; binary not executable: ${MATLAB_BIN}"
+    return 0
+  fi
+  echo "[ladder] running matlab warmup before retry"
+  "${MATLAB_BIN}" ${MATLAB_EXTRA_ARGS} -batch "disp(version); exit" >/dev/null 2>&1 || true
+}
+
 cd "${REPO_ROOT}"
 
 echo "[ladder] repo: ${REPO_ROOT}"
@@ -33,6 +80,7 @@ echo "[ladder] python: ${PYTHON_BIN}"
 echo "[ladder] matlab args: ${MATLAB_EXTRA_ARGS}"
 echo "[ladder] blocks: ${BLOCKS[*]}"
 echo "[ladder] runtime multiplier: ${RUNTIME_MULTIPLIER} (<=0 disables runtime regression checks)"
+echo "[ladder] retry timeout-only blocks: ${RETRY_TIMEOUT_BLOCKS} (blocks: ${TIMEOUT_RETRY_BLOCKS})"
 
 for block in "${BLOCKS[@]}"; do
   if ! baseline_s="$(baseline_runtime_sum_s "${block}")"; then
@@ -41,27 +89,32 @@ for block in "${BLOCKS[@]}"; do
   fi
 
   echo "[ladder] running block: ${block}"
-
-  cmd=(
-    "${PYTHON_BIN}"
-    "${REPO_ROOT}/python/tools/debug_parity_blocks.py"
-    --blocks "${block}"
-    --matlab-extra-args "${MATLAB_EXTRA_ARGS}"
-    --output "python/reports/parity_block_benchmark_report_ladder_${block}.json"
-  )
-  if [[ "${SET_ACTIONS_RUNNER_SVC}" == "1" ]]; then
-    cmd+=(--set-actions-runner-svc)
-  fi
-
-  "${cmd[@]}"
-
   report_path="${REPO_ROOT}/python/reports/parity_block_${block}.json"
-  if [[ ! -f "${report_path}" ]]; then
-    echo "[ladder] missing report: ${report_path}" >&2
-    exit 3
+  max_attempts=1
+  if block_retry_enabled "${block}"; then
+    max_attempts=2
   fi
+  attempt=1
+  while true; do
+    cmd=(
+      "${PYTHON_BIN}"
+      "${REPO_ROOT}/python/tools/debug_parity_blocks.py"
+      --blocks "${block}"
+      --matlab-extra-args "${MATLAB_EXTRA_ARGS}"
+      --output "python/reports/parity_block_benchmark_report_ladder_${block}.json"
+    )
+    if [[ "${SET_ACTIONS_RUNNER_SVC}" == "1" ]]; then
+      cmd+=(--set-actions-runner-svc)
+    fi
 
-  "${PYTHON_BIN}" - "${report_path}" "${block}" "${baseline_s}" "${RUNTIME_MULTIPLIER}" <<'PY'
+    "${cmd[@]}"
+
+    if [[ ! -f "${report_path}" ]]; then
+      echo "[ladder] missing report: ${report_path}" >&2
+      exit 3
+    fi
+
+    if "${PYTHON_BIN}" - "${report_path}" "${block}" "${baseline_s}" "${RUNTIME_MULTIPLIER}" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -133,6 +186,19 @@ if mult > 0:
 
 print(f"[ladder] block passed: {block}")
 PY
+    then
+      break
+    fi
+
+    rc=$?
+    if [[ "${rc}" -eq 10 ]] && [[ "${attempt}" -lt "${max_attempts}" ]] && is_timeout_only_regression "${report_path}"; then
+      echo "[ladder] retrying block ${block} after timeout-only regression (attempt ${attempt}/${max_attempts})"
+      warmup_matlab
+      attempt=$((attempt + 1))
+      continue
+    fi
+    exit "${rc}"
+  done
 
 done
 

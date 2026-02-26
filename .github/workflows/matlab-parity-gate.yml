@@ -72,6 +72,9 @@ jobs:
           python/tools/run_parity_ladder.sh graphics_mid heavy_tail
 
       - name: Parity Stage C (full-suite gate report)
+        env:
+          NSTAT_MATLAB_FORCE_TOPIC_ISOLATION: "1"
+          NSTAT_MATLAB_HARD_CLEANUP_ON_FAILURE: "1"
         run: |
           python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
 

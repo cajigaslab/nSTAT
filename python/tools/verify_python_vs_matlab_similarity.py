@@ -97,8 +97,34 @@ def _matlab_batch_command(batch_cmd: str) -> list[str]:
     return [str(MATLAB_BIN), *MATLAB_EXTRA_ARGS, "-batch", batch_cmd]
 
 
+def _env_truthy(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _runner_service_mode() -> bool:
-    return os.environ.get("ACTIONS_RUNNER_SVC", "").strip().lower() in {"1", "true", "yes", "on"}
+    return _env_truthy("ACTIONS_RUNNER_SVC")
+
+
+def _matlab_cleanup_allowed() -> bool:
+    # Safety default: only cleanup MATLAB processes automatically on runner hosts,
+    # unless explicitly enabled for local investigations.
+    return _runner_service_mode() or _env_truthy("NSTAT_MATLAB_ALLOW_LOCAL_PROCESS_CLEANUP")
+
+
+def _force_topic_isolation_enabled() -> bool:
+    return _env_truthy("NSTAT_MATLAB_FORCE_TOPIC_ISOLATION")
+
+
+def _hard_cleanup_on_failure_enabled() -> bool:
+    return _env_truthy("NSTAT_MATLAB_HARD_CLEANUP_ON_FAILURE")
+
+
+def _output_has_crash_marker(text: str) -> bool:
+    lowered = str(text or "").lower()
+    return any(marker in lowered for marker in CRASH_ERROR_MARKERS)
 
 
 def _matlab_process_snapshot(max_lines: int = 40) -> str:
@@ -123,20 +149,36 @@ def _matlab_process_snapshot(max_lines: int = 40) -> str:
     return "\n".join(lines[-max_lines:])
 
 
-def _cleanup_runner_matlab_processes() -> None:
-    if not _runner_service_mode():
-        return
+def _cleanup_runner_matlab_processes(hard: bool = False) -> bool:
+    if not _matlab_cleanup_allowed():
+        return False
     kill_patterns = [
-        "/Applications/MATLAB_R2025b.app/bin/maca64/MATLAB -nodisplay -noFigureWindows -batch",
+        "/Applications/MATLAB_R2025b.app/bin/maca64/MATLAB",
+        "/Applications/MATLAB_R2025b.app/bin/matlab",
         "MATLABWindow.app/Contents/MacOS/MATLABWindow",
         "matlabwindowhelper.app/Contents/MacOS/matlabwindowhelper",
+        "MathWorksCrashReporter",
     ]
-    for pat in kill_patterns:
-        try:
-            subprocess.run(["pkill", "-f", pat], capture_output=True, text=True, check=False)
-        except Exception:
-            pass
-    time.sleep(0.5)
+    signals = ["-TERM", "-KILL"] if hard else ["-TERM"]
+    for sig in signals:
+        for pat in kill_patterns:
+            try:
+                subprocess.run(["pkill", sig, "-f", pat], capture_output=True, text=True, check=False)
+            except Exception:
+                pass
+        time.sleep(0.4 if sig == "-TERM" else 0.2)
+    return True
+
+
+def _cleanup_runner_matlab_processes_with_snapshots(hard: bool = False) -> dict[str, Any]:
+    snapshot_before = _matlab_process_snapshot()
+    applied = _cleanup_runner_matlab_processes(hard=hard)
+    snapshot_after = _matlab_process_snapshot() if applied else snapshot_before
+    return {
+        "failure_process_snapshot_before_cleanup": snapshot_before,
+        "failure_process_snapshot_after_cleanup": snapshot_after,
+        "runner_service_cleanup": bool(applied),
+    }
 
 
 def _matlab_warmup(timeout_s: int = 90) -> None:
@@ -295,6 +337,8 @@ def _python_class_checks() -> dict[str, Any]:
 def _matlab_class_checks(timeout_s: int = 180) -> dict[str, Any]:
     if not MATLAB_BIN.exists():
         return {"ok": False, "error": "matlab_not_found"}
+    if _force_topic_isolation_enabled():
+        _cleanup_runner_matlab_processes(hard=True)
 
     repo_q = str(REPO_ROOT).replace("'", "''")
     cmd = (
@@ -340,23 +384,28 @@ def _matlab_class_checks(timeout_s: int = 180) -> dict[str, Any]:
         return {"ok": False, "error": f"matlab_subprocess_error: {exc}"}
 
     if bool(run.get("timed_out", False)):
-        snapshot_before = _matlab_process_snapshot()
-        _cleanup_runner_matlab_processes()
-        snapshot_after = _matlab_process_snapshot()
+        cleanup_meta = {}
+        if _hard_cleanup_on_failure_enabled() or _force_topic_isolation_enabled():
+            cleanup_meta = _cleanup_runner_matlab_processes_with_snapshots(hard=True)
         return {
             "ok": False,
             "error": "matlab_timeout",
             "runtime_s": float(timeout_s),
-            "timeout_process_snapshot_before_cleanup": snapshot_before,
-            "timeout_process_snapshot_after_cleanup": snapshot_after,
-            "runner_service_cleanup": _runner_service_mode(),
+            "timeout_process_snapshot_before_cleanup": cleanup_meta.get("failure_process_snapshot_before_cleanup", ""),
+            "timeout_process_snapshot_after_cleanup": cleanup_meta.get("failure_process_snapshot_after_cleanup", ""),
+            "runner_service_cleanup": bool(cleanup_meta.get("runner_service_cleanup", False)),
+            "cleanup_reason": "matlab_timeout",
         }
 
     out = str(run.get("output", ""))
     m = re.search(r"CODEX_JSON:(\{.*\})", out, flags=re.S)
     if not m:
         tail = "\n".join([ln for ln in out.splitlines() if ln.strip()][-12:])
-        return {"ok": False, "error": tail or "matlab_json_missing"}
+        payload = {"ok": False, "error": tail or "matlab_json_missing"}
+        if _output_has_crash_marker(out) and (_hard_cleanup_on_failure_enabled() or _force_topic_isolation_enabled()):
+            payload.update(_cleanup_runner_matlab_processes_with_snapshots(hard=True))
+            payload["cleanup_reason"] = "matlab_crash_no_json"
+        return payload
 
     try:
         payload = json.loads(m.group(1))
@@ -492,6 +541,8 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
         repo_q = str(REPO_ROOT).replace("'", "''")
         path_q = str(path).replace("'", "''")
         script_used = source_label or str(path.relative_to(REPO_ROOT))
+        isolation_enabled = _force_topic_isolation_enabled()
+        hard_cleanup_enabled = _hard_cleanup_on_failure_enabled() or isolation_enabled
         cmd = (
             "restoredefaultpath; "
             f"repo='{repo_q}'; "
@@ -531,33 +582,43 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
             "end; exit(0);"
         )
 
-        # In runner-service mode, enforce a clean MATLAB process slate before each topic.
-        if _runner_service_mode():
-            _cleanup_runner_matlab_processes()
+        # Optional strict isolation: clear any pre-existing MATLAB helper/process state
+        # before launching each topic attempt.
+        if isolation_enabled:
+            _cleanup_runner_matlab_processes(hard=True)
 
         t0 = time.time()
         try:
             run = _run_matlab_batch_logged(cmd, timeout)
         except Exception as exc:  # noqa: BLE001
+            cleanup_meta = {}
+            if hard_cleanup_enabled:
+                cleanup_meta = _cleanup_runner_matlab_processes_with_snapshots(hard=True)
             return {
                 "ok": False,
                 "error": f"matlab_subprocess_error: {exc}",
                 "runtime_s": float(time.time() - t0),
                 "script_used": script_used,
+                "topic_isolation_enabled": isolation_enabled,
+                "cleanup_reason": "matlab_subprocess_error",
+                **cleanup_meta,
             }
 
         if bool(run.get("timed_out", False)):
-            snapshot_before = _matlab_process_snapshot()
-            _cleanup_runner_matlab_processes()
-            snapshot_after = _matlab_process_snapshot()
+            cleanup_meta = {}
+            if hard_cleanup_enabled:
+                cleanup_meta = _cleanup_runner_matlab_processes_with_snapshots(hard=True)
             return {
                 "ok": False,
                 "error": "matlab_timeout",
                 "runtime_s": float(timeout),
                 "script_used": script_used,
-                "timeout_process_snapshot_before_cleanup": snapshot_before,
-                "timeout_process_snapshot_after_cleanup": snapshot_after,
-                "runner_service_cleanup": _runner_service_mode(),
+                "topic_isolation_enabled": isolation_enabled,
+                "timeout_process_snapshot_before_cleanup": cleanup_meta.get("failure_process_snapshot_before_cleanup", ""),
+                "timeout_process_snapshot_after_cleanup": cleanup_meta.get("failure_process_snapshot_after_cleanup", ""),
+                "runner_service_cleanup": bool(cleanup_meta.get("runner_service_cleanup", False)),
+                "cleanup_reason": "matlab_timeout",
+                **cleanup_meta,
             }
 
         runtime = float(run.get("runtime_s", time.time() - t0))
@@ -565,25 +626,44 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
         m = re.search(r"CODEX_JSON:(\{.*\})", out, flags=re.S)
         if not m:
             tail = "\n".join([ln for ln in out.splitlines() if ln.strip()][-10:])
-            return {
+            payload: dict[str, Any] = {
                 "ok": False,
                 "error": tail or "matlab_json_missing",
                 "runtime_s": runtime,
                 "script_used": script_used,
+                "topic_isolation_enabled": isolation_enabled,
             }
+            if _output_has_crash_marker(out) and hard_cleanup_enabled:
+                payload.update(_cleanup_runner_matlab_processes_with_snapshots(hard=True))
+                payload["cleanup_reason"] = "matlab_crash_no_json"
+            return payload
 
         try:
             payload = json.loads(m.group(1))
         except json.JSONDecodeError as exc:
-            return {
+            error_payload: dict[str, Any] = {
                 "ok": False,
                 "error": f"json_decode_error: {exc}",
                 "runtime_s": runtime,
                 "script_used": script_used,
+                "topic_isolation_enabled": isolation_enabled,
             }
+            if _output_has_crash_marker(out) and hard_cleanup_enabled:
+                error_payload.update(_cleanup_runner_matlab_processes_with_snapshots(hard=True))
+                error_payload["cleanup_reason"] = "json_decode_after_crash_output"
+            return error_payload
 
         payload["runtime_s"] = runtime
         payload["script_used"] = script_used
+        payload["topic_isolation_enabled"] = isolation_enabled
+        if (
+            not bool(payload.get("ok"))
+            and hard_cleanup_enabled
+            and _is_retryable_matlab_failure(payload)
+            and str(payload.get("error", "")).strip() != "matlab_timeout"
+        ):
+            payload.update(_cleanup_runner_matlab_processes_with_snapshots(hard=True))
+            payload["cleanup_reason"] = "retryable_matlab_failure"
         return payload
 
     def run_with_shadow_safe_copy(path: Path, timeout: int) -> dict[str, Any]:
@@ -620,6 +700,22 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
             combined["fallback_error"] = fallback.get("error", "")
             combined["fallback_error_report"] = fallback.get("error_report", "")
             combined["error"] = f"{primary.get('error', '')} || fallback_error: {fallback.get('error', '')}"
+            if not combined.get("cleanup_reason"):
+                combined["cleanup_reason"] = fallback.get("cleanup_reason", "")
+            if not combined.get("failure_process_snapshot_before_cleanup"):
+                combined["failure_process_snapshot_before_cleanup"] = fallback.get(
+                    "failure_process_snapshot_before_cleanup", ""
+                )
+            if not combined.get("failure_process_snapshot_after_cleanup"):
+                combined["failure_process_snapshot_after_cleanup"] = fallback.get(
+                    "failure_process_snapshot_after_cleanup", ""
+                )
+            combined["runner_service_cleanup"] = bool(
+                combined.get("runner_service_cleanup", False) or fallback.get("runner_service_cleanup", False)
+            )
+            combined["topic_isolation_enabled"] = bool(
+                combined.get("topic_isolation_enabled", False) or fallback.get("topic_isolation_enabled", False)
+            )
             return combined
 
     return primary
@@ -700,6 +796,9 @@ def _help_similarity(
                 "error": str(ml.get("error", "")),
                 "runtime_s": float(ml.get("runtime_s") or 0.0),
                 "script_used": str(ml.get("script_used", script_rel)),
+                "cleanup_reason": str(ml.get("cleanup_reason", "")),
+                "runner_service_cleanup": bool(ml.get("runner_service_cleanup", False)),
+                "topic_isolation_enabled": bool(ml.get("topic_isolation_enabled", False)),
             }
         )
         attempt = 1
@@ -723,6 +822,9 @@ def _help_similarity(
                     "error": str(ml.get("error", "")),
                     "runtime_s": float(ml.get("runtime_s") or 0.0),
                     "script_used": str(ml.get("script_used", script_rel)),
+                    "cleanup_reason": str(ml.get("cleanup_reason", "")),
+                    "runner_service_cleanup": bool(ml.get("runner_service_cleanup", False)),
+                    "topic_isolation_enabled": bool(ml.get("topic_isolation_enabled", False)),
                 }
             )
             attempt = next_attempt
@@ -778,7 +880,11 @@ def _help_similarity(
                 "matlab_attempt_history": ml_attempt_history,
                 "matlab_timeout_snapshot_before_cleanup": ml.get("timeout_process_snapshot_before_cleanup", ""),
                 "matlab_timeout_snapshot_after_cleanup": ml.get("timeout_process_snapshot_after_cleanup", ""),
+                "matlab_failure_snapshot_before_cleanup": ml.get("failure_process_snapshot_before_cleanup", ""),
+                "matlab_failure_snapshot_after_cleanup": ml.get("failure_process_snapshot_after_cleanup", ""),
                 "matlab_runner_service_cleanup": bool(ml.get("runner_service_cleanup", False)),
+                "matlab_cleanup_reason": ml.get("cleanup_reason", ""),
+                "matlab_topic_isolation_enabled": bool(ml.get("topic_isolation_enabled", False)),
                 "scalar_overlap": scalar_cmp,
                 "similarity_score": score,
             }
@@ -1002,6 +1108,10 @@ def main(argv: list[str] | None = None) -> int:
         "topic_timeout_overrides": topic_timeout_overrides,
         "force_m_help_scripts": FORCE_M_HELP_SCRIPTS,
         "matlab_max_attempts": args.matlab_max_attempts,
+        "runner_service_mode": _runner_service_mode(),
+        "matlab_cleanup_allowed": _matlab_cleanup_allowed(),
+        "matlab_force_topic_isolation": _force_topic_isolation_enabled(),
+        "matlab_hard_cleanup_on_failure": _hard_cleanup_on_failure_enabled(),
     }
 
     print("[class] running Python/MATLAB class checks", flush=True)

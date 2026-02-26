@@ -351,6 +351,7 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
     def run_script_path(path: Path, timeout: int, source_label: str | None = None) -> dict[str, Any]:
         repo_q = str(REPO_ROOT).replace("'", "''")
         path_q = str(path).replace("'", "''")
+        script_used = source_label or str(path.relative_to(REPO_ROOT))
         cmd = (
             "restoredefaultpath; "
             f"repo='{repo_q}'; "
@@ -401,23 +402,37 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
                 check=False,
             )
         except subprocess.TimeoutExpired:
-            return {"ok": False, "error": "matlab_timeout", "runtime_s": float(timeout)}
+            return {
+                "ok": False,
+                "error": "matlab_timeout",
+                "runtime_s": float(timeout),
+                "script_used": script_used,
+            }
 
         runtime = float(time.time() - t0)
         out = (cp.stdout or "") + "\n" + (cp.stderr or "")
         m = re.search(r"CODEX_JSON:(\{.*\})", out, flags=re.S)
         if not m:
             tail = "\n".join([ln for ln in out.splitlines() if ln.strip()][-10:])
-            return {"ok": False, "error": tail or "matlab_json_missing", "runtime_s": runtime}
+            return {
+                "ok": False,
+                "error": tail or "matlab_json_missing",
+                "runtime_s": runtime,
+                "script_used": script_used,
+            }
 
         try:
             payload = json.loads(m.group(1))
         except json.JSONDecodeError as exc:
-            return {"ok": False, "error": f"json_decode_error: {exc}", "runtime_s": runtime}
+            return {
+                "ok": False,
+                "error": f"json_decode_error: {exc}",
+                "runtime_s": runtime,
+                "script_used": script_used,
+            }
 
         payload["runtime_s"] = runtime
-        if source_label is not None:
-            payload["script_used"] = source_label
+        payload["script_used"] = script_used
         return payload
 
     def run_with_shadow_safe_copy(path: Path, timeout: int) -> dict[str, Any]:

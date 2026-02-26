@@ -5,3 +5,4 @@ __pycache__/
 python/plots/
 
 python/docs/_build/
+python/reports/parity_block*.json

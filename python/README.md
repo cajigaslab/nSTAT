@@ -52,6 +52,67 @@ python3 python/tools/verify_offline_standalone.py
 cd python && python3 -m pytest
 ```
 
+### Local parity block debugging
+
+```bash
+python3 python/tools/debug_parity_blocks.py \
+  --set-actions-runner-svc \
+  --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+```
+
+Single wrapper command (fail-fast ladder):
+
+```bash
+python/tools/run_parity_ladder.sh
+```
+
+Notes:
+
+- Runs blocks in order: `core_smoke -> timeout_front -> graphics_mid -> heavy_tail -> full_suite`.
+- Exits immediately if a block regresses (`python_ok`, `matlab_ok`, scalar overlap, parity contract, or regression gate).
+- Includes runtime regression guard using machine baseline block times with multiplier `NSTAT_PARITY_RUNTIME_MULTIPLIER` (default `2.5`).
+- Set `NSTAT_PARITY_RUNTIME_MULTIPLIER=0` to disable runtime regression checks.
+- Pass specific block names as args to run subset ladders, e.g.:
+  `python/tools/run_parity_ladder.sh core_smoke timeout_front`.
+
+Use targeted blocks to debug delays locally before running remote CI:
+
+```bash
+# 1) Fast API/parity smoke
+python3 python/tools/debug_parity_blocks.py --blocks core_smoke \
+  --set-actions-runner-svc --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+
+# 2) Former timeout-prone front topics
+python3 python/tools/debug_parity_blocks.py --blocks timeout_front \
+  --set-actions-runner-svc --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+
+# 3) Graphics-sensitive middle topics
+python3 python/tools/debug_parity_blocks.py --blocks graphics_mid \
+  --set-actions-runner-svc --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+
+# 4) Heavy tail topics
+python3 python/tools/debug_parity_blocks.py --blocks heavy_tail \
+  --set-actions-runner-svc --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+
+# 5) Full gate-equivalent suite
+python3 python/tools/debug_parity_blocks.py --blocks full_suite \
+  --set-actions-runner-svc --matlab-extra-args "-maca64 -nodisplay -noFigureWindows"
+```
+
+Summarize a parity report quickly:
+
+```bash
+python3 python/tools/summarize_parity_report.py python/reports/parity_block_full_suite.json
+```
+
+Recent local baseline on this machine (MATLAB R2025b, no figure windows):
+
+- `core_smoke`: ~47s
+- `timeout_front`: ~122s
+- `graphics_mid`: ~291s
+- `heavy_tail`: ~385s
+- `full_suite` (25 topics): ~826s
+
 ## CI
 
 - `.github/workflows/python-ci.yml` runs docs, notebook verification, offline standalone checks, and `pytest`.

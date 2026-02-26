@@ -57,9 +57,26 @@ jobs:
           python3 python/tools/generate_method_parity_matrix.py
           python3 python/tools/generate_implemented_method_coverage.py
 
-      - name: Run MATLAB/Python similarity gate
+      - name: Parity Stage A (core + timeout-front)
+        run: |
+          python/tools/run_parity_ladder.sh core_smoke timeout_front
+
+      - name: Parity Stage B (graphics-mid + heavy-tail)
+        run: |
+          python/tools/run_parity_ladder.sh graphics_mid heavy_tail
+
+      - name: Parity Stage C (full-suite gate report)
         run: |
           python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
+
+      - name: Summarize full-suite parity report
+        if: ${{ always() && !cancelled() }}
+        run: |
+          if [ -f python/reports/python_vs_matlab_similarity_report.json ]; then
+            python3 python/tools/summarize_parity_report.py python/reports/python_vs_matlab_similarity_report.json --json > python/reports/python_vs_matlab_similarity_summary.json
+          else
+            echo "Parity report missing; skipping summary."
+          fi
 
       - name: Freeze similarity baseline
         if: ${{ always() && !cancelled() }}
@@ -69,6 +86,38 @@ jobs:
           else
             echo "Similarity report missing; skipping baseline freeze."
           fi
+
+      - name: Collect MATLAB crash diagnostics
+        if: ${{ failure() && !cancelled() }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          OUT_DIR="python/reports/matlab_crash_diagnostics"
+          mkdir -p "$OUT_DIR/diagnostic_reports" "$OUT_DIR/mathworks_crash_reports"
+
+          # Collect macOS crash/ips reports (latest 20) when MATLAB crashes.
+          DIAG_DIR="$HOME/Library/Logs/DiagnosticReports"
+          if [ -d "$DIAG_DIR" ]; then
+            find "$DIAG_DIR" -maxdepth 1 -type f \( -name '*MATLAB*.crash' -o -name '*matlab*.crash' -o -name '*MATLAB*.ips' -o -name '*matlab*.ips' \) -print \
+              | sort \
+              | tail -n 20 \
+              | while IFS= read -r f; do cp -f "$f" "$OUT_DIR/diagnostic_reports/" || true; done
+          fi
+
+          # Collect MathWorks CrashReporter payload files (latest 50).
+          MW_APP_SUPPORT="$HOME/Library/Application Support/MathWorks"
+          if [ -d "$MW_APP_SUPPORT" ]; then
+            find "$MW_APP_SUPPORT" -type d -name crash_reports -print \
+              | while IFS= read -r crash_dir; do
+                  find "$crash_dir" -type f -print || true
+                done \
+              | sort \
+              | tail -n 50 \
+              | while IFS= read -r f; do cp -f "$f" "$OUT_DIR/mathworks_crash_reports/" || true; done
+          fi
+
+          # Keep staged block reports if present for triage context.
+          ls -1 python/reports/parity_block*.json > "$OUT_DIR/parity_block_report_manifest.txt" 2>/dev/null || true
 
       - name: Upload parity reports
         if: ${{ always() && !cancelled() }}
@@ -80,3 +129,6 @@ jobs:
           path: |
             python/reports/python_vs_matlab_similarity_report.json
             python/reports/python_vs_matlab_similarity_baseline.json
+            python/reports/python_vs_matlab_similarity_summary.json
+            python/reports/parity_block*.json
+            python/reports/matlab_crash_diagnostics/**

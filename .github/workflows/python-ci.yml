@@ -41,6 +41,10 @@ jobs:
           python python/tools/generate_method_parity_matrix.py
           python python/tools/generate_implemented_method_coverage.py
 
+      - name: Verify help docs coverage
+        run: |
+          python python/tools/verify_help_docs_coverage.py
+
       - name: Validate notebooks
         run: |
           python python/tools/verify_examples_notebooks.py

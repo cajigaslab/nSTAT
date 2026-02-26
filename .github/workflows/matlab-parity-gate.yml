@@ -25,8 +25,11 @@ jobs:
       ACTIONS_RUNNER_SVC: "1"
       NSTAT_MATLAB_EXTRA_ARGS: -maca64 -nodisplay -noFigureWindows -softwareopengl
       NSTAT_FORCE_M_HELP_SCRIPTS: "1"
+      NSTAT_MATLAB_TOPIC_MAX_ATTEMPTS: "2"
       NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS: "1"
       NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS: timeout_front
+      NSTAT_PARITY_RETRY_RECOVERABLE_BLOCKS: "1"
+      NSTAT_PARITY_RECOVERABLE_RETRY_BLOCKS: graphics_mid,heavy_tail
     steps:
       - name: Prepare runner directories
         run: |

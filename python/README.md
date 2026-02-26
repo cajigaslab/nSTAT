@@ -86,7 +86,11 @@ Notes:
   `python/tools/run_parity_ladder.sh core_smoke timeout_front`.
 - Ladder writes retry telemetry to `python/reports/parity_retry_summary.json` (block, attempt count, retry reason, timeout-topic list).
 - Retry behavior is controlled by `NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS` and `NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS`.
+- Set `NSTAT_MATLAB_TOPIC_MAX_ATTEMPTS=2` to retry per-topic MATLAB timeouts/crashes once before failing.
+- Set `NSTAT_PARITY_RETRY_RECOVERABLE_BLOCKS=1` and `NSTAT_PARITY_RECOVERABLE_RETRY_BLOCKS` to retry block failures caused by recoverable MATLAB failures (timeouts/crash signatures).
 - Preflight topic selection can be overridden with `NSTAT_PARITY_PREFLIGHT_STAGEB_TOPICS`.
+
+See `python/docs/parity_runbook.rst` for the exact locally validated parity command set.
 
 Use targeted blocks to debug delays locally before running remote CI:
 

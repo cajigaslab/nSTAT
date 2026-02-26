@@ -8,3 +8,4 @@ Standalone Python port of nSTAT with MATLAB-help topic coverage and executable n
 
    api
    help_topics
+   parity_runbook

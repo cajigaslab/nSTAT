@@ -66,6 +66,17 @@ FORCE_M_SCRIPT_TOPICS: set[str] = {
     "nSTATPaperExamples",
 }
 DEFAULT_HELP_TOPIC_TIMEOUT_S = 120
+try:
+    DEFAULT_MATLAB_MAX_ATTEMPTS = max(1, int(os.environ.get("NSTAT_MATLAB_TOPIC_MAX_ATTEMPTS", "1")))
+except ValueError:
+    DEFAULT_MATLAB_MAX_ATTEMPTS = 1
+CRASH_ERROR_MARKERS = (
+    "matlab is exiting because of fatal error",
+    "fatal error",
+    "mathworkscrashreporter",
+    "crash report has been saved",
+    "libmwhandle_graphics",
+)
 DEFAULT_TOPIC_TIMEOUT_OVERRIDES: dict[str, int] = {
     "SignalObjExamples": 180,
     "CovariateExamples": 180,
@@ -126,6 +137,32 @@ def _cleanup_runner_matlab_processes() -> None:
         except Exception:
             pass
     time.sleep(0.5)
+
+
+def _matlab_warmup(timeout_s: int = 90) -> None:
+    if not MATLAB_BIN.exists():
+        return
+    try:
+        _run_matlab_batch_logged("disp(version); exit", timeout_s=timeout_s)
+    except Exception:
+        return
+
+
+def _is_retryable_matlab_failure(payload: dict[str, Any]) -> bool:
+    if bool(payload.get("ok")):
+        return False
+    error = str(payload.get("error", "")).strip()
+    if error == "matlab_timeout":
+        return True
+    combined = " ".join(
+        [
+            error,
+            str(payload.get("error_report", "")),
+            str(payload.get("fallback_error", "")),
+            str(payload.get("fallback_error_report", "")),
+        ]
+    ).lower()
+    return any(marker in combined for marker in CRASH_ERROR_MARKERS)
 
 
 def _kill_process_group(pid: int) -> None:
@@ -494,6 +531,10 @@ def _run_matlab_help_script(script_rel: str, timeout_s: int = 240) -> dict[str, 
             "end; exit(0);"
         )
 
+        # In runner-service mode, enforce a clean MATLAB process slate before each topic.
+        if _runner_service_mode():
+            _cleanup_runner_matlab_processes()
+
         t0 = time.time()
         try:
             run = _run_matlab_batch_logged(cmd, timeout)
@@ -615,6 +656,7 @@ def _help_similarity(
     topics: list[tuple[str, str]],
     default_timeout_s: int = DEFAULT_HELP_TOPIC_TIMEOUT_S,
     topic_timeout_overrides: dict[str, int] | None = None,
+    matlab_max_attempts: int = DEFAULT_MATLAB_MAX_ATTEMPTS,
 ) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
 
@@ -649,7 +691,41 @@ def _help_similarity(
 
         py = _run_python_topic(stem)
         timeout_s = topic_timeouts.get(stem, default_timeout_s)
+        ml_attempt_history: list[dict[str, Any]] = []
         ml = _run_matlab_help_script(script_rel, timeout_s=timeout_s)
+        ml_attempt_history.append(
+            {
+                "attempt": 1,
+                "ok": bool(ml.get("ok")),
+                "error": str(ml.get("error", "")),
+                "runtime_s": float(ml.get("runtime_s") or 0.0),
+                "script_used": str(ml.get("script_used", script_rel)),
+            }
+        )
+        attempt = 1
+        while (
+            attempt < matlab_max_attempts
+            and not bool(ml.get("ok"))
+            and _is_retryable_matlab_failure(ml)
+        ):
+            next_attempt = attempt + 1
+            print(
+                f"[help retry {next_attempt}/{matlab_max_attempts}] {stem} "
+                f"after retryable MATLAB failure: {ml.get('error', '')}",
+                flush=True,
+            )
+            _matlab_warmup()
+            ml = _run_matlab_help_script(script_rel, timeout_s=timeout_s)
+            ml_attempt_history.append(
+                {
+                    "attempt": next_attempt,
+                    "ok": bool(ml.get("ok")),
+                    "error": str(ml.get("error", "")),
+                    "runtime_s": float(ml.get("runtime_s") or 0.0),
+                    "script_used": str(ml.get("script_used", script_rel)),
+                }
+            )
+            attempt = next_attempt
 
         if py.get("ok"):
             summary["python_ok"] += 1
@@ -697,6 +773,9 @@ def _help_similarity(
                 "matlab_fallback_script_used": ml.get("fallback_script_used", ""),
                 "matlab_runtime_s": ml.get("runtime_s"),
                 "matlab_timeout_s": timeout_s,
+                "matlab_attempts": len(ml_attempt_history),
+                "matlab_retry_applied": len(ml_attempt_history) > 1,
+                "matlab_attempt_history": ml_attempt_history,
                 "matlab_timeout_snapshot_before_cleanup": ml.get("timeout_process_snapshot_before_cleanup", ""),
                 "matlab_timeout_snapshot_after_cleanup": ml.get("timeout_process_snapshot_after_cleanup", ""),
                 "matlab_runner_service_cleanup": bool(ml.get("runner_service_cleanup", False)),
@@ -879,6 +958,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Override per-topic MATLAB timeout using TOPIC=SECONDS (repeatable).",
     )
     parser.add_argument(
+        "--matlab-max-attempts",
+        type=int,
+        default=DEFAULT_MATLAB_MAX_ATTEMPTS,
+        help=(
+            "Maximum MATLAB attempts per help topic for retryable failures "
+            f"(default: {DEFAULT_MATLAB_MAX_ATTEMPTS})."
+        ),
+    )
+    parser.add_argument(
         "--report-path",
         default="python/reports/python_vs_matlab_similarity_report.json",
         help="Output report path (absolute or repo-relative).",
@@ -891,6 +979,9 @@ def main(argv: list[str] | None = None) -> int:
     report: dict[str, Any] = {}
     if args.default_topic_timeout <= 0:
         print("--default-topic-timeout must be positive", file=sys.stderr)
+        return 2
+    if args.matlab_max_attempts <= 0:
+        print("--matlab-max-attempts must be positive", file=sys.stderr)
         return 2
     try:
         requested_topics = _parse_topics_arg(args.topics)
@@ -910,6 +1001,7 @@ def main(argv: list[str] | None = None) -> int:
         "default_timeout_s": args.default_topic_timeout,
         "topic_timeout_overrides": topic_timeout_overrides,
         "force_m_help_scripts": FORCE_M_HELP_SCRIPTS,
+        "matlab_max_attempts": args.matlab_max_attempts,
     }
 
     print("[class] running Python/MATLAB class checks", flush=True)
@@ -934,6 +1026,7 @@ def main(argv: list[str] | None = None) -> int:
         topics=topics,
         default_timeout_s=args.default_topic_timeout,
         topic_timeout_overrides=topic_timeout_overrides,
+        matlab_max_attempts=args.matlab_max_attempts,
     )
     contract_topics = None if full_suite else set(selected_topic_stems)
     report["parity_contract"] = _evaluate_parity_contract(report["helpfile_similarity"]["rows"], topics_filter=contract_topics)

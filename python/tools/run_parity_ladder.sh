@@ -10,6 +10,8 @@ SET_ACTIONS_RUNNER_SVC="${NSTAT_SET_ACTIONS_RUNNER_SVC:-1}"
 RUNTIME_MULTIPLIER="${NSTAT_PARITY_RUNTIME_MULTIPLIER:-2.5}"
 RETRY_TIMEOUT_BLOCKS="${NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS:-0}"
 TIMEOUT_RETRY_BLOCKS="${NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS:-timeout_front}"
+RETRY_RECOVERABLE_BLOCKS="${NSTAT_PARITY_RETRY_RECOVERABLE_BLOCKS:-1}"
+RECOVERABLE_RETRY_BLOCKS="${NSTAT_PARITY_RECOVERABLE_RETRY_BLOCKS:-graphics_mid,heavy_tail,full_suite}"
 RETRY_SUMMARY_PATH="${NSTAT_PARITY_RETRY_SUMMARY_PATH:-python/reports/parity_retry_summary.json}"
 
 DEFAULT_BLOCKS=(core_smoke timeout_front graphics_mid heavy_tail full_suite)
@@ -35,6 +37,16 @@ block_retry_enabled() {
   [[ "${RETRY_TIMEOUT_BLOCKS}" == "1" ]] || return 1
   local token
   for token in ${TIMEOUT_RETRY_BLOCKS//,/ }; do
+    [[ "${token}" == "${block}" ]] && return 0
+  done
+  return 1
+}
+
+block_recoverable_retry_enabled() {
+  local block="$1"
+  [[ "${RETRY_RECOVERABLE_BLOCKS}" == "1" ]] || return 1
+  local token
+  for token in ${RECOVERABLE_RETRY_BLOCKS//,/ }; do
     [[ "${token}" == "${block}" ]] && return 0
   done
   return 1
@@ -108,8 +120,52 @@ raise SystemExit(0)
 PY
 }
 
+retryable_failure_topics_csv() {
+  local report_path="$1"
+  "${PYTHON_BIN}" - "${report_path}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.exists():
+    raise SystemExit(1)
+payload = json.loads(path.read_text(encoding="utf-8"))
+rows = payload.get("helpfile_similarity", {}).get("rows", [])
+if not rows:
+    raise SystemExit(1)
+failed = [r for r in rows if not bool(r.get("matlab_ok"))]
+if not failed:
+    raise SystemExit(1)
+
+markers = (
+    "matlab_timeout",
+    "matlab is exiting because of fatal error",
+    "fatal error",
+    "mathworkscrashreporter",
+    "crash report has been saved",
+    "libmwhandle_graphics",
+)
+
+def retryable(err: str) -> bool:
+    e = (err or "").strip().lower()
+    if e == "matlab_timeout":
+        return True
+    return any(m in e for m in markers)
+
+if not all(retryable(str(r.get("matlab_error", ""))) for r in failed):
+    raise SystemExit(1)
+
+topics = [str(r.get("topic", "")).strip() for r in failed if str(r.get("topic", "")).strip()]
+if not topics:
+    raise SystemExit(1)
+print(",".join(topics))
+raise SystemExit(0)
+PY
+}
+
 init_retry_summary() {
-  "${PYTHON_BIN}" - "${RETRY_SUMMARY_ABS}" "${RETRY_TIMEOUT_BLOCKS}" "${TIMEOUT_RETRY_BLOCKS}" <<'PY'
+  "${PYTHON_BIN}" - "${RETRY_SUMMARY_ABS}" "${RETRY_TIMEOUT_BLOCKS}" "${TIMEOUT_RETRY_BLOCKS}" "${RETRY_RECOVERABLE_BLOCKS}" "${RECOVERABLE_RETRY_BLOCKS}" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -121,6 +177,8 @@ payload = {
     "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "retry_timeout_blocks_enabled": sys.argv[2] == "1",
     "timeout_retry_blocks": [b for b in sys.argv[3].replace(",", " ").split() if b],
+    "retry_recoverable_blocks_enabled": sys.argv[4] == "1",
+    "recoverable_retry_blocks": [b for b in sys.argv[5].replace(",", " ").split() if b],
     "events": [],
 }
 path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -175,6 +233,7 @@ echo "[ladder] matlab args: ${MATLAB_EXTRA_ARGS}"
 echo "[ladder] blocks: ${BLOCKS[*]}"
 echo "[ladder] runtime multiplier: ${RUNTIME_MULTIPLIER} (<=0 disables runtime regression checks)"
 echo "[ladder] retry timeout-only blocks: ${RETRY_TIMEOUT_BLOCKS} (blocks: ${TIMEOUT_RETRY_BLOCKS})"
+echo "[ladder] retry recoverable-failure blocks: ${RETRY_RECOVERABLE_BLOCKS} (blocks: ${RECOVERABLE_RETRY_BLOCKS})"
 echo "[ladder] retry summary path: ${RETRY_SUMMARY_PATH}"
 
 for block in "${BLOCKS[@]}"; do
@@ -186,7 +245,7 @@ for block in "${BLOCKS[@]}"; do
   echo "[ladder] running block: ${block}"
   report_path="${REPO_ROOT}/python/reports/parity_block_${block}.json"
   max_attempts=1
-  if block_retry_enabled "${block}"; then
+  if block_retry_enabled "${block}" || block_recoverable_retry_enabled "${block}"; then
     max_attempts=2
   fi
   attempt=1
@@ -291,6 +350,13 @@ PY
       is_timeout_only_regression "${report_path}" >/dev/null
       echo "[ladder] retrying block ${block} after timeout-only regression (attempt ${attempt}/${max_attempts}); topics=${timeout_topics_csv}"
       append_retry_summary_event "retry_scheduled" "${block}" "${attempt}" "${max_attempts}" "retry" "${rc}" "timeout_only_regression" "${timeout_topics_csv}"
+      warmup_matlab
+      attempt=$((attempt + 1))
+      continue
+    fi
+    if [[ "${rc}" -eq 10 ]] && [[ "${attempt}" -lt "${max_attempts}" ]] && retry_topics_csv="$(retryable_failure_topics_csv "${report_path}")"; then
+      echo "[ladder] retrying block ${block} after recoverable MATLAB failures (attempt ${attempt}/${max_attempts}); topics=${retry_topics_csv}"
+      append_retry_summary_event "retry_scheduled" "${block}" "${attempt}" "${max_attempts}" "retry" "${rc}" "recoverable_matlab_failures" "${retry_topics_csv}"
       warmup_matlab
       attempt=$((attempt + 1))
       continue

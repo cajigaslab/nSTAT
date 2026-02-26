@@ -70,6 +70,12 @@ Single wrapper command (fail-fast ladder):
 python/tools/run_parity_ladder.sh
 ```
 
+Single preflight command (Stage A ladder + selected Stage B topics):
+
+```bash
+python/tools/run_parity_preflight.sh
+```
+
 Notes:
 
 - Runs blocks in order: `core_smoke -> timeout_front -> graphics_mid -> heavy_tail -> full_suite`.
@@ -78,6 +84,9 @@ Notes:
 - Set `NSTAT_PARITY_RUNTIME_MULTIPLIER=0` to disable runtime regression checks.
 - Pass specific block names as args to run subset ladders, e.g.:
   `python/tools/run_parity_ladder.sh core_smoke timeout_front`.
+- Ladder writes retry telemetry to `python/reports/parity_retry_summary.json` (block, attempt count, retry reason, timeout-topic list).
+- Retry behavior is controlled by `NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS` and `NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS`.
+- Preflight topic selection can be overridden with `NSTAT_PARITY_PREFLIGHT_STAGEB_TOPICS`.
 
 Use targeted blocks to debug delays locally before running remote CI:
 

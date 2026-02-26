@@ -10,6 +10,7 @@ SET_ACTIONS_RUNNER_SVC="${NSTAT_SET_ACTIONS_RUNNER_SVC:-1}"
 RUNTIME_MULTIPLIER="${NSTAT_PARITY_RUNTIME_MULTIPLIER:-2.5}"
 RETRY_TIMEOUT_BLOCKS="${NSTAT_PARITY_RETRY_TIMEOUT_BLOCKS:-0}"
 TIMEOUT_RETRY_BLOCKS="${NSTAT_PARITY_TIMEOUT_RETRY_BLOCKS:-timeout_front}"
+RETRY_SUMMARY_PATH="${NSTAT_PARITY_RETRY_SUMMARY_PATH:-python/reports/parity_retry_summary.json}"
 
 DEFAULT_BLOCKS=(core_smoke timeout_front graphics_mid heavy_tail full_suite)
 if [[ $# -gt 0 ]]; then
@@ -73,7 +74,100 @@ warmup_matlab() {
   "${MATLAB_BIN}" ${MATLAB_EXTRA_ARGS} -batch "disp(version); exit" >/dev/null 2>&1 || true
 }
 
+resolve_path() {
+  local p="$1"
+  if [[ "${p}" = /* ]]; then
+    printf "%s" "${p}"
+  else
+    printf "%s/%s" "${REPO_ROOT}" "${p}"
+  fi
+}
+
+timeout_only_topics_csv() {
+  local report_path="$1"
+  "${PYTHON_BIN}" - "${report_path}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if not path.exists():
+    raise SystemExit(1)
+payload = json.loads(path.read_text(encoding="utf-8"))
+rows = payload.get("helpfile_similarity", {}).get("rows", [])
+if not rows:
+    raise SystemExit(1)
+failed = [r for r in rows if not bool(r.get("matlab_ok"))]
+if not failed or len(failed) != len(rows):
+    raise SystemExit(1)
+if not all(str(r.get("matlab_error", "")).strip() == "matlab_timeout" for r in failed):
+    raise SystemExit(1)
+topics = [str(r.get("topic", "")).strip() for r in failed if str(r.get("topic", "")).strip()]
+print(",".join(topics))
+raise SystemExit(0)
+PY
+}
+
+init_retry_summary() {
+  "${PYTHON_BIN}" - "${RETRY_SUMMARY_ABS}" "${RETRY_TIMEOUT_BLOCKS}" "${TIMEOUT_RETRY_BLOCKS}" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+path = Path(sys.argv[1])
+path.parent.mkdir(parents=True, exist_ok=True)
+payload = {
+    "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "retry_timeout_blocks_enabled": sys.argv[2] == "1",
+    "timeout_retry_blocks": [b for b in sys.argv[3].replace(",", " ").split() if b],
+    "events": [],
+}
+path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+PY
+}
+
+append_retry_summary_event() {
+  local kind="$1"
+  local block="$2"
+  local attempt="$3"
+  local max_attempts="$4"
+  local status="$5"
+  local return_code="$6"
+  local reason="$7"
+  local timeout_topics_csv="$8"
+  "${PYTHON_BIN}" - "${RETRY_SUMMARY_ABS}" "${kind}" "${block}" "${attempt}" "${max_attempts}" "${status}" "${return_code}" "${reason}" "${timeout_topics_csv}" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+path = Path(sys.argv[1])
+if path.exists():
+    payload = json.loads(path.read_text(encoding="utf-8"))
+else:
+    payload = {"generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "events": []}
+events = payload.setdefault("events", [])
+topics_raw = sys.argv[9].strip()
+event = {
+    "ts_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "kind": sys.argv[2],
+    "block": sys.argv[3],
+    "attempt": int(sys.argv[4]),
+    "max_attempts": int(sys.argv[5]),
+    "status": sys.argv[6],
+    "return_code": int(sys.argv[7]),
+    "reason": sys.argv[8],
+    "timeout_topics": [t for t in topics_raw.split(",") if t] if topics_raw else [],
+}
+events.append(event)
+path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+PY
+}
+
 cd "${REPO_ROOT}"
+RETRY_SUMMARY_ABS="$(resolve_path "${RETRY_SUMMARY_PATH}")"
+init_retry_summary
 
 echo "[ladder] repo: ${REPO_ROOT}"
 echo "[ladder] python: ${PYTHON_BIN}"
@@ -81,6 +175,7 @@ echo "[ladder] matlab args: ${MATLAB_EXTRA_ARGS}"
 echo "[ladder] blocks: ${BLOCKS[*]}"
 echo "[ladder] runtime multiplier: ${RUNTIME_MULTIPLIER} (<=0 disables runtime regression checks)"
 echo "[ladder] retry timeout-only blocks: ${RETRY_TIMEOUT_BLOCKS} (blocks: ${TIMEOUT_RETRY_BLOCKS})"
+echo "[ladder] retry summary path: ${RETRY_SUMMARY_PATH}"
 
 for block in "${BLOCKS[@]}"; do
   if ! baseline_s="$(baseline_runtime_sum_s "${block}")"; then
@@ -187,16 +282,30 @@ if mult > 0:
 print(f"[ladder] block passed: {block}")
 PY
     then
+      append_retry_summary_event "block_result" "${block}" "${attempt}" "${max_attempts}" "pass" "0" "ok" ""
       break
     fi
 
     rc=$?
-    if [[ "${rc}" -eq 10 ]] && [[ "${attempt}" -lt "${max_attempts}" ]] && is_timeout_only_regression "${report_path}"; then
-      echo "[ladder] retrying block ${block} after timeout-only regression (attempt ${attempt}/${max_attempts})"
+    if [[ "${rc}" -eq 10 ]] && [[ "${attempt}" -lt "${max_attempts}" ]] && timeout_topics_csv="$(timeout_only_topics_csv "${report_path}")"; then
+      is_timeout_only_regression "${report_path}" >/dev/null
+      echo "[ladder] retrying block ${block} after timeout-only regression (attempt ${attempt}/${max_attempts}); topics=${timeout_topics_csv}"
+      append_retry_summary_event "retry_scheduled" "${block}" "${attempt}" "${max_attempts}" "retry" "${rc}" "timeout_only_regression" "${timeout_topics_csv}"
       warmup_matlab
       attempt=$((attempt + 1))
       continue
     fi
+    reason="block_failure"
+    if [[ "${rc}" -eq 10 ]]; then
+      reason="regression_gate_failure"
+    elif [[ "${rc}" -eq 11 ]]; then
+      reason="runtime_regression"
+    fi
+    timeout_topics_csv=""
+    if timeout_topics_tmp="$(timeout_only_topics_csv "${report_path}")"; then
+      timeout_topics_csv="${timeout_topics_tmp}"
+    fi
+    append_retry_summary_event "block_result" "${block}" "${attempt}" "${max_attempts}" "fail" "${rc}" "${reason}" "${timeout_topics_csv}"
     exit "${rc}"
   done
 

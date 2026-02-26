@@ -15,7 +15,7 @@
   - `python3 python/tools/verify_examples_notebooks.py`
   - `sphinx-build -b html python/docs python/docs/_build/html`
 - [ ] Run similarity gate (requires MATLAB):
-  - `python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate`
+  - `NSTAT_MATLAB_EXTRA_ARGS='-maca64 -nodisplay -noFigureWindows' python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate`
 - [ ] Freeze similarity baseline:
   - `python3 python/tools/freeze_similarity_baseline.py`
 - [ ] Verify standalone offline workflow:

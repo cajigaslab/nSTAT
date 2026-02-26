@@ -45,7 +45,8 @@ python3 python/tools/freeze_port_baseline.py
 python3 python/tools/generate_method_parity_matrix.py
 python3 python/tools/generate_implemented_method_coverage.py
 python3 python/tools/verify_examples_notebooks.py
-python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
+NSTAT_MATLAB_EXTRA_ARGS='-maca64 -nodisplay -noFigureWindows' \
+  python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
 python3 python/tools/freeze_similarity_baseline.py
 python3 python/tools/verify_offline_standalone.py
 cd python && python3 -m pytest

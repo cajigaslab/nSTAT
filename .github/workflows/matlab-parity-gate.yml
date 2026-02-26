@@ -22,7 +22,7 @@ jobs:
       AGENT_TOOLSDIRECTORY: /Users/iahncajigas/actions-runner/_work/_tool
       RUNNER_TEMP: /Users/iahncajigas/actions-runner/_work/_temp
       TMPDIR: /Users/iahncajigas/actions-runner/_work/_temp
-      NSTAT_MATLAB_EXTRA_ARGS: -maca64 -nodisplay
+      NSTAT_MATLAB_EXTRA_ARGS: -maca64 -nodisplay -noFigureWindows
       NSTAT_FORCE_M_HELP_SCRIPTS: "1"
     steps:
       - name: Prepare runner directories
@@ -35,7 +35,7 @@ jobs:
           lfs: true
 
       - name: MATLAB smoke preflight
-        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -nodisplay -batch "disp(version); exit"
+        run: /Applications/MATLAB_R2025b.app/bin/matlab -maca64 -nodisplay -noFigureWindows -batch "disp(version); exit"
 
       - name: Pull LFS Objects
         run: git lfs pull
@@ -62,7 +62,7 @@ jobs:
           python3 python/tools/verify_python_vs_matlab_similarity.py --enforce-gate
 
       - name: Freeze similarity baseline
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: |
           if [ -f python/reports/python_vs_matlab_similarity_report.json ]; then
             python3 python/tools/freeze_similarity_baseline.py
@@ -71,7 +71,8 @@ jobs:
           fi
 
       - name: Upload parity reports
-        if: always()
+        if: ${{ always() && !cancelled() }}
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: nstat-matlab-parity-reports

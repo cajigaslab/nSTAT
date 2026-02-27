@@ -17,7 +17,13 @@
 % load the rat trajectory and spiking data;
 close all;
 warning off;
-load('glm_data.mat');
+installPath = which('nSTAT_Install');
+if isempty(installPath)
+    error('AnalysisExamples:MissingInstallPath', ...
+        'Could not locate nSTAT_Install.m on the MATLAB path.');
+end
+glmDataPath = fullfile(fileparts(installPath), 'data', 'glm_data.mat');
+load(glmDataPath);
 
 %%
 % visualize the raw data

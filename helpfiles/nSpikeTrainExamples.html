@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Test the nspikeTrain Class</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="nSpikeTrainExamples.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Test the nspikeTrain Class</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="nSpikeTrainExamples.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,17 +72,48 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Test the nspikeTrain Class</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Example 1: Using the nspikeTrain Class</a></li></ul></div><h2>Example 1: Using the nspikeTrain Class<a name="1"></a></h2><p>Lets create some pseudo data and plot it.</p><pre class="codeinput">spikeTimes = sort(rand(1,100))*1;
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Test the nspikeTrain Class</h1>
+<!--introduction-->
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Example 1: Using the nspikeTrain Class</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Example 1: Using the nspikeTrain Class</h2>
+<p>Lets create some pseudo data and plot it.</p>
+<pre class="codeinput">spikeTimes = sort(rand(1,100))*1;
 spikeTimes = unique(round(spikeTimes*10000)./10000); <span class="comment">%round off;</span>
 nst=nspikeTrain(spikeTimes,<span class="string">'n1'</span>,.001,0,1);
 figure; nst.plot;
-</pre><img vspace="5" hspace="5" src="nSpikeTrainExamples_01.png" alt=""> <p>We can now change the signal representation of the nspikeTrain and see what effects it has.</p><p>100ms bins from 0 to 10 sec. Actual SignalObj representation of the nspikeTrain is not changed because are using getSigRep</p><pre class="codeinput">figure; nst.resample(1/.1);
+</pre>
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_01.png" alt=""> <p>We can now change the signal representation of the nspikeTrain and see what effects it has.</p>
+<p>100ms bins from 0 to 10 sec. Actual SignalObj representation of the nspikeTrain is not changed because are using getSigRep</p>
+<pre class="codeinput">figure; nst.resample(1/.1);
 nst.getSigRep.plot;
-</pre><img vspace="5" hspace="5" src="nSpikeTrainExamples_02.png" alt=""> <p>10ms bins from 0 to 10 sec. Actually changing the representation of the signal.</p><pre class="codeinput">figure; nst.resample(1/.01);
+</pre>
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_02.png" alt=""> <p>10ms bins from 0 to 10 sec. Actually changing the representation of the signal.</p>
+<pre class="codeinput">figure; nst.resample(1/.01);
 nst.getSigRep.plot;
-</pre><img vspace="5" hspace="5" src="nSpikeTrainExamples_03.png" alt=""> <p>Get the largest binsize that still maintains a binary signal representation</p><pre class="codeinput">figure; nst.resample(1/nst.getMaxBinSizeBinary);
+</pre>
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_03.png" alt=""> <img vspace="5" hspace="5" src="nSpikeTrainExamples_04.png" alt=""> <p>Get the largest binsize that still maintains a binary signal representation</p>
+<pre class="codeinput">figure; nst.resample(1/nst.getMaxBinSizeBinary);
 nst.getSigRep.plot;
-</pre><img vspace="5" hspace="5" src="nSpikeTrainExamples_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_05.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Test the nspikeTrain Class
 
@@ -108,4 +146,6 @@ nst.getSigRep.plot;
 figure; nst.resample(1/nst.getMaxBinSizeBinary);
 nst.getSigRep.plot;
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

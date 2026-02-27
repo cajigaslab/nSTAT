@@ -1,9 +1,9 @@
 classdef ConfidenceInterval < SignalObj
 %ConfidenceInterval-represents the confidence interval for a time
-%series or <a href="matlab:help('Covariate')">Covariate</a>.
-% <a href="matlab: methods('ConfidenceInterval')">methods</a>
+%series or <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate</a>.
+% <a href="matlab:nstatOpenHelpPage('ConfidenceIntervalOverview.html')">ConfidenceInterval Overview</a>
 % Reference page in Help browser
-% <a href="matlab: doc('ConfidenceInterval')">doc ConfidenceInterval</a>
+% <a href="matlab:nstatOpenHelpPage('ConfidenceIntervalOverview.html')">ConfidenceInterval Reference</a>
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

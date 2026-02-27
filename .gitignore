@@ -2,3 +2,7 @@
 .svn
 __pycache__/
 *.pyc
+python/plots/
+
+python/docs/_build/
+python/.pytest_cache/

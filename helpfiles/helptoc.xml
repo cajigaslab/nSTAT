@@ -2,6 +2,7 @@
 <toc version="2.0">
   <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.ROOT" id="nstat_home">nSTAT Neural Spike Train Analysis Toolbox
     <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.FUNCTION" id="nstat_overview">Overview</tocitem>
+    <tocitem target="PaperOverview.html" image="HelpIcon.FUNCTION" id="nstat_paper_overview">Paper-Aligned Toolbox Map</tocitem>
     <tocitem target="DocumentationSetup2025b.html" image="HelpIcon.FUNCTION" id="nstat_2025b_setup">MATLAB 2025b Help Integration</tocitem>
 
     <tocitem target="ClassDefinitions.html" image="HelpIcon.FUNCTION" id="nstat_class_definitions">Class Definitions</tocitem>
@@ -36,6 +37,7 @@
       <tocitem target="nSTATPaperExamples.html" id="nstat_paper_examples">nSTAT Paper Examples</tocitem>
     </tocitem>
 
-    <tocitem target="https://neurostat.mit.edu" image="HelpIcon.WEB_SITE" id="nstat_lab_website">Neuroscience Statistics Research Laboratory</tocitem>
+    <tocitem target="https://www.neurostat.mit.edu" image="HelpIcon.WEB_SITE" id="nstat_lab_website">Neuroscience Statistics Research Laboratory</tocitem>
+    <tocitem target="https://www.med.upenn.edu/cajigaslab/" image="HelpIcon.WEB_SITE" id="restore_lab_website">RESToRe Lab</tocitem>
   </tocitem>
 </toc>

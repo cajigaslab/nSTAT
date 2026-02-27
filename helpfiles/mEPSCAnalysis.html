@@ -1,69 +1,141 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>MINIATURE EXCITATORY POST-SYNAPTIC CURRENTS (mEPSCs)</title><meta name="generator" content="MATLAB 7.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-03-02"><meta name="DC.source" content="mEPSCAnalysis.m"><style type="text/css">
+      -->
+<title>MINIATURE EXCITATORY POST-SYNAPTIC CURRENTS (mEPSCs)</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="mEPSCAnalysis.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
-body {
-  background-color: white;
-  margin:10px;
-}
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
 
-h1 {
-  color: #990000; 
-  font-size: x-large;
-}
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
 
-h2 {
-  color: #990000;
-  font-size: medium;
-}
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
 
-/* Make the text shrink to fit narrow windows, but not stretch too far in 
-wide windows. */ 
-p,h1,h2,div.content div {
-  max-width: 600px;
-  /* Hack for IE6 */
-  width: auto !important; width: 600px;
-}
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
-pre.codeinput {
-  background: #EEEEEE;
-  padding: 10px;
-}
-@media print {
-  pre.codeinput {word-wrap:break-word; width:100%;}
-} 
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
 
-span.keyword {color: #0000FF}
-span.comment {color: #228B22}
-span.string {color: #A020F0}
-span.untermstring {color: #B20000}
-span.syscmd {color: #B28C00}
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre.codeoutput {
-  color: #666666;
-  padding: 10px;
-}
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
-pre.error {
-  color: red;
-}
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
-p.footer {
-  text-align: right;
-  font-size: xx-small;
-  font-weight: lighter;
-  font-style: italic;
-  color: gray;
-}
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
-  </style></head><body><div class="content"><h1>MINIATURE EXCITATORY POST-SYNAPTIC CURRENTS (mEPSCs)</h1><!--introduction--><p>Data from Marnie Phillips  <a href="marnie.a.phillips@gmail.com">marnie.a.phillips@gmail.com</a> This analysis is based on a partial version of the dataset used in</p><p>Phillips MA, Lewis LD, Gong J, Constantine-Paton M, Brown EN.  2011 <i>Model-based statistical analysis of miniature synaptic transmission.</i> J Neurophys (under consideration)</p><p><b>Author</b>: Iahn Cajigas</p><p><b>Date</b>: 03/01/2011</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Data Description</a></li><li><a href="#2">Constant Magnesium Concentration - Constant rate poisson</a></li><li><a href="#3">Varying Magnesium Concentration - Piecewise Constant rate poisson</a></li><li><a href="#4">Data Visualization</a></li><li><a href="#5">Define Covariates for the analysis</a></li><li><a href="#6">Define how we want to analyze the data</a></li><li><a href="#7">Perform Analysis</a></li><li><a href="#8">Decode Rate using Point Process Filter</a></li></ul></div><h2>Data Description<a name="1"></a></h2><p><b>epsc2.txt</b>: Event times of selected, constant rate, miniature excitatory post-synaptic currents (mEPSCs) in 0mM magnesium condition]</p><p><b>washout1.txt</b>: Variable rate recording:  Event times of selected events, beginning approximately 260 seconds after magnesium is first removed.</p><p><b>washout2.txt</b>: Event times of selected events from the same recording, beginning 745 seconds after magnesium is first removed</p><p>Column headers in the text files explain what each column represents.</p><p>Event selection criteria for the "washout1" and "washout2" condition were:</p><div><ul><li>Amplitude &gt; 10pA</li><li>10-90% rise time &lt; 20ms</li></ul></div><p>For this washout experiment, the recording duration was so long, and there were so many events, that the minimum amplitude threshold was conservative.</p><p>The mean RMS noise was only 1.36pA, and a usual threshold would be 5*RMS = 6.8pA.</p><h2>Constant Magnesium Concentration - Constant rate poisson<a name="2"></a></h2><p>Under a constant Magnesium concentration, it is seen that the mEPSCs behave as a homogeneous poisson process (constant arrival rate).</p><pre class="codeinput">    close <span class="string">all</span>;
-    epsc2 = importdata(<span class="string">'epsc2.txt'</span>);
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>MINIATURE EXCITATORY POST-SYNAPTIC CURRENTS (mEPSCs)</h1>
+<!--introduction-->
+<p>Data from Marnie Phillips  <a href="marnie.a.phillips@gmail.com">marnie.a.phillips@gmail.com</a> This analysis is based on a partial version of the dataset used in</p>
+<p>Phillips MA, Lewis LD, Gong J, Constantine-Paton M, Brown EN. 2011 <i>Model-based statistical analysis of miniature synaptic transmission.</i> J Neurophys (under consideration)</p>
+<p>
+<b>Author</b>: Iahn Cajigas</p>
+<p>
+<b>Date</b>: 03/01/2011</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Data Description</a>
+</li>
+<li>
+<a href="#2">Constant Magnesium Concentration - Constant rate poisson</a>
+</li>
+<li>
+<a href="#3">Varying Magnesium Concentration - Piecewise Constant rate poisson</a>
+</li>
+<li>
+<a href="#4">Data Visualization</a>
+</li>
+<li>
+<a href="#5">Define Covariates for the analysis</a>
+</li>
+<li>
+<a href="#6">Define how we want to analyze the data</a>
+</li>
+<li>
+<a href="#7">Perform Analysis</a>
+</li>
+<li>
+<a href="#8">Decode Rate using Point Process Filter</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Data Description</h2>
+<p>
+<b>epsc2.txt</b>: Event times of selected, constant rate, miniature excitatory post-synaptic currents (mEPSCs) in 0mM magnesium condition]</p>
+<p>
+<b>washout1.txt</b>: Variable rate recording: Event times of selected events, beginning approximately 260 seconds after magnesium is first removed.</p>
+<p>
+<b>washout2.txt</b>: Event times of selected events from the same recording, beginning 745 seconds after magnesium is first removed</p>
+<p>Column headers in the text files explain what each column represents.</p>
+<p>Event selection criteria for the "washout1" and "washout2" condition were:</p>
+<div>
+<ul>
+<li>Amplitude &gt; 10pA</li>
+<li>10-90% rise time &lt; 20ms</li>
+</ul>
+</div>
+<p>For this washout experiment, the recording duration was so long, and there were so many events, that the minimum amplitude threshold was conservative.</p>
+<p>The mean RMS noise was only 1.36pA, and a usual threshold would be 5*RMS = 6.8pA.</p>
+<h2 id="2">Constant Magnesium Concentration - Constant rate poisson</h2>
+<p>Under a constant Magnesium concentration, it is seen that the mEPSCs behave as a homogeneous poisson process (constant arrival rate).</p>
+<pre class="codeinput">    close <span class="string">all</span>;
+    [~,mEPSCDir] = getPaperDataDirs();
+    epsc2 = importdata(fullfile(mEPSCDir,<span class="string">'epsc2.txt'</span>));
     sampleRate = 1000;
     spikeTimes = epsc2.data(:,2)*1/sampleRate; <span class="comment">%in seconds</span>
     nst = nspikeTrain(spikeTimes);
@@ -86,10 +158,14 @@ p.footer {
     <span class="comment">% Perform Analysis (Commented to since data already saved)</span>
     results =Analysis.RunAnalysisForAllNeurons(trial,tcc,0);
     results.plotResults;
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
-</pre><img vspace="5" hspace="5" src="mEPSCAnalysis_01.png" alt=""> <h2>Varying Magnesium Concentration - Piecewise Constant rate poisson<a name="3"></a></h2><p>When the magnesium concentration of the bath decreased (i.e. magnesium is removed), the rate of mEPSCs begin to increase in frequency. This can be modeled in a many different ways (using the change in Magnesium directly as a model covariate, etc.) Here we approximate the rate as being constant during certain portions of the experiment. These segments can in principle be estimated (using heirarchical Bayesian methods), but here we select them via visual inspection. We compare three models: a constant rate model (from above), a piecewise constant rate model, and a piecewise constant rate model with history.</p><pre class="codeinput"> <span class="comment">% load the data;</span>
-    washout1 = importdata(<span class="string">'washout1.txt'</span>);
-    washout2 = importdata(<span class="string">'washout2.txt'</span>);
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_01.png" alt=""> <h2 id="3">Varying Magnesium Concentration - Piecewise Constant rate poisson</h2>
+<p>When the magnesium concentration of the bath decreased (i.e. magnesium is removed), the rate of mEPSCs begin to increase in frequency. This can be modeled in a many different ways (using the change in Magnesium directly as a model covariate, etc.) Here we approximate the rate as being constant during certain portions of the experiment. These segments can in principle be estimated (using heirarchical Bayesian methods), but here we select them via visual inspection. We compare three models: a constant rate model (from above), a piecewise constant rate model, and a piecewise constant rate model with history.</p>
+<pre class="codeinput"> <span class="comment">% load the data;</span>
+    washout1 = importdata(fullfile(mEPSCDir,<span class="string">'washout1.txt'</span>));
+    washout2 = importdata(fullfile(mEPSCDir,<span class="string">'washout2.txt'</span>));
 
     sampleRate  = 1000;
     <span class="comment">% Magnesium removed at t=0</span>
@@ -97,9 +173,14 @@ p.footer {
     spikeTimes2 = sort(washout2.data(:,2))*1/sampleRate + 745;<span class="comment">%in seconds</span>
     nst = nspikeTrain([spikeTimes1; spikeTimes2]);
     time = 260:(1/sampleRate):nst.maxTime;
-</pre><h2>Data Visualization<a name="4"></a></h2><p>Visual inspection of the spike train is used to pick three regions where the firing rate appears to be different. Here we do not estimate where these transitions happen but pick times in an ad-hoc manner.</p><pre class="codeinput">    figure;
+</pre>
+<h2 id="4">Data Visualization</h2>
+<p>Visual inspection of the spike train is used to pick three regions where the firing rate appears to be different. Here we do not estimate where these transitions happen but pick times in an ad-hoc manner.</p>
+<pre class="codeinput">    figure;
     nst.plot;
-</pre><img vspace="5" hspace="5" src="mEPSCAnalysis_02.png" alt=""> <h2>Define Covariates for the analysis<a name="5"></a></h2><pre class="codeinput">    timeInd1 =find(time&lt;495,1,<span class="string">'last'</span>); <span class="comment">%0-495sec first constant rate</span>
+</pre>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_02.png" alt=""> <h2 id="5">Define Covariates for the analysis</h2>
+<pre class="codeinput">    timeInd1 =find(time&lt;495,1,<span class="string">'last'</span>); <span class="comment">%0-495sec first constant rate</span>
     timeInd2 =find(time&lt;765,1,<span class="string">'last'</span>); <span class="comment">%495-765 second constant rate epoch</span>
                                        <span class="comment">%765 onwards third constant rate</span>
                                        <span class="comment">%epoch</span>
@@ -121,18 +202,27 @@ p.footer {
     windowTimes =unique(round([0 logspace(log10(delta),<span class="keyword">...</span>
     log10(maxWindow),numWindows)]*sampleRate)./sampleRate);
     windowTimes = windowTimes(1:11);
-</pre><h2>Define how we want to analyze the data<a name="6"></a></h2><pre class="codeinput">    clear <span class="string">tc</span> <span class="string">tcc</span>;
+</pre>
+<h2 id="6">Define how we want to analyze the data</h2>
+<pre class="codeinput">    clear <span class="string">tc</span> <span class="string">tcc</span>;
     tc{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'\mu'</span>}},sampleRate,[]); tc{1}.setName(<span class="string">'Constant Baseline'</span>);
     tc{2} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'\mu_{1}'</span>,<span class="string">'\mu_{2}'</span>,<span class="string">'\mu_{3}'</span>}},sampleRate,[]); tc{2}.setName(<span class="string">'Diff Baseline'</span>);
 <span class="comment">%     tc{3} = TrialConfig({{'Baseline','\mu_{1}','\mu_{2}','\mu_{3}'}},sampleRate,windowTimes); tc{3}.setName('Diff Baseline+Hist');</span>
     tcc = ConfigColl(tc);
-</pre><h2>Perform Analysis<a name="7"></a></h2><p>We see that the piece-wise constant rate model (with and without history, outperform the constant baseline model in terms of AIC, BIC, and KS-statistic. While addition of the history effect yields a model that falls within the 95% confidence interval of the KS plot, it results in increases of the AIC and BIC because of the increased number of parameters.</p><pre class="codeinput">    results =Analysis.RunAnalysisForAllNeurons(trial,tcc,0);
+</pre>
+<h2 id="7">Perform Analysis</h2>
+<p>We see that the piece-wise constant rate model (with and without history, outperform the constant baseline model in terms of AIC, BIC, and KS-statistic. While addition of the history effect yields a model that falls within the 95% confidence interval of the KS plot, it results in increases of the AIC and BIC because of the increased number of parameters.</p>
+<pre class="codeinput">    results =Analysis.RunAnalysisForAllNeurons(trial,tcc,0);
     results.plotResults;
     Summary = FitResSummary(results);
     Summary.plotSummary;
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
-</pre><img vspace="5" hspace="5" src="mEPSCAnalysis_03.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_04.png" alt=""> <h2>Decode Rate using Point Process Filter<a name="8"></a></h2><pre class="codeinput"><span class="comment">%     clear lambdaCIF;</span>
+</pre>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_03.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_04.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_05.png" alt=""> <h2 id="8">Decode Rate using Point Process Filter</h2>
+<pre class="codeinput">
+<span class="comment">%     clear lambdaCIF;</span>
 <span class="comment">%     delta = .001;</span>
 <span class="comment">%</span>
 <span class="comment">%     washout1 = importdata('washout1.txt');</span>
@@ -185,8 +275,14 @@ Analyzing Configuration #2: Neuron #1
 <span class="comment">%     axis([v(1) v(2) 0 5]);</span>
 <span class="comment">%     xlabel('time [s]');</span>
 <span class="comment">%     ylabel('\lambda(t) [Hz]');</span>
-</pre><p class="footer"><br>
-      Published with MATLAB&reg; 7.13<br></p></div><!--
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% MINIATURE EXCITATORY POST-SYNAPTIC CURRENTS (mEPSCs) 
 % Data from Marnie Phillips  <marnie.a.phillips@gmail.com>
@@ -232,7 +328,8 @@ Analyzing Configuration #2: Neuron #1
 % Under a constant Magnesium concentration, it is seen that the mEPSCs
 % behave as a homogeneous poisson process (constant arrival rate).
     close all;
-    epsc2 = importdata('epsc2.txt');
+    [~,mEPSCDir] = getPaperDataDirs();
+    epsc2 = importdata(fullfile(mEPSCDir,'epsc2.txt'));
     sampleRate = 1000;
     spikeTimes = epsc2.data(:,2)*1/sampleRate; %in seconds
     nst = nspikeTrain(spikeTimes);
@@ -269,8 +366,8 @@ Analyzing Configuration #2: Neuron #1
  % piecewise constant rate model with history.
     
  % load the data;
-    washout1 = importdata('washout1.txt');
-    washout2 = importdata('washout2.txt');
+    washout1 = importdata(fullfile(mEPSCDir,'washout1.txt'));
+    washout2 = importdata(fullfile(mEPSCDir,'washout2.txt'));
     
     sampleRate  = 1000;
     % Magnesium removed at t=0
@@ -387,5 +484,8 @@ Analyzing Configuration #2: Neuron #1
 %     axis([v(1) v(2) 0 5]);
 %     xlabel('time [s]');
 %     ylabel('\lambda(t) [Hz]');
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

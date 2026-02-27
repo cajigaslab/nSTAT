@@ -1,0 +1,38 @@
+{
+  "generated_on": "2026-02-27",
+  "package_root": "python/nstat",
+  "canonical_modules": [
+    {"name": "nstat.analysis", "path": "python/nstat/analysis.py"},
+    {"name": "nstat.cif", "path": "python/nstat/cif.py"},
+    {"name": "nstat.confidence_interval", "path": "python/nstat/confidence_interval.py"},
+    {"name": "nstat.core", "path": "python/nstat/core.py"},
+    {"name": "nstat.datasets", "path": "python/nstat/datasets.py"},
+    {"name": "nstat.decoding", "path": "python/nstat/decoding.py"},
+    {"name": "nstat.decoding_algorithms", "path": "python/nstat/decoding_algorithms.py"},
+    {"name": "nstat.events", "path": "python/nstat/events.py"},
+    {"name": "nstat.fit", "path": "python/nstat/fit.py"},
+    {"name": "nstat.glm", "path": "python/nstat/glm.py"},
+    {"name": "nstat.history", "path": "python/nstat/history.py"},
+    {"name": "nstat.nstat_install", "path": "python/nstat/nstat_install.py"},
+    {"name": "nstat.paper_examples", "path": "python/nstat/paper_examples.py"},
+    {"name": "nstat.paper_examples_full", "path": "python/nstat/paper_examples_full.py"},
+    {"name": "nstat.signal", "path": "python/nstat/signal.py"},
+    {"name": "nstat.simulation", "path": "python/nstat/simulation.py"},
+    {"name": "nstat.simulators", "path": "python/nstat/simulators.py"},
+    {"name": "nstat.spikes", "path": "python/nstat/spikes.py"},
+    {"name": "nstat.trial", "path": "python/nstat/trial.py"}
+  ],
+  "compatibility_adapters": [
+    {"name": "nstat.SignalObj", "path": "python/nstat/SignalObj.py"},
+    {"name": "nstat.Covariate", "path": "python/nstat/Covariate.py"},
+    {"name": "nstat.CovColl", "path": "python/nstat/CovColl.py"},
+    {"name": "nstat.ConfigColl", "path": "python/nstat/ConfigColl.py"},
+    {"name": "nstat.ConfidenceInterval", "path": "python/nstat/ConfidenceInterval.py"},
+    {"name": "nstat.DecodingAlgorithms", "path": "python/nstat/DecodingAlgorithms.py"},
+    {"name": "nstat.FitResult", "path": "python/nstat/FitResult.py"},
+    {"name": "nstat.FitResSummary", "path": "python/nstat/FitResSummary.py"},
+    {"name": "nstat.TrialConfig", "path": "python/nstat/TrialConfig.py"},
+    {"name": "nstat.nspikeTrain", "path": "python/nstat/nspikeTrain.py"},
+    {"name": "nstat.nstColl", "path": "python/nstat/nstColl.py"}
+  ]
+}

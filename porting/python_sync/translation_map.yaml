@@ -1,0 +1,117 @@
+version: 1
+generated_on: 2026-02-27
+entries:
+  - matlab: Analysis.m
+    matlab_path: Analysis.m
+    python_module: nstat.analysis
+    python_path: python/nstat/analysis.py
+    status: mapped
+    notes: Core analysis class is implemented.
+  - matlab: CIF.m
+    matlab_path: CIF.m
+    python_module: nstat.cif
+    python_path: python/nstat/cif.py
+    status: mapped
+    notes: CIFModel and CIF compatibility alias are available.
+  - matlab: ConfidenceInterval.m
+    matlab_path: ConfidenceInterval.m
+    python_module: nstat.confidence_interval
+    python_path: python/nstat/confidence_interval.py
+    status: mapped
+    notes: Confidence interval object implemented with compatibility adapter.
+  - matlab: ConfigColl.m
+    matlab_path: ConfigColl.m
+    python_module: nstat.trial
+    python_path: python/nstat/trial.py
+    status: mapped
+    notes: ConfigCollection plus ConfigColl adapter.
+  - matlab: CovColl.m
+    matlab_path: CovColl.m
+    python_module: nstat.trial
+    python_path: python/nstat/trial.py
+    status: mapped
+    notes: CovariateCollection plus CovColl adapter.
+  - matlab: Covariate.m
+    matlab_path: Covariate.m
+    python_module: nstat.signal
+    python_path: python/nstat/signal.py
+    status: mapped
+    notes: Covariate object plus Covariate adapter.
+  - matlab: DecodingAlgorithms.m
+    matlab_path: DecodingAlgorithms.m
+    python_module: nstat.decoding_algorithms
+    python_path: python/nstat/decoding_algorithms.py
+    status: mapped
+    notes: Decoding algorithms implemented.
+  - matlab: Events.m
+    matlab_path: Events.m
+    python_module: nstat.events
+    python_path: python/nstat/events.py
+    status: mapped
+    notes: Events API implemented.
+  - matlab: FitResSummary.m
+    matlab_path: FitResSummary.m
+    python_module: nstat.fit
+    python_path: python/nstat/fit.py
+    status: mapped
+    notes: FitSummary/FitResSummary adapter available.
+  - matlab: FitResult.m
+    matlab_path: FitResult.m
+    python_module: nstat.fit
+    python_path: python/nstat/fit.py
+    status: mapped
+    notes: FitResult implemented with compatibility adapter.
+  - matlab: History.m
+    matlab_path: History.m
+    python_module: nstat.history
+    python_path: python/nstat/history.py
+    status: mapped
+    notes: History basis implementation present.
+  - matlab: SignalObj.m
+    matlab_path: SignalObj.m
+    python_module: nstat.signal
+    python_path: python/nstat/signal.py
+    status: mapped
+    notes: Signal class and SignalObj adapter available.
+  - matlab: Trial.m
+    matlab_path: Trial.m
+    python_module: nstat.trial
+    python_path: python/nstat/trial.py
+    status: mapped
+    notes: Trial API implemented.
+  - matlab: TrialConfig.m
+    matlab_path: TrialConfig.m
+    python_module: nstat.trial
+    python_path: python/nstat/trial.py
+    status: mapped
+    notes: TrialConfig implementation present.
+  - matlab: getPaperDataDirs.m
+    matlab_path: getPaperDataDirs.m
+    python_module: nstat.paper_examples
+    python_path: python/nstat/paper_examples.py
+    status: partial
+    notes: Similar data-root resolution exists but not as standalone public API.
+  - matlab: nSTAT_Install.m
+    matlab_path: nSTAT_Install.m
+    python_module: nstat.nstat_install
+    python_path: python/nstat/nstat_install.py
+    status: mapped
+    notes: Installation helper available in Python package.
+  - matlab: nspikeTrain.m
+    matlab_path: nspikeTrain.m
+    python_module: nstat.spikes
+    python_path: python/nstat/spikes.py
+    status: mapped
+    notes: SpikeTrain and nspikeTrain adapter available.
+  - matlab: nstColl.m
+    matlab_path: nstColl.m
+    python_module: nstat.spikes
+    python_path: python/nstat/spikes.py
+    status: mapped
+    notes: SpikeTrainCollection and nstColl adapter available.
+  - matlab: nstatOpenHelpPage.m
+    matlab_path: nstatOpenHelpPage.m
+    python_module: null
+    python_path: null
+    status: not_applicable
+    notes: MATLAB help-browser utility has no Python equivalent.

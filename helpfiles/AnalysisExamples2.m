@@ -5,7 +5,13 @@
 % load the rat trajectory and spiking data;
 close all;
 warning off;
-load('glm_data.mat');
+installPath = which('nSTAT_Install');
+if isempty(installPath)
+    error('AnalysisExamples2:MissingInstallPath', ...
+        'Could not locate nSTAT_Install.m on the MATLAB path.');
+end
+glmDataPath = fullfile(fileparts(installPath), 'data', 'glm_data.mat');
+load(glmDataPath);
 
 nst = nspikeTrain(spiketimes);
 baseline = Covariate(T,ones(length(xN),1),'Baseline','time','s','',{'mu'});

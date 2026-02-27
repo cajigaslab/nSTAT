@@ -4,11 +4,11 @@ classdef FitResSummary < handle
 % summary statistics across neurons. This is to allows visualization of
 % commonalities in the data across multiple neurons. 
 %
-% % <a href="matlab: methods('FitResSummary')">methods</a>
-% see also <a href="matlab:help('FitResult')">FitResult</a>
+% % <a href="matlab:nstatOpenHelpPage('FitResSummaryExamples.html')">FitResSummary Reference</a>
+% see also <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult</a>
 %
 % Reference page in Help browser
-% <a href="matlab:doc('FitResSummary')">doc FitResSummary</a>    
+% <a href="matlab:nstatOpenHelpPage('FitResSummaryExamples.html')">FitResSummary Reference</a>    
     
 
 %

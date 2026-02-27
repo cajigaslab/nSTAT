@@ -18,7 +18,7 @@ classdef Events
 % <a href="matlab:nstatOpenHelpPage('EventsExamples.html')">Events Examples</a> 
 %
 % Reference page in Help browser
-% <a href="matlab: doc('Events')">doc Events</a>
+% <a href="matlab:nstatOpenHelpPage('EventsExamples.html')">Events Reference</a>
 
 
 %

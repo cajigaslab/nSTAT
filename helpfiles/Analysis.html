@@ -1,89 +1,134 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Analysis</title><meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-02-09"><meta name="DC.source" content="Analysis.m"><style type="text/css">
+      -->
+<title>Analysis</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="Analysis.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
-body {
-  background-color: white;
-  margin:10px;
-}
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
 
-h1 {
-  color: #990000; 
-  font-size: x-large;
-}
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
 
-h2 {
-  color: #990000;
-  font-size: medium;
-}
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
 
-/* Make the text shrink to fit narrow windows, but not stretch too far in 
-wide windows. */ 
-p,h1,h2,div.content div {
-  max-width: 600px;
-  /* Hack for IE6 */
-  width: auto !important; width: 600px;
-}
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
-pre.codeinput {
-  background: #EEEEEE;
-  padding: 10px;
-}
-@media print {
-  pre.codeinput {word-wrap:break-word; width:100%;}
-} 
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
 
-span.keyword {color: #0000FF}
-span.comment {color: #228B22}
-span.string {color: #A020F0}
-span.untermstring {color: #B20000}
-span.syscmd {color: #B28C00}
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre.codeoutput {
-  color: #666666;
-  padding: 10px;
-}
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
-pre.error {
-  color: red;
-}
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
-p.footer {
-  text-align: right;
-  font-size: xx-small;
-  font-weight: lighter;
-  font-style: italic;
-  color: gray;
-}
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Fit Using Training Data</a></li><li><a href="#5">Collect the validation Data</a></li><li><a href="#7">Store the results</a></li><li><a href="#9">Process the results and compute further parameters</a></li></ul></div><pre class="codeinput"><span class="keyword">classdef</span> Analysis
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#5">Fit Using Training Data</a>
+</li>
+<li>
+<a href="#7">Collect the validation Data</a>
+</li>
+<li>
+<a href="#10">Collect the validation Data</a>
+</li>
+<li>
+<a href="#13">Collect the validation Data</a>
+</li>
+<li>
+<a href="#16">Collect the validation Data</a>
+</li>
+<li>
+<a href="#18">Store the results</a>
+</li>
+<li>
+<a href="#20">Process the results and compute further parameters</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="keyword">classdef</span> Analysis
+</pre>
+<pre class="codeinput">
 <span class="comment">% ANALYSIS Collection of functions (static methods) used for GLM analysis</span>
 <span class="comment">% of point process data.</span>
+<span class="comment">% &lt;a href="matlab:nstatOpenHelpPage('AnalysisExamples.html')"&gt;Analysis Examples&lt;/a&gt;</span>
 <span class="comment">%</span>
-<span class="comment">% &lt;a href="AnalysisExamples.html"&gt;Analysis Examples&lt;/a&gt;</span>
-<span class="comment">%</span>
-<span class="comment">% see also &lt;a href="TrialExamples.html"&gt;Trial&lt;/a&gt;, &lt;a</span>
-<span class="comment">% href="CovCollExamples.html"&gt;CovColl&lt;/a&gt;, &lt;a</span>
-<span class="comment">% href="nstCollExamples.html"&gt;nstColl&lt;/a&gt;,&lt;a</span>
-<span class="comment">% href="HistoryExamples.html"&gt;History&lt;/a&gt;</span>
-<span class="comment">%</span>
+<span class="comment">% see also &lt;a href="matlab:nstatOpenHelpPage('TrialExamples.html')"&gt;Trial&lt;/a&gt;, &lt;a</span>
+<span class="comment">% href="matlab:nstatOpenHelpPage('CovCollExamples.html')"&gt;CovColl&lt;/a&gt;, &lt;a</span>
+<span class="comment">% href="matlab:nstatOpenHelpPage('nstCollExamples.html')"&gt;nstColl&lt;/a&gt;,&lt;a</span>
+<span class="comment">% href="matlab:nstatOpenHelpPage('HistoryExamples.html')"&gt;History&lt;/a&gt;</span>
 <span class="comment">%</span>
 <span class="comment">% Reference page in Help browser</span>
-<span class="comment">% &lt;a href="Analysis.html"&gt;Analysis Reference&lt;/a&gt;</span>
-
-<span class="keyword">properties</span> (Constant)
+<span class="comment">% &lt;a href="matlab:nstatOpenHelpPage('Analysis.html')"&gt;Analysis Reference&lt;/a&gt;</span>
+</pre>
+<p>nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology Cajigas, I, Malik, WQ, Brown, EN This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
+<pre class="codeinput">properties (Constant)
     colors = {<span class="string">'b'</span>,<span class="string">'g'</span>,<span class="string">'r'</span>,<span class="string">'c'</span>,<span class="string">'m'</span>,<span class="string">'y'</span>,<span class="string">'k'</span>};
 <span class="keyword">end</span>
 
-    <span class="keyword">methods</span> (Static)
-        <span class="keyword">function</span> fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm)
-</pre><pre class="codeinput">            <span class="comment">% fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm)</span>
+    methods (Static)
+        <span class="keyword">function</span> fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm,DTCorrection,batchMode)
+</pre>
+<pre class="codeinput">            <span class="comment">% fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm)</span>
             <span class="comment">% tObj: Trial to be analyzed</span>
             <span class="comment">% neuronNumber: number of the neuron to be analyzed. Can be a</span>
             <span class="comment">%               vector to specify multiple neurons to be analyzed.</span>
@@ -99,11 +144,22 @@ p.footer {
             <span class="comment">%            BNLRCG - faster Truncated, L-2 Regularized,</span>
             <span class="comment">%            Binomial Logistic Regression with Conjugate</span>
             <span class="comment">%            Gradient Solver by Demba Ba (demba@mit.edu).</span>
+            <span class="comment">% DTCorrection: 0 for no DT Correction of KS plot, 1 is the</span>
+            <span class="comment">%               default.</span>
             <span class="comment">%</span>
-            <span class="keyword">if</span>(nargin&lt;5)
+            <span class="comment">% batchMode: when batchMode=1 neurons with same name are fit at once rather than separetely</span>
+
+            <span class="keyword">if</span>(nargin&lt;7 || isempty(batchMode))
+                batchMode = 0; <span class="comment">%default treat each spike train separately</span>
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span>(nargin&lt;6 || isempty(DTCorrection))
+                DTCorrection =1;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;5 || isempty(Algorithm))
                 Algorithm = <span class="string">'GLM'</span>;
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(nargin&lt;4)
+            <span class="keyword">if</span>(nargin&lt;4 || isempty(makePlot))
                 makePlot=1;
             <span class="keyword">end</span>
             numNeurons = length(neuronNumber);
@@ -117,43 +173,305 @@ p.footer {
             ensHistObj=cell(numNeurons,1);
             AIC   =zeros(numNeurons,1);
             BIC   =zeros(numNeurons,1);
+            logLL =zeros(numNeurons,1);
             windowSize = .01; <span class="comment">% 1/tObj.sampleRate;% for Residual Computation;</span>
             spikeTraining = cell(1,numNeurons);
             XvalData =cell(numNeurons,1);
             XvalTime =cell(numNeurons,1);
             spikeValidation = cell(1,numNeurons);
-</pre><h2>Fit Using Training Data<a name="3"></a></h2><pre class="codeinput">            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
+</pre>
+<h2 id="5">Fit Using Training Data</h2>
+<pre class="codeinput">            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
                 tObj.setTrialTimesFor(<span class="string">'training'</span>);
             <span class="keyword">end</span>
+            <span class="keyword">if</span>(batchMode==1)
+               display(<span class="string">'Running in batch mode: neurons with same name are fit simultaneously'</span>);
+            <span class="keyword">end</span>
+
             <span class="keyword">for</span> i=1:configColl.numConfigs
                 configColl.setConfig(tObj,i);
-                display(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i)));
+<span class="comment">%                 fprintf(strcat('Analyzing Configuration #',num2str(i)));</span>
+                pool = gcp(<span class="string">'nocreate'</span>);
+                <span class="keyword">if</span>(isempty(pool))
+                    pools = 0;
+                <span class="keyword">else</span>
+                    pools = pool.NumWorkers;
+                <span class="keyword">end</span><span class="comment">%matlabpool('size');</span>
+                <span class="keyword">if</span>(pools==0)
+                    <span class="keyword">if</span>(batchMode==0)
+                        fprintf(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i),<span class="string">': Neuron #'</span>));
+                        <span class="keyword">for</span> j=1:numNeurons
+</pre>
+<pre class="codeinput">        <span class="comment">%                         fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNumber(j))));</span>
+                            <span class="keyword">if</span>(j==1)
+                                fprintf(<span class="string">'%d'</span>,neuronNumber(j));
+                            <span class="keyword">else</span>
+                                fprintf(<span class="string">',%d'</span>,neuronNumber(j));
+                            <span class="keyword">end</span>
+                            <span class="comment">%clear tempLabels;</span>
+                            <span class="comment">%tObj.setCurrentNeuron(neuronNumber);</span>
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        <span class="comment">%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist</span>
+                            labels{j}{i}  = otherLabels; <span class="comment">% Labels change depending on presence/absense of History or ensCovHist</span>
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                            [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp, distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                            spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j));<span class="comment">%.nstCopy;</span>
+                            spikeTraining{j}.setName(num2str(neuronNumber(j)));
+</pre>
+<h2 id="7">Collect the validation Data</h2>
+<pre class="codeinput">                            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
+                                  tObj.setTrialTimesFor(<span class="string">'validation'</span>);
+                                  XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
+                                  XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
+                                  spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j));<span class="comment">%.nstCopy;</span>
+                                  spikeTraining{j}.setName(num2str(neuronNumber(j)));
+                                  tObj.setTrialTimesFor(<span class="string">'training'</span>)
+                            <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">                        <span class="keyword">end</span>
+                    <span class="keyword">elseif</span>(batchMode==1)
+                        neuronNames=neuronNumber; <span class="comment">% This is an index of names in the batchMode case</span>
+                        fprintf(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i),<span class="string">': Neuron #'</span>));
+                        <span class="keyword">for</span> j=1:numNeurons
+</pre>
+<pre class="codeinput">        <span class="comment">%                         if(isa(neuronNames,'cell'))</span>
+        <span class="comment">%                             fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #'));</span>
+        <span class="comment">%                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',neuronNames{j}));</span>
+        <span class="comment">%                         elseif(isa(neuronNames,'char'))</span>
+        <span class="comment">%                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',neuronNames));</span>
+        <span class="comment">%                         elseif(isa(neuronNames,'double'))</span>
+        <span class="comment">%                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNames)));</span>
+        <span class="comment">%                         end</span>
+                            <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                <span class="keyword">if</span>(j==1)
+                                    fprintf(<span class="string">'%s'</span>,neuronNames{j});
+                                <span class="keyword">else</span>
+                                    fprintf(<span class="string">',%s'</span>,neuronNames{j});
+                                <span class="keyword">end</span>
+                            <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                <span class="keyword">if</span>(j==1)
+                                    fprintf(<span class="string">'%s'</span>,neuronNames);
+                                <span class="keyword">else</span>
+                                    fprintf(<span class="string">',%s'</span>,neuronNames);
+                                <span class="keyword">end</span>
+                            <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'double'</span>))
+                                <span class="keyword">if</span>(j==1)
+                                    fprintf(<span class="string">'%d'</span>,neuronNames);
+                                <span class="keyword">else</span>
+                                    fprintf(<span class="string">',%d'</span>,neuronNames);
+                                <span class="keyword">end</span>
+                            <span class="keyword">end</span>
 
-                <span class="keyword">for</span> j=1:numNeurons
-</pre><pre class="codeinput">                    display(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i),<span class="string">': Neuron #'</span>,num2str(neuronNumber(j))));
-                    <span class="comment">%clear tempLabels;</span>
-                    <span class="comment">%tObj.setCurrentNeuron(neuronNumber);</span>
-                    otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
-<span class="comment">%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist</span>
-                    labels{j}{i}  = otherLabels; <span class="comment">% Labels change depending on presence/absense of History or ensCovHist</span>
-                    numHist{j}{i} = tObj.getNumHist;
-                    histObj{j}{i} = tObj.history;
-                    ensHistObj{j}{i} = tObj.ensCovHist;
-                    [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
-                    lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
-                    dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp;
-                    distrib{j}{i} =distribTemp;
-                    spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j)).nstCopy;
-                    spikeTraining{j}.setName(num2str(neuronNumber(j)));
-</pre><h2>Collect the validation Data<a name="5"></a></h2><pre class="codeinput">                    <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
-                          tObj.setTrialTimesFor(<span class="string">'validation'</span>);
-                          XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
-                          XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
-                          spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j)).nstCopy;
-                          spikeTraining{j}.setName(num2str(neuronNumber(j)));
-                          tObj.setTrialTimesFor(<span class="string">'training'</span>)
+                            <span class="comment">%clear tempLabels;</span>
+                            <span class="comment">%tObj.setCurrentNeuron(neuronNumber);</span>
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        <span class="comment">%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist</span>
+                            labels{j}{i}  = otherLabels; <span class="comment">% Labels change depending on presence/absense of History or ensCovHist</span>
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                             <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber{j},i,Algorithm);
+                             <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber,i,Algorithm);
+                             <span class="keyword">else</span>
+                                [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                             <span class="keyword">end</span>
+
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                             <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames{j}));
+                             <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames));
+                             <span class="keyword">else</span>
+                                currSpikes=tObj.nspikeColl.getNST(neuronNames(j));
+                             <span class="keyword">end</span>
+
+
+                            <span class="keyword">for</span> n=1:length(currSpikes)
+                                <span class="keyword">if</span>(isa(currSpikes,<span class="string">'cell'</span>))
+                                     currSpikes{n} = currSpikes{n}.nstCopy;
+                                     <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                        currSpikes{n}.setName(neuronNames{j});
+                                     <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                        currSpikes{n}.setName(neuronNames);
+                                     <span class="keyword">else</span>
+                                        currSpikes{n}.setName(neuronNames(j));
+                                     <span class="keyword">end</span>
+
+                                <span class="keyword">else</span>
+                                    currSpikes = currSpikes.nstCopy;
+
+                                    <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                        currSpikes.setName(neuronNames{j});
+                                    <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                        currSpikes.setName(neuronNames);
+                                    <span class="keyword">else</span>
+                                        currSpikes.setName(neuronNames(j));
+                                    <span class="keyword">end</span>
+
+                                <span class="keyword">end</span>
+                            <span class="keyword">end</span>
+
+                            spikeTraining{j} = currSpikes;
+</pre>
+<h2 id="10">Collect the validation Data</h2>
+<pre class="codeinput">                            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
+                                tObj.setTrialTimesFor(<span class="string">'validation'</span>);
+                                tempIndices=tObj.getNeuronIndFromName(neuronNames{j});
+                                currSpikes=tObj.nspikeColl.getNST(tempIndices);
+                                tempX = [];
+                                tempTime=[];
+                                <span class="keyword">for</span> n=1:length(tempIndices)
+                                    currSpikes{n} = currSpikes{n}.nstCopy;
+                                    currSpikes{n}.setName(neuronNames{j});
+                                    <span class="keyword">if</span>(n==1)
+                                        tempX =tObj.getDesignMatrix(tempIndices(n));
+                                        tempTime =tObj.covarColl.getCov(1).time;
+                                    <span class="keyword">else</span>
+                                        tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
+                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
+                                    <span class="keyword">end</span>
+                                <span class="keyword">end</span>
+                                spikeValidation{j} = currSpikes;
+                                XvalData{j}{i}=tempX;
+                                XvalTime{j}{i}=tempTime;
+
+                                tObj.setTrialTimesFor(<span class="string">'training'</span>)
+                            <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">                        <span class="keyword">end</span>
                     <span class="keyword">end</span>
-</pre><pre class="codeinput">                <span class="keyword">end</span>
+                    fprintf(<span class="string">'\n'</span>);
+                <span class="keyword">else</span> <span class="comment">%use parallel toolbox</span>
+                    <span class="keyword">if</span>(batchMode==0)
+                        fprintf(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i),<span class="string">': Neuron #'</span>,num2str(neuronNumber)));
+                        <span class="keyword">for</span> j=1:numNeurons
+</pre>
+<pre class="codeinput">                            <span class="comment">%clear tempLabels;</span>
+                            <span class="comment">%tObj.setCurrentNeuron(neuronNumber);</span>
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        <span class="comment">%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist</span>
+                            labels{j}{i}  = otherLabels; <span class="comment">% Labels change depending on presence/absense of History or ensCovHist</span>
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                            [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i)=logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                            spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j));<span class="comment">%.nstCopy;</span>
+                            spikeTraining{j}.setName(num2str(neuronNumber(j)));
+</pre>
+<h2 id="13">Collect the validation Data</h2>
+<pre class="codeinput">                            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
+                                  tObj.setTrialTimesFor(<span class="string">'validation'</span>);
+                                  XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
+                                  XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
+                                  spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j));<span class="comment">%.nstCopy;</span>
+                                  spikeTraining{j}.setName(num2str(neuronNumber(j)));
+                                  tObj.setTrialTimesFor(<span class="string">'training'</span>)
+                            <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">                        <span class="keyword">end</span>
+                    <span class="keyword">elseif</span>(batchMode==1)
+                        neuronNames=neuronNumber; <span class="comment">% This is an index of names in the batchMode case</span>
+                        fprintf(strcat(<span class="string">'Analyzing Configuration #'</span>,num2str(i),<span class="string">': Neuron #'</span>,num2str(neuronNames)));
+                        <span class="keyword">for</span> j=1:numNeurons
+</pre>
+<pre class="codeinput">                            <span class="comment">%clear tempLabels;</span>
+                            <span class="comment">%tObj.setCurrentNeuron(neuronNumber);</span>
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        <span class="comment">%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist</span>
+                            labels{j}{i}  = otherLabels; <span class="comment">% Labels change depending on presence/absense of History or ensCovHist</span>
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                             <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber{j},i,Algorithm);
+                             <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber,i,Algorithm);
+                             <span class="keyword">else</span>
+                                [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                             <span class="keyword">end</span>
+
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                             <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames{j}));
+                             <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames));
+                             <span class="keyword">else</span>
+                                currSpikes=tObj.nspikeColl.getNST(neuronNames(j));
+                             <span class="keyword">end</span>
+
+
+                            <span class="keyword">for</span> n=1:length(currSpikes)
+                                <span class="keyword">if</span>(isa(currSpikes,<span class="string">'cell'</span>))
+                                     currSpikes{n} = currSpikes{n}.nstCopy;
+                                     <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                        currSpikes{n}.setName(neuronNames{j});
+                                     <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                        currSpikes{n}.setName(neuronNames);
+                                     <span class="keyword">else</span>
+                                        currSpikes{n}.setName(neuronNames(j));
+                                     <span class="keyword">end</span>
+
+                                <span class="keyword">else</span>
+                                    currSpikes = currSpikes.nstCopy;
+
+                                    <span class="keyword">if</span>(isa(neuronNames,<span class="string">'cell'</span>))
+                                        currSpikes.setName(neuronNames{j});
+                                    <span class="keyword">elseif</span>(isa(neuronNames,<span class="string">'char'</span>))
+                                        currSpikes.setName(neuronNames);
+                                    <span class="keyword">else</span>
+                                        currSpikes.setName(neuronNames(j));
+                                    <span class="keyword">end</span>
+
+                                <span class="keyword">end</span>
+                            <span class="keyword">end</span>
+
+                            spikeTraining{j} = currSpikes;
+</pre>
+<h2 id="16">Collect the validation Data</h2>
+<pre class="codeinput">                            <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
+                                tObj.setTrialTimesFor(<span class="string">'validation'</span>);
+                                tempIndices=tObj.getNeuronIndFromName(neuronNames{j});
+                                currSpikes=tObj.nspikeColl.getNST(tempIndices);
+                                tempX = [];
+                                tempTime=[];
+                                <span class="keyword">for</span> n=1:length(tempIndices)
+                                    currSpikes{n} = currSpikes{n}.nstCopy;
+                                    currSpikes{n}.setName(neuronNames{j});
+                                    <span class="keyword">if</span>(n==1)
+                                        tempX =tObj.getDesignMatrix(tempIndices(n));
+                                        tempTime =tObj.covarColl.getCov(1).time;
+                                    <span class="keyword">else</span>
+                                        tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
+                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
+                                    <span class="keyword">end</span>
+                                <span class="keyword">end</span>
+                                spikeValidation{j} = currSpikes;
+                                XvalData{j}{i}=tempX;
+                                XvalTime{j}{i}=tempTime;
+
+                                tObj.setTrialTimesFor(<span class="string">'training'</span>)
+                            <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    fprintf(<span class="string">'\n'</span>);
+                <span class="keyword">end</span>
             <span class="keyword">end</span>
 
 
@@ -174,36 +492,43 @@ p.footer {
 <span class="comment">%                 %tObj.setTrialTimesFor('training');</span>
 <span class="comment">%             end</span>
 <span class="comment">%</span>
-</pre><h2>Store the results<a name="7"></a></h2><pre class="codeinput">            fitResults =cell(length(neuronNumber),1);
+</pre>
+<h2 id="18">Store the results</h2>
+<pre class="codeinput">            fitResults =cell(length(neuronNumber),1);
             <span class="keyword">for</span> j=1:numNeurons
-</pre><pre class="codeinput">                fitResults{j}=FitResult(spikeTraining{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambda{j},b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),configColl,XvalData{j},XvalTime{j},distrib{j});
+</pre>
+<pre class="codeinput">                fitResults{j}=FitResult(spikeTraining{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambda{j},b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),logLL(j,:),configColl,XvalData{j},XvalTime{j},distrib{j});
                 <span class="keyword">if</span>(diff(tObj.validationWindow)~=0)
                     tObj.setTrialTimesFor(<span class="string">'validation'</span>);
-                    lambdaValidation = fitResults{j}.computeValLambda;
-                    ValResults = FitResult(spikeValidation{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambdaValidation,b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),configColl,XvalData{j},XvalTime{j},distrib);
+                    [lambdaValidation, logLLValidation] = fitResults{j}.computeValLambda;
+                    ValResults = FitResult(spikeValidation{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambdaValidation,b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),logLLValidation,configColl,XvalData{j},XvalTime{j},distrib);
                     fitResults{j}.validation = ValResults; <span class="comment">%validation field is actually another fitResults object but with the validation data</span>
                 <span class="keyword">end</span>
-</pre><h2>Process the results and compute further parameters<a name="9"></a></h2><pre class="codeinput">                <span class="keyword">if</span>(makePlot==1)
+</pre>
+<h2 id="20">Process the results and compute further parameters</h2>
+<pre class="codeinput">                <span class="keyword">if</span>(makePlot==1)
                     scrsz = get(0,<span class="string">'ScreenSize'</span>);
                     figure(<span class="string">'Position'</span>,[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
-                    subplot(2,4,[1 2]);     Analysis.KSPlot(fitResults{j},makePlot); <span class="comment">%make the plot</span>
+                    subplot(2,4,[1 2]);     Analysis.KSPlot(fitResults{j},DTCorrection,makePlot); <span class="comment">%make the plot</span>
                     hold <span class="string">on</span>; text(.45, .95,strcat(<span class="string">'Neuron:'</span>,num2str(neuronNumber(j))));
                     subplot(2,4,3);         Analysis.plotInvGausTrans(fitResults{j},makePlot);
                     subplot(2,4,4);         Analysis.plotSeqCorr(fitResults{j});
                     subplot(2,4,[7 8]);     Analysis.plotFitResidual(fitResults{j},windowSize,makePlot);
                     subplot(2,4,[5 6]);     Analysis.plotCoeffs(fitResults{j});
                 <span class="keyword">else</span>
-                    Analysis.KSPlot(fitResults{j},makePlot);
+                    Analysis.KSPlot(fitResults{j},DTCorrection,makePlot);
                     Analysis.plotInvGausTrans(fitResults{j},makePlot);
                     Analysis.plotFitResidual(fitResults{j},windowSize,makePlot);
                     <span class="comment">%fitResults.computePlotParams;</span>
                 <span class="keyword">end</span>
-</pre><pre class="codeinput">            <span class="keyword">end</span>
+</pre>
+<pre class="codeinput">            <span class="keyword">end</span>
             <span class="keyword">if</span>(length(neuronNumber)==1)
                 fitResults = fitResults{1};
             <span class="keyword">end</span>
-</pre><pre class="codeinput">        <span class="keyword">end</span>
-        <span class="keyword">function</span> fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm)
+</pre>
+<pre class="codeinput">        <span class="keyword">end</span>
+        <span class="keyword">function</span> fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm,DTCorrection,batchMode)
             <span class="comment">% fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm)</span>
             <span class="comment">% Runs the fits specifed by configs (a ConfigColl object) on</span>
             <span class="comment">% all the neurons that are unmasked in the trial tObj.</span>
@@ -217,15 +542,30 @@ p.footer {
             <span class="comment">%            BNLRCG - faster Truncated, L-2 Regularized,</span>
             <span class="comment">%            Binomial Logistic Regression with Conjugate</span>
             <span class="comment">%            Gradient Solver by Demba Ba (demba@mit.edu).</span>
+            <span class="comment">% DTCorrection: 0 for no DT Correction of KS plot, 1 is the</span>
+            <span class="comment">%               default.</span>
+            <span class="comment">% batchMode: when batchMode=1 neurons with same name are fit at once rather than separetely</span>
 
-            <span class="keyword">if</span>(nargin&lt;4)
+            <span class="keyword">if</span>(nargin&lt;6 || isempty(batchMode))
+                batchMode = 0; <span class="comment">%default treat each spike train separately</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;5 || isempty(DTCorrection))
+               DTCorrection =1;
+            <span class="keyword">end</span>
+
+            <span class="keyword">if</span>(nargin&lt;4 || isempty(Algorithm))
                 Algorithm = <span class="string">'GLM'</span>;
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(nargin&lt;3)
+            <span class="keyword">if</span>(nargin&lt;3 || isempty(makePlot))
                 makePlot=1; <span class="comment">%default to plotting results</span>
             <span class="keyword">end</span>
 
-            neuronIndex=tObj.getNeuronIndFromMask;
+
+            <span class="keyword">if</span>(batchMode==0)
+                neuronIndex=tObj.getNeuronIndFromMask;
+            <span class="keyword">elseif</span>(batchMode==1)
+                neuronIndex=tObj.getUniqueNeuronNames;
+            <span class="keyword">end</span>
 <span class="comment">%             numLoops = floor(length(neuronIndex)/4);</span>
 <span class="comment">%             loopArray = cell(1,numLoops);</span>
 <span class="comment">%             for k=1:numLoops</span>
@@ -237,13 +577,13 @@ p.footer {
 <span class="comment">%             end</span>
 
            <span class="comment">% parfor i=1:length(neuronIndex)</span>
-                fitResults = Analysis.RunAnalysisForNeuron(tObj,neuronIndex,configs,makePlot,Algorithm);
+                fitResults = Analysis.RunAnalysisForNeuron(tObj,neuronIndex,configs,makePlot,Algorithm,DTCorrection,batchMode);
             <span class="comment">%end</span>
 
         <span class="keyword">end</span>
 
 
-        <span class="keyword">function</span> [lambda,b, dev, stats,AIC, BIC,distribution] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)
+        <span class="keyword">function</span> [lambda,b, dev, stats,AIC, BIC,logLL, distribution] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)
             <span class="comment">% [lambda,b, dev, stats,AIC, BIC] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)</span>
             <span class="comment">% Given a trial, tObj, and a neuronNumber specifying a neuron</span>
             <span class="comment">% from the trial, extracts the design matrix X from the current</span>
@@ -268,36 +608,87 @@ p.footer {
             <span class="comment">%          (p-values,std dev, etc.)</span>
             <span class="comment">% AIC    - Akaike's information criteria for this regression.</span>
             <span class="comment">% BIC    - Bayes Information Criteria for this regression.</span>
+            <span class="comment">% logLL  - Log Likelihood evaluated with the fit parameters.</span>
 
             <span class="keyword">if</span>(nargin&lt;4)
               Algorithm=<span class="string">'GLM'</span>;
             <span class="keyword">end</span>
+            <span class="keyword">if</span>(isa(neuronNumber,<span class="string">'double'</span>))
+                binaryRep=tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary;
+                indices=neuronNumber;
+            <span class="keyword">elseif</span>(isa(neuronNumber,<span class="string">'char'</span>))
+                indices=tObj.getNeuronIndFromName(neuronNumber);
+                binRep=zeros(size(indices));
+                <span class="keyword">for</span> i=1:length(indices)
+                   binRep(i)=tObj.nspikeColl.getNST(indices(i)).isSigRepBinary;
+                <span class="keyword">end</span>
+                binaryRep=prod(binRep);
+            <span class="keyword">elseif</span>(isa(neuronNumber,<span class="string">'cell'</span>))
+                indices=tObj.getNeuronIndFromName(neuronNumber{1});
+                binRep=zeros(size(indices));
+                <span class="keyword">for</span> i=1:length(indices)
+                   binRep(i)=tObj.nspikeColl.getNST(indices(i)).isSigRepBinary;
+                <span class="keyword">end</span>
+                binaryRep=prod(binRep);
+            <span class="keyword">end</span>
 
-            <span class="keyword">if</span>(strcmp(Algorithm,<span class="string">'BNLRCG'</span>) &amp;&amp; ~tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary)
+            <span class="keyword">if</span>(strcmp(Algorithm,<span class="string">'BNLRCG'</span>) &amp;&amp; ~binaryRep)
                error(<span class="string">'To use BNLRCG Algorithm, spikeTrain must have a binary representation. Increase sampleRate and try again'</span>);
             <span class="keyword">end</span>
-                    <span class="comment">%For a single neuron given covariates,perform the GLM fit.</span>
-            y=tObj.getSpikeVector(neuronNumber);
-            X=tObj.getDesignMatrix(neuronNumber);
 
+           <span class="comment">%If performing batchMode analysis, this stacks up the</span>
+           <span class="comment">%corresponding spike vectors and the design matrices</span>
+           <span class="keyword">for</span> i=1:length(indices)
+               <span class="keyword">if</span>(i==1)
+                    y=tObj.getSpikeVector(indices(i));
+                    X=tObj.getDesignMatrix(indices(i));
+                    lambdaTime = tObj.getCov(1).time;
+               <span class="keyword">else</span>
+                    y=[y; tObj.getSpikeVector(indices(i))];
+                    X=[X; tObj.getDesignMatrix(indices(i))];
+                    offset = max(lambdaTime)+1/tObj.sampleRate;
+                    lambdaTime = [lambdaTime; (tObj.getCov(1).time +offset)];
 
-            <span class="keyword">if</span>(tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary)
-                distribution = <span class="string">'binomial'</span>;
-                linkfunction = <span class="string">'logit'</span>;
-            <span class="keyword">else</span>
-                distribution = <span class="string">'poisson'</span>;
-                linkfunction = <span class="string">'log'</span>;
-            <span class="keyword">end</span>
+               <span class="keyword">end</span>
+           <span class="keyword">end</span>
+           <span class="comment">%For a single neuron given covariates,perform the GLM fit.</span>
+<span class="comment">%</span>
+<span class="comment">%             if(binaryRep)</span>
+<span class="comment">%                 distribution = 'binomial';</span>
+<span class="comment">%                 linkfunction = 'logit';</span>
+<span class="comment">%             else</span>
+<span class="comment">%                 distribution = 'poisson';</span>
+<span class="comment">%                 linkfunction = 'log';</span>
+<span class="comment">%             end</span>
 <span class="comment">%             size(X)</span>
 <span class="comment">%             size(y)</span>
+                y = y(:);
+                <span class="keyword">if</span>(size(X,1)~=numel(y))
+                    nObs = min(size(X,1),numel(y));
+                    X = X(1:nObs,:);
+                    y = y(1:nObs);
+                    <span class="keyword">if</span>(exist(<span class="string">'lambdaTime'</span>,<span class="string">'var'</span>) &amp;&amp; ~isempty(lambdaTime))
+                        lambdaTime = lambdaTime(1:min(numel(lambdaTime),nObs));
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+
                 <span class="keyword">if</span>(strcmp(Algorithm,<span class="string">'GLM'</span>))
+                    distribution = <span class="string">'poisson'</span>;
+                    linkfunction = <span class="string">'log'</span>;
                     [b,dev,stats] = glmfit(X,y,distribution, <span class="string">'link'</span>, linkfunction,<span class="string">'constant'</span>,<span class="string">'off'</span>);
                 <span class="keyword">elseif</span>(strcmp(Algorithm,<span class="string">'BNLRCG'</span>))
+                    distribution = <span class="string">'binomial'</span>;
+                    linkfunction = <span class="string">'logit'</span>;
                     rrflag=0; <span class="comment">%ML estimation</span>
                     [b,dev,stats] = bnlrCG(X,y,rrflag);
+
                 <span class="keyword">else</span>
                     error(<span class="string">'Algorithm not supported!'</span>);
                 <span class="keyword">end</span>
+                b=real(b); <span class="comment">%make sure to avoid complex coefficients ... sometimes algorithms return</span>
+                           <span class="comment">%complex b with the imaginary part near zero.</span>
+                           <span class="comment">%Need to explore why. For now just keep the real</span>
+                           <span class="comment">%part.</span>
                 <span class="keyword">if</span>(length(b)&gt;=1)
                     <span class="keyword">if</span>(strcmp(distribution,<span class="string">'binomial'</span>))
                         data = exp(X*b(1:end));
@@ -310,14 +701,44 @@ p.footer {
                     <span class="keyword">end</span>
                 <span class="keyword">end</span>
 
-<span class="comment">%                 size(tObj.covarColl.getCov(1).getSigRep.time)</span>
-<span class="comment">%                 size(data)</span>
 
-                lambda=Covariate(tObj.getCov(1).time,data,<span class="keyword">...</span>
-                       <span class="string">'\Lambda(t)'</span>,tObj.getCov(1).xlabelval,<span class="keyword">...</span>
-                        tObj.getCov(1).xunits,<span class="string">'Hz'</span>,strcat(<span class="string">'\lambda_{'</span>,num2str(lambdaIndex),<span class="string">'}'</span>));
-                AIC = 2*length(b)+dev;
-                BIC = length(b)*log(length(y))+dev;
+
+                lambdaIndexStr = num2str(lambdaIndex);
+
+                lambda=Covariate(lambdaTime,data,<span class="keyword">...</span>
+                       <span class="string">'\lambda(t)'</span>,tObj.getCov(1).xlabelval,<span class="keyword">...</span>
+                        tObj.getCov(1).xunits,<span class="string">'Hz'</span>,strcat(<span class="string">'\lambda_{'</span>,lambdaIndexStr,<span class="string">'}'</span>));
+                                mu=b;
+                        s=stats.se;
+<span class="comment">%             Mc=30;</span>
+<span class="comment">%             for c=1:Mc</span>
+<span class="comment">%                 z=normrnd(0,1,length(s),1);</span>
+<span class="comment">%                 bKDraw(:,c)=mu+(s.*z);</span>
+<span class="comment">%             end</span>
+<span class="comment">%             if(strcmp(distribution,'poisson'))</span>
+<span class="comment">%                 lambdaDraw=exp(X*bKDraw)*(tObj.sampleRate);</span>
+<span class="comment">%             else</span>
+<span class="comment">%                 lambdaDraw=exp(X*bKDraw)./(1+exp(X*bKDraw))*(tObj.sampleRate);</span>
+<span class="comment">%             end</span>
+<span class="comment">%             lambdaDraw(isinf(lambdaDraw))=0;</span>
+<span class="comment">%             alphaVal=.05;</span>
+<span class="comment">%             for k=1:length(lambdaDraw)</span>
+<span class="comment">%               [f,x] = ecdf(squeeze(lambdaDraw(k,:)));</span>
+<span class="comment">%               CIs(k,1) = x(find(f&lt;alphaVal/2,1,'last'));</span>
+<span class="comment">%               CIs(k,2) = x(find(f&gt;(1-alphaVal/2),1,'first'));</span>
+<span class="comment">%             end</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%             ciPSTHGLM = ConfidenceInterval(lambdaTime,CIs,'CI_{psth_GLM}',lambda.xlabelval,lambda.xunits,lambda.yunits);</span>
+<span class="comment">%             lambda.setConfInterval(ciPSTHGLM);</span>
+
+                <span class="comment">%The deviance should be real since it a probability measure</span>
+                <span class="comment">%and therefore any imaginary part is ignored.</span>
+                AIC = 2*length(b)+real(dev);
+                BIC = length(b)*log(length(y))+real(dev);
+                delta = 1/tObj.sampleRate;
+                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = plotInvGausTrans(fitResults,makePlot)
             <span class="comment">% handle = plotInvGausTrans(fitResults,makePlot)</span>
@@ -354,6 +775,12 @@ p.footer {
             <span class="comment">% intensity function.</span>
             <span class="comment">% The result is stored in fitResult.</span>
             <span class="comment">%</span>
+            <span class="keyword">if</span>(nargin&lt;3 || isempty(makePlot))
+                makePlot=1;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;2 || isempty(windowSize))
+                windowSize=.01;
+            <span class="keyword">end</span>
             M = Analysis.computeFitResidual(fitResults.neuralSpikeTrain,fitResults.lambda,windowSize);
             fitResults.setFitResidual(M);
 
@@ -366,23 +793,29 @@ p.footer {
               fitResults.plotResidual;
             <span class="keyword">end</span>
         <span class="keyword">end</span>
-        <span class="keyword">function</span> handle = KSPlot(fitResults,makePlot)
+        <span class="keyword">function</span> handle = KSPlot(fitResults,DTCorrection,makePlot)
             <span class="comment">%handle = KSPlot(fitResults,makePlot)</span>
             <span class="comment">% Computes the KS statistics and makes the plot. Stores</span>
             <span class="comment">% appropriate parameters in fitResults.</span>
             <span class="comment">% If validation data is also available, it does the same for</span>
             <span class="comment">% the validation data.</span>
-            <span class="keyword">if</span>(nargin &lt;2)
+            <span class="comment">% DTCorrection: 0 for no DT Correction of KS plot, 1 is the</span>
+            <span class="comment">%               default.</span>
+            <span class="keyword">if</span>(nargin &lt;3)
                 makePlot =1; <span class="comment">%By default make the plot</span>
             <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;2)
+               DTCorrection = 1;
+            <span class="keyword">end</span>
 
-            [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.neuralSpikeTrain,fitResults.lambda);
+
+            [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.neuralSpikeTrain,fitResults.lambda,DTCorrection);
             fitResults.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
 
 
             <span class="keyword">if</span>(fitResults.isValDataPresent)
                  <span class="comment">%make sure nst is in appropriate window</span>
-                    [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.validation.neuralSpikeTrain,fitResults.validation.lambda);
+                    [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.validation.neuralSpikeTrain,fitResults.validation.lambda,DTCorrection);
                     fitResults.validation.setKSStats(Z, U, xAxis, KSSorted, ks_stat);
 
             <span class="keyword">end</span>
@@ -419,39 +852,48 @@ p.footer {
             <span class="comment">% for independence of the xj's. Independence of the xj's</span>
             <span class="comment">% suggests indepence of the uj's and zj's (a condition</span>
             <span class="comment">% necessary for the Time Rescaling Theorem).</span>
-
             U=1-exp(-Z);
-            U(U&gt;=1)=.99999; <span class="comment">%Prevent any 1 values which lead to infinity in X</span>
+            U(U&gt;=.999999)=.999999; <span class="comment">%Prevent any 1 values which lead to infinity in X</span>
+            U(U==0)=.000001;
+            U(U&lt;0)=.000001;
             X = norminv(U,0,1);
             <span class="comment">%X=erfinv(U);</span>
             [~,colm] = size(X);
-            <span class="keyword">for</span> i=1:colm
-                [c(:,i),lags] = xcov(X(:,i));
+            <span class="keyword">if</span>(~isempty(X))
+                <span class="keyword">for</span> i=1:colm
+                    [c(:,i),lags] = xcov(X(:,i));
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                 [c,lags] = xcov(X);
             <span class="keyword">end</span>
             index=find(lags==1);
             lags=lags(index:end);
             rho=c(index:end,:)./repmat(c(index-1,:),length(lags),1);
             n=length(X);
+            <span class="comment">% Defaults to the 95% confidence intervals</span>
+            <span class="comment">% Can extend to allow selection of 95% or 99% CI</span>
             confBound = 1.96/sqrt(n)*ones(length(lags),1);
-<span class="comment">%              size(lags)</span>
-<span class="comment">%              size(rho)</span>
+    <span class="comment">%              size(lags)</span>
+    <span class="comment">%              size(rho)</span>
 
             confBoundSig = SignalObj(lags,[confBound -confBound],<span class="string">'ACF[ \Phi^{-1}(u_i) ]'</span>,<span class="string">'\Delta \tau'</span>,<span class="string">'sec'</span>);
             confBoundSig.setPlotProps({<span class="string">' ''r'', ''LineWidth'' ,3'</span>},1);
             confBoundSig.setPlotProps({<span class="string">' ''r'', ''LineWidth'' ,3'</span>},2);
 
             handle=[];
-            rhoSig = SignalObj(lags,rho, <span class="string">'ACF[ \Phi^-1(u_i) ]'</span>,<span class="string">'\Delta \tau'</span>,<span class="string">'sec'</span>);
+            rhoSig = SignalObj(lags,rho, <span class="string">'ACF[ \Phi^-1(u_i) ]'</span>,<span class="string">'Lag \Delta \tau'</span>,<span class="string">'sec'</span>);
             plotProps = cell(1,colm);
-            <span class="keyword">for</span> i=1:colm
-                plotProps{i}=strcat(<span class="string">''''</span>, <span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1},<span class="string">''''</span>);
+            <span class="keyword">if</span>(~isempty(X))
+                <span class="keyword">for</span> i=1:colm
+                    plotProps{i}=strcat(<span class="string">''''</span>, <span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1},<span class="string">''''</span>);
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                plotProps=strcat(<span class="string">''''</span>, <span class="string">'.'</span>,Analysis.colors{1},<span class="string">''''</span>);
             <span class="keyword">end</span>
             rhoSig.setPlotProps(plotProps);
 
-
-
         <span class="keyword">end</span>
-        <span class="keyword">function</span> [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeTrain,lambdaInput,dtCorrection)
+        <span class="keyword">function</span> [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeObj,lambdaInput,DTCorrection)
             <span class="comment">% [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeTrain,lambdaInput)</span>
             <span class="comment">% Given a neural spike train (a sequence of spike times) and a</span>
             <span class="comment">% conditional intensity function, computes the rescaled ISIs</span>
@@ -460,6 +902,8 @@ p.footer {
             <span class="comment">% (exponential rate 1 (according to T-R theorem) to be</span>
             <span class="comment">% uniform(0,1).</span>
             <span class="comment">%</span>
+            <span class="comment">% DTCorrection: 0 for no DT Correction of KS plot, 1 is the</span>
+            <span class="comment">%               default.</span>
             <span class="comment">% nspikeTrain: a nspikeTrain object</span>
             <span class="comment">% lambdaInput: candidate conditional intensity function (a Covariate)</span>
             <span class="comment">% Z: rescaled spike times</span>
@@ -471,24 +915,46 @@ p.footer {
 
             <span class="comment">%get the relevant spike train</span>
             <span class="keyword">if</span>(nargin&lt;3)
-                dtCorrection =1;
+                DTCorrection =1;
             <span class="keyword">end</span>
 
-            nCopy =nspikeTrain.nstCopy;
+
+            <span class="keyword">if</span>(length(nspikeObj)&gt;1) <span class="comment">%in batch analysis we get multiple trials</span>
+                nstCollObj = nstColl(nspikeObj);
+                nCopy = nstCollObj.toSpikeTrain;
+
+            <span class="keyword">else</span>
+                nCopy =nspikeObj.nstCopy;
+<span class="comment">%                   nCopy =nspikeObj;</span>
+
+            <span class="keyword">end</span>
+
+
 <span class="comment">%             minTime = nCopy.minTime;</span>
 <span class="comment">%             maxTime = nCopy.maxTime;</span>
-<span class="comment">%             nCopy.setMinTime(minTime);</span>
-<span class="comment">%             nCopy.setMaxTime(maxTime);</span>
+            nCopy.resample(lambdaInput.sampleRate);
+            nCopy.setMinTime(lambdaInput.minTime);
+            nCopy.setMaxTime(lambdaInput.maxTime);
 
+            repBin = nCopy.isSigRepBin;
+            <span class="keyword">if</span>(~repBin)
+               lambdaInput=lambdaInput.resample(2*lambdaInput.sampleRate);
+               nCopy.resample(lambdaInput.sampleRate);
+            <span class="keyword">end</span>
 
-
-            <span class="keyword">if</span>(dtCorrection==1 &amp;&amp; nCopy.isSigRepBin)
+            <span class="keyword">if</span>(DTCorrection==1 &amp;&amp; repBin)
                 <span class="comment">% Use DT Correction for Time Rescaling Theorem - Haslinger, Pipa and Brown (2010)</span>
-                pkSignal=lambdaInput.*(1/lambdaInput.sampleRate);
-                pk = pkSignal.data;
+                pkSignal=lambdaInput;
+                pk = pkSignal.data.*(1/lambdaInput.sampleRate);
+                pk = max(pk,1e-10);
                 spikeTrain = nCopy.getSigRep.data;
+                minDim = min(size(pk,1),size(spikeTrain,1));
+                pk=pk(1:minDim,:);
+                spikeTrain=spikeTrain(1:minDim,:);
+
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 <span class="keyword">for</span> i=1:lambdaInput.dimension
+                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,<span class="string">'spiketrain'</span>);
 <span class="comment">%                     length(temp)</span>
 <span class="comment">%                     length(intValues(:,i))</span>
@@ -506,16 +972,20 @@ p.footer {
 <span class="comment">%                 lambda=tempLambda.getSigInTimeWindow(minTime,maxTime);%.dataToMatrix;</span>
                 lambdaPosdata = max(tempLambda.data,0);
                 lambda = Covariate(tempLambda.time,lambdaPosdata,tempLambda.name,tempLambda.xlabelval,tempLambda.xunits,tempLambda.yunits,tempLambda.dataLabels);
-
                 lambdaInt = lambda.integral;
+
 
                 <span class="keyword">if</span>(nCopy.isSigRepBin)
                     spikeTimes = nCopy.getSpikeTimes;
+                    spikeTimes = [0 spikeTimes];
 
                 <span class="keyword">else</span>
-                    nstSignal = nCopy.getSigRep;
-                    spikeTimes=nstSignal.time(nstSignal.data~=0);
-
+<span class="comment">%                     spikeTimes = nCopy.getSpikeTimes;</span>
+<span class="comment">%                     maxBinSize=nCopy.getMaxBinSizeBinary;</span>
+<span class="comment">%                     lambdaInt = lambda.resample(1/maxBinSize).integral;</span>
+                     nstSignal = nCopy.getSigRep;
+                     spikeTimes=nstSignal.time(nstSignal.data~=0);
+                     spikeTimes = [0 spikeTimes'];
 
                 <span class="keyword">end</span>
 
@@ -537,7 +1007,7 @@ p.footer {
 
 
             KSSorted = sort( U,<span class="string">'ascend'</span> );
-            N = length(KSSorted);
+            N = size(KSSorted,1);
             <span class="keyword">if</span>(N~=0)
                 xAxis=(([1:N]-.5)/N)'*ones(1,lambdaInput.dimension);
                 ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension)));
@@ -546,7 +1016,7 @@ p.footer {
                 xAxis=[];
             <span class="keyword">end</span>
         <span class="keyword">end</span>
-        <span class="keyword">function</span> M=computeFitResidual(nspikeTrain,lambda,windowSize)
+        <span class="keyword">function</span> M=computeFitResidual(nspikeObj,lambda,windowSize)
             <span class="comment">% M=computeFitResidual(nspikeTrain,lambda,windowSize)</span>
             <span class="comment">% Computes the Point Process residual defined in</span>
             <span class="comment">% 'A point process framework for relating neural spiking</span>
@@ -561,26 +1031,41 @@ p.footer {
             <span class="comment">% M: the point process residual (a Covariate object).</span>
             <span class="comment">%</span>
             <span class="keyword">if</span>(nargin&lt;3 || isempty(windowSize))
-                windowSize=.1;
+                windowSize=.01;
             <span class="keyword">end</span>
-            windowTimes = nspikeTrain.minTime:windowSize:nspikeTrain.maxTime;
-            nCopy=nspikeTrain.nstCopy.getSigRep(windowSize);<span class="comment">%tObj.getNeuron(fitResults.neuronNumber).nstCopy;</span>
-            <span class="comment">%nCopy.windowedSignal(windowTimes)</span>
-            <span class="comment">% this gets us the SUM over a window of length windowSize</span>
-            <span class="comment">% y[n] = y[n-1] + x[n] -- running sum filter</span>
-            B=1; A=[1 -1];
-            sumSpikes = nCopy.filter(B,A);
-            <span class="comment">%spikeTimes =nCopy.getSpikeTimes';</span>
-            sumSpikesOverWindow= sumSpikes.getValueAt(windowTimes(2:end))-sumSpikes.getValueAt(windowTimes(1:(end-1)));
+
+
+            <span class="keyword">if</span>(length(nspikeObj)&gt;1) <span class="comment">%in batch analysis we get multiple trials</span>
+                nstCollObj = nstColl(nspikeObj);
+                nCopy = nstCollObj.toSpikeTrain;
+            <span class="keyword">else</span>
+                nCopy =nspikeObj.nstCopy;
+<span class="comment">%                 nCopy =nspikeObj;</span>
+            <span class="keyword">end</span>
+
+            nCopy.resample(lambda.sampleRate);
+            nCopy.setMinTime(lambda.minTime);
+            nCopy.setMaxTime(lambda.maxTime);
+
+
+            sumSpikes=nCopy.getSigRep(windowSize);<span class="comment">%tObj.getNeuron(fitResults.neuronNumber).nstCopy;</span>
+<span class="comment">%             sumSpikesOverWindow = sumSpikes.data(1:end);</span>
+<span class="comment">%             windowTimes = nCopy.minTime:windowSize:lambda.maxTime;</span>
+            windowTimes = linspace(nCopy.minTime,nCopy.maxTime,length(sumSpikes.time));
             lambdaInt = lambda.integral;
             lambdaIntVals = lambdaInt.getValueAt(windowTimes(2:end))-lambdaInt.getValueAt(windowTimes(1:(end-1)));
+            <span class="keyword">if</span>(length(lambdaIntVals)==length(sumSpikes.data))
+                sumSpikesOverWindow = sumSpikes.data(1:end);
+            <span class="keyword">elseif</span>(length(lambdaIntVals)&lt;length(sumSpikes.data))
+                sumSpikesOverWindow = sumSpikes.data(2:end);
+            <span class="keyword">end</span>
             Mdata=repmat(sumSpikesOverWindow,[1 lambdaInt.dimension])-lambdaIntVals;
             dataLabels = cell(1,lambdaInt.dimension);
             <span class="keyword">for</span> i=1:lambdaInt.dimension
                 dataLabels{i} = lambda.dataLabels{i};
             <span class="keyword">end</span>
 
-            M=Covariate(windowTimes(2:end),Mdata,<span class="string">'M(t_k)-Residual'</span>,lambdaInt.xlabelval, <span class="keyword">...</span>
+            M=Covariate(windowTimes(1:end),[zeros(1,size(Mdata,2));Mdata],<span class="string">'M(t_k)'</span>,lambdaInt.xlabelval, <span class="keyword">...</span>
                         lambdaInt.xunits,lambdaInt.yunits,dataLabels);
 
         <span class="keyword">end</span>
@@ -634,7 +1119,72 @@ p.footer {
             tcc = ConfigColl(tc);
             fitResults =Analysis.RunAnalysisForNeuron(ensembTrial,neuronNum,tcc,makePlot);
         <span class="keyword">end</span>
-        <span class="keyword">function</span> [fitResults,tcc] = computeHistLag(tObj,neuronNum,windowTimes,CovLabels,sampleRate,makePlot)
+
+        <span class="keyword">function</span> [fitResults,gammaMat,phiMat,devianceMat,sigMat] = computeGrangerCausalityMatrix(tObj, Algorithm,confidenceInterval, batchMode)
+            <span class="keyword">if</span>(nargin&lt;4 || isempty(batchMode))
+                batchMode = 0;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;3 || isempty(confidenceInterval))
+                confidenceInterval = 0.95;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;2 || isempty(Algorithm))
+                Algorithm = <span class="string">'GLM'</span>;
+            <span class="keyword">end</span>
+
+            neuronNum = tObj.getNeuronIndFromMask;
+            covMask   = tObj.covMask;
+            history   = tObj.history;
+            ensCovHist = tObj.ensCovHist;
+            ensCovMask= tObj.ensCovMask;
+            sampleRate= tObj.sampleRate;
+            DTCorrection = 1;
+            makePlot=0;
+            clear <span class="string">fitResults</span>;
+            gammaMat=zeros(length(neuronNum),length(neuronNum));
+            <span class="keyword">for</span> i=1:length(neuronNum)
+                    tc{1}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMask); tc{1}.setName(<span class="string">'Baseline'</span>);
+                    neighbors = find(ensCovMask(:,i)==1);
+
+                    <span class="keyword">for</span> j=1:length(neighbors)
+                        ensCovMaskTemp = ensCovMask;
+                        ensCovMaskTemp(neighbors(j),neuronNum)=0;
+
+                        tc{2}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMaskTemp); tc{2}.setName([num2str(neighbors(j)) <span class="string">'excluded from '</span> num2str(neuronNum(i))]);
+                        tcc = ConfigColl(tc);
+
+                        fitResults{i}{j} =Analysis.RunAnalysisForNeuron(tObj,neuronNum(i),tcc,makePlot,Algorithm,DTCorrection,batchMode);
+                    <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="keyword">for</span> i=1:length(neuronNum)
+                neighbors = find(ensCovMask(:,i)==1);
+                <span class="keyword">for</span> j=1:length(neighbors)
+                    gammaMat(neighbors(j),neuronNum(i)) = fitResults{i}{j}.logLL(2)-fitResults{i}{j}.logLL(1);
+                    [coeffMat, labels, SEMat] = fitResults{i}{j}.getCoeffs(1);
+                    coeffInd=strfind(labels,[num2str(neighbors(j)) <span class="string">':['</span>]);
+                    gammaVals =coeffMat(~isempty(coeffInd));
+                    phiMat(neighbors(j),neuronNum(i)) = -sign(sum(gammaVals))*gammaMat(neighbors(j),neuronNum(i));
+                    dimDiff(neighbors(j),neuronNum(i)) = abs(diff(fitResults{i}{j}.numCoeffs));
+                    valConfInt(neighbors(j),neuronNum(i)) = chi2inv(confidenceInterval,dimDiff(neighbors(j),neuronNum(i)));
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            devianceMat = -2*gammaMat;
+            nonZeros = find(devianceMat~=0);
+            pVals = chi2cdf(devianceMat(nonZeros),dimDiff(nonZeros),<span class="string">'upper'</span>);
+
+
+            [h, crit_p, adj_p]=fdr_bh(pVals,1-confidenceInterval,<span class="string">'pdep'</span>,<span class="string">'no'</span>);
+
+<span class="comment">%             sigMat = (devianceMat&gt;valConfInt);</span>
+            sigMat = zeros(size(devianceMat));
+            sigMat(nonZeros) = h;
+
+            tObj.resetEnsCovMask;
+
+            <span class="comment">%RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm,DTCorrection,batchMode)</span>
+
+
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> [fitResults,tcc] = computeHistLag(tObj,neuronNum,windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes)
             <span class="comment">% [fitResults,tcc] = computeHistLag(tObj,tObj,neuronNum,windowTimes,CovLabels,sampleRate,makePlot)</span>
             <span class="comment">% For the neuron in neuronNum, runs an analysis with self</span>
             <span class="comment">% history, and no extrinsic covariates, and no ensemble history</span>
@@ -642,11 +1192,23 @@ p.footer {
             <span class="comment">% of windowTimes. There will be length(windowTimes) different</span>
             <span class="comment">% results (configurations) corresponding to increasing number of history</span>
             <span class="comment">% windows.</span>
-            <span class="keyword">if</span>(nargin&lt;6)
+            <span class="keyword">if</span>(nargin&lt;10)
+                histMaxTimes =[];
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;9)
+                histMinTimes=[];
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;8)
                 makePlot=1;
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(nargin&lt;5 || isempty(sampleRate))
+            <span class="keyword">if</span>(nargin&lt;7 || isempty(sampleRate))
                 sampleRate = tObj.sampleRate;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;6 || isempty(batchMode))
+                batchMode = 0;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;5 || isempty(Algorithm))
+                Algorithm = <span class="string">'GLM'</span>;
             <span class="keyword">end</span>
             <span class="keyword">if</span>(nargin&lt;4)
                 CovLabels ={};
@@ -658,29 +1220,50 @@ p.footer {
                 neuronNum = tObj.getNeuronIndFromMask;
             <span class="keyword">end</span>
 
-            <span class="comment">% tcObj=TrialConfig(covMask,sampleRate, history,minTime,maxTime)</span>
+            <span class="comment">% tcObj=TrialConfig(covMask,sampleRate, history,ensCovHist,ensCovMask,covLag,name)</span>
             tc=cell(1,length(windowTimes)-1);
             <span class="keyword">for</span> i=1:length(tc)+1
                 <span class="comment">%use no covariates</span>
                 <span class="keyword">if</span>(i==1)
                     tc{i} = TrialConfig(CovLabels,sampleRate,[],[]); tc{i}.setName(<span class="string">'Baseline'</span>);
                 <span class="keyword">else</span>
-                    tc{i} = TrialConfig(CovLabels,sampleRate,windowTimes(1:i));
+                    <span class="keyword">if</span>(and(isempty(histMinTimes),isempty(histMaxTimes)))
+                        tc{i} = TrialConfig(CovLabels,sampleRate,windowTimes(1:i)); tc{i}.setName(strcat(<span class="string">'Window'</span>,num2str(i-1)));
+                    <span class="keyword">else</span>
+                        hTemp = History(windowTimes(1:i),histMinTimes,histMaxTimes);
+                        tc{i} = TrialConfig(CovLabels,sampleRate,hTemp); tc{i}.setName(strcat(<span class="string">'Window'</span>,num2str(i-1)));
+                    <span class="keyword">end</span>
                 <span class="keyword">end</span>
 
             <span class="keyword">end</span>
+            DTCorrection=1;
             tcc = ConfigColl(tc);
-            fitResults =Analysis.RunAnalysisForNeuron(tObj,neuronNum,tcc,makePlot);
+
+            fitResults =Analysis.RunAnalysisForNeuron(tObj,neuronNum,tcc,makePlot,Algorithm,DTCorrection,batchMode);
+
         <span class="keyword">end</span>
-        <span class="keyword">function</span> fitResults = computeHistLagForAll(tObj,windowTimes,CovLabels,sampleRate,makePlot)
+        <span class="keyword">function</span> fitResults = computeHistLagForAll(tObj,windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes)
             <span class="comment">% [fitResults,tcc] = computeHistLagAll(tObj,windowTimes,CovLabels,sampleRate,makePlot)</span>
             <span class="comment">% Calls computeHistLab for each neuron in the trial that is not masked.</span>
-            <span class="keyword">if</span>(nargin&lt;5)
+            <span class="keyword">if</span>(nargin&lt;9)
+                histMaxTimes =[];
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;8)
+                histMinTimes=[];
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;7)
                 makePlot=1;
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(nargin&lt;4 || isempty(sampleRate))
+            <span class="keyword">if</span>(nargin&lt;6 || isempty(sampleRate))
                 sampleRate = tObj.sampleRate;
             <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;5 || isempty(batchMode))
+                batchMode=0;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(nargin&lt;4 || isempty(Algorithm))
+                Algorithm = <span class="string">'GLM'</span>;
+            <span class="keyword">end</span>
+
             <span class="keyword">if</span>(nargin&lt;3)
                 CovLabels ={};
             <span class="keyword">end</span>
@@ -691,7 +1274,7 @@ p.footer {
             neuronIndex=tObj.getNeuronIndFromMask;
             fitResults = cell(1,length(neuronIndex));
             <span class="keyword">for</span> i=1:length(neuronIndex)
-               fitResults{i} = Analysis.computeHistLag(tObj,neuronIndex(i),windowTimes,CovLabels,sampleRate,makePlot);
+               fitResults{i} = Analysis.computeHistLag(tObj,neuronIndex(i),windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes);
             <span class="keyword">end</span>
 
 
@@ -769,49 +1352,11 @@ p.footer {
             cc=CovColl(cov);
 
         <span class="keyword">end</span>
-        <span class="keyword">function</span> plotStatHistData(index,spdata,svdata,sfdata)
-        <span class="comment">% plotStatHistData(index,spdata,svdata,sfdata)</span>
-        <span class="comment">% Helpfer function to view historgrams of the position, velocity,</span>
-        <span class="comment">% and force data at each spike time.</span>
-        <span class="comment">% index is used to label the plot and should correspond to the</span>
-        <span class="comment">% neuron that was used to compute this data.</span>
-        <span class="comment">%</span>
-        <span class="comment">% position (x,y,z) array</span>
-        <span class="comment">% veloctity vx vy vz array</span>
-        <span class="comment">% force: fz, fzmag, fld, flf array</span>
 
-        sfdata((sfdata==0))=nan; <span class="comment">%</span>
-            fig(1)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a1=scatterhist(spdata(:,1),spdata(:,2));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'y'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'x'</span>)
-            fig(2)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a2=scatterhist(spdata(:,1),spdata(:,3));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'z'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'x'</span>)
-            fig(3)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a3=scatterhist(spdata(:,2),spdata(:,3));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'z'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'y'</span>)
-            fig(4)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a4=scatterhist(svdata(:,1),svdata(:,2));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_y'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_x'</span>)
-            fig(5)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a5=scatterhist(svdata(:,1),svdata(:,3));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_z'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_x'</span>)
-            fig(6)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a6=scatterhist(svdata(:,2),svdata(:,3));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_z'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'v_y'</span>)
-            fig(7)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a7=scatterhist(sfdata(:,1),sfdata(:,3));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_{ld}'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_z'</span>)
-            fig(8)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a8=scatterhist(sfdata(:,1),sfdata(:,4));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_{lf}'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_z'</span>)
-            fig(9)=figure(<span class="string">'visible'</span>,<span class="string">'off'</span>); a9=scatterhist(sfdata(:,3),sfdata(:,4));  set(get(gca,<span class="string">'YLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_{lf}'</span>); set(get(gca,<span class="string">'XLabel'</span>),<span class="string">'String'</span>,<span class="string">'f_{ld}'</span>)
-
-
-            h=figure(index+100);
-            scrsz = get(0,<span class="string">'ScreenSize'</span>);
-
-            set(h,<span class="string">'Name'</span>,strcat(<span class="string">'Neuron #'</span>,num2str(index)),<span class="string">'Position'</span>,[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
-            u1 = uipanel(h,<span class="string">'position'</span>,[.0  .66 .33 .33]); set(a1,<span class="string">'parent'</span>,u1);
-            u2 = uipanel(h,<span class="string">'position'</span>,[.33 .66 .33 .33]); set(a2,<span class="string">'parent'</span>,u2);
-            u3 = uipanel(h,<span class="string">'position'</span>,[.66 .66 .33 .33]); set(a3,<span class="string">'parent'</span>,u3);
-            u4 = uipanel(h,<span class="string">'position'</span>,[.0  .33 .33 .33]); set(a4,<span class="string">'parent'</span>,u4);
-            u5 = uipanel(h,<span class="string">'position'</span>,[.33 .33 .33 .33]); set(a5,<span class="string">'parent'</span>,u5);
-            u6 = uipanel(h,<span class="string">'position'</span>,[.66 .33 .33 .33]); set(a6,<span class="string">'parent'</span>,u6);
-            u7 = uipanel(h,<span class="string">'position'</span>,[.0   0 .33 .33]); set(a7,<span class="string">'parent'</span>,u7);
-            u8 = uipanel(h,<span class="string">'position'</span>,[.33  0 .33 .33]); set(a8,<span class="string">'parent'</span>,u8);
-            u9 = uipanel(h,<span class="string">'position'</span>,[.66  0 .33 .33]); set(a9,<span class="string">'parent'</span>,u9);
-            close(fig);
-        <span class="keyword">end</span>
 
     <span class="keyword">end</span>
-
-
-
+</pre>
+<pre class="codeinput">
 <span class="keyword">end</span>
 
 
@@ -865,7 +1410,7 @@ p.footer {
 <span class="comment">%     X = [ones(rows,1), X];</span>
     <span class="comment">% CG parameters</span>
     cgmax = 30;
-    cgeps = 1e-3;
+    cgeps = 1e-6;
 
     <span class="comment">% LR parameters</span>
     lrmax = 100;
@@ -886,17 +1431,25 @@ p.footer {
     devnew = 0;
     devdiff = abs(devnew - devold);
 
-
+<span class="comment">% B=[];</span>
     <span class="keyword">while</span> (i &lt; lrmax &amp;&amp; devdiff &gt; lreps)
         <span class="comment">% Do CG -&gt; beta_new, i.e. solve for beta_new: XtWX*beta_new = XtWz(beta_old) using CG</span>
 
         A = X'.*W*X; b = X'.*W*z;
 
+        <span class="comment">% A needs to be positive definite so any zero or negative</span>
+        <span class="comment">% eigenvalues are set to machine precision.</span>
+        [vec,val]=eig(A); val(val&lt;=0)=eps;
+        A=vec*val*vec';
+
+        <span class="keyword">if</span>(any(isnan(b)))
+           b(isnan(b))=0;
+        <span class="keyword">end</span>
         <span class="keyword">if</span> rrflag == 1
             A = A + lambda*eye(size(A));
         <span class="keyword">end</span>
 
-        beta_new = cgs(A,b,cgeps,cgmax,[],[],beta_old);
+        [beta_new, flag] = cgs(A,b,cgeps,cgmax,[],[],beta_old);
         beta_old = beta_new;
 
         n = X*beta_old;
@@ -910,7 +1463,7 @@ p.footer {
 
         i = i+1;
 
-
+<span class="comment">%         B=[B,beta_new];</span>
     <span class="keyword">end</span>
 
     <span class="comment">% Compute a few statistics</span>
@@ -1034,6 +1587,10 @@ p.footer {
 
     <span class="comment">% check that those indicies are in [1:length(pk)];</span>
 
+    <span class="keyword">if</span>(isempty(spikeindicies))
+    	rst = pk;
+        <span class="keyword">return</span>;
+    <span class="keyword">end</span>
     <span class="keyword">if</span> spikeindicies(1)&lt;1;
          error(<span class="string">'There is at least one spike with index less than 0'</span>);
     <span class="keyword">end</span>;
@@ -1048,8 +1605,7 @@ p.footer {
     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 
     <span class="comment">% initialize random number generator</span>
-    s = RandStream(<span class="string">'mt19937ar'</span>,<span class="string">'Seed'</span>, sum(100*clock));
-    RandStream.setDefaultStream(s);
+    rng(<span class="string">'shuffle'</span>,<span class="string">'twister'</span>);
     <span class="comment">%rand('twister',sum(100*clock));</span>
 
     <span class="comment">% make the qk's</span>
@@ -1072,8 +1628,9 @@ p.footer {
 
         delta=-(1/qk(ind2))*log(1-rand()*(1-exp(-qk(ind2))));
 
-        total=total+qk(ind2)*delta;
-
+        <span class="keyword">if</span>(delta~=0)
+            total=total+qk(ind2)*delta;
+        <span class="keyword">end</span>
         rst(r)=total;
 
         rstold(r)=sum(qk(ind1+1:ind2));
@@ -1097,30 +1654,281 @@ p.footer {
 
     varargout{4}=sort(rstold);
 <span class="keyword">end</span>
-</pre><p class="footer"><br>
-      Published with MATLAB&reg; 7.11<br></p></div><!--
+
+
+<span class="comment">% fdr_bh() - Executes the Benjamini &amp; Hochberg (1995) and the Benjamini &amp;</span>
+<span class="comment">%            Yekutieli (2001) procedure for controlling the false discovery</span>
+<span class="comment">%            rate (FDR) of a family of hypothesis tests. FDR is the expected</span>
+<span class="comment">%            proportion of rejected hypotheses that are mistakenly rejected</span>
+<span class="comment">%            (i.e., the null hypothesis is actually true for those tests).</span>
+<span class="comment">%            FDR is a somewhat less conservative/more powerful method for</span>
+<span class="comment">%            correcting for multiple comparisons than procedures like Bonferroni</span>
+<span class="comment">%            correction that provide strong control of the family-wise</span>
+<span class="comment">%            error rate (i.e., the probability that one or more null</span>
+<span class="comment">%            hypotheses are mistakenly rejected).</span>
+<span class="comment">%</span>
+<span class="comment">%            This function also returns the false coverage-statement rate</span>
+<span class="comment">%            (FCR)-adjusted selected confidence interval coverage (i.e.,</span>
+<span class="comment">%            the coverage needed to construct multiple comparison corrected</span>
+<span class="comment">%            confidence intervals that correspond to the FDR-adjusted p-values).</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% Usage:</span>
+<span class="comment">%  &gt;&gt; [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pvals,q,method,report);</span>
+<span class="comment">%</span>
+<span class="comment">% Required Input:</span>
+<span class="comment">%   pvals - A vector or matrix (two dimensions or more) containing the</span>
+<span class="comment">%           p-value of each individual test in a family of tests.</span>
+<span class="comment">%</span>
+<span class="comment">% Optional Inputs:</span>
+<span class="comment">%   q       - The desired false discovery rate. {default: 0.05}</span>
+<span class="comment">%   method  - ['pdep' or 'dep'] If 'pdep,' the original Bejnamini &amp; Hochberg</span>
+<span class="comment">%             FDR procedure is used, which is guaranteed to be accurate if</span>
+<span class="comment">%             the individual tests are independent or positively dependent</span>
+<span class="comment">%             (e.g., Gaussian variables that are positively correlated or</span>
+<span class="comment">%             independent).  If 'dep,' the FDR procedure</span>
+<span class="comment">%             described in Benjamini &amp; Yekutieli (2001) that is guaranteed</span>
+<span class="comment">%             to be accurate for any test dependency structure (e.g.,</span>
+<span class="comment">%             Gaussian variables with any covariance matrix) is used. 'dep'</span>
+<span class="comment">%             is always appropriate to use but is less powerful than 'pdep.'</span>
+<span class="comment">%             {default: 'pdep'}</span>
+<span class="comment">%   report  - ['yes' or 'no'] If 'yes', a brief summary of FDR results are</span>
+<span class="comment">%             output to the MATLAB command line {default: 'no'}</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% Outputs:</span>
+<span class="comment">%   h       - A binary vector or matrix of the same size as the input "pvals."</span>
+<span class="comment">%             If the ith element of h is 1, then the test that produced the</span>
+<span class="comment">%             ith p-value in pvals is significant (i.e., the null hypothesis</span>
+<span class="comment">%             of the test is rejected).</span>
+<span class="comment">%   crit_p  - All uncorrected p-values less than or equal to crit_p are</span>
+<span class="comment">%             significant (i.e., their null hypotheses are rejected).  If</span>
+<span class="comment">%             no p-values are significant, crit_p=0.</span>
+<span class="comment">%   adj_ci_cvrg - The FCR-adjusted BH- or BY-selected</span>
+<span class="comment">%             confidence interval coverage. For any p-values that</span>
+<span class="comment">%             are significant after FDR adjustment, this gives you the</span>
+<span class="comment">%             proportion of coverage (e.g., 0.99) you should use when generating</span>
+<span class="comment">%             confidence intervals for those parameters. In other words,</span>
+<span class="comment">%             this allows you to correct your confidence intervals for</span>
+<span class="comment">%             multiple comparisons. You can NOT obtain confidence intervals</span>
+<span class="comment">%             for non-significant p-values. The adjusted confidence intervals</span>
+<span class="comment">%             guarantee that the expected FCR is less than or equal to q</span>
+<span class="comment">%             if using the appropriate FDR control algorithm for the</span>
+<span class="comment">%             dependency structure of your data (Benjamini &amp; Yekutieli, 2005).</span>
+<span class="comment">%             FCR (i.e., false coverage-statement rate) is the proportion</span>
+<span class="comment">%             of confidence intervals you construct</span>
+<span class="comment">%             that miss the true value of the parameter. adj_ci=NaN if no</span>
+<span class="comment">%             p-values are significant after adjustment.</span>
+<span class="comment">%   adj_p   - All adjusted p-values less than or equal to q are significant</span>
+<span class="comment">%             (i.e., their null hypotheses are rejected). Note, adjusted</span>
+<span class="comment">%             p-values can be greater than 1.</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% References:</span>
+<span class="comment">%   Benjamini, Y. &amp; Hochberg, Y. (1995) Controlling the false discovery</span>
+<span class="comment">%     rate: A practical and powerful approach to multiple testing. Journal</span>
+<span class="comment">%     of the Royal Statistical Society, Series B (Methodological). 57(1),</span>
+<span class="comment">%     289-300.</span>
+<span class="comment">%</span>
+<span class="comment">%   Benjamini, Y. &amp; Yekutieli, D. (2001) The control of the false discovery</span>
+<span class="comment">%     rate in multiple testing under dependency. The Annals of Statistics.</span>
+<span class="comment">%     29(4), 1165-1188.</span>
+<span class="comment">%</span>
+<span class="comment">%   Benjamini, Y., &amp; Yekutieli, D. (2005). False discovery rate?adjusted</span>
+<span class="comment">%     multiple confidence intervals for selected parameters. Journal of the</span>
+<span class="comment">%     American Statistical Association, 100(469), 71?81. doi:10.1198/016214504000001907</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% Example:</span>
+<span class="comment">%  nullVars=randn(12,15);</span>
+<span class="comment">%  [~, p_null]=ttest(nullVars); %15 tests where the null hypothesis</span>
+<span class="comment">%  %is true</span>
+<span class="comment">%  effectVars=randn(12,5)+1;</span>
+<span class="comment">%  [~, p_effect]=ttest(effectVars); %5 tests where the null</span>
+<span class="comment">%  %hypothesis is false</span>
+<span class="comment">%  [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh([p_null p_effect],.05,'pdep','yes');</span>
+<span class="comment">%  data=[nullVars effectVars];</span>
+<span class="comment">%  fcr_adj_cis=NaN*zeros(2,20); %initialize confidence interval bounds to NaN</span>
+<span class="comment">%  if ~isnan(adj_ci_cvrg),</span>
+<span class="comment">%     sigIds=find(h);</span>
+<span class="comment">%     fcr_adj_cis(:,sigIds)=tCIs(data(:,sigIds),adj_ci_cvrg); % tCIs.m is available on the</span>
+<span class="comment">%     %Mathworks File Exchagne</span>
+<span class="comment">%  end</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% For a review of false discovery rate control and other contemporary</span>
+<span class="comment">% techniques for correcting for multiple comparisons see:</span>
+<span class="comment">%</span>
+<span class="comment">%   Groppe, D.M., Urbach, T.P., &amp; Kutas, M. (2011) Mass univariate analysis</span>
+<span class="comment">% of event-related brain potentials/fields I: A critical tutorial review.</span>
+<span class="comment">% Psychophysiology, 48(12) pp. 1711-1725, DOI: 10.1111/j.1469-8986.2011.01273.x</span>
+<span class="comment">% http://www.cogsci.ucsd.edu/~dgroppe/PUBLICATIONS/mass_uni_preprint1.pdf</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% For a review of FCR-adjusted confidence intervals (CIs) and other techniques</span>
+<span class="comment">% for adjusting CIs for multiple comparisons see:</span>
+<span class="comment">%</span>
+<span class="comment">%   Groppe, D.M. (in press) Combating the scientific decline effect with</span>
+<span class="comment">% confidence (intervals). Psychophysiology.</span>
+<span class="comment">% http://biorxiv.org/content/biorxiv/early/2015/12/10/034074.full.pdf</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% Author:</span>
+<span class="comment">% David M. Groppe</span>
+<span class="comment">% Kutaslab</span>
+<span class="comment">% Dept. of Cognitive Science</span>
+<span class="comment">% University of California, San Diego</span>
+<span class="comment">% March 24, 2010</span>
+
+<span class="comment">%%%%%%%%%%%%%%%% REVISION LOG %%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">% 5/7/2010-Added FDR adjusted p-values</span>
+<span class="comment">% 5/14/2013- D.H.J. Poot, Erasmus MC, improved run-time complexity</span>
+<span class="comment">% 10/2015- Now returns FCR adjusted confidence intervals</span>
+
+<span class="keyword">function</span> [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pvals,q,method,report)
+
+<span class="keyword">if</span> nargin&lt;1,
+    error(<span class="string">'You need to provide a vector or matrix of p-values.'</span>);
+<span class="keyword">else</span>
+    <span class="keyword">if</span> ~isempty(find(pvals&lt;0,1)),
+        error(<span class="string">'Some p-values are less than 0.'</span>);
+    <span class="keyword">elseif</span> ~isempty(find(pvals&gt;1,1)),
+        error(<span class="string">'Some p-values are greater than 1.'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargin&lt;2,
+    q=.05;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargin&lt;3,
+    method=<span class="string">'pdep'</span>;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargin&lt;4,
+    report=<span class="string">'no'</span>;
+<span class="keyword">end</span>
+
+s=size(pvals);
+<span class="keyword">if</span> (length(s)&gt;2) || s(1)&gt;1,
+    [p_sorted, sort_ids]=sort(reshape(pvals,1,prod(s)));
+<span class="keyword">else</span>
+    <span class="comment">%p-values are already a row vector</span>
+    [p_sorted, sort_ids]=sort(pvals);
+<span class="keyword">end</span>
+[dummy, unsort_ids]=sort(sort_ids); <span class="comment">%indexes to return p_sorted to pvals order</span>
+m=length(p_sorted); <span class="comment">%number of tests</span>
+
+<span class="keyword">if</span> strcmpi(method,<span class="string">'pdep'</span>),
+    <span class="comment">%BH procedure for independence or positive dependence</span>
+    thresh=(1:m)*q/m;
+    wtd_p=m*p_sorted./(1:m);
+
+<span class="keyword">elseif</span> strcmpi(method,<span class="string">'dep'</span>)
+    <span class="comment">%BH procedure for any dependency structure</span>
+    denom=m*sum(1./(1:m));
+    thresh=(1:m)*q/denom;
+    wtd_p=denom*p_sorted./[1:m];
+    <span class="comment">%Note, it can produce adjusted p-values greater than 1!</span>
+    <span class="comment">%compute adjusted p-values</span>
+<span class="keyword">else</span>
+    error(<span class="string">'Argument ''method'' needs to be ''pdep'' or ''dep''.'</span>);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> nargout&gt;3,
+    <span class="comment">%compute adjusted p-values; This can be a bit computationally intensive</span>
+    adj_p=zeros(1,m)*NaN;
+    [wtd_p_sorted, wtd_p_sindex] = sort( wtd_p );
+    nextfill = 1;
+    <span class="keyword">for</span> k = 1 : m
+        <span class="keyword">if</span> wtd_p_sindex(k)&gt;=nextfill
+            adj_p(nextfill:wtd_p_sindex(k)) = wtd_p_sorted(k);
+            nextfill = wtd_p_sindex(k)+1;
+            <span class="keyword">if</span> nextfill&gt;m
+                <span class="keyword">break</span>;
+            <span class="keyword">end</span>;
+        <span class="keyword">end</span>;
+    <span class="keyword">end</span>;
+    adj_p=reshape(adj_p(unsort_ids),s);
+<span class="keyword">end</span>
+
+rej=p_sorted&lt;=thresh;
+max_id=find(rej,1,<span class="string">'last'</span>); <span class="comment">%find greatest significant pvalue</span>
+<span class="keyword">if</span> isempty(max_id),
+    crit_p=0;
+    h=pvals*0;
+    adj_ci_cvrg=NaN;
+<span class="keyword">else</span>
+    crit_p=p_sorted(max_id);
+    h=pvals&lt;=crit_p;
+    adj_ci_cvrg=1-thresh(max_id);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> strcmpi(report,<span class="string">'yes'</span>),
+    n_sig=sum(p_sorted&lt;=crit_p);
+    <span class="keyword">if</span> n_sig==1,
+        fprintf(<span class="string">'Out of %d tests, %d is significant using a false discovery rate of %f.\n'</span>,m,n_sig,q);
+    <span class="keyword">else</span>
+        fprintf(<span class="string">'Out of %d tests, %d are significant using a false discovery rate of %f.\n'</span>,m,n_sig,q);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> strcmpi(method,<span class="string">'pdep'</span>),
+        fprintf(<span class="string">'FDR/FCR procedure used is guaranteed valid for independent or positively dependent tests.\n'</span>);
+    <span class="keyword">else</span>
+        fprintf(<span class="string">'FDR/FCR procedure used is guaranteed valid for independent or dependent tests.\n'</span>);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+
+<span class="keyword">end</span>
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 classdef Analysis
 % ANALYSIS Collection of functions (static methods) used for GLM analysis
 % of point process data.
-% 
-% <a href="AnalysisExamples.html">Analysis Examples</a> 
+% <a href="matlab:nstatOpenHelpPage('AnalysisExamples.html')">Analysis Examples</a> 
 %
-% see also <a href="TrialExamples.html">Trial</a>, <a
-% href="CovCollExamples.html">CovColl</a>, <a
-% href="nstCollExamples.html">nstColl</a>,<a
-% href="HistoryExamples.html">History</a>
-%
+% see also <a href="matlab:nstatOpenHelpPage('TrialExamples.html')">Trial</a>, <a
+% href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl</a>, <a
+% href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl</a>,<a
+% href="matlab:nstatOpenHelpPage('HistoryExamples.html')">History</a>
 %
 % Reference page in Help browser
-% <a href="Analysis.html">Analysis Reference</a>
+% <a href="matlab:nstatOpenHelpPage('Analysis.html')">Analysis Reference</a>
+
+%%
+% nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
+% Cajigas, I, Malik, WQ, Brown, EN
+% This program is free software; you can redistribute it and/or 
+% modify it under the terms of the GNU General Public License as published 
+% by the Free Software Foundation; either version 2 of the License, or 
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful, 
+% but WITHOUT ANY WARRANTY; without even the implied warranty of 
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+% See the GNU General Public License for more details.
+%  
+% You should have received a copy of the GNU General Public License 
+% along with this program; if not, write to the Free Software Foundation, 
+% Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+
 
 properties (Constant)
     colors = {'b','g','r','c','m','y','k'};
 end
 
     methods (Static)
-        function fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm)
+        function fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm,DTCorrection,batchMode)
             % fitResults =RunAnalysisForNeuron(tObj,neuronNumber,configColl,makePlot,Algorithm)
             % tObj: Trial to be analyzed
             % neuronNumber: number of the neuron to be analyzed. Can be a  
@@ -1137,11 +1945,22 @@ end
             %            BNLRCG - faster Truncated, L-2 Regularized,
             %            Binomial Logistic Regression with Conjugate
             %            Gradient Solver by Demba Ba (demba@mit.edu).
+            % DTCorrection: 0 for no DT Correction of KS plot, 1 is the
+            %               default.
             %
-            if(nargin<5)
+            % batchMode: when batchMode=1 neurons with same name are fit at once rather than separetely
+        
+            if(nargin<7 || isempty(batchMode))
+                batchMode = 0; %default treat each spike train separately
+            end
+            
+            if(nargin<6 || isempty(DTCorrection))
+                DTCorrection =1;
+            end
+            if(nargin<5 || isempty(Algorithm))
                 Algorithm = 'GLM';
             end
-            if(nargin<4)
+            if(nargin<4 || isempty(makePlot))
                 makePlot=1;
             end
             numNeurons = length(neuronNumber);
@@ -1155,6 +1974,7 @@ end
             ensHistObj=cell(numNeurons,1);
             AIC   =zeros(numNeurons,1);
             BIC   =zeros(numNeurons,1);
+            logLL =zeros(numNeurons,1);
             windowSize = .01; % 1/tObj.sampleRate;% for Residual Computation;
             spikeTraining = cell(1,numNeurons);
             XvalData =cell(numNeurons,1);
@@ -1164,36 +1984,289 @@ end
             if(diff(tObj.validationWindow)~=0)
                 tObj.setTrialTimesFor('training');
             end
+            if(batchMode==1)
+               display('Running in batch mode: neurons with same name are fit simultaneously'); 
+            end
+            
             for i=1:configColl.numConfigs
                 configColl.setConfig(tObj,i);
-                display(strcat('Analyzing Configuration #',num2str(i)));
-                
-                for j=1:numNeurons
-                    display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNumber(j))));
-                    %clear tempLabels;
-                    %tObj.setCurrentNeuron(neuronNumber);
-                    otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
-%                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist
-                    labels{j}{i}  = otherLabels; % Labels change depending on presence/absense of History or ensCovHist
-                    numHist{j}{i} = tObj.getNumHist;
-                    histObj{j}{i} = tObj.history;
-                    ensHistObj{j}{i} = tObj.ensCovHist;
-                    [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
-                    lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
-                    dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp;
-                    distrib{j}{i} =distribTemp;
-                    spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j)).nstCopy;
-                    spikeTraining{j}.setName(num2str(neuronNumber(j)));
-                    
-                    %% Collect the validation Data
-                    if(diff(tObj.validationWindow)~=0)
-                          tObj.setTrialTimesFor('validation');
-                          XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
-                          XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
-                          spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j)).nstCopy;
-                          spikeTraining{j}.setName(num2str(neuronNumber(j)));
-                          tObj.setTrialTimesFor('training')
+%                 fprintf(strcat('Analyzing Configuration #',num2str(i)));
+                pool = gcp('nocreate');
+                if(isempty(pool))
+                    pools = 0;
+                else
+                    pools = pool.NumWorkers;
+                end%matlabpool('size');
+                if(pools==0)
+                    if(batchMode==0)
+                        fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #'));
+                        for j=1:numNeurons
+        %                         fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNumber(j))));
+                            if(j==1)
+                                fprintf('%d',neuronNumber(j));
+                            else
+                                fprintf(',%d',neuronNumber(j));
+                            end
+                            %clear tempLabels;
+                            %tObj.setCurrentNeuron(neuronNumber);
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        %                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist
+                            labels{j}{i}  = otherLabels; % Labels change depending on presence/absense of History or ensCovHist
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                            [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp, distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                            spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j));%.nstCopy;
+                            spikeTraining{j}.setName(num2str(neuronNumber(j)));
+
+                            %% Collect the validation Data
+                            if(diff(tObj.validationWindow)~=0)
+                                  tObj.setTrialTimesFor('validation');
+                                  XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
+                                  XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
+                                  spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j));%.nstCopy;
+                                  spikeTraining{j}.setName(num2str(neuronNumber(j)));
+                                  tObj.setTrialTimesFor('training')
+                            end
+
+                        end
+                    elseif(batchMode==1)
+                        neuronNames=neuronNumber; % This is an index of names in the batchMode case
+                        fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #'));
+                        for j=1:numNeurons
+
+        %                         if(isa(neuronNames,'cell'))
+        %                             fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #'));
+        %                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',neuronNames{j}));
+        %                         elseif(isa(neuronNames,'char'))
+        %                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',neuronNames));
+        %                         elseif(isa(neuronNames,'double'))
+        %                             display(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNames)));
+        %                         end
+                            if(isa(neuronNames,'cell'))
+                                if(j==1)
+                                    fprintf('%s',neuronNames{j});
+                                else
+                                    fprintf(',%s',neuronNames{j});
+                                end
+                            elseif(isa(neuronNames,'char'))
+                                if(j==1)
+                                    fprintf('%s',neuronNames);
+                                else
+                                    fprintf(',%s',neuronNames);
+                                end
+                            elseif(isa(neuronNames,'double'))
+                                if(j==1)
+                                    fprintf('%d',neuronNames);
+                                else
+                                    fprintf(',%d',neuronNames);
+                                end
+                            end
+
+                            %clear tempLabels;
+                            %tObj.setCurrentNeuron(neuronNumber);
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        %                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist
+                            labels{j}{i}  = otherLabels; % Labels change depending on presence/absense of History or ensCovHist
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                             if(isa(neuronNames,'cell'))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber{j},i,Algorithm);
+                             elseif(isa(neuronNames,'char'))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber,i,Algorithm);
+                             else
+                                [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                             end
+
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                             if(isa(neuronNames,'cell'))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames{j}));
+                             elseif(isa(neuronNames,'char'))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames));
+                             else
+                                currSpikes=tObj.nspikeColl.getNST(neuronNames(j)); 
+                             end
+
+
+                            for n=1:length(currSpikes)
+                                if(isa(currSpikes,'cell'))
+                                     currSpikes{n} = currSpikes{n}.nstCopy;
+                                     if(isa(neuronNames,'cell'))
+                                        currSpikes{n}.setName(neuronNames{j});
+                                     elseif(isa(neuronNames,'char'))
+                                        currSpikes{n}.setName(neuronNames);
+                                     else
+                                        currSpikes{n}.setName(neuronNames(j));
+                                     end
+
+                                else
+                                    currSpikes = currSpikes.nstCopy;
+
+                                    if(isa(neuronNames,'cell'))
+                                        currSpikes.setName(neuronNames{j});
+                                    elseif(isa(neuronNames,'char'))
+                                        currSpikes.setName(neuronNames);
+                                    else
+                                        currSpikes.setName(neuronNames(j));
+                                    end
+
+                                end
+                            end
+
+                            spikeTraining{j} = currSpikes;
+
+                            %% Collect the validation Data
+                            if(diff(tObj.validationWindow)~=0)
+                                tObj.setTrialTimesFor('validation');
+                                tempIndices=tObj.getNeuronIndFromName(neuronNames{j});
+                                currSpikes=tObj.nspikeColl.getNST(tempIndices);
+                                tempX = [];
+                                tempTime=[];
+                                for n=1:length(tempIndices)
+                                    currSpikes{n} = currSpikes{n}.nstCopy;
+                                    currSpikes{n}.setName(neuronNames{j});
+                                    if(n==1)
+                                        tempX =tObj.getDesignMatrix(tempIndices(n)); 
+                                        tempTime =tObj.covarColl.getCov(1).time;
+                                    else
+                                        tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
+                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
+                                    end
+                                end
+                                spikeValidation{j} = currSpikes;
+                                XvalData{j}{i}=tempX;
+                                XvalTime{j}{i}=tempTime;
+
+                                tObj.setTrialTimesFor('training')
+                            end
+                        end
                     end
+                    fprintf('\n');
+                else %use parallel toolbox
+                    if(batchMode==0)
+                        fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNumber)));
+                        for j=1:numNeurons
+                            %clear tempLabels;
+                            %tObj.setCurrentNeuron(neuronNumber);
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        %                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist
+                            labels{j}{i}  = otherLabels; % Labels change depending on presence/absense of History or ensCovHist
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                            [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i)=logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                            spikeTraining{j} = tObj.nspikeColl.getNST(neuronNumber(j));%.nstCopy;
+                            spikeTraining{j}.setName(num2str(neuronNumber(j)));
+
+                            %% Collect the validation Data
+                            if(diff(tObj.validationWindow)~=0)
+                                  tObj.setTrialTimesFor('validation');
+                                  XvalData{j}{i}=tObj.getDesignMatrix(neuronNumber(j));
+                                  XvalTime{j}{i}=tObj.covarColl.getCov(1).time;
+                                  spikeValidation{j} = tObj.nspikeColl.getNST(neuronNumber(j));%.nstCopy;
+                                  spikeTraining{j}.setName(num2str(neuronNumber(j)));
+                                  tObj.setTrialTimesFor('training')
+                            end
+
+                        end
+                    elseif(batchMode==1)
+                        neuronNames=neuronNumber; % This is an index of names in the batchMode case
+                        fprintf(strcat('Analyzing Configuration #',num2str(i),': Neuron #',num2str(neuronNames)));
+                        for j=1:numNeurons
+
+                            %clear tempLabels;
+                            %tObj.setCurrentNeuron(neuronNumber);
+                            otherLabels  = tObj.getLabelsFromMask(neuronNumber(j));
+        %                     labels{j}{i}  = horzcat('Baseline',otherLabels); % Labels change depending on presence/absense of History or ensCovHist
+                            labels{j}{i}  = otherLabels; % Labels change depending on presence/absense of History or ensCovHist
+                            numHist{j}{i} = tObj.getNumHist;
+                            histObj{j}{i} = tObj.history;
+                            ensHistObj{j}{i} = tObj.ensCovHist;
+                             if(isa(neuronNames,'cell'))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber{j},i,Algorithm);
+                             elseif(isa(neuronNames,'char'))
+                                 [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber,i,Algorithm);
+                             else
+                                [lambdaTemp, bTemp, devTemp, statsTemp,AICTemp,BICTemp,logLLTemp,distribTemp] = Analysis.GLMFit(tObj,neuronNumber(j),i,Algorithm);
+                             end
+
+                            lambda{j}{i} = lambdaTemp; b{j}{i} = bTemp; stats{j}{i} = statsTemp;
+                            dev(j,i) = devTemp;  AIC(j,i)= AICTemp; BIC(j,i)= BICTemp; logLL(j,i) = logLLTemp;
+                            distrib{j}{i} =distribTemp;
+                             if(isa(neuronNames,'cell'))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames{j}));
+                             elseif(isa(neuronNames,'char'))
+                                currSpikes=tObj.nspikeColl.getNST(tObj.getNeuronIndFromName(neuronNames));
+                             else
+                                currSpikes=tObj.nspikeColl.getNST(neuronNames(j)); 
+                             end
+
+
+                            for n=1:length(currSpikes)
+                                if(isa(currSpikes,'cell'))
+                                     currSpikes{n} = currSpikes{n}.nstCopy;
+                                     if(isa(neuronNames,'cell'))
+                                        currSpikes{n}.setName(neuronNames{j});
+                                     elseif(isa(neuronNames,'char'))
+                                        currSpikes{n}.setName(neuronNames);
+                                     else
+                                        currSpikes{n}.setName(neuronNames(j));
+                                     end
+
+                                else
+                                    currSpikes = currSpikes.nstCopy;
+
+                                    if(isa(neuronNames,'cell'))
+                                        currSpikes.setName(neuronNames{j});
+                                    elseif(isa(neuronNames,'char'))
+                                        currSpikes.setName(neuronNames);
+                                    else
+                                        currSpikes.setName(neuronNames(j));
+                                    end
+
+                                end
+                            end
+
+                            spikeTraining{j} = currSpikes;
+
+                            %% Collect the validation Data
+                            if(diff(tObj.validationWindow)~=0)
+                                tObj.setTrialTimesFor('validation');
+                                tempIndices=tObj.getNeuronIndFromName(neuronNames{j});
+                                currSpikes=tObj.nspikeColl.getNST(tempIndices);
+                                tempX = [];
+                                tempTime=[];
+                                for n=1:length(tempIndices)
+                                    currSpikes{n} = currSpikes{n}.nstCopy;
+                                    currSpikes{n}.setName(neuronNames{j});
+                                    if(n==1)
+                                        tempX =tObj.getDesignMatrix(tempIndices(n)); 
+                                        tempTime =tObj.covarColl.getCov(1).time;
+                                    else
+                                        tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
+                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
+                                    end
+                                end
+                                spikeValidation{j} = currSpikes;
+                                XvalData{j}{i}=tempX;
+                                XvalTime{j}{i}=tempTime;
+
+                                tObj.setTrialTimesFor('training')
+                            end
+                        end
+                    end
+                    fprintf('\n');
                 end
             end
             
@@ -1217,27 +2290,28 @@ end
 %             
             
             %% Store the results
+
             fitResults =cell(length(neuronNumber),1);
             for j=1:numNeurons
-                fitResults{j}=FitResult(spikeTraining{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambda{j},b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),configColl,XvalData{j},XvalTime{j},distrib{j});
+                fitResults{j}=FitResult(spikeTraining{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambda{j},b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),logLL(j,:),configColl,XvalData{j},XvalTime{j},distrib{j});
                 if(diff(tObj.validationWindow)~=0)
                     tObj.setTrialTimesFor('validation');
-                    lambdaValidation = fitResults{j}.computeValLambda;
-                    ValResults = FitResult(spikeValidation{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambdaValidation,b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),configColl,XvalData{j},XvalTime{j},distrib);
+                    [lambdaValidation, logLLValidation] = fitResults{j}.computeValLambda;
+                    ValResults = FitResult(spikeValidation{j},labels{j},numHist{j},histObj{j},ensHistObj{j},lambdaValidation,b{j}, dev(j,:), stats{j},AIC(j,:),BIC(j,:),logLLValidation,configColl,XvalData{j},XvalTime{j},distrib);
                     fitResults{j}.validation = ValResults; %validation field is actually another fitResults object but with the validation data
                 end
                 %% Process the results and compute further parameters
                 if(makePlot==1)
                     scrsz = get(0,'ScreenSize');
                     figure('Position',[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
-                    subplot(2,4,[1 2]);     Analysis.KSPlot(fitResults{j},makePlot); %make the plot 
+                    subplot(2,4,[1 2]);     Analysis.KSPlot(fitResults{j},DTCorrection,makePlot); %make the plot 
                     hold on; text(.45, .95,strcat('Neuron:',num2str(neuronNumber(j))));
                     subplot(2,4,3);         Analysis.plotInvGausTrans(fitResults{j},makePlot);
                     subplot(2,4,4);         Analysis.plotSeqCorr(fitResults{j});
                     subplot(2,4,[7 8]);     Analysis.plotFitResidual(fitResults{j},windowSize,makePlot);
                     subplot(2,4,[5 6]);     Analysis.plotCoeffs(fitResults{j});
                 else
-                    Analysis.KSPlot(fitResults{j},makePlot);
+                    Analysis.KSPlot(fitResults{j},DTCorrection,makePlot);
                     Analysis.plotInvGausTrans(fitResults{j},makePlot);
                     Analysis.plotFitResidual(fitResults{j},windowSize,makePlot);
                     %fitResults.computePlotParams;
@@ -1248,7 +2322,7 @@ end
             end
 
         end
-        function fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm)
+        function fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm,DTCorrection,batchMode)
             % fitResults = RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm)
             % Runs the fits specifed by configs (a ConfigColl object) on
             % all the neurons that are unmasked in the trial tObj. 
@@ -1262,15 +2336,30 @@ end
             %            BNLRCG - faster Truncated, L-2 Regularized,
             %            Binomial Logistic Regression with Conjugate
             %            Gradient Solver by Demba Ba (demba@mit.edu).
+            % DTCorrection: 0 for no DT Correction of KS plot, 1 is the
+            %               default.
+            % batchMode: when batchMode=1 neurons with same name are fit at once rather than separetely
+        
+            if(nargin<6 || isempty(batchMode))
+                batchMode = 0; %default treat each spike train separately
+            end
+            if(nargin<5 || isempty(DTCorrection))
+               DTCorrection =1; 
+            end
             
-            if(nargin<4)
+            if(nargin<4 || isempty(Algorithm))
                 Algorithm = 'GLM';
             end
-            if(nargin<3)
+            if(nargin<3 || isempty(makePlot))
                 makePlot=1; %default to plotting results
             end
+           
             
-            neuronIndex=tObj.getNeuronIndFromMask;
+            if(batchMode==0)
+                neuronIndex=tObj.getNeuronIndFromMask;
+            elseif(batchMode==1)
+                neuronIndex=tObj.getUniqueNeuronNames;
+            end
 %             numLoops = floor(length(neuronIndex)/4);
 %             loopArray = cell(1,numLoops);
 %             for k=1:numLoops
@@ -1282,13 +2371,13 @@ end
 %             end
             
            % parfor i=1:length(neuronIndex)
-                fitResults = Analysis.RunAnalysisForNeuron(tObj,neuronIndex,configs,makePlot,Algorithm);
+                fitResults = Analysis.RunAnalysisForNeuron(tObj,neuronIndex,configs,makePlot,Algorithm,DTCorrection,batchMode);
             %end
             
         end
             
         
-        function [lambda,b, dev, stats,AIC, BIC,distribution] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)
+        function [lambda,b, dev, stats,AIC, BIC,logLL, distribution] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)
             % [lambda,b, dev, stats,AIC, BIC] = GLMFit(tObj,neuronNumber,lambdaIndex,Algorithm)
             % Given a trial, tObj, and a neuronNumber specifying a neuron
             % from the trial, extracts the design matrix X from the current
@@ -1313,36 +2402,87 @@ end
             %          (p-values,std dev, etc.)
             % AIC    - Akaike's information criteria for this regression.
             % BIC    - Bayes Information Criteria for this regression.
+            % logLL  - Log Likelihood evaluated with the fit parameters.
 
             if(nargin<4)
               Algorithm='GLM';
             end
+            if(isa(neuronNumber,'double'))
+                binaryRep=tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary;
+                indices=neuronNumber;
+            elseif(isa(neuronNumber,'char'))
+                indices=tObj.getNeuronIndFromName(neuronNumber);
+                binRep=zeros(size(indices));
+                for i=1:length(indices)
+                   binRep(i)=tObj.nspikeColl.getNST(indices(i)).isSigRepBinary;
+                end
+                binaryRep=prod(binRep);
+            elseif(isa(neuronNumber,'cell'))
+                indices=tObj.getNeuronIndFromName(neuronNumber{1});
+                binRep=zeros(size(indices));
+                for i=1:length(indices)
+                   binRep(i)=tObj.nspikeColl.getNST(indices(i)).isSigRepBinary;
+                end
+                binaryRep=prod(binRep);
+            end
             
-            if(strcmp(Algorithm,'BNLRCG') && ~tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary)
+            if(strcmp(Algorithm,'BNLRCG') && ~binaryRep)
                error('To use BNLRCG Algorithm, spikeTrain must have a binary representation. Increase sampleRate and try again');
             end
-                    %For a single neuron given covariates,perform the GLM fit. 
-            y=tObj.getSpikeVector(neuronNumber);
-            X=tObj.getDesignMatrix(neuronNumber);
-
-            
-            if(tObj.nspikeColl.getNST(neuronNumber).isSigRepBinary)
-                distribution = 'binomial';
-                linkfunction = 'logit';
-            else
-                distribution = 'poisson';
-                linkfunction = 'log';
-            end
+           
+           %If performing batchMode analysis, this stacks up the
+           %corresponding spike vectors and the design matrices
+           for i=1:length(indices)
+               if(i==1)
+                    y=tObj.getSpikeVector(indices(i));
+                    X=tObj.getDesignMatrix(indices(i));
+                    lambdaTime = tObj.getCov(1).time;
+               else
+                    y=[y; tObj.getSpikeVector(indices(i))];
+                    X=[X; tObj.getDesignMatrix(indices(i))];
+                    offset = max(lambdaTime)+1/tObj.sampleRate;
+                    lambdaTime = [lambdaTime; (tObj.getCov(1).time +offset)];
+                    
+               end
+           end
+           %For a single neuron given covariates,perform the GLM fit. 
+%             
+%             if(binaryRep)
+%                 distribution = 'binomial';
+%                 linkfunction = 'logit';
+%             else
+%                 distribution = 'poisson';
+%                 linkfunction = 'log';
+%             end
 %             size(X)
 %             size(y)
+                y = y(:);
+                if(size(X,1)~=numel(y))
+                    nObs = min(size(X,1),numel(y));
+                    X = X(1:nObs,:);
+                    y = y(1:nObs);
+                    if(exist('lambdaTime','var') && ~isempty(lambdaTime))
+                        lambdaTime = lambdaTime(1:min(numel(lambdaTime),nObs));
+                    end
+                end
+
                 if(strcmp(Algorithm,'GLM'))
+                    distribution = 'poisson';
+                    linkfunction = 'log';
                     [b,dev,stats] = glmfit(X,y,distribution, 'link', linkfunction,'constant','off');
                 elseif(strcmp(Algorithm,'BNLRCG'))
+                    distribution = 'binomial';
+                    linkfunction = 'logit';
                     rrflag=0; %ML estimation
-                    [b,dev,stats] = bnlrCG(X,y,rrflag);
+                    [b,dev,stats] = bnlrCG(X,y,rrflag);          
+                    
                 else
                     error('Algorithm not supported!');
                 end
+                b=real(b); %make sure to avoid complex coefficients ... sometimes algorithms return
+                           %complex b with the imaginary part near zero.
+                           %Need to explore why. For now just keep the real
+                           %part.
                 if(length(b)>=1)
                     if(strcmp(distribution,'binomial'))
                         data = exp(X*b(1:end));
@@ -1355,14 +2495,44 @@ end
                     end
                 end
                 
-%                 size(tObj.covarColl.getCov(1).getSigRep.time)
-%                 size(data)
 
-                lambda=Covariate(tObj.getCov(1).time,data,...
-                       '\Lambda(t)',tObj.getCov(1).xlabelval,...
-                        tObj.getCov(1).xunits,'Hz',strcat('\lambda_{',num2str(lambdaIndex),'}'));
-                AIC = 2*length(b)+dev;
-                BIC = length(b)*log(length(y))+dev;
+                
+                lambdaIndexStr = num2str(lambdaIndex); 
+                
+                lambda=Covariate(lambdaTime,data,...
+                       '\lambda(t)',tObj.getCov(1).xlabelval,...
+                        tObj.getCov(1).xunits,'Hz',strcat('\lambda_{',lambdaIndexStr,'}'));
+                                mu=b;
+                        s=stats.se;
+%             Mc=30;
+%             for c=1:Mc
+%                 z=normrnd(0,1,length(s),1);
+%                 bKDraw(:,c)=mu+(s.*z);
+%             end
+%             if(strcmp(distribution,'poisson'))
+%                 lambdaDraw=exp(X*bKDraw)*(tObj.sampleRate);
+%             else 
+%                 lambdaDraw=exp(X*bKDraw)./(1+exp(X*bKDraw))*(tObj.sampleRate);
+%             end
+%             lambdaDraw(isinf(lambdaDraw))=0;
+%             alphaVal=.05;
+%             for k=1:length(lambdaDraw)
+%               [f,x] = ecdf(squeeze(lambdaDraw(k,:)));
+%               CIs(k,1) = x(find(f<alphaVal/2,1,'last'));
+%               CIs(k,2) = x(find(f>(1-alphaVal/2),1,'first'));
+%             end
+%            
+%   
+%             ciPSTHGLM = ConfidenceInterval(lambdaTime,CIs,'CI_{psth_GLM}',lambda.xlabelval,lambda.xunits,lambda.yunits);
+%             lambda.setConfInterval(ciPSTHGLM);
+            
+                %The deviance should be real since it a probability measure
+                %and therefore any imaginary part is ignored.
+                AIC = 2*length(b)+real(dev);
+                BIC = length(b)*log(length(y))+real(dev);
+                delta = 1/tObj.sampleRate;
+                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+               
         end        
         function handle = plotInvGausTrans(fitResults,makePlot)
             % handle = plotInvGausTrans(fitResults,makePlot)
@@ -1399,6 +2569,12 @@ end
             % intensity function.
             % The result is stored in fitResult.
             %
+            if(nargin<3 || isempty(makePlot))
+                makePlot=1;
+            end
+            if(nargin<2 || isempty(windowSize))
+                windowSize=.01;
+            end
             M = Analysis.computeFitResidual(fitResults.neuralSpikeTrain,fitResults.lambda,windowSize);
             fitResults.setFitResidual(M);
             
@@ -1411,23 +2587,29 @@ end
               fitResults.plotResidual;
             end
         end
-        function handle = KSPlot(fitResults,makePlot)
+        function handle = KSPlot(fitResults,DTCorrection,makePlot)
             %handle = KSPlot(fitResults,makePlot)
             % Computes the KS statistics and makes the plot. Stores
             % appropriate parameters in fitResults.
             % If validation data is also available, it does the same for
             % the validation data.
-            if(nargin <2)
+            % DTCorrection: 0 for no DT Correction of KS plot, 1 is the
+            %               default.
+            if(nargin <3)
                 makePlot =1; %By default make the plot
             end
+            if(nargin<2)
+               DTCorrection = 1; 
+            end
+                
 
-            [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.neuralSpikeTrain,fitResults.lambda);
+            [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.neuralSpikeTrain,fitResults.lambda,DTCorrection);
             fitResults.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
             
             
             if(fitResults.isValDataPresent)
                  %make sure nst is in appropriate window
-                    [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.validation.neuralSpikeTrain,fitResults.validation.lambda);
+                    [Z, U, xAxis, KSSorted, ks_stat] = Analysis.computeKSStats(fitResults.validation.neuralSpikeTrain,fitResults.validation.lambda,DTCorrection);
                     fitResults.validation.setKSStats(Z, U, xAxis, KSSorted, ks_stat);
    
             end
@@ -1464,39 +2646,48 @@ end
             % for independence of the xj's. Independence of the xj's
             % suggests indepence of the uj's and zj's (a condition
             % necessary for the Time Rescaling Theorem).
-            
             U=1-exp(-Z);
-            U(U>=1)=.99999; %Prevent any 1 values which lead to infinity in X
+            U(U>=.999999)=.999999; %Prevent any 1 values which lead to infinity in X
+            U(U==0)=.000001;
+            U(U<0)=.000001;
             X = norminv(U,0,1);
             %X=erfinv(U);
             [~,colm] = size(X);
-            for i=1:colm
-                [c(:,i),lags] = xcov(X(:,i));
+            if(~isempty(X))
+                for i=1:colm
+                    [c(:,i),lags] = xcov(X(:,i));
+                end
+            else
+                 [c,lags] = xcov(X);
             end
             index=find(lags==1);
             lags=lags(index:end);
             rho=c(index:end,:)./repmat(c(index-1,:),length(lags),1);
             n=length(X);
+            % Defaults to the 95% confidence intervals
+            % Can extend to allow selection of 95% or 99% CI
             confBound = 1.96/sqrt(n)*ones(length(lags),1);
-%              size(lags)
-%              size(rho)
-            
+    %              size(lags)
+    %              size(rho)
+
             confBoundSig = SignalObj(lags,[confBound -confBound],'ACF[ \Phi^{-1}(u_i) ]','\Delta \tau','sec');
             confBoundSig.setPlotProps({' ''r'', ''LineWidth'' ,3'},1);
             confBoundSig.setPlotProps({' ''r'', ''LineWidth'' ,3'},2);
 
             handle=[];
-            rhoSig = SignalObj(lags,rho, 'ACF[ \Phi^-1(u_i) ]','\Delta \tau','sec');
+            rhoSig = SignalObj(lags,rho, 'ACF[ \Phi^-1(u_i) ]','Lag \Delta \tau','sec');
             plotProps = cell(1,colm);
-            for i=1:colm
-                plotProps{i}=strcat('''', '.',Analysis.colors{mod(i-1,length(Analysis.colors))+1},'''');
+            if(~isempty(X))
+                for i=1:colm
+                    plotProps{i}=strcat('''', '.',Analysis.colors{mod(i-1,length(Analysis.colors))+1},'''');
+                end
+            else
+                plotProps=strcat('''', '.',Analysis.colors{1},'''');
             end
             rhoSig.setPlotProps(plotProps);
-   
-            
             
         end        
-        function [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeTrain,lambdaInput,dtCorrection)
+        function [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeObj,lambdaInput,DTCorrection)
             % [Z,U,xAxis,KSSorted, ks_stat] = computeKSStats(nspikeTrain,lambdaInput)
             % Given a neural spike train (a sequence of spike times) and a
             % conditional intensity function, computes the rescaled ISIs
@@ -1505,6 +2696,8 @@ end
             % (exponential rate 1 (according to T-R theorem) to be
             % uniform(0,1). 
             %
+            % DTCorrection: 0 for no DT Correction of KS plot, 1 is the
+            %               default.
             % nspikeTrain: a nspikeTrain object
             % lambdaInput: candidate conditional intensity function (a Covariate)
             % Z: rescaled spike times
@@ -1516,24 +2709,46 @@ end
             
             %get the relevant spike train
             if(nargin<3)
-                dtCorrection =1; 
+                DTCorrection =1; 
             end
             
-            nCopy =nspikeTrain.nstCopy;
+
+            if(length(nspikeObj)>1) %in batch analysis we get multiple trials
+                nstCollObj = nstColl(nspikeObj);
+                nCopy = nstCollObj.toSpikeTrain;
+               
+            else
+                nCopy =nspikeObj.nstCopy;
+%                   nCopy =nspikeObj;
+                
+            end
+            
+  
 %             minTime = nCopy.minTime;
 %             maxTime = nCopy.maxTime;
-%             nCopy.setMinTime(minTime);
-%             nCopy.setMaxTime(maxTime);
+            nCopy.resample(lambdaInput.sampleRate);
+            nCopy.setMinTime(lambdaInput.minTime);
+            nCopy.setMaxTime(lambdaInput.maxTime);
             
-            
+            repBin = nCopy.isSigRepBin; 
+            if(~repBin)
+               lambdaInput=lambdaInput.resample(2*lambdaInput.sampleRate);
+               nCopy.resample(lambdaInput.sampleRate);
+            end
 
-            if(dtCorrection==1 && nCopy.isSigRepBin)  
+            if(DTCorrection==1 && repBin)  
                 % Use DT Correction for Time Rescaling Theorem - Haslinger, Pipa and Brown (2010)
-                pkSignal=lambdaInput.*(1/lambdaInput.sampleRate);
-                pk = pkSignal.data;
+                pkSignal=lambdaInput;
+                pk = pkSignal.data.*(1/lambdaInput.sampleRate);
+                pk = max(pk,1e-10);
                 spikeTrain = nCopy.getSigRep.data;
+                minDim = min(size(pk,1),size(spikeTrain,1));
+                pk=pk(1:minDim,:);
+                spikeTrain=spikeTrain(1:minDim,:);
+                
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 for i=1:lambdaInput.dimension
+                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 %                     length(temp)
 %                     length(intValues(:,i))
@@ -1551,16 +2766,20 @@ end
 %                 lambda=tempLambda.getSigInTimeWindow(minTime,maxTime);%.dataToMatrix;
                 lambdaPosdata = max(tempLambda.data,0);
                 lambda = Covariate(tempLambda.time,lambdaPosdata,tempLambda.name,tempLambda.xlabelval,tempLambda.xunits,tempLambda.yunits,tempLambda.dataLabels);
-                
                 lambdaInt = lambda.integral;
+                
 
                 if(nCopy.isSigRepBin)
                     spikeTimes = nCopy.getSpikeTimes;
-
+                    spikeTimes = [0 spikeTimes];
+                    
                 else
-                    nstSignal = nCopy.getSigRep;
-                    spikeTimes=nstSignal.time(nstSignal.data~=0);
-
+%                     spikeTimes = nCopy.getSpikeTimes;
+%                     maxBinSize=nCopy.getMaxBinSizeBinary;
+%                     lambdaInt = lambda.resample(1/maxBinSize).integral;
+                     nstSignal = nCopy.getSigRep;
+                     spikeTimes=nstSignal.time(nstSignal.data~=0);
+                     spikeTimes = [0 spikeTimes'];
 
                 end
 
@@ -1582,7 +2801,7 @@ end
              
 
             KSSorted = sort( U,'ascend' );
-            N = length(KSSorted);
+            N = size(KSSorted,1);
             if(N~=0)
                 xAxis=(([1:N]-.5)/N)'*ones(1,lambdaInput.dimension);
                 ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension))); 
@@ -1591,7 +2810,7 @@ end
                 xAxis=[];
             end
         end
-        function M=computeFitResidual(nspikeTrain,lambda,windowSize)
+        function M=computeFitResidual(nspikeObj,lambda,windowSize)
             % M=computeFitResidual(nspikeTrain,lambda,windowSize)
             % Computes the Point Process residual defined in
             % 'A point process framework for relating neural spiking
@@ -1606,26 +2825,41 @@ end
             % M: the point process residual (a Covariate object).
             %
             if(nargin<3 || isempty(windowSize))
-                windowSize=.1;
+                windowSize=.01;
             end
-            windowTimes = nspikeTrain.minTime:windowSize:nspikeTrain.maxTime;
-            nCopy=nspikeTrain.nstCopy.getSigRep(windowSize);%tObj.getNeuron(fitResults.neuronNumber).nstCopy;
-            %nCopy.windowedSignal(windowTimes)
-            % this gets us the SUM over a window of length windowSize
-            % y[n] = y[n-1] + x[n] REPLACE_WITH_DASH_DASH running sum filter
-            B=1; A=[1 -1];
-            sumSpikes = nCopy.filter(B,A);
-            %spikeTimes =nCopy.getSpikeTimes';
-            sumSpikesOverWindow= sumSpikes.getValueAt(windowTimes(2:end))-sumSpikes.getValueAt(windowTimes(1:(end-1)));
+            
+
+            if(length(nspikeObj)>1) %in batch analysis we get multiple trials
+                nstCollObj = nstColl(nspikeObj);
+                nCopy = nstCollObj.toSpikeTrain;
+            else
+                nCopy =nspikeObj.nstCopy;
+%                 nCopy =nspikeObj;
+            end
+            
+            nCopy.resample(lambda.sampleRate);
+            nCopy.setMinTime(lambda.minTime);
+            nCopy.setMaxTime(lambda.maxTime);
+            
+            
+            sumSpikes=nCopy.getSigRep(windowSize);%tObj.getNeuron(fitResults.neuronNumber).nstCopy;
+%             sumSpikesOverWindow = sumSpikes.data(1:end);
+%             windowTimes = nCopy.minTime:windowSize:lambda.maxTime;
+            windowTimes = linspace(nCopy.minTime,nCopy.maxTime,length(sumSpikes.time));           
             lambdaInt = lambda.integral;
             lambdaIntVals = lambdaInt.getValueAt(windowTimes(2:end))-lambdaInt.getValueAt(windowTimes(1:(end-1)));
+            if(length(lambdaIntVals)==length(sumSpikes.data))
+                sumSpikesOverWindow = sumSpikes.data(1:end);
+            elseif(length(lambdaIntVals)<length(sumSpikes.data))
+                sumSpikesOverWindow = sumSpikes.data(2:end);
+            end
             Mdata=repmat(sumSpikesOverWindow,[1 lambdaInt.dimension])-lambdaIntVals;
             dataLabels = cell(1,lambdaInt.dimension);
             for i=1:lambdaInt.dimension
                 dataLabels{i} = lambda.dataLabels{i};
             end
             
-            M=Covariate(windowTimes(2:end),Mdata,'M(t_k)-Residual',lambdaInt.xlabelval, ...
+            M=Covariate(windowTimes(1:end),[zeros(1,size(Mdata,2));Mdata],'M(t_k)',lambdaInt.xlabelval, ...
                         lambdaInt.xunits,lambdaInt.yunits,dataLabels);
             
         end
@@ -1679,7 +2913,72 @@ end
             tcc = ConfigColl(tc); 
             fitResults =Analysis.RunAnalysisForNeuron(ensembTrial,neuronNum,tcc,makePlot);
         end
-        function [fitResults,tcc] = computeHistLag(tObj,neuronNum,windowTimes,CovLabels,sampleRate,makePlot)
+        
+        function [fitResults,gammaMat,phiMat,devianceMat,sigMat] = computeGrangerCausalityMatrix(tObj, Algorithm,confidenceInterval, batchMode)
+            if(nargin<4 || isempty(batchMode))
+                batchMode = 0;
+            end
+            if(nargin<3 || isempty(confidenceInterval))
+                confidenceInterval = 0.95;
+            end
+            if(nargin<2 || isempty(Algorithm))
+                Algorithm = 'GLM';
+            end
+            
+            neuronNum = tObj.getNeuronIndFromMask;
+            covMask   = tObj.covMask;
+            history   = tObj.history;
+            ensCovHist = tObj.ensCovHist;
+            ensCovMask= tObj.ensCovMask;
+            sampleRate= tObj.sampleRate;
+            DTCorrection = 1;
+            makePlot=0;
+            clear fitResults;
+            gammaMat=zeros(length(neuronNum),length(neuronNum));
+            for i=1:length(neuronNum)
+                    tc{1}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMask); tc{1}.setName('Baseline');
+                    neighbors = find(ensCovMask(:,i)==1);
+                    
+                    for j=1:length(neighbors)
+                        ensCovMaskTemp = ensCovMask;
+                        ensCovMaskTemp(neighbors(j),neuronNum)=0;
+                    
+                        tc{2}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMaskTemp); tc{2}.setName([num2str(neighbors(j)) 'excluded from ' num2str(neuronNum(i))]);
+                        tcc = ConfigColl(tc);             
+            
+                        fitResults{i}{j} =Analysis.RunAnalysisForNeuron(tObj,neuronNum(i),tcc,makePlot,Algorithm,DTCorrection,batchMode);
+                    end
+            end
+            for i=1:length(neuronNum)
+                neighbors = find(ensCovMask(:,i)==1);
+                for j=1:length(neighbors)
+                    gammaMat(neighbors(j),neuronNum(i)) = fitResults{i}{j}.logLL(2)-fitResults{i}{j}.logLL(1);
+                    [coeffMat, labels, SEMat] = fitResults{i}{j}.getCoeffs(1);
+                    coeffInd=strfind(labels,[num2str(neighbors(j)) ':[']);
+                    gammaVals =coeffMat(~isempty(coeffInd));
+                    phiMat(neighbors(j),neuronNum(i)) = -sign(sum(gammaVals))*gammaMat(neighbors(j),neuronNum(i));
+                    dimDiff(neighbors(j),neuronNum(i)) = abs(diff(fitResults{i}{j}.numCoeffs));
+                    valConfInt(neighbors(j),neuronNum(i)) = chi2inv(confidenceInterval,dimDiff(neighbors(j),neuronNum(i)));
+                end
+            end
+            devianceMat = -2*gammaMat;
+            nonZeros = find(devianceMat~=0);
+            pVals = chi2cdf(devianceMat(nonZeros),dimDiff(nonZeros),'upper');
+            
+            
+            [h, crit_p, adj_p]=fdr_bh(pVals,1-confidenceInterval,'pdep','no');
+           
+%             sigMat = (devianceMat>valConfInt);
+            sigMat = zeros(size(devianceMat));
+            sigMat(nonZeros) = h;
+            
+            tObj.resetEnsCovMask;
+            
+            %RunAnalysisForAllNeurons(tObj,configs,makePlot,Algorithm,DTCorrection,batchMode)
+         
+           
+        end
+        function [fitResults,tcc] = computeHistLag(tObj,neuronNum,windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes)
             % [fitResults,tcc] = computeHistLag(tObj,tObj,neuronNum,windowTimes,CovLabels,sampleRate,makePlot)
             % For the neuron in neuronNum, runs an analysis with self
             % history, and no extrinsic covariates, and no ensemble history
@@ -1687,11 +2986,23 @@ end
             % of windowTimes. There will be length(windowTimes) different
             % results (configurations) corresponding to increasing number of history
             % windows.
-            if(nargin<6)
+            if(nargin<10)
+                histMaxTimes =[];
+            end
+            if(nargin<9)
+                histMinTimes=[];
+            end
+            if(nargin<8)
                 makePlot=1;
             end
-            if(nargin<5 || isempty(sampleRate))
+            if(nargin<7 || isempty(sampleRate))
                 sampleRate = tObj.sampleRate;
+            end
+            if(nargin<6 || isempty(batchMode))
+                batchMode = 0;
+            end
+            if(nargin<5 || isempty(Algorithm))
+                Algorithm = 'GLM';
             end
             if(nargin<4)
                 CovLabels ={};
@@ -1703,29 +3014,50 @@ end
                 neuronNum = tObj.getNeuronIndFromMask;
             end
             
-            % tcObj=TrialConfig(covMask,sampleRate, history,minTime,maxTime)
+            % tcObj=TrialConfig(covMask,sampleRate, history,ensCovHist,ensCovMask,covLag,name)
             tc=cell(1,length(windowTimes)-1);
             for i=1:length(tc)+1
                 %use no covariates
                 if(i==1)
                     tc{i} = TrialConfig(CovLabels,sampleRate,[],[]); tc{i}.setName('Baseline');
                 else
-                    tc{i} = TrialConfig(CovLabels,sampleRate,windowTimes(1:i));
+                    if(and(isempty(histMinTimes),isempty(histMaxTimes)))
+                        tc{i} = TrialConfig(CovLabels,sampleRate,windowTimes(1:i)); tc{i}.setName(strcat('Window',num2str(i-1)));
+                    else
+                        hTemp = History(windowTimes(1:i),histMinTimes,histMaxTimes);
+                        tc{i} = TrialConfig(CovLabels,sampleRate,hTemp); tc{i}.setName(strcat('Window',num2str(i-1)));
+                    end
                 end
                     
             end
+            DTCorrection=1;
             tcc = ConfigColl(tc);             
-            fitResults =Analysis.RunAnalysisForNeuron(tObj,neuronNum,tcc,makePlot);
+            
+            fitResults =Analysis.RunAnalysisForNeuron(tObj,neuronNum,tcc,makePlot,Algorithm,DTCorrection,batchMode);
+                                 
         end
-        function fitResults = computeHistLagForAll(tObj,windowTimes,CovLabels,sampleRate,makePlot)
+        function fitResults = computeHistLagForAll(tObj,windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes)
             % [fitResults,tcc] = computeHistLagAll(tObj,windowTimes,CovLabels,sampleRate,makePlot)
             % Calls computeHistLab for each neuron in the trial that is not masked. 
-            if(nargin<5)
+            if(nargin<9)
+                histMaxTimes =[];
+            end
+            if(nargin<8)
+                histMinTimes=[];
+            end
+            if(nargin<7)
                 makePlot=1;
             end
-            if(nargin<4 || isempty(sampleRate))
+            if(nargin<6 || isempty(sampleRate))
                 sampleRate = tObj.sampleRate;
             end
+            if(nargin<5 || isempty(batchMode))
+                batchMode=0;
+            end
+            if(nargin<4 || isempty(Algorithm))
+                Algorithm = 'GLM';
+            end
+            
             if(nargin<3)
                 CovLabels ={};
             end
@@ -1736,7 +3068,7 @@ end
             neuronIndex=tObj.getNeuronIndFromMask;
             fitResults = cell(1,length(neuronIndex));
             for i=1:length(neuronIndex)
-               fitResults{i} = Analysis.computeHistLag(tObj,neuronIndex(i),windowTimes,CovLabels,sampleRate,makePlot);
+               fitResults{i} = Analysis.computeHistLag(tObj,neuronIndex(i),windowTimes,CovLabels,Algorithm,batchMode,sampleRate,makePlot,histMinTimes,histMaxTimes);
             end
             
 
@@ -1814,44 +3146,7 @@ end
             cc=CovColl(cov);
             
         end
-        function plotStatHistData(index,spdata,svdata,sfdata)
-        % plotStatHistData(index,spdata,svdata,sfdata)
-        % Helpfer function to view historgrams of the position, velocity,
-        % and force data at each spike time. 
-        % index is used to label the plot and should correspond to the
-        % neuron that was used to compute this data.
-        %
-        % position (x,y,z) array
-        % veloctity vx vy vz array
-        % force: fz, fzmag, fld, flf array
-
-        sfdata((sfdata==0))=nan; %
-            fig(1)=figure('visible','off'); a1=scatterhist(spdata(:,1),spdata(:,2));  set(get(gca,'YLabel'),'String','y'); set(get(gca,'XLabel'),'String','x')
-            fig(2)=figure('visible','off'); a2=scatterhist(spdata(:,1),spdata(:,3));  set(get(gca,'YLabel'),'String','z'); set(get(gca,'XLabel'),'String','x')
-            fig(3)=figure('visible','off'); a3=scatterhist(spdata(:,2),spdata(:,3));  set(get(gca,'YLabel'),'String','z'); set(get(gca,'XLabel'),'String','y')
-            fig(4)=figure('visible','off'); a4=scatterhist(svdata(:,1),svdata(:,2));  set(get(gca,'YLabel'),'String','v_y'); set(get(gca,'XLabel'),'String','v_x')
-            fig(5)=figure('visible','off'); a5=scatterhist(svdata(:,1),svdata(:,3));  set(get(gca,'YLabel'),'String','v_z'); set(get(gca,'XLabel'),'String','v_x')
-            fig(6)=figure('visible','off'); a6=scatterhist(svdata(:,2),svdata(:,3));  set(get(gca,'YLabel'),'String','v_z'); set(get(gca,'XLabel'),'String','v_y')
-            fig(7)=figure('visible','off'); a7=scatterhist(sfdata(:,1),sfdata(:,3));  set(get(gca,'YLabel'),'String','f_{ld}'); set(get(gca,'XLabel'),'String','f_z')
-            fig(8)=figure('visible','off'); a8=scatterhist(sfdata(:,1),sfdata(:,4));  set(get(gca,'YLabel'),'String','f_{lf}'); set(get(gca,'XLabel'),'String','f_z')
-            fig(9)=figure('visible','off'); a9=scatterhist(sfdata(:,3),sfdata(:,4));  set(get(gca,'YLabel'),'String','f_{lf}'); set(get(gca,'XLabel'),'String','f_{ld}')
-
-
-            h=figure(index+100);
-            scrsz = get(0,'ScreenSize');
-
-            set(h,'Name',strcat('Neuron #',num2str(index)),'Position',[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
-            u1 = uipanel(h,'position',[.0  .66 .33 .33]); set(a1,'parent',u1); 
-            u2 = uipanel(h,'position',[.33 .66 .33 .33]); set(a2,'parent',u2); 
-            u3 = uipanel(h,'position',[.66 .66 .33 .33]); set(a3,'parent',u3); 
-            u4 = uipanel(h,'position',[.0  .33 .33 .33]); set(a4,'parent',u4); 
-            u5 = uipanel(h,'position',[.33 .33 .33 .33]); set(a5,'parent',u5); 
-            u6 = uipanel(h,'position',[.66 .33 .33 .33]); set(a6,'parent',u6); 
-            u7 = uipanel(h,'position',[.0   0 .33 .33]); set(a7,'parent',u7); 
-            u8 = uipanel(h,'position',[.33  0 .33 .33]); set(a8,'parent',u8); 
-            u9 = uipanel(h,'position',[.66  0 .33 .33]); set(a9,'parent',u9); 
-            close(fig);
-        end
+ 
 
     end
     
@@ -1910,7 +3205,7 @@ function [beta_new,devnew,stats] = bnlrCG(X,yframe,rrflag)
 %     X = [ones(rows,1), X];
     % CG parameters
     cgmax = 30;
-    cgeps = 1e-3;
+    cgeps = 1e-6;
 
     % LR parameters
     lrmax = 100;
@@ -1931,17 +3226,25 @@ function [beta_new,devnew,stats] = bnlrCG(X,yframe,rrflag)
     devnew = 0;
     devdiff = abs(devnew - devold);
 
-
+% B=[];
     while (i < lrmax && devdiff > lreps)
         % Do CG -> beta_new, i.e. solve for beta_new: XtWX*beta_new = XtWz(beta_old) using CG
 
         A = X'.*W*X; b = X'.*W*z;
 
+        % A needs to be positive definite so any zero or negative 
+        % eigenvalues are set to machine precision.
+        [vec,val]=eig(A); val(val<=0)=eps;
+        A=vec*val*vec';
+                    
+        if(any(isnan(b)))
+           b(isnan(b))=0; 
+        end
         if rrflag == 1
             A = A + lambda*eye(size(A));
         end
 
-        beta_new = cgs(A,b,cgeps,cgmax,[],[],beta_old);    
+        [beta_new, flag] = cgs(A,b,cgeps,cgmax,[],[],beta_old);    
         beta_old = beta_new;
 
         n = X*beta_old;
@@ -1955,7 +3258,7 @@ function [beta_new,devnew,stats] = bnlrCG(X,yframe,rrflag)
 
         i = i+1;
 
-
+%         B=[B,beta_new];
     end
 
     % Compute a few statistics
@@ -2079,6 +3382,10 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
 
     % check that those indicies are in [1:length(pk)];
 
+    if(isempty(spikeindicies))
+    	rst = pk;
+        return;
+    end
     if spikeindicies(1)<1; 
          error('There is at least one spike with index less than 0'); 
     end;
@@ -2093,8 +3400,7 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
     % initialize random number generator
-    s = RandStream('mt19937ar','Seed', sum(100*clock));
-    RandStream.setDefaultStream(s);
+    rng('shuffle','twister');
     %rand('twister',sum(100*clock));
 
     % make the qk's
@@ -2116,9 +3422,10 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
         total=total+sum(qk(ind1+1:ind2-1));
 
         delta=-(1/qk(ind2))*log(1-rand()*(1-exp(-qk(ind2))));
-
-        total=total+qk(ind2)*delta;
-
+        
+        if(delta~=0)
+            total=total+qk(ind2)*delta;
+        end
         rst(r)=total;
 
         rstold(r)=sum(qk(ind1+1:ind2));
@@ -2143,5 +3450,235 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
     varargout{4}=sort(rstold);
 end
 
+
+% fdr_bh() - Executes the Benjamini & Hochberg (1995) and the Benjamini &
+%            Yekutieli (2001) procedure for controlling the false discovery 
+%            rate (FDR) of a family of hypothesis tests. FDR is the expected
+%            proportion of rejected hypotheses that are mistakenly rejected 
+%            (i.e., the null hypothesis is actually true for those tests). 
+%            FDR is a somewhat less conservative/more powerful method for 
+%            correcting for multiple comparisons than procedures like Bonferroni
+%            correction that provide strong control of the family-wise
+%            error rate (i.e., the probability that one or more null
+%            hypotheses are mistakenly rejected).
+%
+%            This function also returns the false coverage-statement rate 
+%            (FCR)-adjusted selected confidence interval coverage (i.e.,
+%            the coverage needed to construct multiple comparison corrected
+%            confidence intervals that correspond to the FDR-adjusted p-values).
+%
+%
+% Usage:
+%  >> [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pvals,q,method,report);
+%
+% Required Input:
+%   pvals - A vector or matrix (two dimensions or more) containing the
+%           p-value of each individual test in a family of tests.
+%
+% Optional Inputs:
+%   q       - The desired false discovery rate. {default: 0.05}
+%   method  - ['pdep' or 'dep'] If 'pdep,' the original Bejnamini & Hochberg
+%             FDR procedure is used, which is guaranteed to be accurate if
+%             the individual tests are independent or positively dependent
+%             (e.g., Gaussian variables that are positively correlated or
+%             independent).  If 'dep,' the FDR procedure
+%             described in Benjamini & Yekutieli (2001) that is guaranteed
+%             to be accurate for any test dependency structure (e.g.,
+%             Gaussian variables with any covariance matrix) is used. 'dep'
+%             is always appropriate to use but is less powerful than 'pdep.'
+%             {default: 'pdep'}
+%   report  - ['yes' or 'no'] If 'yes', a brief summary of FDR results are
+%             output to the MATLAB command line {default: 'no'}
+%
+%
+% Outputs:
+%   h       - A binary vector or matrix of the same size as the input "pvals."
+%             If the ith element of h is 1, then the test that produced the 
+%             ith p-value in pvals is significant (i.e., the null hypothesis
+%             of the test is rejected).
+%   crit_p  - All uncorrected p-values less than or equal to crit_p are 
+%             significant (i.e., their null hypotheses are rejected).  If 
+%             no p-values are significant, crit_p=0.
+%   adj_ci_cvrg - The FCR-adjusted BH- or BY-selected 
+%             confidence interval coverage. For any p-values that 
+%             are significant after FDR adjustment, this gives you the
+%             proportion of coverage (e.g., 0.99) you should use when generating
+%             confidence intervals for those parameters. In other words,
+%             this allows you to correct your confidence intervals for
+%             multiple comparisons. You can NOT obtain confidence intervals 
+%             for non-significant p-values. The adjusted confidence intervals
+%             guarantee that the expected FCR is less than or equal to q
+%             if using the appropriate FDR control algorithm for the  
+%             dependency structure of your data (Benjamini & Yekutieli, 2005).
+%             FCR (i.e., false coverage-statement rate) is the proportion 
+%             of confidence intervals you construct
+%             that miss the true value of the parameter. adj_ci=NaN if no
+%             p-values are significant after adjustment.
+%   adj_p   - All adjusted p-values less than or equal to q are significant
+%             (i.e., their null hypotheses are rejected). Note, adjusted 
+%             p-values can be greater than 1.
+%
+%
+% References:
+%   Benjamini, Y. & Hochberg, Y. (1995) Controlling the false discovery
+%     rate: A practical and powerful approach to multiple testing. Journal
+%     of the Royal Statistical Society, Series B (Methodological). 57(1),
+%     289-300.
+%
+%   Benjamini, Y. & Yekutieli, D. (2001) The control of the false discovery
+%     rate in multiple testing under dependency. The Annals of Statistics.
+%     29(4), 1165-1188.
+%
+%   Benjamini, Y., & Yekutieli, D. (2005). False discovery rate?adjusted 
+%     multiple confidence intervals for selected parameters. Journal of the 
+%     American Statistical Association, 100(469), 71?81. doi:10.1198/016214504000001907
+%
+%
+% Example:
+%  nullVars=randn(12,15);
+%  [~, p_null]=ttest(nullVars); %15 tests where the null hypothesis
+%  %is true
+%  effectVars=randn(12,5)+1;
+%  [~, p_effect]=ttest(effectVars); %5 tests where the null
+%  %hypothesis is false
+%  [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh([p_null p_effect],.05,'pdep','yes');
+%  data=[nullVars effectVars];
+%  fcr_adj_cis=NaN*zeros(2,20); %initialize confidence interval bounds to NaN
+%  if ~isnan(adj_ci_cvrg),
+%     sigIds=find(h);
+%     fcr_adj_cis(:,sigIds)=tCIs(data(:,sigIds),adj_ci_cvrg); % tCIs.m is available on the
+%     %Mathworks File Exchagne
+%  end
+%
+%
+% For a review of false discovery rate control and other contemporary
+% techniques for correcting for multiple comparisons see:
+%
+%   Groppe, D.M., Urbach, T.P., & Kutas, M. (2011) Mass univariate analysis 
+% of event-related brain potentials/fields I: A critical tutorial review. 
+% Psychophysiology, 48(12) pp. 1711-1725, DOI: 10.1111/j.1469-8986.2011.01273.x 
+% http://www.cogsci.ucsd.edu/~dgroppe/PUBLICATIONS/mass_uni_preprint1.pdf
+%
+%
+% For a review of FCR-adjusted confidence intervals (CIs) and other techniques 
+% for adjusting CIs for multiple comparisons see:
+%
+%   Groppe, D.M. (in press) Combating the scientific decline effect with 
+% confidence (intervals). Psychophysiology.
+% http://biorxiv.org/content/biorxiv/early/2015/12/10/034074.full.pdf
+%
+%
+% Author:
+% David M. Groppe
+% Kutaslab
+% Dept. of Cognitive Science
+% University of California, San Diego
+% March 24, 2010
+
+%%%%%%%%%%%%%%%% REVISION LOG %%%%%%%%%%%%%%%%%
+%
+% 5/7/2010-Added FDR adjusted p-values
+% 5/14/2013- D.H.J. Poot, Erasmus MC, improved run-time complexity
+% 10/2015- Now returns FCR adjusted confidence intervals
+
+function [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pvals,q,method,report)
+
+if nargin<1,
+    error('You need to provide a vector or matrix of p-values.');
+else
+    if ~isempty(find(pvals<0,1)),
+        error('Some p-values are less than 0.');
+    elseif ~isempty(find(pvals>1,1)),
+        error('Some p-values are greater than 1.');
+    end
+end
+
+if nargin<2,
+    q=.05;
+end
+
+if nargin<3,
+    method='pdep';
+end
+
+if nargin<4,
+    report='no';
+end
+
+s=size(pvals);
+if (length(s)>2) || s(1)>1,
+    [p_sorted, sort_ids]=sort(reshape(pvals,1,prod(s)));
+else
+    %p-values are already a row vector
+    [p_sorted, sort_ids]=sort(pvals);
+end
+[dummy, unsort_ids]=sort(sort_ids); %indexes to return p_sorted to pvals order
+m=length(p_sorted); %number of tests
+
+if strcmpi(method,'pdep'),
+    %BH procedure for independence or positive dependence
+    thresh=(1:m)*q/m;
+    wtd_p=m*p_sorted./(1:m);
+    
+elseif strcmpi(method,'dep')
+    %BH procedure for any dependency structure
+    denom=m*sum(1./(1:m));
+    thresh=(1:m)*q/denom;
+    wtd_p=denom*p_sorted./[1:m];
+    %Note, it can produce adjusted p-values greater than 1!
+    %compute adjusted p-values
+else
+    error('Argument ''method'' needs to be ''pdep'' or ''dep''.');
+end
+
+if nargout>3,
+    %compute adjusted p-values; This can be a bit computationally intensive
+    adj_p=zeros(1,m)*NaN;
+    [wtd_p_sorted, wtd_p_sindex] = sort( wtd_p );
+    nextfill = 1;
+    for k = 1 : m
+        if wtd_p_sindex(k)>=nextfill
+            adj_p(nextfill:wtd_p_sindex(k)) = wtd_p_sorted(k);
+            nextfill = wtd_p_sindex(k)+1;
+            if nextfill>m
+                break;
+            end;
+        end;
+    end;
+    adj_p=reshape(adj_p(unsort_ids),s);
+end
+
+rej=p_sorted<=thresh;
+max_id=find(rej,1,'last'); %find greatest significant pvalue
+if isempty(max_id),
+    crit_p=0;
+    h=pvals*0;
+    adj_ci_cvrg=NaN;
+else
+    crit_p=p_sorted(max_id);
+    h=pvals<=crit_p;
+    adj_ci_cvrg=1-thresh(max_id);
+end
+
+if strcmpi(report,'yes'),
+    n_sig=sum(p_sorted<=crit_p);
+    if n_sig==1,
+        fprintf('Out of %d tests, %d is significant using a false discovery rate of %f.\n',m,n_sig,q);
+    else
+        fprintf('Out of %d tests, %d are significant using a false discovery rate of %f.\n',m,n_sig,q);
+    end
+    if strcmpi(method,'pdep'),
+        fprintf('FDR/FCR procedure used is guaranteed valid for independent or positively dependent tests.\n');
+    else
+        fprintf('FDR/FCR procedure used is guaranteed valid for independent or dependent tests.\n');
+    end
+end
+
+
+
+end
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

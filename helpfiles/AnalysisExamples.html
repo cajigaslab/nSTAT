@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Analysis Examples</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="AnalysisExamples.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Analysis Examples</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="AnalysisExamples.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,7 +72,26 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Analysis Examples</h1><!--introduction--><p>This is an example on the standard approach to fitting GLM models to spike train data. This data set was obtained at the Society For Neuroscience '08 Workshop on <a href="http://www.sfn.org/index.aspx?pagename=ShortCourse3_2008">Workshop on Neural Signal Processing</a> Compare to analysis with <a href="AnalysisExamples2.html">Neural Spike Analysis Toolbox</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Example 1: Tradition Preliminary Analysis</a></li></ul></div><h2>Example 1: Tradition Preliminary Analysis<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Script glm_part1.m</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Analysis Examples</h1>
+<!--introduction-->
+<p>This is an example on the standard approach to fitting GLM models to spike train data. This data set was obtained at the Society For Neuroscience '08 Workshop on <a href="http://www.sfn.org/index.aspx?pagename=ShortCourse3_2008">Workshop on Neural Signal Processing</a> Compare to analysis with <a href="AnalysisExamples2.html">Neural Spike Analysis Toolbox</a>
+</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Example 1: Tradition Preliminary Analysis</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Example 1: Tradition Preliminary Analysis</h2>
+<pre class="codeinput">
+<span class="comment">% Script glm_part1.m</span>
 <span class="comment">% MATLAB code to visualize data, fit a GLM model of the relation between</span>
 <span class="comment">% spiking and the rat's position, and visualize this model for the</span>
 <span class="comment">% Neuroinformatics GLM problem set.</span>
@@ -75,18 +101,30 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">% load the rat trajectory and spiking data;</span>
 close <span class="string">all</span>;
 warning <span class="string">off</span>;
-load(<span class="string">'glm_data.mat'</span>);
-</pre><p>visualize the raw data</p><pre class="codeinput">figure;
+installPath = which(<span class="string">'nSTAT_Install'</span>);
+<span class="keyword">if</span> isempty(installPath)
+    error(<span class="string">'AnalysisExamples:MissingInstallPath'</span>, <span class="keyword">...</span>
+        <span class="string">'Could not locate nSTAT_Install.m on the MATLAB path.'</span>);
+<span class="keyword">end</span>
+glmDataPath = fullfile(fileparts(installPath), <span class="string">'data'</span>, <span class="string">'glm_data.mat'</span>);
+load(glmDataPath);
+</pre>
+<p>visualize the raw data</p>
+<pre class="codeinput">figure;
 plot(xN,yN,x_at_spiketimes,y_at_spiketimes,<span class="string">'r.'</span>);
 axis <span class="string">tight</span> <span class="string">square</span>;
 xlabel(<span class="string">'x position (m)'</span>); ylabel(<span class="string">'y position (m)'</span>);
-</pre><img vspace="5" hspace="5" src="AnalysisExamples_01.png" alt=""> <p>fit a GLM model to the x and y positions.</p><pre class="codeinput">[b,dev,stats] = glmfit([xN yN (xN.^2-mean(xN.^2)) (yN.^2-mean(yN.^2)) (xN.*yN-mean(xN.*yN))],spikes_binned,<span class="string">'poisson'</span>);
+</pre>
+<img vspace="5" hspace="5" src="AnalysisExamples_01.png" alt=""> <p>fit a GLM model to the x and y positions.</p>
+<pre class="codeinput">[b,dev,stats] = glmfit([xN yN (xN.^2-mean(xN.^2)) (yN.^2-mean(yN.^2)) (xN.*yN-mean(xN.*yN))],spikes_binned,<span class="string">'poisson'</span>);
 figure;
 errorbar(1:length(b), b, stats.se,<span class="string">'.'</span>);
 xticks=1:length(b);
 xtickLabels= {<span class="string">'baseline'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'x^2'</span>,<span class="string">'y^2'</span>,<span class="string">'x*y'</span>};
 set(gca,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLabel'</span>,xtickLabels);
-</pre><img vspace="5" hspace="5" src="AnalysisExamples_02.png" alt=""> <p>visualize your model construct a grid of positions to plot the model against...</p><pre class="codeinput">figure;
+</pre>
+<img vspace="5" hspace="5" src="AnalysisExamples_02.png" alt=""> <p>visualize your model construct a grid of positions to plot the model against...</p>
+<pre class="codeinput">figure;
 [x_new,y_new]=meshgrid(-1:.1:1);
 y_new = flipud(y_new);
 x_new = fliplr(x_new);
@@ -104,12 +142,17 @@ plot3(cos(-pi:1e-2:pi),sin(-pi:1e-2:pi),zeros(size(-pi:1e-2:pi))); hold <span cl
 plot(xN,yN,x_at_spiketimes,y_at_spiketimes,<span class="string">'r.'</span>);
 axis <span class="string">tight</span> <span class="string">square</span>;
 xlabel(<span class="string">'x position (m)'</span>); ylabel(<span class="string">'y position (m)'</span>);
-</pre><img vspace="5" hspace="5" src="AnalysisExamples_03.png" alt=""> <p>Compare a linear model versus a Gaussian GLM model.</p><pre class="codeinput">[b_lin,dev_lin,stats_lin] = glmfit([xN yN],spikes_binned,<span class="string">'poisson'</span>);
+</pre>
+<img vspace="5" hspace="5" src="AnalysisExamples_03.png" alt=""> <p>Compare a linear model versus a Gaussian GLM model.</p>
+<pre class="codeinput">[b_lin,dev_lin,stats_lin] = glmfit([xN yN],spikes_binned,<span class="string">'poisson'</span>);
 [b_quad,dev_quad,stats_quad] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,<span class="string">'poisson'</span>);
 
 lambdaEst_lin = exp( b_lin(1) + b_lin(2)*xN+b_lin(3)*yN);  <span class="comment">% based on our GLM model with the log "link function"</span>
 lambdaEst_quad = exp( b_quad(1) + b_quad(2)*xN+b_quad(3)*yN+b_quad(4)*xN.^2 +b_quad(5)*yN.^2 +b_quad(6)*xN.*yN);
-</pre><p>Make the KS Plot</p><pre class="codeinput"><span class="comment">% *******  K-S Plot  *******************</span>
+</pre>
+<p>Make the KS Plot</p>
+<pre class="codeinput">
+<span class="comment">% *******  K-S Plot  *******************</span>
 <span class="comment">% graph the K-S plot and confidence intervals for the K-S statistic</span>
 
 <span class="comment">%first generate the conditional intensity at each timestep</span>
@@ -124,14 +167,14 @@ timestep = 1;
 lambdaInt = 0;
 j=0;
 KS=[];
-<span class="keyword">for</span> t=1:length(spikes_binned),
+<span class="keyword">for</span> t=1:length(spikes_binned)
     lambdaInt = lambdaInt + lambdaEst(t,:)*timestep;
-    <span class="keyword">if</span> (spikes_binned(t)),
+    <span class="keyword">if</span> (spikes_binned(t))
         j = j + 1;
         KS(j,:) = 1-exp(-lambdaInt);
         lambdaInt = [0 0];
-    <span class="keyword">end</span>;
-<span class="keyword">end</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
 KSSorted = sort( KS );
 N = length( KSSorted);
 figure;
@@ -141,7 +184,14 @@ xlabel(<span class="string">'Uniform CDF'</span>);
 ylabel(<span class="string">'Empirical CDF of Rescaled ISIs'</span>);
 title(<span class="string">'KS Plot with 95% Confidence Intervals'</span>);
 legend(<span class="string">'Linear'</span>,<span class="string">'Quadratic'</span>);
-</pre><img vspace="5" hspace="5" src="AnalysisExamples_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="AnalysisExamples_04.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Analysis Examples 
 % This is an example on the standard approach to fitting GLM models to
@@ -162,7 +212,13 @@ legend(<span class="string">'Linear'</span>,<span class="string">'Quadratic'</sp
 % load the rat trajectory and spiking data;
 close all;
 warning off;
-load('glm_data.mat');
+installPath = which('nSTAT_Install');
+if isempty(installPath)
+    error('AnalysisExamples:MissingInstallPath', ...
+        'Could not locate nSTAT_Install.m on the MATLAB path.');
+end
+glmDataPath = fullfile(fileparts(installPath), 'data', 'glm_data.mat');
+load(glmDataPath);
 
 %%
 % visualize the raw data
@@ -229,14 +285,14 @@ timestep = 1;
 lambdaInt = 0;
 j=0;
 KS=[];
-for t=1:length(spikes_binned),
+for t=1:length(spikes_binned)
     lambdaInt = lambdaInt + lambdaEst(t,:)*timestep;
-    if (spikes_binned(t)),
+    if (spikes_binned(t))
         j = j + 1;
         KS(j,:) = 1-exp(-lambdaInt);
         lambdaInt = [0 0];
-    end;
-end;
+    end
+end
 KSSorted = sort( KS );
 N = length( KSSorted);
 figure;
@@ -246,5 +302,8 @@ xlabel('Uniform CDF');
 ylabel('Empirical CDF of Rescaled ISIs');
 title('KS Plot with 95% Confidence Intervals');
 legend('Linear','Quadratic');
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

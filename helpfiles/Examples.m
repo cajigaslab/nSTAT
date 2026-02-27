@@ -3,6 +3,10 @@
 % Spike Analysis Toolbox so that the user can understand the functionality
 % of each in more detail.
 %
+% Paper cross-reference:
+%
+% *   <PaperOverview.html Paper-Aligned Toolbox Map (DOI: 10.1016/j.jneumeth.2012.08.009, PMID: 22981419)>
+%
 % *   <SignalObjExamples.html Using the SignalObj Class>
 % *   <CovariateExamples.html Using the Covariate Class>
 % *   <CovCollExamples.html Using the CovColl Class>

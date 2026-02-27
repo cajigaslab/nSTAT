@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Hybrid Point Process Filter Example</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="HybridFilterExample.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Hybrid Point Process Filter Example</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="HybridFilterExample.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,7 +72,36 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Hybrid Point Process Filter Example</h1><!--introduction--><p>This example is based on an implementation of the Hybrid Point Process filter described in <i>General-purpose filter design for neural prosthetic devices</i> by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol. 2007 Oct, 98(4):2456-75.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Problem Statement</a></li><li><a href="#3">Generated Simulated Arm Reach</a></li><li><a href="#5">Simulate Neural Firing</a></li></ul></div><h2>Problem Statement<a name="1"></a></h2><p>Suppose that a process of interest can be modeled as consisting of several discrete states where the evolution of the system under each state can be modeled as a linear state space model. The observations of both the state and the continuous dynamics are not direct, but rather observed through how the continuous and discrete states affect the firing of a population of neurons. The goal of the hybrid filter is to estimate both the continuous dynamics and the underlying system state from only the neural population firing (point process observations).</p><p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p><p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p><p><img src="HybridFilterExample_eq06211.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p><h2>Generated Simulated Arm Reach<a name="3"></a></h2><pre class="codeinput">clear <span class="string">all</span>;
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Hybrid Point Process Filter Example</h1>
+<!--introduction-->
+<p>This example is based on an implementation of the Hybrid Point Process filter described in <i>General-purpose filter design for neural prosthetic devices</i> by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol. 2007 Oct, 98(4):2456-75.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Problem Statement</a>
+</li>
+<li>
+<a href="#3">Generated Simulated Arm Reach</a>
+</li>
+<li>
+<a href="#5">Simulate Neural Firing</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Problem Statement</h2>
+<p>Suppose that a process of interest can be modeled as consisting of several discrete states where the evolution of the system under each state can be modeled as a linear state space model. The observations of both the state and the continuous dynamics are not direct, but rather observed through how the continuous and discrete states affect the firing of a population of neurons. The goal of the hybrid filter is to estimate both the continuous dynamics and the underlying system state from only the neural population firing (point process observations).</p>
+<p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p>
+<p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p>
+<p>
+<img src="HybridFilterExample_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p>
+<h2 id="3">Generated Simulated Arm Reach</h2>
+<pre class="codeinput">clear <span class="string">all</span>;
 close <span class="string">all</span>;
 delta=0.001;
 Tmax=2;
@@ -134,7 +170,9 @@ p_ij = [.998 .002;
     <span class="keyword">end</span>
 
 <span class="keyword">end</span>
-</pre><pre class="codeinput"><span class="comment">%save paperHybridFilterExample time Tmax delta mstate X p_ij ind A Q Px0</span>
+</pre>
+<pre class="codeinput">
+<span class="comment">%save paperHybridFilterExample time Tmax delta mstate X p_ij ind A Q Px0</span>
 load <span class="string">paperHybridFilterExample</span>;
 Q{1}=minCovVal*eye(2,2);
 numCells=40;
@@ -219,7 +257,11 @@ hy=ylabel(<span class="string">'Cell Number'</span>,<span class="string">'Interp
 set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
 
 <span class="comment">% close all;</span>
-</pre><img vspace="5" hspace="5" src="HybridFilterExample_01.png" alt=""> <h2>Simulate Neural Firing<a name="5"></a></h2><p>We simulate a population of neurons that fire in response to the movement velocity (x and y coorinates)</p><pre class="codeinput"><span class="comment">%Use the data to estimate the process noise for the moving case and</span>
+</pre>
+<img vspace="5" hspace="5" src="HybridFilterExample_01.png" alt=""> <h2 id="5">Simulate Neural Firing</h2>
+<p>We simulate a population of neurons that fire in response to the movement velocity (x and y coorinates)</p>
+<pre class="codeinput">
+<span class="comment">%Use the data to estimate the process noise for the moving case and</span>
 <span class="comment">%non-moving case</span>
 
 nonMovingInd = intersect(find(X(5,:)==0),find(X(6,:)==0));
@@ -445,7 +487,14 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
     hy=ylabel(<span class="string">'v_{y}(t) [cm/s]'</span>); hx=xlabel(<span class="string">'time [s]'</span>);
     set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,10,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
     title(<span class="string">'Y Velocity'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'Fontsize'</span>,12,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
-</pre><img vspace="5" hspace="5" src="HybridFilterExample_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="HybridFilterExample_02.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Hybrid Point Process Filter Example 
 % This example is based on an implementation of the Hybrid Point Process
@@ -868,4 +917,6 @@ end
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

@@ -1,14 +1,14 @@
 classdef ConfigColl < handle
 %CONFIGCOLL - a collection of different configurations
-% <a href="matlab: methods('ConfigColl')">methods</a>
+% <a href="matlab:nstatOpenHelpPage('ConfigCollExamples.html')">ConfigColl Reference</a>
 % <a href="matlab:nstatOpenHelpPage('ConfigCollExamples.html')">ConfigColl Examples</a> 
 %
-% see also <a href="matlab:help('TrialConfig')">TrialConfig</a>, <a
-% href="matlab:help('CovColl')">Trial</a>, <a
-% href="matlab:help('Analysis')">Analysis</a>
+% see also <a href="matlab:nstatOpenHelpPage('TrialConfigExamples.html')">TrialConfig</a>, <a
+% href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl</a>, <a
+% href="matlab:nstatOpenHelpPage('AnalysisExamples.html')">Analysis</a>
 %
 % Reference page in Help browser
-% <a href="matlab: doc('ConfigColl')">doc ConfigColl</a>
+% <a href="matlab:nstatOpenHelpPage('ConfigCollExamples.html')">ConfigColl Reference</a>
     
 
 %

@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Simulate PP via thinning</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="PPThinning.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Simulate PP via thinning</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="PPThinning.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,7 +72,30 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Simulate PP via thinning</h1><!--introduction--><p>Given a conditional intensity function, we generate a point process consistent with this CIF.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Basic Example</a></li><li><a href="#2">Compare Constant rate process vs. thinned process</a></li><li><a href="#3">Simulate multiple realizations of a point process via thinning</a></li></ul></div><h2>Basic Example<a name="1"></a></h2><pre class="codeinput">close <span class="string">all</span>;
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Simulate PP via thinning</h1>
+<!--introduction-->
+<p>Given a conditional intensity function, we generate a point process consistent with this CIF.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Basic Example</a>
+</li>
+<li>
+<a href="#2">Compare Constant rate process vs. thinned process</a>
+</li>
+<li>
+<a href="#3">Simulate multiple realizations of a point process via thinning</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Basic Example</h2>
+<pre class="codeinput">close <span class="string">all</span>;
 delta = 0.001;
 Tmax = 100;
 time = 0:delta:Tmax;
@@ -91,7 +121,9 @@ u2 = rand(length(lambdaRatio),1);
 
 <span class="comment">% keep spike if lambda ratio is greater than random number</span>
 tSpikesThin  = tSpikes(lambdaRatio&gt;=u2);
-</pre><h2>Compare Constant rate process vs. thinned process<a name="2"></a></h2><pre class="codeinput">figure(1);
+</pre>
+<h2 id="2">Compare Constant rate process vs. thinned process</h2>
+<pre class="codeinput">figure(1);
 n1 = nspikeTrain(tSpikes);
 n2 = nspikeTrain(tSpikesThin);
 subplot(2,2,1); n1.plot; plot(tSpikes,ones(size(tSpikes)),<span class="string">'.'</span>);
@@ -107,14 +139,28 @@ scaledProb = lambda*(1./lambdaBound);
 scaledProb.plot;
 v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
-</pre><img vspace="5" hspace="5" src="PPThinning_01.png" alt=""> <img vspace="5" hspace="5" src="PPThinning_02.png" alt=""> <h2>Simulate multiple realizations of a point process via thinning<a name="3"></a></h2><p>The CIF class can generated realizations of a point process given a conditional intensity function (defined as a Covariate or SignalObj)</p><pre class="codeinput">numRealizations = 20;
+</pre>
+<img vspace="5" hspace="5" src="PPThinning_01.png" alt=""> <img vspace="5" hspace="5" src="PPThinning_02.png" alt=""> <h2 id="3">Simulate multiple realizations of a point process via thinning</h2>
+<p>The CIF class can generated realizations of a point process given a conditional intensity function (defined as a Covariate or SignalObj)</p>
+<pre class="codeinput">numRealizations = 20;
 spikeColl = CIF.simulateCIFByThinningFromLambda(lambda,numRealizations);
 figure(3);
 spikeColl.plot;
 lambda.plot;
 v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
-</pre><img vspace="5" hspace="5" src="PPThinning_03.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+
+<span class="comment">% Parity contract scalars for MATLAB/Python verification.</span>
+parity = struct();
+parity.num_realizations = numRealizations;
+</pre>
+<img vspace="5" hspace="5" src="PPThinning_03.png" alt=""> <img vspace="5" hspace="5" src="PPThinning_04.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Simulate PP via thinning
 % Given a conditional intensity function, we generate a point process
@@ -178,7 +224,13 @@ lambda.plot;
 v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
 
+% Parity contract scalars for MATLAB/Python verification.
+parity = struct();
+parity.num_realizations = numRealizations;
+
 
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

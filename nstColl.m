@@ -4,13 +4,13 @@ classdef nstColl < handle
 % <a href="matlab: methods('nstColl')">methods</a>    
 % <a href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl Examples</a> 
 %
-% see also <a href="matlab:help('CovColl')">CovColl</a>, <a
-% href="matlab:help('Covariate')">Covariate</a>, <a
-% href="matlab:help('SignalObj')">SignalObj</a>,<a
-% href="matlab:help('nspikeTrain')">nspikeTrain</a>
+% see also <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl</a>, <a
+% href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate</a>, <a
+% href="matlab:nstatOpenHelpPage('SignalObjExamples.html')">SignalObj</a>,<a
+% href="matlab:nstatOpenHelpPage('nSpikeTrainExamples.html')">nspikeTrain</a>
 %
 % Reference page in Help browser
-% <a href="matlab: doc('nstColl')">doc nstColl</a>
+% <a href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl Reference</a>
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

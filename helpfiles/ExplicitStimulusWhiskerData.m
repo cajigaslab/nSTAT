@@ -5,12 +5,11 @@
 % Data from Demba Ba (demba@mit.edu)
 
 %% Load the data
-close all; currdir = pwd;
-index = strfind(currdir,'helpfiles')-1;
-rootpath = currdir(1:index);
+close all;
+[~,~,explicitStimulusDir] = getPaperDataDirs();
 
 Direction=3; Neuron=1; Stim=2;
-datapath = fullfile(rootpath,'data','Explicit Stimulus',strcat('Dir', num2str(Direction)),...
+datapath = fullfile(explicitStimulusDir,strcat('Dir', num2str(Direction)),...
     strcat('Neuron', num2str(Neuron)), strcat('Stim', num2str(Stim)));
 data=load(fullfile(datapath,'trngdataBis.mat'));
 

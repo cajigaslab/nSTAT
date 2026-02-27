@@ -18,6 +18,24 @@ For mathematical and programmatic details of the toolbox, see:
 
 Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train analysis toolbox for Matlab. Journal of Neuroscience Methods 211: 245–264, Nov. 2012
 http://doi.org/10.1016/j.jneumeth.2012.08.009
+PMID: 22981419
+
+Paper-aligned toolbox map
+-------------------------
+
+To keep terminology and workflows consistent with the 2012 toolbox paper,
+the MATLAB help system includes a dedicated mapping page:
+
+- `helpfiles/PaperOverview.m` (published as `PaperOverview.html`)
+
+This page ties major toolbox components to the paper's workflow categories:
+
+- Class hierarchy and object model (`SignalObj`, `Covariate`, `Trial`,
+  `Analysis`, `FitResult`, `DecodingAlgorithms`)
+- Fitting and assessment workflow (GLM fitting, diagnostics, summaries)
+- Simulation workflow (conditional intensity and thinning examples)
+- Decoding workflow (univariate/bivariate and history-aware decoding)
+- Example-to-paper section mapping via `nSTATPaperExamples`
 
 If you use nSTAT in your work, please remember to cite the above paper in any publications.
 nSTAT is protected by the GPL v2 Open Source License.

@@ -14,10 +14,17 @@
 %
 % *Documentation Navigation*
 %
+% * <PaperOverview.html Paper-Aligned Toolbox Map>
 % * <ClassDefinitions.html Class Definitions>
 % * <Examples.html Example Index>
 % * <nSTATPaperExamples.html nSTAT Paper Examples>
 % * <DocumentationSetup2025b.html MATLAB 2025b Help Integration Guide>
+%
+% *Citation*
+%
+% Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train
+% analysis toolbox for Matlab. Journal of Neuroscience Methods 211:
+% 245-264 (2012). DOI: 10.1016/j.jneumeth.2012.08.009, PMID: 22981419
 
 
 

@@ -9,13 +9,13 @@ classdef CovColl <handle
 % remembers the masked states, shifts, etc. so that these are applied
 % to the signal right before it is returned.
 % 
-% <a href="matlab: methods('CovColl')">methods</a>
+% <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl Reference</a>
 % <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl Examples</a> 
 %
-% see also <a href="matlab:help('SignalObj')">SignalObj</a>, <a href="matlab:help('Covariate')">Covariate</a>
+% see also <a href="matlab:nstatOpenHelpPage('SignalObjExamples.html')">SignalObj</a>, <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate</a>
 %
 % Reference page in Help browser
-% <a href="matlab: doc('CovColl')">doc CovColl</a>
+% <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl Reference</a>
 % 
 
 %

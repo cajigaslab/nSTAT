@@ -11,13 +11,14 @@
 % *Date*: 3/1/2011
 %%
 close all
+[~,~,~,~,placeCellDataDir] = getPaperDataDirs();
     
 %% Example Data
 % The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. 
 % The x and y coordinates at the time when a spike was observed are marked
 % in red. The position coordinates have been normalized to be between -1
 % and 1 to allow to simplify the analysis. 
-    load(strcat('PlaceCellDataAnimal1.mat'));    
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));    
     exampleCell = 25;
     figure(1);
     plot(x,y,'b',neuron{exampleCell}.xN,neuron{exampleCell}.yN,'r.');
@@ -29,7 +30,7 @@ close all
 for n=1:numAnimals
     % load the data
     clear x y neuron time nst tc tcc z;
-    load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
+    load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
     
     % Create the spikeTrains for each cell
     for i=1:length(neuron)
@@ -98,7 +99,7 @@ end
 % Statistics (less deviation from the 45 degree line), reduced AIC and
 % reduced BIC across the majority of cells and for both animals
 for n=1:numAnimals
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    resData=load(fullfile(fileparts(placeCellDataDir),['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     Summary = FitResSummary(results);
     Summary.plotSummary;
@@ -138,8 +139,8 @@ end
 for n=1:numAnimals 
     
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
+    resData=load(fullfile(fileparts(placeCellDataDir),['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)
@@ -217,8 +218,8 @@ end
 
 
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal1.mat'));
-    resData=load(strcat('PlaceCellAnimal1Results.mat'));
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));
+    resData=load(fullfile(fileparts(placeCellDataDir),'PlaceCellAnimal1Results.mat'));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)

@@ -7,12 +7,12 @@ classdef TrialConfig <handle
 % <a href="matlab: methods('TrialConfig')">methods</a>
 % <a href="matlab:nstatOpenHelpPage('TrialConfigExamples.html')">TrialConfig Examples</a> 
 %
-% see also <a href="matlab:help('Trial')">Trial</a>, 
-% <a href="matlab:help('CovColl')">CovColl</a>, 
-% <a href="matlab:help('nstColl')">nstColl</a>
+% see also <a href="matlab:nstatOpenHelpPage('TrialExamples.html')">Trial</a>, 
+% <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl</a>, 
+% <a href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl</a>
 %
 % Reference page in Help browser
-% <a href="matlab: doc('TrialConfig')">doc TrialConfig</a>
+% <a href="matlab:nstatOpenHelpPage('TrialConfigExamples.html')">TrialConfig Reference</a>
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

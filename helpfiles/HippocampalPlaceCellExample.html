@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="HippocampalPlaceCellExample.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="HippocampalPlaceCellExample.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,18 +72,53 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h1><!--introduction--><p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p><p><b>Author</b>: Iahn Cajigas</p><p><b>Date</b>: 3/1/2011</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Example Data</a></li><li><a href="#3">Analyze All Cells</a></li><li><a href="#4">View Summary Statistics</a></li><li><a href="#5">Visualize the results</a></li></ul></div><pre class="codeinput">close <span class="string">all</span>
-</pre><h2>Example Data<a name="2"></a></h2><p>The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. The x and y coordinates at the time when a spike was observed are marked in red. The position coordinates have been normalized to be between -1 and 1 to allow to simplify the analysis.</p><pre class="codeinput">    load(strcat(<span class="string">'PlaceCellDataAnimal1.mat'</span>));
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h1>
+<!--introduction-->
+<p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p>
+<p>
+<b>Author</b>: Iahn Cajigas</p>
+<p>
+<b>Date</b>: 3/1/2011</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">Example Data</a>
+</li>
+<li>
+<a href="#3">Analyze All Cells</a>
+</li>
+<li>
+<a href="#4">View Summary Statistics</a>
+</li>
+<li>
+<a href="#5">Visualize the results</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">close <span class="string">all</span>
+[~,~,~,~,placeCellDataDir] = getPaperDataDirs();
+</pre>
+<h2 id="2">Example Data</h2>
+<p>The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. The x and y coordinates at the time when a spike was observed are marked in red. The position coordinates have been normalized to be between -1 and 1 to allow to simplify the analysis.</p>
+<pre class="codeinput">    load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
     exampleCell = 25;
     figure(1);
     plot(x,y,<span class="string">'b'</span>,neuron{exampleCell}.xN,neuron{exampleCell}.yN,<span class="string">'r.'</span>);
     xlabel(<span class="string">'x'</span>); ylabel(<span class="string">'y'</span>);
     title([<span class="string">'Animal#1, Cell#'</span> num2str(exampleCell)]);
-</pre><img vspace="5" hspace="5" src="HippocampalPlaceCellExample_01.png" alt=""> <h2>Analyze All Cells<a name="3"></a></h2><pre class="codeinput"> numAnimals =2;
+</pre>
+<img vspace="5" hspace="5" src="HippocampalPlaceCellExample_01.png" alt=""> <h2 id="3">Analyze All Cells</h2>
+<pre class="codeinput"> numAnimals =2;
 <span class="keyword">for</span> n=1:numAnimals
     <span class="comment">% load the data</span>
     clear <span class="string">x</span> <span class="string">y</span> <span class="string">neuron</span> <span class="string">time</span> <span class="string">nst</span> <span class="string">tc</span> <span class="string">tcc</span> <span class="string">z</span>;
-    load(strcat(<span class="string">'PlaceCellDataAnimal'</span>,num2str(n),<span class="string">'.mat'</span>));
+    load(fullfile(placeCellDataDir,[<span class="string">'PlaceCellDataAnimal'</span> num2str(n) <span class="string">'.mat'</span>]));
 
     <span class="comment">% Create the spikeTrains for each cell</span>
     <span class="keyword">for</span> i=1:length(neuron)
@@ -139,13 +181,20 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">%     filename = ['PlaceCellAnimal' num2str(n) 'Results'];</span>
 <span class="comment">%     save(filename,'resStruct');</span>
 <span class="keyword">end</span>
-</pre><h2>View Summary Statistics<a name="4"></a></h2><p>Note the Zernike Polynomials yield better fits in terms of decreased KS Statistics (less deviation from the 45 degree line), reduced AIC and reduced BIC across the majority of cells and for both animals</p><pre class="codeinput"><span class="keyword">for</span> n=1:numAnimals
-    resData=load(strcat(<span class="string">'PlaceCellAnimal'</span>,num2str(n),<span class="string">'Results.mat'</span>));
+</pre>
+<h2 id="4">View Summary Statistics</h2>
+<p>Note the Zernike Polynomials yield better fits in terms of decreased KS Statistics (less deviation from the 45 degree line), reduced AIC and reduced BIC across the majority of cells and for both animals</p>
+<pre class="codeinput">
+<span class="keyword">for</span> n=1:numAnimals
+    resData=load(fullfile(fileparts(placeCellDataDir),[<span class="string">'PlaceCellAnimal'</span> num2str(n) <span class="string">'Results.mat'</span>]));
     results = FitResult.fromStructure(resData.resStruct);
     Summary = FitResSummary(results);
     Summary.plotSummary;
 <span class="keyword">end</span>
-</pre><img vspace="5" hspace="5" src="HippocampalPlaceCellExample_02.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_03.png" alt=""> <h2>Visualize the results<a name="5"></a></h2><pre class="codeinput"><span class="comment">% Define a grid</span>
+</pre>
+<img vspace="5" hspace="5" src="HippocampalPlaceCellExample_02.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_03.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_04.png" alt=""> <h2 id="5">Visualize the results</h2>
+<pre class="codeinput">
+<span class="comment">% Define a grid</span>
 [x_new,y_new]=meshgrid(-1:.01:1); <span class="comment">%define new x and y</span>
 y_new = flipud(y_new); x_new = fliplr(x_new);
 [theta_new,r_new] = cart2pol(x_new,y_new);
@@ -177,8 +226,8 @@ cnt=0;
 <span class="keyword">for</span> n=1:numAnimals
 
     clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
-    load(strcat(<span class="string">'PlaceCellDataAnimal'</span>,num2str(n),<span class="string">'.mat'</span>));
-    resData=load(strcat(<span class="string">'PlaceCellAnimal'</span>,num2str(n),<span class="string">'Results.mat'</span>));
+    load(fullfile(placeCellDataDir,[<span class="string">'PlaceCellDataAnimal'</span> num2str(n) <span class="string">'.mat'</span>]));
+    resData=load(fullfile(fileparts(placeCellDataDir),[<span class="string">'PlaceCellAnimal'</span> num2str(n) <span class="string">'Results.mat'</span>]));
     results = FitResult.fromStructure(resData.resStruct);
 
     <span class="keyword">for</span> i=1:length(neuron)
@@ -256,8 +305,8 @@ cnt=0;
 
 
     clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
-    load(strcat(<span class="string">'PlaceCellDataAnimal1.mat'</span>));
-    resData=load(strcat(<span class="string">'PlaceCellAnimal1Results.mat'</span>));
+    load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
+    resData=load(fullfile(fileparts(placeCellDataDir),<span class="string">'PlaceCellAnimal1Results.mat'</span>));
     results = FitResult.fromStructure(resData.resStruct);
 
     <span class="keyword">for</span> i=1:length(neuron)
@@ -288,7 +337,14 @@ cnt=0;
     axis <span class="string">tight</span> <span class="string">square</span>;
     xlabel(<span class="string">'x position'</span>); ylabel(<span class="string">'y position'</span>);
     title([<span class="string">'Animal#1, Cell#'</span> num2str(exampleCell)]);
-</pre><img vspace="5" hspace="5" src="HippocampalPlaceCellExample_04.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_05.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_06.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_07.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_08.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_09.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="HippocampalPlaceCellExample_05.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_06.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_07.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_08.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_09.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_10.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_11.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION 
 % Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience.
@@ -303,13 +359,14 @@ cnt=0;
 % *Date*: 3/1/2011
 %%
 close all
+[~,~,~,~,placeCellDataDir] = getPaperDataDirs();
     
 %% Example Data
 % The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. 
 % The x and y coordinates at the time when a spike was observed are marked
 % in red. The position coordinates have been normalized to be between -1
 % and 1 to allow to simplify the analysis. 
-    load(strcat('PlaceCellDataAnimal1.mat'));    
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));    
     exampleCell = 25;
     figure(1);
     plot(x,y,'b',neuron{exampleCell}.xN,neuron{exampleCell}.yN,'r.');
@@ -321,7 +378,7 @@ close all
 for n=1:numAnimals
     % load the data
     clear x y neuron time nst tc tcc z;
-    load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
+    load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
     
     % Create the spikeTrains for each cell
     for i=1:length(neuron)
@@ -390,7 +447,7 @@ end
 % Statistics (less deviation from the 45 degree line), reduced AIC and
 % reduced BIC across the majority of cells and for both animals
 for n=1:numAnimals
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    resData=load(fullfile(fileparts(placeCellDataDir),['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     Summary = FitResSummary(results);
     Summary.plotSummary;
@@ -430,8 +487,8 @@ end
 for n=1:numAnimals 
     
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal',num2str(n),'.mat'));
-    resData=load(strcat('PlaceCellAnimal',num2str(n),'Results.mat'));
+    load(fullfile(placeCellDataDir,['PlaceCellDataAnimal' num2str(n) '.mat']));
+    resData=load(fullfile(fileparts(placeCellDataDir),['PlaceCellAnimal' num2str(n) 'Results.mat']));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)
@@ -509,8 +566,8 @@ end
 
 
     clear lambdaGaussian lambdaZernike;
-    load(strcat('PlaceCellDataAnimal1.mat'));
-    resData=load(strcat('PlaceCellAnimal1Results.mat'));
+    load(fullfile(placeCellDataDir,'PlaceCellDataAnimal1.mat'));
+    resData=load(fullfile(fileparts(placeCellDataDir),'PlaceCellAnimal1Results.mat'));
     results = FitResult.fromStructure(resData.resStruct);
     
     for i=1:length(neuron)
@@ -547,4 +604,6 @@ end
     
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

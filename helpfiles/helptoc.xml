@@ -2,6 +2,7 @@
 <toc version="2.0">
   <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.ROOT" id="nstat_home">nSTAT Neural Spike Train Analysis Toolbox
     <tocitem target="NeuralSpikeAnalysis_top.html" image="HelpIcon.FUNCTION" id="nstat_overview">Overview</tocitem>
+    <tocitem target="PaperOverview.html" image="HelpIcon.FUNCTION" id="nstat_paper_overview">Paper-Aligned Toolbox Map</tocitem>
     <tocitem target="DocumentationSetup2025b.html" image="HelpIcon.FUNCTION" id="nstat_2025b_setup">MATLAB 2025b Help Integration</tocitem>
 
     <tocitem target="ClassDefinitions.html" image="HelpIcon.FUNCTION" id="nstat_class_definitions">Class Definitions</tocitem>

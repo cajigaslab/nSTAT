@@ -1,9 +1,9 @@
 classdef CIF < handle
     %CIF - Conditional Intensity function. 
-    %<a href="matlab: methods('CIF')">methods</a>
+    %<a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Example</a>
     % 
     %Reference page in Help browser
-    %<a href="matlab: doc('CIF')">doc CIF</a>
+    %<a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Reference Workflow</a>
 
     
     %

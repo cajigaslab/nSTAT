@@ -1,18 +1,25 @@
 API Reference
-============
+=============
 
-.. code-block:: python
-
-   import nstat
-   print(nstat.__all__)
-
-Canonical modules include:
+Core modules:
 
 - ``nstat.signal``
 - ``nstat.spikes``
+- ``nstat.events``
+- ``nstat.history``
 - ``nstat.trial``
+- ``nstat.cif``
 - ``nstat.analysis``
 - ``nstat.fit``
-- ``nstat.cif``
 - ``nstat.decoding``
 - ``nstat.datasets``
+
+Compatibility adapters:
+
+- ``nstat.SignalObj``
+- ``nstat.nspikeTrain``
+- ``nstat.FitResult``
+- ``nstat.FitResSummary``
+- ``nstat.ConfigColl``
+- ``nstat.CovColl``
+- ``nstat.TrialConfig``

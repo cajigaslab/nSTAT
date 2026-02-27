@@ -26,11 +26,11 @@ classdef nspikeTrain < handle
 % <a href="matlab: methods('nspikeTrain')">methods</a>
 % <a href="matlab:nstatOpenHelpPage('nSpikeTrainExamples.html')">nSpikeTrain Examples</a> 
 %
-% see also <a href="matlab:help('Covariate')">Covariate</a>, <a 
-% href="matlab:help('SignalObj')">SignalObj</a>
+% see also <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate</a>, <a
+% href="matlab:nstatOpenHelpPage('SignalObjExamples.html')">SignalObj</a>
 % 
 % Reference page in Help browser
-% <a href="matlab: doc('nspikeTrain')">doc nspikeTrain</a>
+% <a href="matlab:nstatOpenHelpPage('nSpikeTrainExamples.html')">nspikeTrain Reference</a>
 
 
 %

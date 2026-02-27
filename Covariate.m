@@ -17,10 +17,10 @@ classdef Covariate < SignalObj
 % <a href="matlab: methods('Covariate')">methods</a>
 % <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate Examples</a> 
 %
-% see also <a href="matlab:help('SignalObj')">SignalObj</a>, <a href="matlab:help('CovColl')">CovColl</a>  
+% see also <a href="matlab:nstatOpenHelpPage('SignalObjExamples.html')">SignalObj</a>, <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl</a>  
 %
 % Reference page in Help browser
-% <a href="matlab: doc('Covariate')">doc Covariate</a>
+% <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate Reference</a>
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

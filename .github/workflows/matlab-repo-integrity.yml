@@ -1,0 +1,103 @@
+name: MATLAB Repo Integrity
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate MATLAB-only repository structure
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import sys
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          root = Path('.')
+          helpfiles = root / 'helpfiles'
+          toc_path = helpfiles / 'helptoc.xml'
+
+          errors: list[str] = []
+          warnings: list[str] = []
+
+          if not toc_path.exists():
+            errors.append(f"Missing required help TOC: {toc_path}")
+            topics = []
+          else:
+            tree = ET.parse(toc_path)
+            toc = tree.getroot()
+            examples_node = None
+            for item in toc.iter('tocitem'):
+              if item.attrib.get('id') == 'nstat_examples':
+                examples_node = item
+                break
+            if examples_node is None:
+              errors.append('Could not find examples node id="nstat_examples" in helptoc.xml')
+              topics = []
+            else:
+              topics = [Path(item.attrib.get('target', '')).stem for item in examples_node.findall('tocitem') if item.attrib.get('target')]
+
+          missing_m = [stem for stem in topics if not (helpfiles / f'{stem}.m').exists()]
+          missing_mlx = [stem for stem in topics if not (helpfiles / f'{stem}.mlx').exists()]
+          mlx_total = len(list(helpfiles.glob('*.mlx'))) if helpfiles.exists() else 0
+
+          if missing_m:
+            errors.append(f"Missing MATLAB .m example scripts for TOC example topics: {missing_m}")
+          if mlx_total == 0:
+            errors.append('No .mlx files found in helpfiles/; expected MATLAB live examples to be retained.')
+          if missing_mlx:
+            errors.append(f"Missing .mlx for TOC example topics ({len(missing_mlx)}): {missing_mlx}")
+
+          if (root / 'python').exists():
+            errors.append('Unexpected python/ subtree present in MATLAB-only repository.')
+          if (root / '.github' / 'workflows' / 'python-ci.yml').exists():
+            errors.append('Unexpected Python CI workflow present in MATLAB-only repository.')
+          if (root / '.github' / 'workflows' / 'matlab-parity-gate.yml').exists():
+            errors.append('Unexpected MATLAB parity gate workflow present in MATLAB-only repository.')
+
+          payload = {
+            'toc_exists': toc_path.exists(),
+            'example_topic_count': len(topics),
+            'helpfiles_m_count': len(list(helpfiles.glob('*.m'))) if helpfiles.exists() else 0,
+            'helpfiles_mlx_count': mlx_total,
+            'missing_example_m': missing_m,
+            'missing_example_mlx': missing_mlx,
+            'warnings': warnings,
+            'errors': errors,
+            'pass': len(errors) == 0,
+          }
+
+          out = root / 'matlab_repo_integrity.json'
+          out.write_text(json.dumps(payload, indent=2), encoding='utf-8')
+          print(json.dumps(payload, indent=2))
+
+          for w in warnings:
+            print(f"::warning::{w}")
+          for e in errors:
+            print(f"::error::{e}")
+
+          sys.exit(0 if not errors else 1)
+          PY
+
+      - name: Upload integrity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matlab-repo-integrity
+          path: matlab_repo_integrity.json

@@ -17,6 +17,26 @@ Lab websites:
 - Neuroscience Statistics Research Laboratory: https://www.neurostat.mit.edu
 - RESToRe Lab: https://www.med.upenn.edu/cajigaslab/
 
+How to install nSTAT
+--------------------
+
+1. Clone this repository and open MATLAB.
+2. Change directory to the repository root (the folder containing `nSTAT_Install.m`).
+3. Run the installer:
+
+```matlab
+nSTAT_Install
+```
+
+Optional installer flags:
+
+```matlab
+nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false)
+```
+
+- `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
+- `CleanUserPathPrefs` removes stale user MATLAB path entries.
+
 Rendered help documentation (GitHub Pages):
 - https://cajigaslab.github.io/nSTAT/
 

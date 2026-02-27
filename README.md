@@ -28,15 +28,12 @@ You can download the example data file from the paper at: https://doi.org/10.608
 Python port
 -----------
 
-This repository now includes a standalone Python version in `python/`.
+The standalone Python port now lives in a separate repository:
 
-Quick start:
+- https://github.com/cajigaslab/nSTAT-python
 
-```bash
-cd python
-python3 -m pip install -e .
-python3 examples/nstat_paper_examples.py --repo-root ..
-```
+This `nSTAT` repository is MATLAB-focused and retains:
 
-The Python paper example script is the equivalent workflow to `helpfiles/nSTATPaperExamples.m` (starting from Experiment 2) and uses local files from `data/`.
-By default it writes plots to `python/plots/nstat_paper_examples/`. Use `--no-plots` for a metrics-only run.
+- Original MATLAB class/source files
+- MATLAB helpfiles and help index (`helpfiles/helptoc.xml`)
+- MATLAB example workflows, including `.mlx` examples

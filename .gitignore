@@ -2,7 +2,3 @@
 .svn
 __pycache__/
 *.pyc
-python/plots/
-
-python/docs/_build/
-python/reports/parity_block*.json

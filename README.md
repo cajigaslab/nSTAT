@@ -17,6 +17,9 @@ Lab websites:
 - Neuroscience Statistics Research Laboratory: https://www.neurostat.mit.edu
 - RESToRe Lab: https://www.med.upenn.edu/cajigaslab/
 
+Rendered help documentation (GitHub Pages):
+- https://cajigaslab.github.io/nSTAT/
+
 For mathematical and programmatic details of the toolbox, see:
 
 Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train analysis toolbox for Matlab. Journal of Neuroscience Methods 211: 245–264, Nov. 2012

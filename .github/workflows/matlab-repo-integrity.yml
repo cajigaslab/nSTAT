@@ -62,7 +62,7 @@ jobs:
           if mlx_total == 0:
             errors.append('No .mlx files found in helpfiles/; expected MATLAB live examples to be retained.')
           if missing_mlx:
-            warnings.append(f"Missing .mlx for some TOC example topics ({len(missing_mlx)}): {missing_mlx}")
+            errors.append(f"Missing .mlx for TOC example topics ({len(missing_mlx)}): {missing_mlx}")
 
           if (root / 'python').exists():
             errors.append('Unexpected python/ subtree present in MATLAB-only repository.')

@@ -37,6 +37,7 @@
       <tocitem target="nSTATPaperExamples.html" id="nstat_paper_examples">nSTAT Paper Examples</tocitem>
     </tocitem>
 
-    <tocitem target="https://neurostat.mit.edu" image="HelpIcon.WEB_SITE" id="nstat_lab_website">Neuroscience Statistics Research Laboratory</tocitem>
+    <tocitem target="https://www.neurostat.mit.edu" image="HelpIcon.WEB_SITE" id="nstat_lab_website">Neuroscience Statistics Research Laboratory</tocitem>
+    <tocitem target="https://www.med.upenn.edu/cajigaslab/" image="HelpIcon.WEB_SITE" id="restore_lab_website">RESToRe Lab</tocitem>
   </tocitem>
 </toc>

@@ -134,3 +134,16 @@ Recent local baseline on this machine (MATLAB R2025b, no figure windows, softwar
 
 - `.github/workflows/python-ci.yml` runs docs, notebook verification, offline standalone checks, and `pytest`.
 - `.github/workflows/matlab-parity-gate.yml` runs MATLAB/Python parity gate on self-hosted macOS runners with MATLAB installed.
+
+## Repo split inventory
+
+Snapshot MATLAB/Python help and example coverage before splitting `nSTAT` and `nSTAT-python`:
+
+```bash
+python3 python/tools/generate_repo_split_inventory.py
+```
+
+Outputs:
+- `python/reports/repo_split_inventory/summary.json`
+- `python/reports/repo_split_inventory/topic_coverage_matrix.json`
+- `python/reports/repo_split_inventory/split_readiness_gates.json`

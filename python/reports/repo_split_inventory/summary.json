@@ -1,0 +1,53 @@
+{
+  "generated_at_utc": "2026-02-27T03:24:36+00:00",
+  "repo_root": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local",
+  "toc_target_topics": 31,
+  "toc_example_topics": 25,
+  "matlab_files": {
+    "m": 34,
+    "mlx": 21,
+    "html": 35
+  },
+  "python_assets": {
+    "docs_topics_rst": 31,
+    "notebooks_ipynb": 32,
+    "example_scripts_py": 27
+  },
+  "coverage_counts": {
+    "toc_topics_with_python_docs": 31,
+    "toc_topics_with_python_notebooks": 29,
+    "toc_topics_with_python_example_scripts": 25,
+    "example_topics_full_python_coverage": 25,
+    "example_topics_with_matlab_mlx": 18
+  },
+  "example_topic_stems_from_toc": [
+    "AnalysisExamples",
+    "ConfigCollExamples",
+    "CovCollExamples",
+    "CovariateExamples",
+    "DecodingExample",
+    "DecodingExampleWithHist",
+    "EventsExamples",
+    "ExplicitStimulusWhiskerData",
+    "FitResSummaryExamples",
+    "FitResultExamples",
+    "HippocampalPlaceCellExample",
+    "HistoryExamples",
+    "NetworkTutorial",
+    "PPSimExample",
+    "PPThinning",
+    "PSTHEstimation",
+    "SignalObjExamples",
+    "StimulusDecode2D",
+    "TrialConfigExamples",
+    "TrialExamples",
+    "ValidationDataSet",
+    "mEPSCAnalysis",
+    "nSTATPaperExamples",
+    "nSpikeTrainExamples",
+    "nstCollExamples"
+  ],
+  "python_only_topic_stems_not_in_toc": [
+    "_common"
+  ]
+}

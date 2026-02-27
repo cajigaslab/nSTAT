@@ -4,6 +4,10 @@
 %
 % *Date*: 01/04/2012
 %
+% Force command echo off so published output does not include repeated
+% executed source lines.
+echo off;
+%
 % Paper reference:
 %
 % * Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train
@@ -952,6 +956,7 @@ view(gca,[90 -90]);
 
 
 %% Compare differences across trials 
+echo off;
 close all;
    minTime=0; maxTime = Tmax;
 % Generate the basis function so that the estimated effect can be plotted

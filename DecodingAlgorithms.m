@@ -5204,7 +5204,7 @@ pools=0;
             
             IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
             xkPerm = permute(xKDrawExp,[1 3 2]);
-            pools = matlabpool('size'); %number of parallel workers
+            pools = DecodingAlgorithms.getPoolSizeCompat(); %number of parallel workers
             if(pools==0)
                 if(strcmp(fitType,'poisson'))
                     for c=1:numCells
@@ -5632,7 +5632,7 @@ pools=0;
 
             IMc = zeros(nTerms,nTerms,Mc);
             % Emperically estimate the covariance of the score
-            pools = matlabpool('size'); %number of parallel workers 
+            pools = DecodingAlgorithms.getPoolSizeCompat(); %number of parallel workers 
             if(pools==0) % parallel toolbox is not enabled;
                 for c=1:Mc
                     x_K=xKDraw(:,:,c);
@@ -6946,7 +6946,7 @@ pools=0;
                     xKDrawExp(:,k,:)=repmat(x_K(:,k),[1 McExp])+(chol_m*z);
                 end
                 % Stimulus Coefficients
-                pool = matlabpool('size');
+                pool = DecodingAlgorithms.getPoolSizeCompat();
                 if(pool==0)
                     xkPerm = permute(xKDrawExp,[1 3 2]);
                     for c=1:numCells
@@ -7856,7 +7856,7 @@ pools=0;
             
             IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
             xkPerm = permute(xKDrawExp,[1 3 2]);
-            pools = matlabpool('size'); %number of parallel workers 
+            pools = DecodingAlgorithms.getPoolSizeCompat(); %number of parallel workers 
            if(strcmp(fitType,'poisson'))
                 for c=1:numCells
                     HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
@@ -8214,7 +8214,7 @@ pools=0;
 
             IMc = zeros(nTerms,nTerms,Mc);
             % Emperically estimate the covariance of the score
-            pools = matlabpool('size'); %number of parallel workers 
+            pools = DecodingAlgorithms.getPoolSizeCompat(); %number of parallel workers 
             if(pools==0) % parallel toolbox is not enabled;
                 for c=1:Mc
                     x_K=xKDraw(:,:,c);
@@ -9807,7 +9807,7 @@ pools=0;
                 end
                 
                                % Stimulus Coefficients
-                pool = matlabpool('size');
+                pool = DecodingAlgorithms.getPoolSizeCompat();
                 if(pool==0)
                     for c=1:numCells
                         converged=0;
@@ -10788,6 +10788,30 @@ pools=0;
 % %              muhat = muhat_new;
 %             end           
 %         end
+        function pools = getPoolSizeCompat()
+            % Return active parallel pool size in a release-compatible way.
+            pools = 0;
+
+            if exist('gcp', 'file') == 2
+                try
+                    poolObj = gcp('nocreate');
+                    if ~isempty(poolObj)
+                        pools = poolObj.NumWorkers;
+                    end
+                    return;
+                catch
+                    pools = 0;
+                end
+            end
+
+            if exist('matlabpool', 'file') == 2
+                try
+                    pools = matlabpool('size');
+                catch
+                    pools = 0;
+                end
+            end
+        end
     end
 end
 

@@ -13,8 +13,34 @@ if nargin < 1 || isempty(pageName)
         'Provide a help page name such as ''SignalObjExamples.html''.');
 end
 
+if isstring(pageName)
+    if isscalar(pageName)
+        pageName = char(pageName);
+    else
+        error('nstatOpenHelpPage:InvalidPageNameType', ...
+            'pageName must be a character vector or scalar string.');
+    end
+end
+
+if ~ischar(pageName)
+    error('nstatOpenHelpPage:InvalidPageNameType', ...
+        'pageName must be a character vector or scalar string.');
+end
+
+[~, ~, pageExt] = fileparts(pageName);
+if isempty(pageExt)
+    pageName = [pageName '.html'];
+end
+
 if nargin < 2
     openBrowser = true;
+end
+
+if isnumeric(openBrowser)
+    validateattributes(openBrowser, {'numeric'}, {'scalar'}, mfilename, 'openBrowser');
+    openBrowser = logical(openBrowser);
+else
+    validateattributes(openBrowser, {'logical'}, {'scalar'}, mfilename, 'openBrowser');
 end
 
 rootDir = fileparts(which('nSTAT_Install'));

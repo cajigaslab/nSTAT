@@ -34,6 +34,21 @@ classdef nspikeTrain < handle
 
 
 %
+%
+% Purpose:
+%   Represents one neuron's spike times and derived binned signal
+%   representation used throughout the toolbox.
+%
+% Syntax:
+%   nst = nspikeTrain(spikeTimes,name,binwidth,minTime,maxTime,...)
+%
+% Notes:
+%   - Binary representation depends on binwidth relative to spike spacing.
+%   - Resampling updates SignalObj representation while preserving spike-time
+%     semantics.
+%
+% Example:
+%   % See nSpikeTrainExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

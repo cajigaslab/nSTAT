@@ -10,6 +10,29 @@ classdef Analysis
 %
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('Analysis.html')">Analysis Reference</a>
+%
+% Purpose:
+%   Provides static workflows for fitting point-process GLMs and related
+%   models to Trial data, plus model comparison and lag-scan utilities.
+%
+% Key methods:
+%   - RunAnalysisForNeuron: fit one neuron across one/more TrialConfig.
+%   - RunAnalysisForAllNeurons: batch fit all neurons in a Trial.
+%   - computeHistLag: scan history window choices for model selection.
+%
+% Inputs/outputs:
+%   - Primary input is a Trial object and a ConfigColl object.
+%   - Outputs are FitResult/FitResSummary-compatible objects used by
+%     downstream diagnostics and plotting.
+%
+% Notes:
+%   - Methods assume Trial and ConfigColl are already time-aligned.
+%   - Numerical output depends on deterministic MATLAB linear algebra and
+%     optional RNG-dependent initialization in selected routines.
+%
+% Example:
+%   % See full runnable workflow in AnalysisExamples.m
+%   % <a href="matlab:nstatOpenHelpPage('AnalysisExamples.html')">Analysis Examples</a>
 
 %%
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

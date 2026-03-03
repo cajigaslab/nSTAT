@@ -21,6 +21,20 @@ classdef Trial <handle
 % <a href="matlab:nstatOpenHelpPage('TrialExamples.html')">Trial Reference</a>
 
 %
+%
+% Purpose:
+%   Combines spike trains, covariates, events, and history settings into a
+%   single analysis-ready container consumed by Analysis methods.
+%
+% Syntax:
+%   tObj = Trial(nspikeColl,covarColl,event,hist,ensCovHist,ensCovMask)
+%
+% Notes:
+%   - Trial has handle behavior; mutation affects shared references.
+%   - Training/validation windows and masks are tracked on the object.
+%
+% Example:
+%   % See TrialExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

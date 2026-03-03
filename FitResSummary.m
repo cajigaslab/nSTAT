@@ -12,6 +12,22 @@ classdef FitResSummary < handle
     
 
 %
+%
+% Purpose:
+%   Aggregates FitResult collections across neurons to compute population
+%   summaries, pairwise comparisons, and visualization-ready statistics.
+%
+% Inputs/outputs:
+%   - Input: FitResult arrays/cells produced by Analysis routines.
+%   - Output: summary object with coefficient/history comparisons and
+%     convenience plotting helpers.
+%
+% Notes:
+%   - Assumes consistent config ordering across neurons.
+%   - Missing terms are preserved as NaN so downstream code can branch.
+%
+% Example:
+%   % See FitResSummaryExamples.m for multi-neuron summaries.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

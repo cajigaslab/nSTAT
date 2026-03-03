@@ -4,6 +4,27 @@ classdef CIF < handle
     % 
     %Reference page in Help browser
     %<a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Reference Workflow</a>
+    %
+    % Purpose:
+    %   Encapsulates conditional intensity models used for simulation and
+    %   point-process decoding/fitting support.
+    %
+    % Key properties:
+    %   - b, varIn, stimVars: regression parameterization and labels.
+    %   - fitType: binomial/poisson link behavior.
+    %   - history/histCoeffs: optional self/ensemble history terms.
+    %
+    % Key methods:
+    %   - Constructor CIF(beta,Xnames,stimNames,fitType,...)
+    %   - evaluateConditionalIntensity / related derivative accessors.
+    %
+    % Notes:
+    %   - Symbolic derivatives are used by some filters and optimizers.
+    %   - Coefficient ordering must match varIn labels exactly.
+    %
+    % Example:
+    %   % See end-to-end usage in PPSimExample.m
+    %   % <a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Example</a>
 
     
     %

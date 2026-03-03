@@ -4,6 +4,24 @@ classdef ConfidenceInterval < SignalObj
 % <a href="matlab:nstatOpenHelpPage('ConfidenceIntervalOverview.html')">ConfidenceInterval Overview</a>
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('ConfidenceIntervalOverview.html')">ConfidenceInterval Reference</a>
+%
+% Purpose:
+%   Stores and plots lower/upper confidence bounds aligned to SignalObj
+%   time support.
+%
+% Syntax:
+%   ciObj = ConfidenceInterval(time,data,name,...)
+%
+% Key properties:
+%   - color: default plot color.
+%   - value: confidence mass (for example, 0.95).
+%
+% Notes:
+%   - Expected data format is Nx2 (low, high) over time.
+%   - Inherits all SignalObj accessors and resampling behavior.
+%
+% Example:
+%   % See confidence interval plotting usage in CovariateExamples.m
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

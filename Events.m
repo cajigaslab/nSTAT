@@ -19,6 +19,26 @@ classdef Events
 %
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('EventsExamples.html')">Events Reference</a>
+%
+% Purpose:
+%   Stores labeled event times and plotting metadata for trial-aligned
+%   visual annotations and epoch bookkeeping.
+%
+% Syntax:
+%   e = Events(eventTimes,eventLabels)
+%   e = Events(eventTimes,eventLabels,eventColor)
+%
+% Inputs:
+%   eventTimes  - numeric vector of event timestamps.
+%   eventLabels - cell array of labels, one per event time.
+%   eventColor  - MATLAB line color spec (default red).
+%
+% Notes:
+%   - eventTimes and eventLabels must have matching lengths.
+%   - Event overlays are intended for use with SignalObj/Trial plots.
+%
+% Example:
+%   % See EventsExamples.m.
 
 
 %

@@ -21,6 +21,24 @@ classdef Covariate < SignalObj
 %
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('CovariateExamples.html')">Covariate Reference</a>
+%
+% Purpose:
+%   Represents time-indexed covariates with optional normalization and
+%   summary statistics (mu/sigma) for model design matrices.
+%
+% Syntax:
+%   cov = Covariate(time,data,name,xlabelval,xunits,yunits,dataLabels,plotProps)
+%
+% Inputs/outputs:
+%   - Inputs follow SignalObj constructor semantics.
+%   - Output is a Covariate object with standard and zero-mean views.
+%
+% Notes:
+%   - Orientation is auto-detected from time length vs data dimensions.
+%   - Data labels should remain stable for TrialConfig selector matching.
+%
+% Example:
+%   % See CovariateExamples.m for construction and transformation.
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology

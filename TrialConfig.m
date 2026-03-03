@@ -15,6 +15,20 @@ classdef TrialConfig <handle
 % <a href="matlab:nstatOpenHelpPage('TrialConfigExamples.html')">TrialConfig Reference</a>
 
 %
+%
+% Purpose:
+%   Describes one model configuration: covariate selectors, sample rate,
+%   history settings, and optional lag/ensemble masks.
+%
+% Syntax:
+%   tcObj = TrialConfig(covMask,sampleRate,history,ensCovHist,ensCovMask,covLag,name)
+%
+% Notes:
+%   - Used inside ConfigColl to define a model family for Analysis.
+%   - Selector labels must match CovColl/nstColl labeling conventions.
+%
+% Example:
+%   % See TrialConfigExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

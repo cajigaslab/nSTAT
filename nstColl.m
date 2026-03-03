@@ -13,6 +13,20 @@ classdef nstColl < handle
 % <a href="matlab:nstatOpenHelpPage('nstCollExamples.html')">nstColl Reference</a>
 
 %
+%
+% Purpose:
+%   Container for multiple nspikeTrain objects with shared time support,
+%   masks, and neighbor metadata for multi-neuron analysis.
+%
+% Syntax:
+%   nstCollObj = nstColl(nst)
+%
+% Notes:
+%   - Supports neuron masking and aggregation for Trial/Analysis workflows.
+%   - Neighbor structures are used by ensemble-history feature generation.
+%
+% Example:
+%   % See nstCollExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

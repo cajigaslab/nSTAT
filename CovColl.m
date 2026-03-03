@@ -16,6 +16,27 @@ classdef CovColl <handle
 %
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('CovCollExamples.html')">CovColl Reference</a>
+%
+% Purpose:
+%   Maintains a synchronized collection of Covariate signals so masking,
+%   shifts, and resampling can be applied consistently.
+%
+% Syntax:
+%   ccObj = CovColl(cov,varargin)
+%
+% Inputs:
+%   cov      - Covariate object, cell array of Covariate, or empty.
+%   varargin - Additional Covariate/cell inputs appended to the collection.
+%
+% Outputs:
+%   ccObj - CovColl object containing covariate metadata and selectors.
+%
+% Notes:
+%   - getCov returns copies with current masks/shifts applied.
+%   - Assumes all covariates can be aligned onto a shared time support.
+%
+% Example:
+%   % See CovCollExamples.m for mask and selector usage.
 % 
 
 %

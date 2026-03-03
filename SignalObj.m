@@ -58,6 +58,25 @@ classdef SignalObj < handle
     
 
 %
+%
+% Purpose:
+%   Base signal abstraction for nSTAT. Represents time-indexed univariate or
+%   multivariate data with plotting, masking, and resampling support.
+%
+% Syntax:
+%   s = SignalObj(time,data,name,xlabelval,xunits,yunits,dataLabels,plotProps)
+%
+% Inputs/outputs:
+%   - Inputs define sampling support and signal values.
+%   - Output is a SignalObj used directly or via subclasses.
+%
+% Notes:
+%   - Time and data orientation are auto-resolved from matching dimensions.
+%   - Many toolbox classes (Covariate, nspikeTrain, ConfidenceInterval)
+%     delegate storage/plot semantics to SignalObj.
+%
+% Example:
+%   % See SignalObjExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

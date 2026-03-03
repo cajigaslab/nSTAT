@@ -8,6 +8,27 @@ classdef DecodingAlgorithms
 % <a href="matlab:nstatOpenHelpPage('DecodingExample.html')">Decoding Algorithms Reference</a>
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('DecodingExample.html')">Decoding Algorithms Examples</a>
+%
+% Purpose:
+%   Provides static decoding routines for linear-Gaussian and point-process
+%   observation models, including filter, smoother, and EM-style updates.
+%
+% Key methods:
+%   - PPDecodeFilter / PPDecodeFilterLinear
+%   - GausLatent / hybrid state-space decoding variants
+%   - Parameter update helpers used by tutorial and paper workflows
+%
+% Inputs/outputs:
+%   - Inputs are state dynamics (A,Q,...) plus spike/count observations.
+%   - Outputs are predicted/updated state estimates and covariance terms.
+%
+% Notes:
+%   - Several methods assume column-major state vectors and matched sample
+%     periods between latent and observation processes.
+%   - Optional parallel sections are guarded to preserve serial behavior.
+%
+% Example:
+%   % See DecodingExample.m and DecodingExampleWithHist.m.
 
 
 %

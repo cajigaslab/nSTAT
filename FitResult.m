@@ -12,6 +12,23 @@ classdef FitResult < handle
 
 
 %
+%
+% Purpose:
+%   Stores model fit outputs for one neuron across one or more analysis
+%   configurations, including diagnostics and derived signals.
+%
+% Key properties:
+%   - b/dev/stats: regression outputs per configuration.
+%   - lambda/cifObj: fitted intensity representations.
+%   - ks, residual, CI diagnostics for goodness-of-fit workflows.
+%
+% Notes:
+%   - Configuration order matches the originating ConfigColl order.
+%   - Plot methods assume contained results were generated on aligned time
+%     supports.
+%
+% Example:
+%   % See FitResultExamples.m for plotting and diagnostics.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

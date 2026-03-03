@@ -9,6 +9,26 @@ classdef ConfigColl < handle
 %
 % Reference page in Help browser
 % <a href="matlab:nstatOpenHelpPage('ConfigCollExamples.html')">ConfigColl Reference</a>
+%
+% Purpose:
+%   Container for one or more TrialConfig objects used by Analysis fitting
+%   routines.
+%
+% Syntax:
+%   tcColl = ConfigColl(tcObj)
+%
+% Inputs:
+%   tcObj - TrialConfig, cell array of TrialConfig, names, or empty.
+%
+% Outputs:
+%   tcColl - ConfigColl object with ordered configArray/configNames.
+%
+% Notes:
+%   - Ordering is preserved and maps directly to FitResult outputs.
+%   - Empty placeholders are supported for progressive configuration.
+%
+% Example:
+%   % See ConfigCollExamples.m for construction patterns.
     
 
 %

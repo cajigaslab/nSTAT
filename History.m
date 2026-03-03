@@ -16,6 +16,23 @@ classdef History <handle
 
 
 %
+%
+% Purpose:
+%   Defines history windows used to construct self-history or ensemble
+%   history covariates for point-process models.
+%
+% Syntax:
+%   histObj = History(windowTimes)
+%
+% Inputs:
+%   windowTimes - monotonic vector; N points define N-1 windows.
+%
+% Notes:
+%   - Window boundaries are interpreted in trial time units.
+%   - Used by Trial/TrialConfig and Analysis history lag routines.
+%
+% Example:
+%   % See HistoryExamples.m.
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
 % Cajigas, I, Malik, WQ, Brown, EN
 % This program is free software; you can redistribute it and/or 

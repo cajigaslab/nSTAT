@@ -1,0 +1,588 @@
+{
+  "meta": {
+    "timestamp": "2026-03-05T13:21:18-05:00",
+    "rootDir": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local",
+    "seed": 0,
+    "style": "legacy",
+    "mlxPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/helpfiles/nSTATPaperExamples.mlx",
+    "mPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/helpfiles/nSTATPaperExamples.m",
+    "liveScriptDurationSec": 248.571779875,
+    "publishHtmlPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/fixtures/published_help/nSTATPaperExamples_legacy.html",
+    "mScriptDurationSec": 141.91717616666668
+  },
+  "numeric": {
+    "dimensionChecks": [
+      {
+        "name": "MU_est",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002
+      },
+      {
+        "name": "MU_estAll",
+        "class": "double",
+        "size": [
+          2,
+          2001,
+          20
+        ],
+        "numel": 80040
+      },
+      {
+        "name": "MU_estNT",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002
+      },
+      {
+        "name": "MU_estNTAll",
+        "class": "double",
+        "size": [
+          2,
+          2001,
+          20
+        ],
+        "numel": 80040
+      },
+      {
+        "name": "Mu0",
+        "class": "double",
+        "size": [
+          2,
+          1
+        ],
+        "numel": 2
+      },
+      {
+        "name": "MuCoeffs",
+        "class": "double",
+        "size": [
+          40,
+          1
+        ],
+        "numel": 40
+      },
+      {
+        "name": "R",
+        "class": "double",
+        "size": [
+          2,
+          2
+        ],
+        "numel": 4
+      },
+      {
+        "name": "S_est",
+        "class": "double",
+        "size": [
+          1,
+          2001
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "S_estAll",
+        "class": "double",
+        "size": [
+          20,
+          2001
+        ],
+        "numel": 40020
+      },
+      {
+        "name": "S_estNT",
+        "class": "double",
+        "size": [
+          1,
+          2001
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "S_estNTAll",
+        "class": "double",
+        "size": [
+          20,
+          2001
+        ],
+        "numel": 40020
+      },
+      {
+        "name": "Tmax",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "W_est",
+        "class": "double",
+        "size": [
+          6,
+          6,
+          2001
+        ],
+        "numel": 72036
+      },
+      {
+        "name": "W_estNT",
+        "class": "double",
+        "size": [
+          6,
+          6,
+          2001
+        ],
+        "numel": 72036
+      },
+      {
+        "name": "X",
+        "class": "double",
+        "size": [
+          6,
+          2001
+        ],
+        "numel": 12006
+      },
+      {
+        "name": "X_est",
+        "class": "double",
+        "size": [
+          6,
+          2001
+        ],
+        "numel": 12006
+      },
+      {
+        "name": "X_estAll",
+        "class": "double",
+        "size": [
+          6,
+          2001,
+          20
+        ],
+        "numel": 240120
+      },
+      {
+        "name": "X_estNT",
+        "class": "double",
+        "size": [
+          6,
+          2001
+        ],
+        "numel": 12006
+      },
+      {
+        "name": "X_estNTAll",
+        "class": "double",
+        "size": [
+          6,
+          2001,
+          20
+        ],
+        "numel": 240120
+      },
+      {
+        "name": "coeffs",
+        "class": "double",
+        "size": [
+          40,
+          7
+        ],
+        "numel": 280
+      },
+      {
+        "name": "covVal",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "dN",
+        "class": "double",
+        "size": [
+          2001,
+          40
+        ],
+        "numel": 80040
+      },
+      {
+        "name": "dataMat",
+        "class": "double",
+        "size": [
+          2001,
+          7
+        ],
+        "numel": 14007
+      },
+      {
+        "name": "delta",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "i",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "lambdaData",
+        "class": "double",
+        "size": [
+          2001,
+          1
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "mXestAll",
+        "class": "double",
+        "size": [
+          6,
+          2001
+        ],
+        "numel": 12006
+      },
+      {
+        "name": "mXestNTAll",
+        "class": "double",
+        "size": [
+          6,
+          2001
+        ],
+        "numel": 12006
+      },
+      {
+        "name": "maxTimeRes",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "meanMu",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "minCovVal",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "movingInd",
+        "class": "double",
+        "size": [
+          1,
+          1063
+        ],
+        "numel": 1063
+      },
+      {
+        "name": "mstate",
+        "class": "double",
+        "size": [
+          1,
+          2001
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "n",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "nonMovingInd",
+        "class": "double",
+        "size": [
+          1,
+          938
+        ],
+        "numel": 938
+      },
+      {
+        "name": "numCells",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "numExamples",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "pNGivenS",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002
+      },
+      {
+        "name": "pNGivenSNT",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002
+      },
+      {
+        "name": "p_ij",
+        "class": "double",
+        "size": [
+          2,
+          2
+        ],
+        "numel": 4
+      },
+      {
+        "name": "pos",
+        "class": "double",
+        "size": [
+          1,
+          4
+        ],
+        "numel": 4
+      },
+      {
+        "name": "scrsz",
+        "class": "double",
+        "size": [
+          1,
+          4
+        ],
+        "numel": 4
+      },
+      {
+        "name": "st",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1
+      },
+      {
+        "name": "tempData",
+        "class": "double",
+        "size": [
+          2001,
+          1
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "time",
+        "class": "double",
+        "size": [
+          1,
+          2001
+        ],
+        "numel": 2001
+      },
+      {
+        "name": "v",
+        "class": "double",
+        "size": [
+          1,
+          4
+        ],
+        "numel": 4
+      },
+      {
+        "name": "varNV",
+        "class": "double",
+        "size": [
+          6,
+          6
+        ],
+        "numel": 36
+      }
+    ],
+    "keyMetrics": [
+      {
+        "name": "MU_est",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002,
+        "min": 0.00020130628317034592,
+        "max": 0.99979869371682961,
+        "mean": 0.50000000000000011,
+        "std": 0.35095852382366283,
+        "l1norm": 2001.0000000000005,
+        "hash": "216fc29c77632ef130da593f0d03a30d"
+      },
+      {
+        "name": "MU_estAll",
+        "class": "double",
+        "size": [
+          2,
+          2001,
+          20
+        ],
+        "numel": 80040,
+        "min": 3.1312592938318757E-6,
+        "max": 0.99999686874070626,
+        "mean": 0.49999999999999972,
+        "std": 0.35592060251503554,
+        "l1norm": 40019.999999999978,
+        "hash": "a271da0c5be1d835817eb061e3e35f40"
+      },
+      {
+        "name": "MU_estNT",
+        "class": "double",
+        "size": [
+          2,
+          2001
+        ],
+        "numel": 4002,
+        "min": 3.6499960687243622E-6,
+        "max": 0.99999635000393128,
+        "mean": 0.49999999999999983,
+        "std": 0.31604556845706139,
+        "l1norm": 2000.9999999999993,
+        "hash": "cc247c85fd5371616b3049a01106b287"
+      },
+      {
+        "name": "MU_estNTAll",
+        "class": "double",
+        "size": [
+          2,
+          2001,
+          20
+        ],
+        "numel": 80040,
+        "min": 2.05075227591523E-8,
+        "max": 0.99999997949247732,
+        "mean": 0.50000000000000033,
+        "std": 0.317796329180152,
+        "l1norm": 40020.000000000029,
+        "hash": "6c1f409aa2209e0e161ca5476c82c727"
+      },
+      {
+        "name": "Mu0",
+        "class": "double",
+        "size": [
+          2,
+          1
+        ],
+        "numel": 2,
+        "min": 0.5,
+        "max": 0.5,
+        "mean": 0.5,
+        "std": 0,
+        "l1norm": 1,
+        "hash": "a5841ccc1ba2a5c29d39318071593434"
+      },
+      {
+        "name": "MuCoeffs",
+        "class": "double",
+        "size": [
+          40,
+          1
+        ],
+        "numel": 40,
+        "min": -6.1235973742875247,
+        "max": -2.60864371892351,
+        "mean": -4.6233738115800556,
+        "std": 0.901885265902101,
+        "l1norm": 184.93495246320222,
+        "hash": "c9cbecea5206169d0274e08a1fc81b5e"
+      },
+      {
+        "name": "coeffs",
+        "class": "double",
+        "size": [
+          40,
+          7
+        ],
+        "numel": 280,
+        "min": -6.1235973742875247,
+        "max": 4.9303157654222609,
+        "mean": -0.71412268061825468,
+        "std": 2.1450184894243089,
+        "l1norm": 357.51311473448072,
+        "hash": "6c6924c915090dbd2791b2d755bb9da3"
+      },
+      {
+        "name": "lambdaData",
+        "class": "double",
+        "size": [
+          2001,
+          1
+        ],
+        "numel": 2001,
+        "min": 0.0071901056111559431,
+        "max": 0.070015296435116281,
+        "mean": 0.013851425269141973,
+        "std": 0.0138180207460302,
+        "l1norm": 27.716701963553088,
+        "hash": "b0d516b85f369f6ea70f879ea14fc91d"
+      },
+      {
+        "name": "meanMu",
+        "class": "double",
+        "size": [
+          1,
+          1
+        ],
+        "numel": 1,
+        "min": -4.6051701859880909,
+        "max": -4.6051701859880909,
+        "mean": -4.6051701859880909,
+        "std": 0,
+        "l1norm": 4.6051701859880909,
+        "hash": "ee2a228aacf10d952219375b3fe0f0cb"
+      }
+    ],
+    "objectMetrics": [],
+    "numericVarCount": 47,
+    "keyMetricCount": 9
+  }
+}

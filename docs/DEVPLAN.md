@@ -76,6 +76,14 @@ Policy:
 - Always compare **structure** (figure/axes/traces/labels/legend metadata).
 - Optional pixel parity for `legacy` style only (determinism-dependent).
 
+## Plot Style Toggle
+- Global preference API (PR1):
+  - `nstat.setPlotStyle('modern')` (default)
+  - `nstat.setPlotStyle('legacy')`
+  - `nstat.getPlotStyle`
+- Plotting methods call `nstat.applyPlotStyle` and preserve legacy behavior
+  when style is set to `legacy`.
+
 ## Fixture Update Policy
 - Fixtures are versioned and treated as protected golden artifacts.
 - Update fixtures only when:

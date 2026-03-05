@@ -2044,6 +2044,12 @@ classdef SignalObj < handle
             end
 
                 sObj.setupPlots(handle,sArray);
+                if exist('nstat.applyPlotStyle', 'file') == 2
+                    try
+                        nstat.applyPlotStyle(handle);
+                    catch
+                    end
+                end
         end        
         function setupPlots(sObj,handle,sArray)
             %setupPlots(sObj,sArray)

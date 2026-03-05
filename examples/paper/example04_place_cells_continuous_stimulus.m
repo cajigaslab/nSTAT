@@ -7,7 +7,7 @@ function result = example04_place_cells_continuous_stimulus(varargin)
 %   3) Population-level model comparison using KS, AIC, and BIC summaries.
 %
 % Inputs/data provenance:
-%   Uses bundled place-cell datasets and precomputed model fits:
+%   Uses installer-downloaded place-cell datasets and precomputed model fits:
 %   - data/Place Cells/PlaceCellDataAnimal1.mat
 %   - data/Place Cells/PlaceCellDataAnimal2.mat
 %   - data/PlaceCellAnimal1Results.mat

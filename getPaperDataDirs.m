@@ -55,9 +55,12 @@ explicitStimulusDir = fullfile(dataDir,'Explicit Stimulus');
 psthDir = fullfile(dataDir,'PSTH');
 placeCellDataDir = fullfile(dataDir,'Place Cells');
 
-if exist(dataDir,'dir') ~= 7
+info = nSTAT_ExampleDataInfo(nSTATDir);
+if exist(dataDir,'dir') ~= 7 || ~info.isInstalled
     error('getPaperDataDirs:MissingDataDir', ...
-        'Could not find local nSTAT data folder at %s', dataDir);
+        ['Could not find the installed nSTAT example data package at %s. ', ...
+         'Run nSTAT_Install(''DownloadExampleData'',true) to download and install it.'], ...
+        dataDir);
 end
 end
 

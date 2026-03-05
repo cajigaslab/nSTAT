@@ -8,7 +8,7 @@ function result = example01_mepsc_poisson(varargin)
 %      estimated conditional intensity functions.
 %
 % Inputs/data provenance:
-%   Uses bundled nSTAT data from `data/mEPSCs`:
+%   Uses installer-downloaded nSTAT example data from `data/mEPSCs`:
 %   - epsc2.txt
 %   - washout1.txt
 %   - washout2.txt

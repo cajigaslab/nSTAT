@@ -8,7 +8,7 @@ function result = example02_whisker_stimulus_thalamus(varargin)
 %      models using KS statistics, AIC, and BIC.
 %
 % Inputs/data provenance:
-%   Uses bundled external-stimulus recordings from:
+%   Uses installer-downloaded external-stimulus recordings from:
 %   data/Explicit Stimulus/Dir3/Neuron1/Stim2/trngdataBis.mat
 %
 % Expected outputs:

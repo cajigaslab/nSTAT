@@ -8,8 +8,8 @@ function result = example03_psth_and_ssglm(varargin)
 %
 % Inputs/data provenance:
 %   - Simulated CIF data generated in-script (deterministic via RNG seed).
-%   - Bundled experimental PSTH dataset: data/PSTH/Results.mat.
-%   - Bundled SSGLM reference fit: data/SSGLMExampleData.mat.
+%   - Installer-downloaded PSTH dataset: data/PSTH/Results.mat.
+%   - Installer-downloaded SSGLM reference fit: data/SSGLMExampleData.mat.
 %
 % Expected outputs:
 %   - Figure 1: Simulated CIF + simulated/real raster examples.

@@ -7,3 +7,11 @@ python/plots/
 python/docs/_build/
 python/.pytest_cache/
 test-results/
+data/*
+!data/.gitignore
+!data/README.md
+PlaceCellAnimal1Results.mat
+PlaceCellAnimal2Results.mat
+helpfiles/PlaceCellAnimal1Results.mat
+helpfiles/PlaceCellAnimal2Results.mat
+helpfiles/SSGLMExampleData.mat

@@ -21,6 +21,7 @@ From a fresh clone (MATLAB R2025b):
 ```matlab
 cd('/path/to/nSTAT')
 addpath(genpath(pwd));
+nSTAT_Install('DownloadExampleData',true);
 build_paper_examples;
 ```
 
@@ -33,13 +34,16 @@ Outputs:
 - RNG is fixed with `rng(0,'twister')` in each standalone example.
 - Figures are exported with fixed dimensions and DPI via
   `nstat.docs.exportFigure`.
-- Example data is vendored in `data/` and `helpfiles/`:
-  - `data/mEPSCs`
-  - `data/Explicit Stimulus`
-  - `data/PSTH`
-  - `data/Place Cells`
-  - `data/SSGLMExampleData.mat`
-  - `helpfiles/paperHybridFilterExample.mat`
+- The paper-example dataset is not versioned in Git.
+- `nSTAT_Install` can prompt to download the figshare archive into `data/`.
+- Noninteractive install:
+
+```matlab
+nSTAT_Install('DownloadExampleData',true)
+```
+
+- Dataset DOI: [10.6084/m9.figshare.4834640.v3](https://doi.org/10.6084/m9.figshare.4834640.v3)
+- Paper DOI: [10.1016/j.jneumeth.2012.08.009](https://doi.org/10.1016/j.jneumeth.2012.08.009)
 - No publication PDF images are copied into this repository.
 
 ## Example Index

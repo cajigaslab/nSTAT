@@ -28,14 +28,24 @@ How to install nSTAT
 nSTAT_Install
 ```
 
+When the paper-example dataset is not present, the installer now prompts to
+download it from figshare into the repository `data/` folder.
+
+Noninteractive install:
+
+```matlab
+nSTAT_Install('DownloadExampleData',true)
+```
+
 Optional installer flags:
 
 ```matlab
-nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false)
+nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false, 'DownloadExampleData', 'prompt')
 ```
 
 - `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
 - `CleanUserPathPrefs` removes stale user MATLAB path entries.
+- `DownloadExampleData` accepts `true`/`'always'`, `false`/`'never'`, or `'prompt'`.
 
 Quickstart (MATLAB 2025b):
 
@@ -115,7 +125,9 @@ If you use nSTAT in your work, please remember to cite the above paper in any pu
 nSTAT is protected by the GPL v2 Open Source License.
 
 The code repository for nSTAT is hosted on GitHub at https://github.com/cajigaslab/nSTAT.
-You can download the example data file from the paper at: https://doi.org/10.6084/m9.figshare.4834640
+The paper-example dataset is distributed separately from the Git repository:
+- Figshare dataset DOI: https://doi.org/10.6084/m9.figshare.4834640.v3
+- Paper DOI: https://doi.org/10.1016/j.jneumeth.2012.08.009
 
 Python port
 -----------

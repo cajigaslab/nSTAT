@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-11-20"><meta name="DC.source" content="ExplicitStimulusWhiskerData.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="ExplicitStimulusWhiskerData.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -23,7 +28,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -38,11 +43,12 @@ ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre, tt, code { font-size:12px; }
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.error { color:red; }
 pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
@@ -51,6 +57,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -65,12 +72,40 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</h1><!--introduction--><p>In the worksheet with analyze the stimulus effect and history effect on the firing of a thalamic neuron under a known stimulus consisting of whisker stimulation. Data from Demba Ba (<a href="mailto:demba@mit.edu">demba@mit.edu</a>)</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load the data</a></li><li><a href="#2">Fit a constant baseline and Find Stimulus Lag</a></li><li><a href="#3">Compare constant rate model with model including stimulus effect</a></li><li><a href="#4">History Effect</a></li><li><a href="#6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</a></li></ul></div><h2>Load the data<a name="1"></a></h2><pre class="codeinput">close <span class="string">all</span>; currdir = pwd;
-index = strfind(currdir,<span class="string">'helpfiles'</span>)-1;
-rootpath = currdir(1:index);
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</h1>
+<!--introduction-->
+<p>In the worksheet with analyze the stimulus effect and history effect on the firing of a thalamic neuron under a known stimulus consisting of whisker stimulation. Data from Demba Ba (<a href="mailto:demba@mit.edu">demba@mit.edu</a>)</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Load the data</a>
+</li>
+<li>
+<a href="#2">Fit a constant baseline and Find Stimulus Lag</a>
+</li>
+<li>
+<a href="#3">Compare constant rate model with model including stimulus effect</a>
+</li>
+<li>
+<a href="#4">History Effect</a>
+</li>
+<li>
+<a href="#6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Load the data</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+[~,~,explicitStimulusDir] = getPaperDataDirs();
 
 Direction=3; Neuron=1; Stim=2;
-datapath = fullfile(rootpath,<span class="string">'data'</span>,<span class="string">'Explicit Stimulus'</span>,strcat(<span class="string">'Dir'</span>, num2str(Direction)),<span class="keyword">...</span>
+datapath = fullfile(explicitStimulusDir,strcat(<span class="string">'Dir'</span>, num2str(Direction)),<span class="keyword">...</span>
     strcat(<span class="string">'Neuron'</span>, num2str(Neuron)), strcat(<span class="string">'Stim'</span>, num2str(Stim)));
 data=load(fullfile(datapath,<span class="string">'trngdataBis.mat'</span>));
 
@@ -94,7 +129,10 @@ nst2 = nspikeTrain(spikeTimes);
 nst2.setMaxTime(21);nst.plot;
 subplot(2,1,2);
 stim.getSigInTimeWindow(0,21).plot;
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_01.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_02.png" alt=""> <h2>Fit a constant baseline and Find Stimulus Lag<a name="2"></a></h2><p>We fit a constant rate (Poisson) model to the data and use the fit residual to determine the appropriate lag for the stimulus.</p><pre class="codeinput">clear <span class="string">c</span>;
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_01.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_02.png" alt=""> <h2 id="2">Fit a constant baseline and Find Stimulus Lag</h2>
+<p>We fit a constant rate (Poisson) model to the data and use the fit residual to determine the appropriate lag for the stimulus.</p>
+<pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
 c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,selfHist,NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
@@ -116,8 +154,12 @@ nst = nspikeTrain(spikeTimes);
 nspikeColl = nstColl(nst);
 cc = CovColl({stim,baseline});
 trial = Trial(nspikeColl,cc);
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2>Compare constant rate model with model including stimulus effect<a name="3"></a></h2><p>Addition of the stimulus improves the fits in terms of the KS plot and the making the rescaled ISIs less correlated. The Point Process Residula also looks more "white"</p><pre class="codeinput">clear <span class="string">c</span>;
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2 id="3">Compare constant rate model with model including stimulus effect</h2>
+<p>Addition of the stimulus improves the fits in terms of the KS plot and the making the rescaled ISIs less correlated. The Point Process Residula also looks more "white"</p>
+<pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
 c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,selfHist,<span class="keyword">...</span>
     NeighborHist);
@@ -128,9 +170,13 @@ c{2}.setName(<span class="string">'Baseline+Stimulus'</span>);
 cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
 results.plotResults;
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2>History Effect<a name="4"></a></h2><p>Determine the best history effect model using AIC, BIC, and KS statistic</p><pre class="codeinput">sampleRate=1000;
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="4">History Effect</h2>
+<p>Determine the best history effect model using AIC, BIC, and KS statistic</p>
+<pre class="codeinput">sampleRate=1000;
 delta=1/sampleRate*1;
 maxWindow=1; numWindows=30;
 windowTimes =unique(round([0 logspace(log10(delta),<span class="keyword">...</span>
@@ -161,7 +207,8 @@ clear <span class="string">c</span>;
     selfHist = [];
 <span class="keyword">end</span>
 NeighborHist = []; sampleRate = 1000;
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
 Analyzing Configuration #4: Neuron #1
@@ -194,7 +241,8 @@ windowIndex =
 
      8
 
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <pre class="codeinput">figure;
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <pre class="codeinput">figure;
 x=1:length(windowTimes);
 subplot(3,1,1); plot(x,results{1}.KSStats.ks_stat,<span class="string">'.'</span>); axis <span class="string">tight</span>; hold <span class="string">on</span>;
 plot(x(windowIndex),results{1}.KSStats.ks_stat(windowIndex),<span class="string">'r*'</span>);
@@ -222,7 +270,10 @@ set(gca,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLa
 <span class="keyword">if</span>(max(xticks)&gt;=1)
     xticklabel_rotate([],90,[],<span class="string">'Fontsize'</span>,8);
 <span class="keyword">end</span>
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <h2>Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus<a name="6"></a></h2><p>Addition of the history effect yields a model that falls within the 95% CI of the KS plot.</p><pre class="codeinput">c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <h2 id="6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
+<p>Addition of the history effect yields a model that falls within the 95% CI of the KS plot.</p>
+<pre class="codeinput">c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
 c{2} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>},{<span class="string">'Stimulus'</span>,<span class="string">'stim'</span>}},<span class="keyword">...</span>
                     sampleRate,[],[]);
@@ -233,10 +284,18 @@ c{3}.setName(<span class="string">'Baseline+Stimulus+Hist'</span>);
 cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
 results.plotResults;
-</pre><pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
-</pre><img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_09.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON
 % In the worksheet with analyze the stimulus effect and history effect on
@@ -245,12 +304,11 @@ Analyzing Configuration #3: Neuron #1
 % Data from Demba Ba (demba@mit.edu)
 
 %% Load the data
-close all; currdir = pwd;
-index = strfind(currdir,'helpfiles')-1;
-rootpath = currdir(1:index);
+close all;
+[~,~,explicitStimulusDir] = getPaperDataDirs();
 
 Direction=3; Neuron=1; Stim=2;
-datapath = fullfile(rootpath,'data','Explicit Stimulus',strcat('Dir', num2str(Direction)),...
+datapath = fullfile(explicitStimulusDir,strcat('Dir', num2str(Direction)),...
     strcat('Neuron', num2str(Neuron)), strcat('Stim', num2str(Stim)));
 data=load(fullfile(datapath,'trngdataBis.mat'));
 
@@ -400,4 +458,6 @@ results.plotResults;
 
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

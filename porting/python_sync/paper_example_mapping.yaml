@@ -1,0 +1,44 @@
+version: 1
+source_matlab: helpfiles/nSTATPaperExamples.m
+generated_on: 2026-02-27
+examples:
+  - matlab_section: "Experiment 1 - mEPSC constant/piecewise baseline"
+    matlab_anchor: "%% Experiment 1"
+    python_target: "python/nstat/paper_examples_full.py"
+    status: partial
+    notes: Core concepts are present; full parity for all sub-figures remains partial.
+  - matlab_section: "Experiment 2 - Explicit stimulus whisker data"
+    matlab_anchor: "%% Experiment 2"
+    python_target: "python/nstat/paper_examples.py"
+    status: mapped
+    notes: Primary stimulus-driven GLM workflow implemented.
+  - matlab_section: "Example 3 - PSTH Data"
+    matlab_anchor: "%% Example 3 - PSTH Data"
+    python_target: "python/nstat/paper_examples.py"
+    status: mapped
+    notes: PSTH workflow represented in Python examples.
+  - matlab_section: "Example 3b - SSGLM Example"
+    matlab_anchor: "%% Example 3b - SSGLM Example"
+    python_target: "python/nstat/paper_examples_full.py"
+    status: partial
+    notes: Structured approximation exists; additional model details may differ.
+  - matlab_section: "Example 4 - Hippocampal place cell"
+    matlab_anchor: "%% Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION"
+    python_target: "python/nstat/paper_examples_full.py"
+    status: partial
+    notes: Data loading and receptive-field-oriented workflow exist with reduced scope.
+  - matlab_section: "Example 5 - Stimulus decoding"
+    matlab_anchor: "%% Example 5 - STIMULUS DECODING"
+    python_target: "python/nstat/paper_examples.py"
+    status: mapped
+    notes: Univariate and bivariate decoding primitives are available.
+  - matlab_section: "Example 5b - Arm reaching simulation"
+    matlab_anchor: "%% Example 5b - Arm reaching to target Simulation"
+    python_target: "python/nstat/paper_examples_full.py"
+    status: partial
+    notes: Full simulation parity is still in progress.
+  - matlab_section: "Experiment 6 - Hybrid point process filter"
+    matlab_anchor: "%% Experiment 6 - Hybrid Point Process Filter Example"
+    python_target: "python/nstat/paper_examples_full.py"
+    status: partial
+    notes: Hybrid filtering support is available but not fully feature-matched.

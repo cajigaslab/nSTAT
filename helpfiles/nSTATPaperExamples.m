@@ -3,6 +3,22 @@
 % *Author*: Iahn Cajigas 
 %
 % *Date*: 01/04/2012
+%
+% Force command echo off so published output does not include repeated
+% executed source lines.
+echo off;
+%
+% Paper reference:
+%
+% * Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train
+%   analysis toolbox for Matlab. Journal of Neuroscience Methods 211:
+%   245-264 (2012).
+% * DOI: 10.1016/j.jneumeth.2012.08.009
+% * PMID: 22981419
+%
+% Navigation:
+%
+% * <PaperOverview.html Paper-Aligned Toolbox Map>
 
 
 %% Experiment 1
@@ -940,6 +956,7 @@ view(gca,[90 -90]);
 
 
 %% Compare differences across trials 
+echo off;
 close all;
    minTime=0; maxTime = Tmax;
 % Generate the basis function so that the estimated effect can be plotted

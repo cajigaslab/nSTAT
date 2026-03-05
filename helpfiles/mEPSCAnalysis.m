@@ -42,7 +42,8 @@
 % Under a constant Magnesium concentration, it is seen that the mEPSCs
 % behave as a homogeneous poisson process (constant arrival rate).
     close all;
-    epsc2 = importdata('epsc2.txt');
+    [~,mEPSCDir] = getPaperDataDirs();
+    epsc2 = importdata(fullfile(mEPSCDir,'epsc2.txt'));
     sampleRate = 1000;
     spikeTimes = epsc2.data(:,2)*1/sampleRate; %in seconds
     nst = nspikeTrain(spikeTimes);
@@ -79,8 +80,8 @@
  % piecewise constant rate model with history.
     
  % load the data;
-    washout1 = importdata('washout1.txt');
-    washout2 = importdata('washout2.txt');
+    washout1 = importdata(fullfile(mEPSCDir,'washout1.txt'));
+    washout2 = importdata(fullfile(mEPSCDir,'washout2.txt'));
     
     sampleRate  = 1000;
     % Magnesium removed at t=0

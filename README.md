@@ -12,12 +12,56 @@ Although created with neural signal processing in mind, nSTAT can be used as a g
 
 Like all open-source projects, nSTAT will benefit from your involvement, suggestions and contributions. This platform is intended as a repository for extensions to the toolbox based on your code contributions as well as for flagging and tracking open issues.
 
-The current release version of nSTAT can be downloaded from http://www.neurostat.mit.edu/nstat .
+The current release version of nSTAT can be downloaded from https://www.neurostat.mit.edu/nstat .
+Lab websites:
+- Neuroscience Statistics Research Laboratory: https://www.neurostat.mit.edu
+- RESToRe Lab: https://www.med.upenn.edu/cajigaslab/
+
+How to install nSTAT
+--------------------
+
+1. Clone this repository and open MATLAB.
+2. Change directory to the repository root (the folder containing `nSTAT_Install.m`).
+3. Run the installer:
+
+```matlab
+nSTAT_Install
+```
+
+Optional installer flags:
+
+```matlab
+nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false)
+```
+
+- `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
+- `CleanUserPathPrefs` removes stale user MATLAB path entries.
+
+Rendered help documentation (GitHub Pages):
+- https://cajigaslab.github.io/nSTAT/
 
 For mathematical and programmatic details of the toolbox, see:
 
 Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train analysis toolbox for Matlab. Journal of Neuroscience Methods 211: 245–264, Nov. 2012
 http://doi.org/10.1016/j.jneumeth.2012.08.009
+PMID: 22981419
+
+Paper-aligned toolbox map
+-------------------------
+
+To keep terminology and workflows consistent with the 2012 toolbox paper,
+the MATLAB help system includes a dedicated mapping page:
+
+- `helpfiles/PaperOverview.m` (published as `PaperOverview.html`)
+
+This page ties major toolbox components to the paper's workflow categories:
+
+- Class hierarchy and object model (`SignalObj`, `Covariate`, `Trial`,
+  `Analysis`, `FitResult`, `DecodingAlgorithms`)
+- Fitting and assessment workflow (GLM fitting, diagnostics, summaries)
+- Simulation workflow (conditional intensity and thinning examples)
+- Decoding workflow (univariate/bivariate and history-aware decoding)
+- Example-to-paper section mapping via `nSTATPaperExamples`
 
 If you use nSTAT in your work, please remember to cite the above paper in any publications.
 nSTAT is protected by the GPL v2 Open Source License.

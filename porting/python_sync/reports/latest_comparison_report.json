@@ -1,0 +1,32 @@
+{
+  "generated_on": "2026-02-27",
+  "inventory_files": {
+    "matlab": "porting/python_sync/matlab_api_inventory.json",
+    "python": "porting/python_sync/python_api_inventory.json",
+    "translation_map": "porting/python_sync/translation_map.yaml"
+  },
+  "counts": {
+    "matlab_public_api": 19,
+    "python_canonical_modules": 19,
+    "python_adapter_modules": 11,
+    "translation_entries": 19,
+    "missing_translation_entries": 0,
+    "missing_python_targets": 0,
+    "partial_entries": 1,
+    "not_applicable_entries": 1
+  },
+  "missing_translation_entries": [],
+  "missing_python_targets": [],
+  "partial_entries": [
+    {
+      "matlab": "getPaperDataDirs.m",
+      "notes": "Similar data-root resolution exists but not as standalone public API."
+    }
+  ],
+  "not_applicable_entries": [
+    {
+      "matlab": "nstatOpenHelpPage.m",
+      "notes": "MATLAB help-browser utility has no Python equivalent."
+    }
+  ]
+}

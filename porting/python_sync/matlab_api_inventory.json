@@ -1,0 +1,25 @@
+{
+  "generated_on": "2026-02-27",
+  "repo_root": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local",
+  "public_api": [
+    {"name": "Analysis", "kind": "class", "path": "Analysis.m"},
+    {"name": "CIF", "kind": "class", "path": "CIF.m"},
+    {"name": "ConfidenceInterval", "kind": "class", "path": "ConfidenceInterval.m"},
+    {"name": "ConfigColl", "kind": "class", "path": "ConfigColl.m"},
+    {"name": "CovColl", "kind": "class", "path": "CovColl.m"},
+    {"name": "Covariate", "kind": "class", "path": "Covariate.m"},
+    {"name": "DecodingAlgorithms", "kind": "class", "path": "DecodingAlgorithms.m"},
+    {"name": "Events", "kind": "class", "path": "Events.m"},
+    {"name": "FitResSummary", "kind": "class", "path": "FitResSummary.m"},
+    {"name": "FitResult", "kind": "class", "path": "FitResult.m"},
+    {"name": "History", "kind": "class", "path": "History.m"},
+    {"name": "SignalObj", "kind": "class", "path": "SignalObj.m"},
+    {"name": "Trial", "kind": "class", "path": "Trial.m"},
+    {"name": "TrialConfig", "kind": "class", "path": "TrialConfig.m"},
+    {"name": "nspikeTrain", "kind": "class", "path": "nspikeTrain.m"},
+    {"name": "nstColl", "kind": "class", "path": "nstColl.m"},
+    {"name": "getPaperDataDirs", "kind": "function", "path": "getPaperDataDirs.m"},
+    {"name": "nSTAT_Install", "kind": "function", "path": "nSTAT_Install.m"},
+    {"name": "nstatOpenHelpPage", "kind": "function", "path": "nstatOpenHelpPage.m"}
+  ]
+}

@@ -1,75 +1,112 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>FitResult</title><meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-02-09"><meta name="DC.source" content="FitResult.m"><style type="text/css">
+      -->
+<title>FitResult</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-02-27">
+<meta name="DC.source" content="FitResult.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
-body {
-  background-color: white;
-  margin:10px;
-}
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
 
-h1 {
-  color: #990000; 
-  font-size: x-large;
-}
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
 
-h2 {
-  color: #990000;
-  font-size: medium;
-}
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
 
-/* Make the text shrink to fit narrow windows, but not stretch too far in 
-wide windows. */ 
-p,h1,h2,div.content div {
-  max-width: 600px;
-  /* Hack for IE6 */
-  width: auto !important; width: 600px;
-}
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
-pre.codeinput {
-  background: #EEEEEE;
-  padding: 10px;
-}
-@media print {
-  pre.codeinput {word-wrap:break-word; width:100%;}
-} 
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
 
-span.keyword {color: #0000FF}
-span.comment {color: #228B22}
-span.string {color: #A020F0}
-span.untermstring {color: #B20000}
-span.syscmd {color: #B28C00}
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
 
-pre.codeoutput {
-  color: #666666;
-  padding: 10px;
-}
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
 
-pre.error {
-  color: red;
-}
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 
-p.footer {
-  text-align: right;
-  font-size: xx-small;
-  font-weight: lighter;
-  font-style: italic;
-  color: gray;
-}
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
-  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">classdef</span> FitResult &lt; handle
-    <span class="comment">% FITRESULT</span>
-    <span class="comment">% stores results of a fit using the Analysis object</span>
-    <span class="comment">% The results are for a single neuron over a range of configurations</span>
-    <span class="comment">% &lt;a href="FitResultExamples.html"&gt;FitResult Examples&lt;/a&gt;</span>
-    <span class="comment">% see also &lt;a href="Analysis.html"&gt;Analysis&lt;/a&gt;</span>
-    <span class="comment">% Reference page in Help browser</span>
-    <span class="comment">% &lt;a href="FitResult.html"&gt;FitResult Reference&lt;/a&gt;</span>
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<pre class="codeinput">
+<span class="keyword">classdef</span> FitResult &lt; handle
+<span class="comment">% FITRESULT</span>
+<span class="comment">% stores results of a fit using the Analysis object</span>
+<span class="comment">% The results are for a single neuron over a range of configurations</span>
+<span class="comment">%</span>
+<span class="comment">% &lt;a href="matlab:nstatOpenHelpPage('FitResultExamples.html')"&gt;FitResult Examples&lt;/a&gt;</span>
+<span class="comment">%</span>
+<span class="comment">% see also &lt;a href="matlab:nstatOpenHelpPage('Analysis.html')"&gt;Analysis&lt;/a&gt;</span>
+<span class="comment">%</span>
+<span class="comment">% Reference page in Help browser</span>
+<span class="comment">% &lt;a href="matlab:nstatOpenHelpPage('FitResult.html')"&gt;FitResult Reference&lt;/a&gt;</span>
+
+
+<span class="comment">%</span>
+<span class="comment">% nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology</span>
+<span class="comment">% Cajigas, I, Malik, WQ, Brown, EN</span>
+<span class="comment">% This program is free software; you can redistribute it and/or</span>
+<span class="comment">% modify it under the terms of the GNU General Public License as published</span>
+<span class="comment">% by the Free Software Foundation; either version 2 of the License, or</span>
+<span class="comment">% (at your option) any later version.</span>
+<span class="comment">%</span>
+<span class="comment">% This program is distributed in the hope that it will be useful,</span>
+<span class="comment">% but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="comment">% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span>
+<span class="comment">% See the GNU General Public License for more details.</span>
+<span class="comment">%</span>
+<span class="comment">% You should have received a copy of the GNU General Public License</span>
+<span class="comment">% along with this program; if not, write to the Free Software Foundation,</span>
+<span class="comment">% Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</span>
+
     <span class="keyword">properties</span>
        numResults   <span class="comment">%Number of results in this FitResult object</span>
        lambda       <span class="comment">%Lambda signal</span>
@@ -77,9 +114,11 @@ p.footer {
        fitType      <span class="comment">%Poisson or Binomial</span>
 
        b            <span class="comment">%coefficients for each fit</span>
+
        dev          <span class="comment">%deviance for each fit</span>
        AIC          <span class="comment">%Akaike's Information Criterion for each fit</span>
        BIC          <span class="comment">%Baysian Information Criterion for each fit</span>
+       logLL        <span class="comment">%Log Likelihood</span>
        stats        <span class="comment">%Relevant statistics for each fit</span>
        configs      <span class="comment">% the config collection for the different fits</span>
        configNames  <span class="comment">% names of the the differen fits</span>
@@ -115,7 +154,7 @@ p.footer {
 
     <span class="keyword">methods</span>
 
-        <span class="keyword">function</span> fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime,distribution)
+        <span class="keyword">function</span> fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL, configColl,XvalData,XvalTime,distribution)
             <span class="comment">% fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime)</span>
             <span class="comment">% Stores the results of multiple regressions for a single  neuron into a accessible structure.</span>
             <span class="comment">%</span>
@@ -147,15 +186,42 @@ p.footer {
                 XvalData =[];
             <span class="keyword">end</span>
 
-            <span class="keyword">if</span>(isnumeric(spikeObj.name))
-                nNumber =spikeObj.name;
-            <span class="keyword">else</span>
-                nNumber = str2double(spikeObj.name(~isletter(spikeObj.name)));
+            <span class="keyword">if</span>(isa(spikeObj,<span class="string">'cell'</span>))
+                <span class="keyword">for</span> i=1:length(spikeObj)
+                    <span class="keyword">if</span>(isnumeric(spikeObj{i}.name))
+                        nNumber(i) =spikeObj{i}.name;
+                    <span class="keyword">else</span>
+                        nNumber(i) = str2double(spikeObj{i}.name(~isletter(spikeObj{i}.name)));
+                    <span class="keyword">end</span>
+                    minTime(i)=spikeObj{i}.minTime;
+                    maxTime(i)=spikeObj{i}.maxTime;
+                <span class="keyword">end</span>
+                nNumber = unique(nNumber);
+                minTime = unique(minTime);
+                maxTime = unique(maxTime);
+                <span class="keyword">if</span>(length(nNumber)&gt;1)
+                    error(<span class="string">'Can only have a FitResults with spike trains from a single neuron'</span>);
+                <span class="keyword">end</span>
+                <span class="keyword">if</span>(length(minTime)&gt;1 || length(maxTime)&gt;1)
+                    error(<span class="string">'Spike Trains are of different lengths'</span>);
+                <span class="keyword">end</span>
+
+            <span class="keyword">elseif</span>(isa(spikeObj,<span class="string">'nspikeTrain'</span>))
+                <span class="keyword">if</span>(isnumeric(spikeObj.name))
+                    nNumber =spikeObj.name;
+                <span class="keyword">else</span>
+                    nNumber = str2double(spikeObj.name(~isletter(spikeObj.name)));
+                <span class="keyword">end</span>
+                minTime=spikeObj.minTime;
+                maxTime=spikeObj.maxTime;
+
             <span class="keyword">end</span>
+
             fitObj.neuronNumber = nNumber; <span class="comment">%str2num(spikeObj.name);</span>
             fitObj.neuralSpikeTrain = spikeObj;
-            fitObj.minTime = spikeObj.minTime;
-            fitObj.maxTime = spikeObj.maxTime;
+            fitObj.minTime = minTime;
+            fitObj.maxTime = maxTime;
+
             fitObj.numResults = 0;
             fitObj.configs = configColl;
             fitObj.configNames = configColl.getConfigNames;
@@ -166,7 +232,7 @@ p.footer {
             fitObj.numHist=numHist;
             fitObj.histObjects = histObjects;
             fitObj.ensHistObjects = ensHistObj;
-            fitObj.addParamsToFit(fitObj.neuronNumber,lambda,b, dev, stats,AIC,BIC,configColl);
+            fitObj.addParamsToFit(fitObj.neuronNumber,lambda,b, dev, stats,AIC,BIC,logLL,configColl);
             fitObj.Z        =[]; <span class="comment">%rescaled spikes times - exponentially dist.</span>
             fitObj.U        =[]; <span class="comment">%rescaled spike times - uniformly dist.</span>
             fitObj.X        =[]; <span class="comment">%rescaled spike times - gaussian dist.</span>
@@ -183,8 +249,19 @@ p.footer {
             fitObj.fitType = distribution;
 
         <span class="keyword">end</span>
+        <span class="keyword">function</span> fitObj = setNeuronName(fitObj,name)
+           fitObj.neuronNumber = name;
+        <span class="keyword">end</span>
         <span class="keyword">function</span> mFitRes = mergeResults(fitObj,newFitObj)
+            <span class="comment">% mFitRes = mergeResults(fitObj,newFitObj)</span>
+            <span class="comment">% mFitRes contains the results from fitObj followed by the</span>
+            <span class="comment">% results of newFitObj in a single new FitResult object</span>
+            <span class="comment">%</span>
+            <span class="comment">% newFitObj can be of class 'FitResult' or a cell array of</span>
+            <span class="comment">% 'FitResult' objects. In the latter case, the results are</span>
+            <span class="comment">% apppended in the order that they appear in each cell array.</span>
             <span class="keyword">if</span>(isa(newFitObj,<span class="string">'FitResult'</span>))
+<span class="comment">%                 newFitObj.neuronNumber</span>
                 <span class="keyword">if</span>(fitObj.neuronNumber ==newFitObj.neuronNumber)
                     spikeObj = fitObj.neuralSpikeTrain;
                     covLabels = fitObj.covLabels(1:fitObj.numResults);
@@ -200,6 +277,7 @@ p.footer {
                     dev = [fitObj.dev newFitObj.dev];
                     AIC = [fitObj.AIC newFitObj.AIC];
                     BIC = [fitObj.BIC newFitObj.BIC];
+                    logLL = [fitObj.logLL newFitObj.logLL];
                     stats=fitObj.stats(1:fitObj.numResults);
                     stats((fitObj.numResults+1):(fitObj.numResults+newFitObj.numResults)) = newFitObj.stats(1:newFitObj.numResults);
                     lambda = fitObj.lambda.merge(newFitObj.lambda);
@@ -217,15 +295,38 @@ p.footer {
                     XvalTime = [fitObj.XvalTime newFitObj.XvalTime];
                     distribution=fitObj.fitType(1:fitObj.numResults);
                     distribution((fitObj.numResults+1):(fitObj.numResults+newFitObj.numResults)) = newFitObj.fitType(1:newFitObj.numResults);
-                    Z=[fitObj.Z newFitObj.Z];
-                    U=[fitObj.U newFitObj.U];
+                    tempZ = zeros(length(fitObj.Z),size(newFitObj.Z,2));
+                    tempU = zeros(length(fitObj.U),size(newFitObj.U,2));
+                    tempZ(1:length(newFitObj.Z),:) = newFitObj.Z;
+                    tempU(1:length(newFitObj.U),:) = newFitObj.U;
+                    Z=[fitObj.Z tempZ];
+                    U=[fitObj.U tempU];
                     [X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(Z);
 
                     M=fitObj.Residual.merge(newFitObj.Residual);
-                    xAxis    = [fitObj.KSStats.xAxis newFitObj.KSStats.xAxis];
-                    KSSorted = [fitObj.KSStats.KSSorted newFitObj.KSStats.KSSorted];
+
+                    origLength = size(fitObj.KSStats.xAxis,1);
+                    currLength = size(newFitObj.KSStats.xAxis,1);
+
+                    <span class="keyword">if</span>(currLength~=origLength)
+                        <span class="comment">%we use this because some times the time scales</span>
+                        <span class="comment">%dont match up.  In particular when spikeTrain is</span>
+                        <span class="comment">%segmented by steps or windows and the window sizes</span>
+                        <span class="comment">%are normalized to 1.</span>
+                      newX = fitObj.KSStats.xAxis;
+                      oldX = newFitObj.KSStats.xAxis;
+                      oldY = newFitObj.KSStats.KSSorted;
+                      y = interp1(oldX,oldY,newX(:,1),<span class="string">'spline'</span>,<span class="string">'extrap'</span>);
+                      xAxis    = [fitObj.KSStats.xAxis newX(:,1)];
+                      KSSorted = [fitObj.KSStats.KSSorted y];
+                    <span class="keyword">else</span>
+
+                        xAxis    = [fitObj.KSStats.xAxis newFitObj.KSStats.xAxis];
+                        KSSorted = [fitObj.KSStats.KSSorted newFitObj.KSStats.KSSorted];
+
+                    <span class="keyword">end</span>
                     ks_stat  = [fitObj.KSStats.ks_stat newFitObj.KSStats.ks_stat];
-                    mFitRes=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObjects,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime,distribution);
+                    mFitRes=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObjects,lambda,b, dev, stats,AIC,BIC,logLL,configColl,XvalData,XvalTime,distribution);
                     mFitRes.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
                     mFitRes.setInvGausStats(X,rhoSig,confBoundSig);
                     mFitRes.setFitResidual(M);
@@ -245,7 +346,44 @@ p.footer {
             <span class="keyword">end</span>
 
         <span class="keyword">end</span>
-        <span class="keyword">function</span> addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,configColl)
+        <span class="keyword">function</span> subsetFit = getSubsetFitResult(fitObj,subfits)
+            <span class="comment">%subfits is a row vector with numbers corresponding to the</span>
+            <span class="comment">%subfits</span>
+            <span class="keyword">if</span>(and(min(subfits)&gt;0,max(subfits)&lt;=fitObj.numResults))
+                spikeObj = fitObj.neuralSpikeTrain;
+                covLabels = fitObj.covLabels(subfits);
+                numHist = fitObj.numHist(subfits);
+                histObjects = fitObj.histObjects(subfits);
+                ensHistObj = fitObj.ensHistObjects(subfits);
+                lambda = fitObj.lambda.getSubSignal(subfits);
+                b = fitObj.b(subfits);
+                dev = fitObj.dev(subfits);
+                stats = fitObj.stats(subfits);
+                AIC = fitObj.AIC(subfits);
+                BIC = fitObj.BIC(subfits);
+                logLL = fitObj.logLL(subfits);
+                configColl = fitObj.configs.getSubsetConfigs(subfits);
+                XvalData  = fitObj.XvalData;
+                XvalTime  = fitObj.XvalTime;
+                distribution = fitObj.fitType;
+
+                subsetFit=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL,configColl,XvalData,XvalTime,distribution);
+                Z = fitObj.Z(:,subfits);
+                U = fitObj.U(:,subfits);
+                X = fitObj.X(:,subfits);
+                xAxis= fitObj.KSStats.xAxis(:,subfits);
+                KSSorted=fitObj.KSStats.KSSorted(:,subfits);
+                ks_stat=fitObj.KSStats.ks_stat(subfits);
+                rhoSig=fitObj.invGausStats.rhoSig.getSubSignal(subfits);
+                confBoundSig=fitObj.invGausStats.confBoundSig;
+                M = fitObj.Residual.getSubSignal(subfits);
+
+                subsetFit.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
+                subsetFit.setInvGausStats(X,rhoSig,confBoundSig);
+                subsetFit.setFitResidual(M);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,logLL,configColl)
             <span class="comment">% addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,configColl)</span>
             <span class="comment">% Add the specified parameters to the current FitResult object</span>
             <span class="comment">% only if the neuronNum matches the neuronNum of this object</span>
@@ -266,28 +404,38 @@ p.footer {
 
               <span class="keyword">if</span>(numNewResults==1)
                       fitObj.b{fitObj.numResults+1}    = b{1};
+
                       fitObj.dev(fitObj.numResults+1)  = dev;
                       fitObj.stats{fitObj.numResults+1}= stats{1};
                       <span class="keyword">if</span>(nargin&lt;7)
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
+                          delta = 1/newLambda.sampleRate;
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(data*delta)+(1-y).*(1-newLambda.data*delta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
+                          fitObj.logLL(fitObj.numResults+1) = logLL;
                       <span class="keyword">end</span>
 
                       fitObj.numCoeffs(fitObj.numResults+1) = length(b);
               <span class="keyword">else</span>
                   <span class="keyword">for</span> i=1:numNewResults
                       fitObj.b{fitObj.numResults+i}    = b{i};
+
                       fitObj.dev(fitObj.numResults+i)  = dev(i);
                       fitObj.stats{fitObj.numResults+i}= stats{i};
                       <span class="keyword">if</span>(nargin&lt;7)
                           fitObj.AIC(fitObj.numResults+i)  = 2*length(b{i})+dev(i);
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
+                          delta=fitObj.neuralSpikeTrain.sampleRate;
+                          y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
+
+                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(newLambda.data*delta)+(1-y).*(1-newLambda.data*delta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
+                          fitObj.logLL(fitObj.numResults+i)= logLL(i);
                       <span class="keyword">end</span>
                       fitObj.numCoeffs(fitObj.numResults+i) = length(b{i});
                   <span class="keyword">end</span>
@@ -301,7 +449,7 @@ p.footer {
               fitObj.numResults = fitObj.numResults+numNewResults;
               dataLabels = cell(1,fitObj.numResults);
               <span class="keyword">for</span> i=1:fitObj.numResults
-                 dataLabels{i} = strcat(<span class="string">'\lambda_'</span>,num2str(i));
+                 dataLabels{i} = strcat(<span class="string">'\lambda_{'</span>,num2str(i),<span class="string">'}'</span>);
               <span class="keyword">end</span>
               fitObj.lambda.setDataLabels(dataLabels);
 
@@ -311,7 +459,7 @@ p.footer {
               error(<span class="string">'Neuron number does not match'</span>);
           <span class="keyword">end</span>
         <span class="keyword">end</span>
-        <span class="keyword">function</span> lambda = computeValLambda(fitObj)
+        <span class="keyword">function</span> [lambda, logLL] = computeValLambda(fitObj)
             <span class="comment">% lambda = computeValLambda(fitObj)</span>
             <span class="comment">% Returns a Covariate object lambda. This is the Conditional</span>
             <span class="comment">% intensity function evaluated using the validation data</span>
@@ -320,17 +468,31 @@ p.footer {
                 lambdaData(:,i) = fitObj.evalLambda(i,fitObj.XvalData{i});
             <span class="keyword">end</span>
             lambda=Covariate(fitObj.XvalTime{1},lambdaData,<span class="keyword">...</span>
-                  <span class="string">'\Lambda(t)'</span>,fitObj.lambda.xlabelval,<span class="keyword">...</span>
+                  <span class="string">'\lambda(t)'</span>,fitObj.lambda.xlabelval,<span class="keyword">...</span>
                   fitObj.lambda.xunits,<span class="string">'Hz'</span>,fitObj.lambda.dataLabels);
+            delta = 1/lambda.sampleRate;
+            y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
+            logLL =sum(y.*log(lambda.data*delta)+(1-y).*(1-lambda.data*delta));
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> mapCovLabelsToUniqueLabels(fitObj)
+            <span class="comment">% mapCovLabelsToUniqueLabels(fitObj)</span>
+            <span class="comment">% Used internally by the FitResult class generate a matrix that</span>
+            <span class="comment">% maps how covariate labels of the fit object map to unique</span>
+            <span class="comment">% covariate labels. For example, multiple fits that have a</span>
+            <span class="comment">% constant baseline term will be assumed to refer to the same</span>
+            <span class="comment">% "baseline" term and not two separate ones</span>
             flatMask = zeros(length(fitObj.uniqueCovLabels),length(fitObj.covLabels));
             <span class="keyword">for</span> j=1:length(fitObj.covLabels)
                 currLabels = fitObj.covLabels{j};
                 index=zeros(1,length(currLabels));
                 <span class="keyword">for</span> i=1:length(currLabels)
-                    index(i)=strmatch(currLabels{i}, fitObj.uniqueCovLabels, <span class="string">'exact'</span>);
+                    idx = find(strcmp(currLabels{i}, fitObj.uniqueCovLabels),1,<span class="string">'first'</span>);
+                    <span class="keyword">if</span>(isempty(idx))
+                        error(<span class="string">'FitResult:UnknownCovariateLabel'</span>,<span class="keyword">...</span>
+                            <span class="string">'Unable to map covariate label "%s" to unique labels.'</span>,currLabels{i});
+                    <span class="keyword">end</span>
+                    index(i)=idx;
                 <span class="keyword">end</span>
 
                 fitObj.indicesToUniqueLabels{j} = index;
@@ -429,7 +591,9 @@ p.footer {
 <span class="comment">%                             if(i==1)</span>
 <span class="comment">%                                 runSum = b(1)*baseline;</span>
 <span class="comment">%                             else</span>
-                                runSum = runSum+b(i)*newData{i-1};
+                                <span class="keyword">if</span>(i&lt;=length(b))
+                                    runSum = runSum+b(i)*newData{i};
+                                <span class="keyword">end</span>
 <span class="comment">%                             end</span>
                         <span class="keyword">end</span>
                         <span class="keyword">if</span>(strcmp(fitObj.fitType{lambdaIndex},<span class="string">'poisson'</span>))
@@ -533,7 +697,402 @@ p.footer {
            tempVal =sum(fitObj.flatMask,2);
            fitObj.plotParams.numResultsCoeffPresent =tempVal(index);
         <span class="keyword">end</span>
-        <span class="keyword">function</span> h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance)
+
+        <span class="keyword">function</span> [coeffIndex, epochId,numEpochs] = getCoeffIndex(fitObj,fitNum,sortByEpoch)
+          <span class="keyword">if</span>(nargin&lt;3 || isempty(sortByEpoch))
+             sortByEpoch=0;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          <span class="keyword">end</span>
+          [histIndex, epochId] = fitObj.getHistIndex(fitNum,sortByEpoch);
+          allIndex = 1:length(fitObj.uniqueCovLabels);
+
+          nonHistIndex = setdiff(allIndex,histIndex);
+<span class="comment">%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)&gt;=1);</span>
+          nonNANIndex=  allIndex;
+          actCoeffIndex = nonHistIndex(ismember(nonHistIndex, nonNANIndex));
+          allCoeffTerms = fitObj.uniqueCovLabels(actCoeffIndex);
+<span class="comment">%           coeffName = cell(size(allCoeffTerms));</span>
+          epochStartInd=regexp(allCoeffTerms,<span class="string">'_\{\d*\}'</span>,<span class="string">'start'</span>);
+          epochEndInd=regexp(allCoeffTerms,<span class="string">'_\{\d*\}'</span>,<span class="string">'end'</span>);
+
+          allCoeffIndex = [];
+          nonEpochIndex=[];
+<span class="comment">%           nonEmptyCoeffNameInd = [];</span>
+          epochsExist =0;
+          <span class="keyword">for</span> i=1:length(allCoeffTerms)
+              <span class="keyword">if</span>(~isempty(allCoeffTerms{i}))
+                allCoeffIndex = [allCoeffIndex i];
+
+                 <span class="keyword">if</span>(~isempty(epochStartInd{i}))
+<span class="comment">%                      nonEmptyCoeffNameInd = [nonEmptyCoeffNameInd i];</span>
+                     epochsExist=1;
+                     actStart = epochStartInd{i}+2;
+                     actEnd   = epochEndInd{i}-1;
+                     numEpoch(i) = str2num(allCoeffTerms{i}(actStart:actEnd));
+<span class="comment">%                      coeffName{i} =  allCoeffTerms{i}(1:actStart-3);</span>
+
+
+                 <span class="keyword">else</span>
+                    nonEpochIndex = [nonEpochIndex i];
+                    numEpoch(i) = 0; <span class="comment">% make terms that only appear once part of epoch 0.</span>
+
+                 <span class="keyword">end</span>
+              <span class="keyword">end</span>
+
+          <span class="keyword">end</span>
+
+<span class="comment">%           coeffName = coeffName(nonEmptyCoeffNameInd);</span>
+          <span class="keyword">if</span>(epochsExist &amp;&amp; ~sortByEpoch)
+              totalEpochs = unique(numEpoch);
+              coeffIndex = nonEpochIndex;
+              <span class="keyword">if</span>(nargout&gt;1)
+                  epochId=zeros(size(nonEpochIndex));
+              <span class="keyword">end</span>
+              <span class="keyword">for</span> i=1:length(totalEpochs)
+                  <span class="keyword">if</span>(totalEpochs(i)~=0)
+                    coeffIndex = [coeffIndex, find(numEpoch==totalEpochs(i))];
+
+                     <span class="keyword">if</span>(nargout&gt;1)
+                        epochId = [epochId, totalEpochs(i)*ones(size(find(numEpoch==totalEpochs(i))))];
+                     <span class="keyword">end</span>
+                  <span class="keyword">end</span>
+              <span class="keyword">end</span>
+              coeffIndex = actCoeffIndex(coeffIndex);
+          <span class="keyword">elseif</span>(epochsExist &amp;&amp; sortByEpoch)
+              coeffIndex = actCoeffIndex(allCoeffIndex);
+              <span class="keyword">if</span>(nargout&gt;1)
+                epochId = numEpoch;
+              <span class="keyword">end</span>
+          <span class="keyword">else</span>
+              coeffIndex = actCoeffIndex(allCoeffIndex);
+              <span class="keyword">if</span>(nargout&gt;1)
+                epochId = zeros(size(allCoeffIndex)); <span class="comment">%no epochs exist so just create same index for all;</span>
+              <span class="keyword">end</span>
+          <span class="keyword">end</span>
+
+
+<span class="comment">%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)&gt;=1);</span>
+          nonNANIndex = allIndex;
+          coeffIndex = coeffIndex(ismember(coeffIndex, nonNANIndex));
+
+          <span class="keyword">if</span>(nargout&gt;2)
+              numEpochs = length(unique(epochId));
+          <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> h=plotCoeffsWithoutHistory(fitObj,fitNum,sortByEpoch,plotSignificance)
+           <span class="keyword">if</span>(nargin&lt;4 || isempty(plotSignificance))
+               plotSignificance=1;
+           <span class="keyword">end</span>
+           <span class="keyword">if</span>(nargin&lt;3 || isempty(sortByEpoch))
+              sortByEpoch = 0;
+           <span class="keyword">end</span>
+           <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+               fitNum = 1:fitObj.numResults;
+           <span class="keyword">end</span>
+           <span class="keyword">if</span>(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+           <span class="keyword">end</span>
+
+
+          coeffIndex = fitObj.getCoeffIndex(fitNum,sortByEpoch);
+          h=fitObj.plotCoeffs([],fitNum,[],plotSignificance,coeffIndex);
+
+
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> [histIndex, epochId,numEpochs] = getHistIndex(fitObj,fitNum,sortByEpoch)
+            <span class="comment">%if sortByEpoch==1 then we group all regression terms with the</span>
+            <span class="comment">%same name one next to each other by epoch (time interval).</span>
+            <span class="comment">%Otherwise, we show all epoch one terms, followed by all epoch</span>
+            <span class="comment">%2 terms, etc.</span>
+           <span class="keyword">if</span>(nargin&lt;3 || isempty(sortByEpoch))
+            sortByEpoch = 0;
+           <span class="keyword">end</span>
+          <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          <span class="keyword">end</span>
+
+
+          allHistTerms = regexp(fitObj.uniqueCovLabels,<span class="string">'^[\w*'</span>);
+          epochStartInd=regexp(fitObj.uniqueCovLabels,<span class="string">'\]_\{\d*\}'</span>,<span class="string">'start'</span>);
+          epochEndInd=regexp(fitObj.uniqueCovLabels,<span class="string">'\]_\{\d*\}'</span>,<span class="string">'end'</span>);
+          allHistIndex = [];
+          epochsExist =0;
+          <span class="keyword">for</span> i=1:length(allHistTerms)
+              <span class="keyword">if</span>(~isempty(allHistTerms{i}))
+                allHistIndex = [allHistIndex i];
+                 <span class="keyword">if</span>(~isempty(epochStartInd{i}))
+                     epochsExist=1;
+                     actStart = epochStartInd{i}+3;
+                     actEnd   = epochEndInd{i}-1;
+                     numEpoch(i) = str2num(fitObj.uniqueCovLabels{i}(actStart:actEnd));
+                 <span class="keyword">end</span>
+              <span class="keyword">end</span>
+
+          <span class="keyword">end</span>
+
+          <span class="keyword">if</span>(epochsExist &amp;&amp; ~sortByEpoch)
+              totalEpochs = unique(numEpoch);
+              histIndex = [];
+              <span class="keyword">if</span>(nargout&gt;1)
+                  epochId=[];
+              <span class="keyword">end</span>
+              <span class="keyword">for</span> i=1:length(totalEpochs)
+                 histIndex = [histIndex, find(numEpoch==totalEpochs(i))];
+                 <span class="keyword">if</span>(nargout&gt;1)
+                    epochId = [epochId, totalEpochs(i)*ones(size(find(numEpoch==totalEpochs(i))))];
+                 <span class="keyword">end</span>
+              <span class="keyword">end</span>
+          <span class="keyword">elseif</span>(epochsExist &amp;&amp; sortByEpoch)
+              histIndex = allHistIndex;
+              <span class="keyword">if</span>(nargout&gt;1)
+                epochId = numEpoch;
+              <span class="keyword">end</span>
+          <span class="keyword">else</span>
+              histIndex = allHistIndex;
+              <span class="keyword">if</span>(nargout&gt;1)
+                epochId = zeros(size(allHistIndex)); <span class="comment">%no epochs exist so just create same index for all;</span>
+              <span class="keyword">end</span>
+          <span class="keyword">end</span>
+
+
+<span class="comment">%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)&gt;=1);</span>
+<span class="comment">%           histIndex = histIndex(ismember(histIndex, nonNANIndex));</span>
+
+          <span class="keyword">if</span>(nargout&gt;2)
+              numEpochs = length(unique(epochId));
+          <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> [coeffMat, labels, SEMat] = getCoeffs(fitObj, fitNum)
+             <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+                fitNum =1:fitObj.numResults;
+            <span class="keyword">end</span>
+            sortByEpoch = 0; <span class="comment">% Make sure we have different time series if the history is divided into epochs;</span>
+            [coeffIndex, epochId, numEpochs] = fitObj.getCoeffIndex(fitNum,sortByEpoch);
+            epochNums = unique(epochId);
+
+
+             coeffStrings = fitObj.uniqueCovLabels(coeffIndex);
+            baseStringEndIndex =regexp(coeffStrings,<span class="string">'_\{\d*\}'</span>,<span class="string">'start'</span>);
+
+            <span class="keyword">for</span> i=1:length(baseStringEndIndex)
+                <span class="keyword">if</span>(~isempty(baseStringEndIndex{i}))
+                    baseStrings{i} = coeffStrings{i}(1:baseStringEndIndex{i}-1);
+                <span class="keyword">else</span>
+                    baseStrings{i} = coeffStrings{i};
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            uniqueCoeffs = unique(baseStrings);
+
+            <span class="keyword">for</span> i=1:length(uniqueCoeffs)
+               coeffStrIndex{i} = coeffIndex(strcmp(baseStrings,uniqueCoeffs{i}));
+               <span class="keyword">if</span>(min(epochId)==0)
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}))+1;
+               <span class="keyword">else</span>
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}));
+               <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+<span class="comment">%</span>
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                 epochIndices{i} = find(epochId==epochNums(i));</span>
+<span class="comment">%                 epochLength(i) = length(epochIndices{i});</span>
+<span class="comment">%             end</span>
+
+
+
+            coeffIndMat= nan(length(uniqueCoeffs),numEpochs);
+
+            labels = cell(size(coeffIndMat));
+            <span class="keyword">for</span> i=1:length(uniqueCoeffs)
+               coeffIndMat(i,epochIndices{i}) = coeffStrIndex{i};
+               labels(i,epochIndices{i}) = fitObj.uniqueCovLabels(coeffStrIndex{i});
+            <span class="keyword">end</span>
+
+
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                coeffIndMat(1:epochLength(i),i) = coeffIndex(epochIndices{i});</span>
+<span class="comment">%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(coeffIndMat(1:epochLength(i),i));</span>
+<span class="comment">%             end</span>
+
+
+
+            <span class="keyword">if</span>(length(fitNum)&gt;1)
+                coeffMat = nan(size(coeffIndMat,1),size(coeffIndMat,2), length(fitNum));
+                SEMat    = nan(size(coeffIndMat,1),size(coeffIndMat,2), length(fitNum));
+                <span class="keyword">for</span> i=1:length(fitNum)
+                    <span class="keyword">for</span> j=1:length(uniqueCoeffs)
+                        bTemp=fitObj.plotParams.bAct(coeffStrIndex{j},i);
+                        seTemp=fitObj.plotParams.seAct(coeffStrIndex{j},i);
+                        coeffMat(j,epochIndices{j},i) = bTemp';
+                        SEMat(j,epochIndices{j},i) = seTemp';
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                coeffMat = nan(size(coeffIndMat,1),size(coeffIndMat,2));
+                SEMat    = nan(size(coeffIndMat,1),size(coeffIndMat,2));
+                <span class="keyword">for</span> j=1:length(uniqueCoeffs)
+                    bTemp=fitObj.plotParams.bAct(coeffStrIndex{j},fitNum);
+                    seTemp = fitObj.plotParams.seAct(coeffStrIndex{j},fitNum);
+                    coeffMat(j,epochIndices{j}) = bTemp';
+                    SEMat(j,epochIndices{j}) = seTemp';
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> [histMat, labels, SEMat] = getHistCoeffs(fitObj,fitNum)
+              <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+                fitNum =1:fitObj.numResults;
+            <span class="keyword">end</span>
+            sortByEpoch = 0; <span class="comment">% Make sure we have different time series if the history is divided into epochs;</span>
+            [histIndex, epochId, numEpochs] = fitObj.getHistIndex(fitNum,sortByEpoch);
+            epochNums = unique(epochId);
+
+
+            histcoeffStrings = fitObj.uniqueCovLabels(histIndex);
+            baseStringEndIndex =regexp(histcoeffStrings,<span class="string">'_\{\d*\}'</span>,<span class="string">'start'</span>);
+            baseStrings = cell(length(baseStringEndIndex),1);
+            <span class="keyword">for</span> i=1:length(baseStringEndIndex)
+                <span class="keyword">if</span>(~isempty(baseStringEndIndex{i}))
+                    baseStrings{i} = histcoeffStrings{i}(1:baseStringEndIndex{i}-1);
+                <span class="keyword">else</span>
+                    baseStrings{i} = histcoeffStrings{i};
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            uniqueCoeffs = unique(baseStrings);
+
+            <span class="keyword">for</span> i=1:length(uniqueCoeffs)
+               histcoeffStrIndex{i} = histIndex(strcmp(baseStrings,uniqueCoeffs{i}));
+               <span class="keyword">if</span>(min(epochId)==0)
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}))+1;
+               <span class="keyword">else</span>
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}));
+               <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+<span class="comment">%</span>
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                 epochIndices{i} = find(epochId==epochNums(i));</span>
+<span class="comment">%                 epochLength(i) = length(epochIndices{i});</span>
+<span class="comment">%             end</span>
+
+
+
+            histcoeffIndMat= nan(length(uniqueCoeffs),numEpochs);
+            labels = cell(size(histcoeffIndMat));
+<span class="comment">%             SEMat = nan(length(uniqueCoeffs),numEpochs);</span>
+            <span class="keyword">for</span> i=1:length(uniqueCoeffs)
+               histcoeffIndMat(i,epochIndices{i}) = histcoeffStrIndex{i};
+               labels(i,epochIndices{i}) = fitObj.uniqueCovLabels(histcoeffStrIndex{i});
+<span class="comment">%                SEMat(i,epochIndices{i}) = fitObj.se;</span>
+            <span class="keyword">end</span>
+
+
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                coeffIndMat(1:epochLength(i),i) = coeffIndex(epochIndices{i});</span>
+<span class="comment">%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(coeffIndMat(1:epochLength(i),i));</span>
+<span class="comment">%             end</span>
+
+
+
+            <span class="keyword">if</span>(length(fitNum)&gt;1)
+                histMat = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2), length(fitNum));
+                SEMat   = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2), length(fitNum));
+                <span class="keyword">for</span> i=fitNum
+                    <span class="keyword">for</span> j=1:length(uniqueCoeffs)
+                        bTemp=fitObj.plotParams.bAct(histcoeffStrIndex{j},i);
+                        seTemp = fitObj.plotParams.seAct(histcoeffStrIndex{j},i);
+                        histMat(j,epochIndices{j},i) = bTemp';
+                        SEMat(j,epochIndices{j},i) = seTemp';
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                histMat = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2));
+                SEMat   = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2));
+                <span class="keyword">for</span> j=1:length(uniqueCoeffs)
+                    bTemp=fitObj.plotParams.bAct(histcoeffStrIndex{j},fitNum);
+                    seTemp=fitObj.plotParams.seAct(histcoeffStrIndex{j},fitNum);
+                    histMat(j,epochIndices{j}) = bTemp';
+                    SEMat(j,epochIndices{j}) = seTemp';
+                <span class="keyword">end</span>
+
+            <span class="keyword">end</span>
+
+
+<span class="comment">%</span>
+<span class="comment">%             if(nargin&lt;2 || isempty(fitNum))</span>
+<span class="comment">%                 fitNum =1:fitObj.numResults;</span>
+<span class="comment">%             end</span>
+<span class="comment">%             sortByEpoch = 0; % Make sure we have different time series if the history is divided into epochs;</span>
+<span class="comment">%             [histIndex, epochId, numEpochs] = fitObj.getHistIndex(fitNum,sortByEpoch);</span>
+<span class="comment">%             epochNums = unique(epochId);</span>
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                 epochIndices{i} = find(epochId==epochNums(i));</span>
+<span class="comment">%                 epochLength(i) = length(epochIndices{i});</span>
+<span class="comment">%             end</span>
+<span class="comment">%</span>
+<span class="comment">%             histIndMat= nan(max(epochLength),numEpochs);</span>
+<span class="comment">%             labels = cell(size(histIndMat));</span>
+<span class="comment">%             for i=1:numEpochs</span>
+<span class="comment">%                histIndMat(1:epochLength(i),i) = histIndex(epochIndices{i});</span>
+<span class="comment">%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(histIndMat(1:epochLength(i),i));</span>
+<span class="comment">%             end</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%             if(length(fitNum)&gt;1)</span>
+<span class="comment">%                 histMat = nan(size(histIndMat,1),size(histIndMat,2), length(fitNum));</span>
+<span class="comment">%                 for i=1:length(fitNum)</span>
+<span class="comment">%                     for j=1:numEpochs</span>
+<span class="comment">%                         bTemp=fitObj.plotParams.bAct(epochIndices{j},i);</span>
+<span class="comment">%                         histMat(1:epochLength(j),j,i) = bTemp;</span>
+<span class="comment">%                     end</span>
+<span class="comment">%                 end</span>
+<span class="comment">%             else</span>
+<span class="comment">%                 histMat = nan(size(histIndMat,1),size(histIndMat,2));</span>
+<span class="comment">%</span>
+<span class="comment">%                 for j=1:numEpochs</span>
+<span class="comment">%                     bTemp=fitObj.plotParams.bAct(epochIndices{j},fitNum);</span>
+<span class="comment">%                     histMat(1:epochLength(j),j) = bTemp;</span>
+<span class="comment">%                 end</span>
+<span class="comment">%</span>
+<span class="comment">%             end</span>
+
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> h=plotHistCoeffs(fitObj,fitNum,sortByEpoch,plotSignificance)
+          <span class="keyword">if</span>(nargin&lt;4 || isempty(plotSignificance))
+            plotSignificance=1;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(nargin&lt;3 || isempty(sortByEpoch))
+             sortByEpoch=0;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(nargin&lt;2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          <span class="keyword">end</span>
+          <span class="keyword">if</span>(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          <span class="keyword">end</span>
+          histIndex = fitObj.getHistIndex(fitNum,sortByEpoch);
+          h=fitObj.plotCoeffs([],fitNum,[],plotSignificance,histIndex);
+        <span class="keyword">end</span>
+
+
+        <span class="keyword">function</span> h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance,subIndex)
            <span class="comment">% h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance)</span>
            <span class="comment">% plots the GLM coefficients for each fit along with the</span>
            <span class="comment">% confidence intervals.</span>
@@ -544,7 +1103,8 @@ p.footer {
            <span class="comment">%                   parameters that are statistically different</span>
            <span class="comment">%                   from zero with alpha=5%.</span>
 
-           <span class="keyword">if</span>(nargin&lt;5)
+
+           <span class="keyword">if</span>(nargin&lt;5 || isempty(plotSignificance))
                plotSignificance = 1;
            <span class="keyword">end</span>
 
@@ -561,21 +1121,43 @@ p.footer {
            <span class="keyword">end</span>
 
            <span class="keyword">if</span>(isempty(fitObj.plotParams))
-               fitObj.computePlotParams(fitNum);
+               fitObj.computePlotParams;
            <span class="keyword">end</span>
 
-           bAct = fitObj.getPlotParams.bAct;
-           seAct= fitObj.getPlotParams.seAct;
-           sigIndex=fitObj.getPlotParams.sigIndex;
+           <span class="keyword">if</span>(nargin&lt;6 || isempty(subIndex))
+              subIndex = [fitObj.getHistIndex, fitObj.getCoeffIndex];
+           <span class="keyword">end</span>
+
+           bAct = fitObj.getPlotParams.bAct(subIndex,fitNum);
+           seAct= fitObj.getPlotParams.seAct(subIndex,fitNum);
+           sigIndex=fitObj.getPlotParams.sigIndex(subIndex,fitNum);
 
            <span class="keyword">if</span>(~isempty(plotProps))
                <span class="keyword">for</span> i=1:length(fitNum)
-                    h=errorbar(handle,1:length(index),bAct,seAct,plotProps{i}); hold <span class="string">on</span>;
+                    h(i)=errorbar(handle,1:length(subIndex),bAct(:,i),seAct(:,i),plotProps{i}); hold <span class="string">on</span>;
+                    set(h(i), <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>);<span class="comment">%,...</span>
+<span class="comment">%                         'Linewidth',1,'Marker','o','MarkerSize',6);</span>
+                    currColor = get(h(i),<span class="string">'Color'</span>);
+                    set(h(i),<span class="string">'MarkerEdgeColor'</span>,currColor,<span class="string">'MarkerFaceColor'</span>,currColor);
+<span class="comment">%                     hE= get(h(i),'Children');</span>
+<span class="comment">%                     errorbarXData = get(hE(2),'XData');</span>
+<span class="comment">%                     errorbarXData(4:9:end) = errorbarXData(1:9:end) - 0.2;</span>
+<span class="comment">%                     errorbarXData(7:9:end) = errorbarXData(1:9:end) - 0.2;</span>
+<span class="comment">%                     errorbarXData(5:9:end) = errorbarXData(1:9:end) + 0.2;</span>
+<span class="comment">%                     errorbarXData(8:9:end) = errorbarXData(1:9:end) + 0.2;</span>
+<span class="comment">%                     set(hE(2), 'XData', errorbarXData);</span>
                <span class="keyword">end</span>
            <span class="keyword">else</span>
                Xaxis=repmat(1:length(bAct(:,1)),[length(bAct(1,:)) 1]);
                h=errorbar(handle,Xaxis',bAct,seAct,<span class="string">'.'</span>);<span class="comment">%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1}));</span>
-           <span class="keyword">end</span>
+               set(h, <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>);<span class="comment">%,...</span>
+
+               <span class="keyword">for</span> n=1:length(h)
+                   currColor = get(h(n),<span class="string">'Color'</span>);
+                   set(h(n),<span class="string">'MarkerEdgeColor'</span>,currColor,<span class="string">'MarkerFaceColor'</span>,currColor);
+
+               <span class="keyword">end</span>
+            <span class="keyword">end</span>
 
             hold <span class="string">on</span>;
 
@@ -584,24 +1166,40 @@ p.footer {
                v=axis;
                vdiff = .8*v(4);
 
-               <span class="keyword">for</span> i=fitNum
-                  plot(handle,find(sigIndex(:,i)==1),vdiff*ones(length(find(sigIndex(:,i)==1)),1)-i*.1,strcat(<span class="string">'.'</span>,FitResult.colors{mod(i-1,length(FitResult.colors))+1})); hold <span class="string">on</span>;
+               <span class="keyword">for</span> i=1:length(fitNum)
+                  plot(handle,find(sigIndex(:,i)==1),vdiff*ones(length(find(sigIndex(:,i)==1)),1)-i*.1,strcat(<span class="string">'*'</span>,FitResult.colors{mod(i-1,length(FitResult.colors))+1})); hold <span class="string">on</span>;
                <span class="keyword">end</span>
             <span class="keyword">end</span>
-           ylabel(<span class="string">'Fit Coefficients'</span>,<span class="string">'Interpreter'</span>,<span class="string">'latex'</span>);
-           xtickLabels = fitObj.getPlotParams.xLabels;
+           ylabel(<span class="string">'GLM Fit Coefficients'</span>,<span class="string">'Interpreter'</span>,<span class="string">'none'</span>);
+           xtickLabels = fitObj.getPlotParams.xLabels(subIndex);
            xticks = 1:(length(xtickLabels));
 
            set(handle,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLabel'</span>,xtickLabels,<span class="string">'FontSize'</span>,6);
-           <span class="keyword">if</span>(max(fitObj.numCoeffs)&gt;1)
-            xticklabel_rotate([],90,[],<span class="string">'Fontsize'</span>,6);
+<span class="comment">%            axis tight;</span>
+           <span class="keyword">if</span>(max(fitObj.numCoeffs)&gt;=1)
+            xticklabel_rotate([],90,[],<span class="string">'Fontsize'</span>,10);
            <span class="keyword">end</span>
 <span class="comment">%            hT=rotateticklabel(gca,-90);</span>
-           legend(handle,fitObj.lambda.dataLabels,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
-           <span class="comment">%axis tight;</span>
+           h_legend=legend(handle,fitObj.lambda.dataLabels(fitNum),<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>);
+           set(h_legend,<span class="string">'FontSize'</span>,14)
+            pos = get(h_legend,<span class="string">'position'</span>);
+            set(h_legend, <span class="string">'position'</span>,[pos(1)+.05 pos(2) pos(3:4)]);
+
+<span class="comment">%            axis tight;</span>
+            title({<span class="string">'GLM Coefficients with 95% CIs (* p&lt;0.05)'</span>},<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+            <span class="string">'FontSize'</span>,11,<span class="keyword">...</span>
+            <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+            set(gca,<span class="string">'FontName'</span>, <span class="string">'Arial'</span> );
+            set(gca, <span class="keyword">...</span>
+              <span class="string">'TickLength'</span>  , [.02 .02] , <span class="keyword">...</span>
+              <span class="string">'YGrid'</span>       , <span class="string">'on'</span>      , <span class="keyword">...</span>
+              <span class="string">'LineWidth'</span>   , 1         );
+            hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
+            set([hx hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+
 
         <span class="keyword">end</span>
-        <span class="keyword">function</span> plotResults(fitObj)
+        <span class="keyword">function</span> h=plotResults(fitObj)
             <span class="comment">% plotResults(fitObj)</span>
             <span class="comment">% Generates KS plot, auto-correlation function of the inverse</span>
             <span class="comment">% gaussian transformed rescaled ISIs, the sequential</span>
@@ -609,46 +1207,67 @@ p.footer {
             <span class="comment">% rescaled ISIs (zj vs. zj-1), the GLM regression coefficients,</span>
             <span class="comment">% and the Point Process Residual.</span>
                 scrsz = get(0,<span class="string">'ScreenSize'</span>);
-                figure(<span class="string">'Position'</span>,[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
+                h=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.01 scrsz(4)*.04 scrsz(3)*.98 scrsz(4)*.95]);
 
                 subplot(2,4,[1 2]); fitObj.KSPlot; <span class="comment">%make the plot</span>
-                text(.45, .95,strcat(<span class="string">'Neuron:'</span>,num2str(fitObj.neuronNumber)));
+                ht=text(.45, .95,strcat(<span class="string">'Neuron:'</span>,num2str(fitObj.neuronNumber)));
+                set(ht,<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'FontSize'</span>,10);
+
                 subplot(2,4,3); fitObj.plotInvGausTrans;
                 subplot(2,4,4); fitObj.plotSeqCorr;
                 subplot(2,4,[7 8]); fitObj.plotResidual;
                 subplot(2,4,[5 6]); fitObj.plotCoeffs;
         <span class="keyword">end</span>
-        <span class="keyword">function</span> handle = KSPlot(fitObj)
+        <span class="keyword">function</span> handle = KSPlot(fitObj,fitNum)
             <span class="comment">% handle = KSPlot(fitObj)</span>
             <span class="comment">% computes the K-S plot for each of the the candidate rate</span>
             <span class="comment">% functions in this FitResult object. These candidate rate</span>
             <span class="comment">% functions are numbered according to the order in which they</span>
             <span class="comment">% were added to the FitResult.</span>
+            <span class="keyword">if</span>(nargin&lt;2)
+                fitNum=1:fitObj.numResults;
+            <span class="keyword">end</span>
             h=gcf;
             <span class="comment">%h=[];</span>
             figure(h);
         <span class="comment">%     size(xAxis)</span>
         <span class="comment">%     size(KSSorted)</span>
             N = length(fitObj.KSStats.KSSorted);
-            xaxis = fitObj.KSStats.xAxis(:,1);
-            handle=plot(fitObj.KSStats.xAxis,fitObj.KSStats.KSSorted, xaxis,xaxis, <span class="string">'k-.'</span>,xaxis, xaxis+1.36/sqrt(N), <span class="string">'r'</span>, xaxis,xaxis-1.36/sqrt(N), <span class="string">'r'</span> );
+            <span class="keyword">if</span>(~isempty(fitObj.KSStats.xAxis))
+                xaxis = fitObj.KSStats.xAxis(:,1);
+                <span class="comment">% Plot the CIs</span>
+                plot(xaxis,xaxis, <span class="string">'k-.'</span>); hold <span class="string">on</span>;
+                plot(xaxis, xaxis+1.36/sqrt(N), <span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1);
+                plot(xaxis,xaxis-1.36/sqrt(N), <span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1 );
+                handle=plot(fitObj.KSStats.xAxis(:,fitNum),fitObj.KSStats.KSSorted(:,fitNum),<span class="string">'Linewidth'</span>,2);
 
-            <span class="comment">%set(gca,'xtick',[],'ytick',[],'ztick', [])</span>
-            axis( [0 1 0 1] );
-            dataLabels = cell(1,fitObj.lambda.dimension);
-            <span class="keyword">for</span> i=1:fitObj.lambda.dimension
-                dataLabels{i} = fitObj.lambda.dataLabels{i};
+                <span class="comment">%set(gca,'xtick',[],'ytick',[],'ztick', [])</span>
+                axis( [0 1 0 1] );
+<span class="comment">%             dataLabels = cell(1,fitObj.lambda.dimension);</span>
+<span class="comment">%             for i=1:fitObj.lambda.dimension</span>
+                dataLabels = fitObj.lambda.dataLabels(fitNum);
+<span class="comment">%             end</span>
+                h_legend=legend(handle,dataLabels,<span class="string">'Location'</span>,<span class="string">'SouthEast'</span>);
+                set(h_legend,<span class="string">'FontSize'</span>,14)
             <span class="keyword">end</span>
-            legend(dataLabels,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
-            xlabel(<span class="string">'Uniform CDF'</span>);
-            ylabel(<span class="string">'Empirical CDF of Rescaled ISIs'</span>);
-            title(<span class="string">'KS Plot with 95% Confidence Intervals'</span>);
+            hx=xlabel(<span class="string">'Ideal Uniform CDF'</span>);
+            hy=ylabel(<span class="string">'Empirical CDF'</span>);
+            title({<span class="string">'KS Plot of Rescaled ISIs'</span>; <span class="string">'with 95% Confidence Intervals'</span>},<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'FontSize'</span>,11,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+            set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'FontSize'</span>,12);
 
-
-        <span class="keyword">end</span>
+            set(gca, <span class="keyword">...</span>
+              <span class="string">'TickLength'</span>  , [.02 .02] , <span class="keyword">...</span>
+              <span class="string">'YTick'</span>       , 0:.2:1, <span class="keyword">...</span>
+              <span class="string">'XTick'</span>       , 0:.2:1, <span class="keyword">...</span>
+              <span class="string">'LineWidth'</span>   , 1         );
+            <span class="keyword">end</span>
 
         <span class="keyword">function</span> structure = toStructure(fitObj)
-            <span class="comment">%</span>
+            <span class="comment">% structure =  toStructure(fitObj)</span>
+            <span class="comment">% Converts FitResult object to a matlab structure than can then</span>
+            <span class="comment">% be saved. The structure is compatible with the FitResult</span>
+            <span class="comment">% static method FitResult.fromStructure(structure) that returns</span>
+            <span class="comment">% the object corresponding structure passed in.</span>
             fnames = fieldnames(fitObj);
 
             <span class="keyword">for</span> i=1:length(fnames)
@@ -701,8 +1320,8 @@ p.footer {
             pval=zeros(1,fitObj.numResults);
             dataLabels = fitObj.lambda.dataLabels;
             <span class="keyword">for</span> i=1:fitObj.numResults
-               handle = plot(fitObj.Z(1:end-1,i),fitObj.Z(2:end,i),strcat(<span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold <span class="string">on</span>;
-               [rhoTemp,p]= corrcoef(fitObj.Z(1:end-1,i),fitObj.Z(2:end,i));<span class="comment">%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))</span>
+               handle = plot(fitObj.U(1:end-1,i),fitObj.U(2:end,i),strcat(<span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold <span class="string">on</span>;
+               [rhoTemp,p]= corrcoef(fitObj.U(1:end-1,i),fitObj.U(2:end,i));<span class="comment">%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))</span>
 
                [~,columns]=size(rhoTemp);
                 <span class="keyword">if</span>(columns&gt;1)
@@ -718,17 +1337,51 @@ p.footer {
             <span class="keyword">end</span>
 
 
-            legend(dataLabels,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
-            ylabel(<span class="string">'z_{j+1}'</span>); xlabel(<span class="string">'z_j'</span>);
-            axis <span class="string">tight</span>;
+            h_legend=legend(dataLabels,<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>);
+            set(h_legend,<span class="string">'FontSize'</span>,14)
+            pos = get(h_legend,<span class="string">'position'</span>);
+            <span class="keyword">if</span>(~isempty(pos))
+                 set(h_legend, <span class="string">'position'</span>,[pos(1)+.05 pos(2) pos(3:4)]);
+            <span class="keyword">end</span>
+
+            hy=ylabel(<span class="string">'u_{j+1}'</span>); hx=xlabel(<span class="string">'u_j'</span>);
+            set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+
+            axis([0 1 0 1]);
+            title({<span class="string">'Sequential Correlation of'</span>; <span class="string">'Rescaled ISIs'</span>},<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+            <span class="string">'FontSize'</span>,11,<span class="keyword">...</span>
+            <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+
+
+            set(gca, <span class="keyword">...</span>
+              <span class="string">'TickLength'</span>  , [.02 .02] , <span class="keyword">...</span>
+              <span class="string">'YTick'</span>       , 0:.25:1, <span class="keyword">...</span>
+              <span class="string">'XTick'</span>       , 0:.25:1, <span class="keyword">...</span>
+              <span class="string">'LineWidth'</span>   , 1         );
+
+
+
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = plotInvGausTrans(fitObj)
+            <span class="comment">% handle = plotInvGausTrans(fitObj)</span>
+            <span class="comment">% Plots the Auto-correlation function of the X_j's where:</span>
+            <span class="comment">% Z_j: rescaled ISI from the Time Rescaling Theorem.</span>
+            <span class="comment">%      Exponential Rate 1 under true conditional intensity</span>
+            <span class="comment">%      function.</span>
+            <span class="comment">% U_j: 1-exp(-Z_j). Uniform on the interval [0,1) if Z_j's</span>
+            <span class="comment">%      are exponential rate 1.</span>
+            <span class="comment">%</span>
+            <span class="comment">% X_j: norminv(U_j,0,1). Gaussian mean 0, stdev 1 if U_j's are</span>
+            <span class="comment">%      U([0,1))</span>
+            <span class="comment">%</span>
+
             <span class="comment">%[rows,colm] = size(fitObj.X);</span>
             <span class="comment">%index=find(fitObj.invGausStats.lags==1);</span>
             <span class="comment">%lags=fitObj.invGausStats.lags;</span>
-            rhoSig=fitObj.invGausStats.rhoSig;
+            [fitObj.X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(fitObj.Z);
+<span class="comment">%             rhoSig=fitObj.invGausStats.rhoSig;</span>
             n=length(fitObj.X);
-            confBoundSig = fitObj.invGausStats.confBoundSig;
+<span class="comment">%             confBoundSig = fitObj.invGausStats.confBoundSig;</span>
             handle=[];
 <span class="comment">%              for i=1:colm</span>
 <span class="comment">%                     %i</span>
@@ -737,19 +1390,51 @@ p.footer {
 <span class="comment">%                     hold on;</span>
 <span class="comment">%                     %labelArray{i} = ['Fit ' num2str(i)];</span>
 <span class="comment">%              end</span>
-
-            rhoSig.plot;
-            legend(fitObj.lambda.dataLabels,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+            <span class="keyword">if</span>(~isempty(rhoSig))
+                rhoSig.plot;
+            <span class="keyword">end</span>
+            h_legend=legend(fitObj.lambda.dataLabels,<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>);
+            set(h_legend,<span class="string">'FontSize'</span>,14)
+            pos = get(h_legend,<span class="string">'position'</span>);
+            <span class="keyword">if</span>(~isempty(pos))
+             set(h_legend, <span class="string">'position'</span>,[pos(1)+.05 pos(2) pos(3:4)]);
+            <span class="keyword">end</span>
             <span class="comment">%legend(h,labelArray);</span>
-            hold <span class="string">on</span>; confBoundSig.plot;
-
+            hold <span class="string">on</span>;
+            <span class="keyword">if</span>(~isempty(confBoundSig))
+                confBoundSig.plot;
+            <span class="keyword">end</span>
+            title({<span class="string">'Autocorrelation Function'</span>;<span class="string">'of Rescaled ISIs'</span>; <span class="string">'with 95% CIs'</span>},<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+            <span class="string">'FontSize'</span>,11,<span class="keyword">...</span>
+            <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+            hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
+            set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+            set(gca, <span class="keyword">...</span>
+              <span class="string">'TickLength'</span>  , [.02 .02] , <span class="keyword">...</span>
+              <span class="string">'LineWidth'</span>   , 1         );
+            v=axis;
+            maxY = max(abs(v(3:4)))*(1.1); <span class="comment">%add 10%</span>
+            axis([v(1:2) -maxY maxY]);
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = plotResidual(fitObj)
             <span class="comment">% handle = plotResidual(fitObj)</span>
             <span class="comment">% Plots the Point Process Residual</span>
             handle=fitObj.Residual.plot;
             legend <span class="string">off</span>;
-            legend(fitObj.Residual.dataLabels,<span class="string">'Location'</span>,<span class="string">'Best'</span>);
+            h_legend=legend(fitObj.lambda.dataLabels,<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>);
+            set(h_legend,<span class="string">'FontSize'</span>,14)
+            pos = get(h_legend,<span class="string">'position'</span>);
+<span class="comment">%             set(h_legend, 'position',[.91 .41 pos(3:4)]);</span>
+            set(h_legend, <span class="string">'position'</span>,[pos(1)+.05 pos(2) pos(3:4)]);
+            title(<span class="string">'Point Process Residual'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+            <span class="string">'FontSize'</span>,11,<span class="keyword">...</span>
+            <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+            xlabel(<span class="string">'time [s]'</span>,<span class="string">'Interpreter'</span>,<span class="string">'none'</span>);
+            hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
+            set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+            v=axis;
+            maxY = max(abs(v(3:4)))*(1.1); <span class="comment">%add 10%</span>
+            axis([v(1:2) -maxY maxY]);
         <span class="keyword">end</span>
 
 
@@ -766,9 +1451,23 @@ p.footer {
             fitObj.U        =U;
             fitObj.KSStats.xAxis    =xAxis;
             fitObj.KSStats.KSSorted =KSSorted;
+
+
+            <span class="keyword">for</span> i=1:size(xAxis,2);
+                [differentDists(i),pVal(i),ks_stat(i)]=kstest2(fitObj.KSStats.xAxis(:,i) ,fitObj.KSStats.KSSorted(:,i));
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(~exist(<span class="string">'differentDists'</span>))
+                differentDists=1;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(~exist(<span class="string">'pVal'</span>))
+                pVal=1;
+            <span class="keyword">end</span>
+
             fitObj.KSStats.ks_stat  =ks_stat;
-            N = length(fitObj.KSStats.KSSorted);
-            fitObj.KSStats.withinConfInt = ks_stat&lt;1.36/sqrt(N);
+<span class="comment">%             N = length(fitObj.KSStats.KSSorted);</span>
+<span class="comment">%             fitObj.KSStats.withinConfInt = ks_stat&lt;1.36/sqrt(N);</span>
+            fitObj.KSStats.withinConfInt = ~differentDists;
+            fitObj.KSStats.pValue = pVal;
         <span class="keyword">end</span>
         <span class="keyword">function</span> setInvGausStats(fitObj, X,rhoSig,confBoundSig)
             <span class="comment">% setInvGausStats(fitObj,X,rhoSig,confBoundSig)</span>
@@ -785,6 +1484,39 @@ p.footer {
            fitObj.Residual = M;
         <span class="keyword">end</span>
 
+        <span class="keyword">function</span> [paramVals, paramSE, paramSigIndex] = getParam(fitObj,paramNames,fitNum)
+           <span class="comment">% output is a matrix of length equal to the total number of</span>
+           <span class="comment">% paramNames</span>
+           <span class="comment">% and one column for each fit</span>
+
+            <span class="keyword">if</span>(nargin&lt;3)
+                fitNum = 1:fitObj.numResults;
+            <span class="keyword">end</span>
+           <span class="keyword">if</span>(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+           <span class="keyword">end</span>
+           paramVals = zeros(length(paramNames),length(fitNum));
+
+           <span class="keyword">if</span>(nargout&gt;1)
+            paramSE = zeros(length(paramNames),length(fitNum));
+           <span class="keyword">end</span>
+
+           <span class="keyword">if</span>(nargout&gt;2)
+            paramSigIndex = zeros(length(paramNames),length(fitNum));
+           <span class="keyword">end</span>
+
+           <span class="keyword">for</span> i=1:length(paramNames)
+                paramIndex=find(strcmp(paramNames(i),fitObj.uniqueCovLabels));
+                paramVals(i,:) = fitObj.plotParams.bAct(paramIndex,fitNum);
+                <span class="keyword">if</span>(nargout&gt;1)
+                    paramSE(i,:) = fitObj.plotParams.seAct(paramIndex,fitNum);
+                <span class="keyword">end</span>
+                <span class="keyword">if</span>(nargout&gt;2)
+                    paramSigIndex(i,:) = fitObj.plotParams.sigIndex(paramIndex,fitNum);
+                <span class="keyword">end</span>
+           <span class="keyword">end</span>
+
+        <span class="keyword">end</span>
 
 
     <span class="keyword">end</span>
@@ -792,8 +1524,19 @@ p.footer {
     <span class="keyword">methods</span> (Static)
 
         <span class="keyword">function</span> fitObj = fromStructure(structure)
+            <span class="comment">% fitObj = fromStructure(structure)</span>
+            <span class="comment">% Returns a FitResult object from the input structure.</span>
+            <span class="comment">% This is used to be able to save and restore FitResult</span>
             <span class="keyword">if</span>(isa(structure,<span class="string">'struct'</span>))
-                spikeObj=nspikeTrain.fromStructure(structure.neuralSpikeTrain);
+                <span class="keyword">if</span>(isa(structure.neuralSpikeTrain,<span class="string">'cell'</span>))
+                    spikeObj = cell(1,length(structure.neuralSpikeTrain));
+                   <span class="keyword">for</span> k=1:length(structure.neuralSpikeTrain)
+                       spikeObj{k} = nspikeTrain.fromStructure(structure.neuralSpikeTrain{k});
+
+                   <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    spikeObj=nspikeTrain.fromStructure(structure.neuralSpikeTrain);
+                <span class="keyword">end</span>
                 lambda=Covariate.fromStructure(structure.lambda);
                 rhoSig=SignalObj.signalFromStruct(structure.invGausStats.rhoSig);
                 confBoundSig = SignalObj.signalFromStruct(structure.invGausStats.confBoundSig);
@@ -803,10 +1546,40 @@ p.footer {
                     ensHistObject{i} = History.fromStructure(structure.ensHistObjects{i});
                 <span class="keyword">end</span>
                 configColl = ConfigColl.fromStructure(structure.configs);
-                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,configColl,structure.XvalData,structure.XvalTime,structure.fitType);
+
+                <span class="comment">% Support legacy saved structures that predate select fields.</span>
+                logLL = NaN(1,max(1,structure.numResults));
+                <span class="keyword">if</span> isfield(structure,<span class="string">'logLL'</span>)
+                    logLL = structure.logLL;
+                    <span class="keyword">if</span> isscalar(logLL) &amp;&amp; structure.numResults &gt; 1
+                        logLL = repmat(logLL,1,structure.numResults);
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+
+                XvalData = [];
+                <span class="keyword">if</span> isfield(structure,<span class="string">'XvalData'</span>)
+                    XvalData = structure.XvalData;
+                <span class="keyword">end</span>
+
+                XvalTime = [];
+                <span class="keyword">if</span> isfield(structure,<span class="string">'XvalTime'</span>)
+                    XvalTime = structure.XvalTime;
+                <span class="keyword">end</span>
+
+                fitType = <span class="string">''</span>;
+                <span class="keyword">if</span> isfield(structure,<span class="string">'fitType'</span>)
+                    fitType = structure.fitType;
+                <span class="keyword">elseif</span> isfield(structure,<span class="string">'distribution'</span>)
+                    fitType = structure.distribution;
+                <span class="keyword">end</span>
+
+<span class="comment">%                 fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL, configColl,XvalData,XvalTime,distribution)</span>
+                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,logLL,configColl,XvalData,XvalTime,fitType);
                 fitObj.setKSStats(structure.Z,structure.U, structure.KSStats.xAxis, structure.KSStats.KSSorted, structure.KSStats.ks_stat);
                 fitObj.setInvGausStats(structure.X,rhoSig,confBoundSig);
                 fitObj.setFitResidual(M);
+                fitObj.setNeuronName(structure.neuronNumber);
+
             <span class="keyword">elseif</span>(isa(structure,<span class="string">'cell'</span>)) <span class="comment">%cell array of FitResult objects</span>
                 fitObj = cell(size(structure));
                <span class="keyword">for</span> i=1:length(structure)
@@ -817,15 +1590,21 @@ p.footer {
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> structCell = CellArrayToStructure(fitResObjCell)
+            <span class="comment">% structCell = CellArrayToStructure(fitResObjCell)</span>
+            <span class="comment">% For every FitResult structure in the a cell array, it calls</span>
+            <span class="comment">% FitResults.fromStructure</span>
+
            <span class="keyword">if</span>(isa(fitResObjCell,<span class="string">'FitResult'</span>))
                structCell = fitResObjCell.toStructure;
-           <span class="keyword">elseif</span>(isa(fitResObjCell,<span class="string">'cell'</span>))
+           <span class="keyword">elseif</span>(isa(fitResObjCell,<span class="string">'cell'</span>)&amp;&amp;~isempty(fitResObjCell))
                <span class="keyword">if</span>(isa(fitResObjCell{1},<span class="string">'FitResult'</span>))
                    structCell = cell(size(fitResObjCell));
                   <span class="keyword">for</span> i=1:length(fitResObjCell)
                      structCell{i} = fitResObjCell{i}.toStructure;
                   <span class="keyword">end</span>
                <span class="keyword">end</span>
+           <span class="keyword">else</span>
+            structCell={};
            <span class="keyword">end</span>
 
         <span class="keyword">end</span>
@@ -910,7 +1689,7 @@ p.footer {
 
     <span class="comment">% if no XTickLabel AND no XTick are defined use the current XTickLabel</span>
     <span class="comment">%if nargin &lt; 3 &amp; (~exist('XTick') | isempty(XTick)),</span>
-    <span class="keyword">if</span> (nargin &lt; 3 || isempty(varargin{1})) &amp; (~exist(<span class="string">'XTick'</span>) | isempty(XTick)),
+    <span class="keyword">if</span> (nargin &lt; 3 || isempty(varargin{1})) &amp;&amp; (~exist(<span class="string">'XTick'</span>) || isempty(XTick)),
         xTickLabels = get(gca,<span class="string">'XTickLabel'</span>)  ; <span class="comment">% use current XTickLabel</span>
         <span class="keyword">if</span> ~iscell(xTickLabels)
             <span class="comment">% remove trailing spaces if exist (typical with auto generated XTickLabel)</span>
@@ -994,7 +1773,17 @@ p.footer {
     set(get(gca,<span class="string">'ylabel'</span>),<span class="string">'units'</span>,<span class="string">'pixel'</span>)          ;
 
     origpos = get(gca,<span class="string">'position'</span>)                   ;
-    textsizes = cell2mat(get(hText,<span class="string">'extent'</span>))       ;
+
+    <span class="comment">% Modified by Iahn Cajigas</span>
+    <span class="comment">% 3/4/2011 to allow for a single</span>
+    <span class="comment">% xTickLabel to work properly</span>
+    temphText = get(hText,<span class="string">'extent'</span>);
+    <span class="keyword">if</span>(isa(temphText,<span class="string">'cell'</span>))
+        textsizes = cell2mat(temphText)       ;
+    <span class="keyword">else</span>
+        textsizes = temphText;
+    <span class="keyword">end</span>
+
     longest =  max(textsizes(:,4))                  ;
 
     laborigext = get(get(gca,<span class="string">'xlabel'</span>),<span class="string">'extent'</span>)    ;
@@ -1049,6 +1838,7 @@ p.footer {
 
 <span class="keyword">end</span>
 <span class="keyword">function</span> [uniqueLabels, indexIntoOriginal, restoreIndex] = getUniqueLabels(covLabels)
+<span class="comment">% Given a set of covLabels, returns a subset of labels that are unique</span>
             offset = 0;
             <span class="keyword">for</span> i=1:length(covLabels)
                 currLabels = covLabels{i};
@@ -1057,21 +1847,45 @@ p.footer {
             <span class="keyword">end</span>
             [uniqueLabels, indexIntoOriginal, restoreIndex] = unique(allLabels);
 <span class="keyword">end</span>
-</pre><pre class="codeoutput">Input argument "spikeObj" is undefined.
-
-Error in ==&gt; FitResult&gt;FitResult.FitResult at 86
-            if(isnumeric(spikeObj.name))
-</pre><p class="footer"><br>
-      Published with MATLAB&reg; 7.11<br></p></div><!--
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 classdef FitResult < handle
-    % FITRESULT 
-    % stores results of a fit using the Analysis object
-    % The results are for a single neuron over a range of configurations
-    % <a href="FitResultExamples.html">FitResult Examples</a> 
-    % see also <a href="Analysis.html">Analysis</a>
-    % Reference page in Help browser
-    % <a href="FitResult.html">FitResult Reference</a>
+% FITRESULT 
+% stores results of a fit using the Analysis object
+% The results are for a single neuron over a range of configurations
+%
+% <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult Examples</a> 
+%
+% see also <a href="matlab:nstatOpenHelpPage('Analysis.html')">Analysis</a>
+%
+% Reference page in Help browser
+% <a href="matlab:nstatOpenHelpPage('FitResult.html')">FitResult Reference</a>
+
+
+%
+% nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
+% Cajigas, I, Malik, WQ, Brown, EN
+% This program is free software; you can redistribute it and/or 
+% modify it under the terms of the GNU General Public License as published 
+% by the Free Software Foundation; either version 2 of the License, or 
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful, 
+% but WITHOUT ANY WARRANTY; without even the implied warranty of 
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+% See the GNU General Public License for more details.
+%  
+% You should have received a copy of the GNU General Public License 
+% along with this program; if not, write to the Free Software Foundation, 
+% Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
     properties
        numResults   %Number of results in this FitResult object
        lambda       %Lambda signal
@@ -1079,9 +1893,11 @@ classdef FitResult < handle
        fitType      %Poisson or Binomial
        
        b            %coefficients for each fit
+       
        dev          %deviance for each fit
        AIC          %Akaike's Information Criterion for each fit
        BIC          %Baysian Information Criterion for each fit
+       logLL        %Log Likelihood
        stats        %Relevant statistics for each fit
        configs      % the config collection for the different fits
        configNames  % names of the the differen fits
@@ -1117,7 +1933,7 @@ classdef FitResult < handle
 
     methods 
      
-        function fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime,distribution)
+        function fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL, configColl,XvalData,XvalTime,distribution)
             % fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime)
             % Stores the results of multiple regressions for a single  neuron into a accessible structure.
             %
@@ -1149,15 +1965,42 @@ classdef FitResult < handle
                 XvalData =[];
             end
             
-            if(isnumeric(spikeObj.name))
-                nNumber =spikeObj.name;
-            else
-                nNumber = str2double(spikeObj.name(~isletter(spikeObj.name)));
+            if(isa(spikeObj,'cell'))
+                for i=1:length(spikeObj)
+                    if(isnumeric(spikeObj{i}.name))
+                        nNumber(i) =spikeObj{i}.name;
+                    else
+                        nNumber(i) = str2double(spikeObj{i}.name(~isletter(spikeObj{i}.name)));
+                    end
+                    minTime(i)=spikeObj{i}.minTime;
+                    maxTime(i)=spikeObj{i}.maxTime;
+                end
+                nNumber = unique(nNumber);
+                minTime = unique(minTime);
+                maxTime = unique(maxTime);
+                if(length(nNumber)>1)
+                    error('Can only have a FitResults with spike trains from a single neuron');
+                end
+                if(length(minTime)>1 || length(maxTime)>1)
+                    error('Spike Trains are of different lengths');
+                end
+                
+            elseif(isa(spikeObj,'nspikeTrain'))
+                if(isnumeric(spikeObj.name))
+                    nNumber =spikeObj.name;
+                else
+                    nNumber = str2double(spikeObj.name(~isletter(spikeObj.name)));
+                end
+                minTime=spikeObj.minTime;
+                maxTime=spikeObj.maxTime;
+                    
             end
+                
             fitObj.neuronNumber = nNumber; %str2num(spikeObj.name);
             fitObj.neuralSpikeTrain = spikeObj;
-            fitObj.minTime = spikeObj.minTime;
-            fitObj.maxTime = spikeObj.maxTime;
+            fitObj.minTime = minTime;
+            fitObj.maxTime = maxTime;
+
             fitObj.numResults = 0;
             fitObj.configs = configColl;
             fitObj.configNames = configColl.getConfigNames;
@@ -1168,7 +2011,7 @@ classdef FitResult < handle
             fitObj.numHist=numHist;
             fitObj.histObjects = histObjects;
             fitObj.ensHistObjects = ensHistObj;
-            fitObj.addParamsToFit(fitObj.neuronNumber,lambda,b, dev, stats,AIC,BIC,configColl);
+            fitObj.addParamsToFit(fitObj.neuronNumber,lambda,b, dev, stats,AIC,BIC,logLL,configColl);
             fitObj.Z        =[]; %rescaled spikes times - exponentially dist.
             fitObj.U        =[]; %rescaled spike times - uniformly dist.
             fitObj.X        =[]; %rescaled spike times - gaussian dist.
@@ -1184,9 +2027,20 @@ classdef FitResult < handle
             
             fitObj.fitType = distribution;     
              
-        end        
+        end       
+        function fitObj = setNeuronName(fitObj,name)
+           fitObj.neuronNumber = name; 
+        end
         function mFitRes = mergeResults(fitObj,newFitObj)
+            % mFitRes = mergeResults(fitObj,newFitObj)
+            % mFitRes contains the results from fitObj followed by the
+            % results of newFitObj in a single new FitResult object
+            %
+            % newFitObj can be of class 'FitResult' or a cell array of
+            % 'FitResult' objects. In the latter case, the results are
+            % apppended in the order that they appear in each cell array.
             if(isa(newFitObj,'FitResult'))
+%                 newFitObj.neuronNumber
                 if(fitObj.neuronNumber ==newFitObj.neuronNumber)
                     spikeObj = fitObj.neuralSpikeTrain;
                     covLabels = fitObj.covLabels(1:fitObj.numResults);
@@ -1202,6 +2056,7 @@ classdef FitResult < handle
                     dev = [fitObj.dev newFitObj.dev];
                     AIC = [fitObj.AIC newFitObj.AIC];
                     BIC = [fitObj.BIC newFitObj.BIC];
+                    logLL = [fitObj.logLL newFitObj.logLL];
                     stats=fitObj.stats(1:fitObj.numResults);
                     stats((fitObj.numResults+1):(fitObj.numResults+newFitObj.numResults)) = newFitObj.stats(1:newFitObj.numResults);
                     lambda = fitObj.lambda.merge(newFitObj.lambda);
@@ -1219,15 +2074,38 @@ classdef FitResult < handle
                     XvalTime = [fitObj.XvalTime newFitObj.XvalTime];
                     distribution=fitObj.fitType(1:fitObj.numResults);
                     distribution((fitObj.numResults+1):(fitObj.numResults+newFitObj.numResults)) = newFitObj.fitType(1:newFitObj.numResults);
-                    Z=[fitObj.Z newFitObj.Z];
-                    U=[fitObj.U newFitObj.U];
+                    tempZ = zeros(length(fitObj.Z),size(newFitObj.Z,2));
+                    tempU = zeros(length(fitObj.U),size(newFitObj.U,2));
+                    tempZ(1:length(newFitObj.Z),:) = newFitObj.Z;
+                    tempU(1:length(newFitObj.U),:) = newFitObj.U;
+                    Z=[fitObj.Z tempZ];
+                    U=[fitObj.U tempU];
                     [X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(Z);
 
                     M=fitObj.Residual.merge(newFitObj.Residual);
-                    xAxis    = [fitObj.KSStats.xAxis newFitObj.KSStats.xAxis];
-                    KSSorted = [fitObj.KSStats.KSSorted newFitObj.KSStats.KSSorted];
+                   
+                    origLength = size(fitObj.KSStats.xAxis,1);
+                    currLength = size(newFitObj.KSStats.xAxis,1);
+                    
+                    if(currLength~=origLength)
+                        %we use this because some times the time scales
+                        %dont match up.  In particular when spikeTrain is
+                        %segmented by steps or windows and the window sizes
+                        %are normalized to 1.
+                      newX = fitObj.KSStats.xAxis;
+                      oldX = newFitObj.KSStats.xAxis;
+                      oldY = newFitObj.KSStats.KSSorted;
+                      y = interp1(oldX,oldY,newX(:,1),'spline','extrap');
+                      xAxis    = [fitObj.KSStats.xAxis newX(:,1)];
+                      KSSorted = [fitObj.KSStats.KSSorted y];
+                    else
+                       
+                        xAxis    = [fitObj.KSStats.xAxis newFitObj.KSStats.xAxis];
+                        KSSorted = [fitObj.KSStats.KSSorted newFitObj.KSStats.KSSorted];
+                        
+                    end
                     ks_stat  = [fitObj.KSStats.ks_stat newFitObj.KSStats.ks_stat];
-                    mFitRes=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObjects,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime,distribution);
+                    mFitRes=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObjects,lambda,b, dev, stats,AIC,BIC,logLL,configColl,XvalData,XvalTime,distribution);
                     mFitRes.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
                     mFitRes.setInvGausStats(X,rhoSig,confBoundSig);
                     mFitRes.setFitResidual(M);
@@ -1247,7 +2125,44 @@ classdef FitResult < handle
             end
             
         end
-        function addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,configColl)
+        function subsetFit = getSubsetFitResult(fitObj,subfits)
+            %subfits is a row vector with numbers corresponding to the
+            %subfits
+            if(and(min(subfits)>0,max(subfits)<=fitObj.numResults))
+                spikeObj = fitObj.neuralSpikeTrain;
+                covLabels = fitObj.covLabels(subfits);
+                numHist = fitObj.numHist(subfits);
+                histObjects = fitObj.histObjects(subfits);
+                ensHistObj = fitObj.ensHistObjects(subfits);
+                lambda = fitObj.lambda.getSubSignal(subfits);
+                b = fitObj.b(subfits);
+                dev = fitObj.dev(subfits);
+                stats = fitObj.stats(subfits);
+                AIC = fitObj.AIC(subfits);
+                BIC = fitObj.BIC(subfits);
+                logLL = fitObj.logLL(subfits);
+                configColl = fitObj.configs.getSubsetConfigs(subfits);
+                XvalData  = fitObj.XvalData;
+                XvalTime  = fitObj.XvalTime;
+                distribution = fitObj.fitType;
+
+                subsetFit=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL,configColl,XvalData,XvalTime,distribution);
+                Z = fitObj.Z(:,subfits);
+                U = fitObj.U(:,subfits);
+                X = fitObj.X(:,subfits);
+                xAxis= fitObj.KSStats.xAxis(:,subfits);
+                KSSorted=fitObj.KSStats.KSSorted(:,subfits);
+                ks_stat=fitObj.KSStats.ks_stat(subfits);
+                rhoSig=fitObj.invGausStats.rhoSig.getSubSignal(subfits);
+                confBoundSig=fitObj.invGausStats.confBoundSig;
+                M = fitObj.Residual.getSubSignal(subfits);
+
+                subsetFit.setKSStats(Z,U, xAxis, KSSorted, ks_stat);
+                subsetFit.setInvGausStats(X,rhoSig,confBoundSig);
+                subsetFit.setFitResidual(M);
+            end
+        end
+        function addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,logLL,configColl)
             % addParamsToFit(fitObj,neuronNum,lambda,b, dev, stats,AIC,BIC,configColl)
             % Add the specified parameters to the current FitResult object
             % only if the neuronNum matches the neuronNum of this object
@@ -1268,28 +2183,38 @@ classdef FitResult < handle
 
               if(numNewResults==1)
                       fitObj.b{fitObj.numResults+1}    = b{1};
+                      
                       fitObj.dev(fitObj.numResults+1)  = dev;
                       fitObj.stats{fitObj.numResults+1}= stats{1};
                       if(nargin<7)
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
+                          delta = 1/newLambda.sampleRate;
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(data*delta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
+                          fitObj.logLL(fitObj.numResults+1) = logLL;
                       end
                           
                       fitObj.numCoeffs(fitObj.numResults+1) = length(b);
               else
                   for i=1:numNewResults
                       fitObj.b{fitObj.numResults+i}    = b{i};
+                      
                       fitObj.dev(fitObj.numResults+i)  = dev(i);
                       fitObj.stats{fitObj.numResults+i}= stats{i};
                       if(nargin<7)
                           fitObj.AIC(fitObj.numResults+i)  = 2*length(b{i})+dev(i);
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
+                          delta=fitObj.neuralSpikeTrain.sampleRate;
+                          y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
+                          
+                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(newLambda.data*delta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
+                          fitObj.logLL(fitObj.numResults+i)= logLL(i);
                       end
                       fitObj.numCoeffs(fitObj.numResults+i) = length(b{i});
                   end
@@ -1303,7 +2228,7 @@ classdef FitResult < handle
               fitObj.numResults = fitObj.numResults+numNewResults;
               dataLabels = cell(1,fitObj.numResults);
               for i=1:fitObj.numResults
-                 dataLabels{i} = strcat('\lambda_',num2str(i));
+                 dataLabels{i} = strcat('\lambda_{',num2str(i),'}');
               end
               fitObj.lambda.setDataLabels(dataLabels);
               
@@ -1313,7 +2238,7 @@ classdef FitResult < handle
               error('Neuron number does not match');
           end
         end
-        function lambda = computeValLambda(fitObj)
+        function [lambda, logLL] = computeValLambda(fitObj)
             % lambda = computeValLambda(fitObj)
             % Returns a Covariate object lambda. This is the Conditional
             % intensity function evaluated using the validation data
@@ -1322,17 +2247,31 @@ classdef FitResult < handle
                 lambdaData(:,i) = fitObj.evalLambda(i,fitObj.XvalData{i});
             end
             lambda=Covariate(fitObj.XvalTime{1},lambdaData,...
-                  '\Lambda(t)',fitObj.lambda.xlabelval,...
+                  '\lambda(t)',fitObj.lambda.xlabelval,...
                   fitObj.lambda.xunits,'Hz',fitObj.lambda.dataLabels);
+            delta = 1/lambda.sampleRate;
+            y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
+            logLL =sum(y.*log(lambda.data*delta)+(1-y).*(1-lambda.data*delta));
         end
         
         function mapCovLabelsToUniqueLabels(fitObj)
+            % mapCovLabelsToUniqueLabels(fitObj)
+            % Used internally by the FitResult class generate a matrix that
+            % maps how covariate labels of the fit object map to unique
+            % covariate labels. For example, multiple fits that have a
+            % constant baseline term will be assumed to refer to the same
+            % "baseline" term and not two separate ones
             flatMask = zeros(length(fitObj.uniqueCovLabels),length(fitObj.covLabels));
             for j=1:length(fitObj.covLabels)
                 currLabels = fitObj.covLabels{j};
                 index=zeros(1,length(currLabels));
                 for i=1:length(currLabels)
-                    index(i)=strmatch(currLabels{i}, fitObj.uniqueCovLabels, 'exact');
+                    idx = find(strcmp(currLabels{i}, fitObj.uniqueCovLabels),1,'first');
+                    if(isempty(idx))
+                        error('FitResult:UnknownCovariateLabel',...
+                            'Unable to map covariate label "%s" to unique labels.',currLabels{i});
+                    end
+                    index(i)=idx;
                 end
                 
                 fitObj.indicesToUniqueLabels{j} = index;
@@ -1431,7 +2370,9 @@ classdef FitResult < handle
 %                             if(i==1)
 %                                 runSum = b(1)*baseline;
 %                             else
-                                runSum = runSum+b(i)*newData{i-1};
+                                if(i<=length(b))
+                                    runSum = runSum+b(i)*newData{i};
+                                end
 %                             end
                         end
                         if(strcmp(fitObj.fitType{lambdaIndex},'poisson'))
@@ -1535,7 +2476,402 @@ classdef FitResult < handle
            tempVal =sum(fitObj.flatMask,2);
            fitObj.plotParams.numResultsCoeffPresent =tempVal(index); 
         end
-        function h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance)
+        
+        function [coeffIndex, epochId,numEpochs] = getCoeffIndex(fitObj,fitNum,sortByEpoch)
+          if(nargin<3 || isempty(sortByEpoch))
+             sortByEpoch=0; 
+          end
+          if(nargin<2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          end
+          if(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          end   
+          [histIndex, epochId] = fitObj.getHistIndex(fitNum,sortByEpoch);
+          allIndex = 1:length(fitObj.uniqueCovLabels);
+          
+          nonHistIndex = setdiff(allIndex,histIndex);
+%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)>=1);
+          nonNANIndex=  allIndex;
+          actCoeffIndex = nonHistIndex(ismember(nonHistIndex, nonNANIndex));
+          allCoeffTerms = fitObj.uniqueCovLabels(actCoeffIndex);
+%           coeffName = cell(size(allCoeffTerms));
+          epochStartInd=regexp(allCoeffTerms,'_\{\d*\}','start'); 
+          epochEndInd=regexp(allCoeffTerms,'_\{\d*\}','end');
+         
+          allCoeffIndex = [];
+          nonEpochIndex=[];
+%           nonEmptyCoeffNameInd = [];
+          epochsExist =0;
+          for i=1:length(allCoeffTerms)
+              if(~isempty(allCoeffTerms{i}))
+                allCoeffIndex = [allCoeffIndex i];
+                
+                 if(~isempty(epochStartInd{i}))
+%                      nonEmptyCoeffNameInd = [nonEmptyCoeffNameInd i];
+                     epochsExist=1;
+                     actStart = epochStartInd{i}+2;
+                     actEnd   = epochEndInd{i}-1;
+                     numEpoch(i) = str2num(allCoeffTerms{i}(actStart:actEnd));
+%                      coeffName{i} =  allCoeffTerms{i}(1:actStart-3);
+                     
+                     
+                 else
+                    nonEpochIndex = [nonEpochIndex i];
+                    numEpoch(i) = 0; % make terms that only appear once part of epoch 0.
+                    
+                 end
+              end
+              
+          end
+        
+%           coeffName = coeffName(nonEmptyCoeffNameInd);
+          if(epochsExist && ~sortByEpoch)
+              totalEpochs = unique(numEpoch);
+              coeffIndex = nonEpochIndex;
+              if(nargout>1)
+                  epochId=zeros(size(nonEpochIndex));
+              end
+              for i=1:length(totalEpochs)
+                  if(totalEpochs(i)~=0)
+                    coeffIndex = [coeffIndex, find(numEpoch==totalEpochs(i))];
+                  
+                     if(nargout>1)
+                        epochId = [epochId, totalEpochs(i)*ones(size(find(numEpoch==totalEpochs(i))))];
+                     end
+                  end
+              end
+              coeffIndex = actCoeffIndex(coeffIndex);
+          elseif(epochsExist && sortByEpoch)
+              coeffIndex = actCoeffIndex(allCoeffIndex);
+              if(nargout>1)
+                epochId = numEpoch;
+              end
+          else
+              coeffIndex = actCoeffIndex(allCoeffIndex);
+              if(nargout>1)
+                epochId = zeros(size(allCoeffIndex)); %no epochs exist so just create same index for all;
+              end
+          end
+          
+
+%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)>=1);
+          nonNANIndex = allIndex;
+          coeffIndex = coeffIndex(ismember(coeffIndex, nonNANIndex));
+            
+          if(nargout>2)
+              numEpochs = length(unique(epochId));
+          end
+          
+        end
+        
+        function h=plotCoeffsWithoutHistory(fitObj,fitNum,sortByEpoch,plotSignificance)
+           if(nargin<4 || isempty(plotSignificance))
+               plotSignificance=1;
+           end
+           if(nargin<3 || isempty(sortByEpoch))
+              sortByEpoch = 0; 
+           end
+           if(nargin<2 || isempty(fitNum))
+               fitNum = 1:fitObj.numResults;
+           end
+           if(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+           end    
+               
+            
+          coeffIndex = fitObj.getCoeffIndex(fitNum,sortByEpoch);
+          h=fitObj.plotCoeffs([],fitNum,[],plotSignificance,coeffIndex);
+          
+          
+            
+        end
+        
+        function [histIndex, epochId,numEpochs] = getHistIndex(fitObj,fitNum,sortByEpoch)
+            %if sortByEpoch==1 then we group all regression terms with the
+            %same name one next to each other by epoch (time interval).
+            %Otherwise, we show all epoch one terms, followed by all epoch
+            %2 terms, etc.
+           if(nargin<3 || isempty(sortByEpoch))
+            sortByEpoch = 0;
+           end
+          if(nargin<2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          end
+          if(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          end  
+          
+          
+          allHistTerms = regexp(fitObj.uniqueCovLabels,'^[\w*');
+          epochStartInd=regexp(fitObj.uniqueCovLabels,'\]_\{\d*\}','start'); 
+          epochEndInd=regexp(fitObj.uniqueCovLabels,'\]_\{\d*\}','end');
+          allHistIndex = [];
+          epochsExist =0;
+          for i=1:length(allHistTerms)
+              if(~isempty(allHistTerms{i}))
+                allHistIndex = [allHistIndex i];
+                 if(~isempty(epochStartInd{i}))
+                     epochsExist=1;
+                     actStart = epochStartInd{i}+3;
+                     actEnd   = epochEndInd{i}-1;
+                     numEpoch(i) = str2num(fitObj.uniqueCovLabels{i}(actStart:actEnd));
+                 end
+              end
+              
+          end
+          
+          if(epochsExist && ~sortByEpoch)
+              totalEpochs = unique(numEpoch);
+              histIndex = [];
+              if(nargout>1)
+                  epochId=[];
+              end
+              for i=1:length(totalEpochs)
+                 histIndex = [histIndex, find(numEpoch==totalEpochs(i))]; 
+                 if(nargout>1)
+                    epochId = [epochId, totalEpochs(i)*ones(size(find(numEpoch==totalEpochs(i))))];
+                 end
+              end
+          elseif(epochsExist && sortByEpoch)
+              histIndex = allHistIndex;
+              if(nargout>1)
+                epochId = numEpoch;
+              end
+          else
+              histIndex = allHistIndex;
+              if(nargout>1)
+                epochId = zeros(size(allHistIndex)); %no epochs exist so just create same index for all;
+              end
+          end
+             
+                   
+%           nonNANIndex = find(sum(~isnan(fitObj.plotParams.bAct(:,fitNum)),2)>=1);
+%           histIndex = histIndex(ismember(histIndex, nonNANIndex));
+
+          if(nargout>2)
+              numEpochs = length(unique(epochId));
+          end
+            
+        end
+        
+        function [coeffMat, labels, SEMat] = getCoeffs(fitObj, fitNum)
+             if(nargin<2 || isempty(fitNum))
+                fitNum =1:fitObj.numResults;
+            end
+            sortByEpoch = 0; % Make sure we have different time series if the history is divided into epochs;
+            [coeffIndex, epochId, numEpochs] = fitObj.getCoeffIndex(fitNum,sortByEpoch);
+            epochNums = unique(epochId);
+            
+            
+             coeffStrings = fitObj.uniqueCovLabels(coeffIndex);
+            baseStringEndIndex =regexp(coeffStrings,'_\{\d*\}','start');
+            
+            for i=1:length(baseStringEndIndex)
+                if(~isempty(baseStringEndIndex{i}))
+                    baseStrings{i} = coeffStrings{i}(1:baseStringEndIndex{i}-1);
+                else
+                    baseStrings{i} = coeffStrings{i};
+                end
+            end
+            uniqueCoeffs = unique(baseStrings);
+            
+            for i=1:length(uniqueCoeffs)
+               coeffStrIndex{i} = coeffIndex(strcmp(baseStrings,uniqueCoeffs{i})); 
+               if(min(epochId)==0)
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}))+1;
+               else 
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}));
+               end
+            end
+            
+%             
+%             for i=1:numEpochs
+%                 epochIndices{i} = find(epochId==epochNums(i));
+%                 epochLength(i) = length(epochIndices{i});
+%             end
+            
+          
+            
+            coeffIndMat= nan(length(uniqueCoeffs),numEpochs);
+            
+            labels = cell(size(coeffIndMat));
+            for i=1:length(uniqueCoeffs)
+               coeffIndMat(i,epochIndices{i}) = coeffStrIndex{i};
+               labels(i,epochIndices{i}) = fitObj.uniqueCovLabels(coeffStrIndex{i});
+            end
+            
+            
+%             for i=1:numEpochs
+%                coeffIndMat(1:epochLength(i),i) = coeffIndex(epochIndices{i});
+%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(coeffIndMat(1:epochLength(i),i));
+%             end
+            
+            
+            
+            if(length(fitNum)>1)
+                coeffMat = nan(size(coeffIndMat,1),size(coeffIndMat,2), length(fitNum));
+                SEMat    = nan(size(coeffIndMat,1),size(coeffIndMat,2), length(fitNum));
+                for i=1:length(fitNum)
+                    for j=1:length(uniqueCoeffs)
+                        bTemp=fitObj.plotParams.bAct(coeffStrIndex{j},i);    
+                        seTemp=fitObj.plotParams.seAct(coeffStrIndex{j},i);    
+                        coeffMat(j,epochIndices{j},i) = bTemp';
+                        SEMat(j,epochIndices{j},i) = seTemp';
+                    end
+                end
+            else
+                coeffMat = nan(size(coeffIndMat,1),size(coeffIndMat,2));
+                SEMat    = nan(size(coeffIndMat,1),size(coeffIndMat,2));
+                for j=1:length(uniqueCoeffs)
+                    bTemp=fitObj.plotParams.bAct(coeffStrIndex{j},fitNum); 
+                    seTemp = fitObj.plotParams.seAct(coeffStrIndex{j},fitNum); 
+                    coeffMat(j,epochIndices{j}) = bTemp';
+                    SEMat(j,epochIndices{j}) = seTemp';
+                end
+
+            end
+            
+        end
+        
+        function [histMat, labels, SEMat] = getHistCoeffs(fitObj,fitNum)
+              if(nargin<2 || isempty(fitNum))
+                fitNum =1:fitObj.numResults;
+            end
+            sortByEpoch = 0; % Make sure we have different time series if the history is divided into epochs;
+            [histIndex, epochId, numEpochs] = fitObj.getHistIndex(fitNum,sortByEpoch);
+            epochNums = unique(epochId);
+            
+            
+            histcoeffStrings = fitObj.uniqueCovLabels(histIndex);
+            baseStringEndIndex =regexp(histcoeffStrings,'_\{\d*\}','start');
+            baseStrings = cell(length(baseStringEndIndex),1);
+            for i=1:length(baseStringEndIndex)
+                if(~isempty(baseStringEndIndex{i}))
+                    baseStrings{i} = histcoeffStrings{i}(1:baseStringEndIndex{i}-1);
+                else
+                    baseStrings{i} = histcoeffStrings{i};
+                end
+            end
+            uniqueCoeffs = unique(baseStrings);
+            
+            for i=1:length(uniqueCoeffs)
+               histcoeffStrIndex{i} = histIndex(strcmp(baseStrings,uniqueCoeffs{i})); 
+               if(min(epochId)==0)
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}))+1;
+               else 
+                epochIndices{i} = epochId(strcmp(baseStrings,uniqueCoeffs{i}));
+               end
+            end
+            
+%             
+%             for i=1:numEpochs
+%                 epochIndices{i} = find(epochId==epochNums(i));
+%                 epochLength(i) = length(epochIndices{i});
+%             end
+            
+          
+            
+            histcoeffIndMat= nan(length(uniqueCoeffs),numEpochs);
+            labels = cell(size(histcoeffIndMat));
+%             SEMat = nan(length(uniqueCoeffs),numEpochs);
+            for i=1:length(uniqueCoeffs)
+               histcoeffIndMat(i,epochIndices{i}) = histcoeffStrIndex{i};
+               labels(i,epochIndices{i}) = fitObj.uniqueCovLabels(histcoeffStrIndex{i});
+%                SEMat(i,epochIndices{i}) = fitObj.se;
+            end
+            
+            
+%             for i=1:numEpochs
+%                coeffIndMat(1:epochLength(i),i) = coeffIndex(epochIndices{i});
+%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(coeffIndMat(1:epochLength(i),i));
+%             end
+            
+            
+            
+            if(length(fitNum)>1)
+                histMat = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2), length(fitNum));
+                SEMat   = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2), length(fitNum));
+                for i=fitNum
+                    for j=1:length(uniqueCoeffs)
+                        bTemp=fitObj.plotParams.bAct(histcoeffStrIndex{j},i);    
+                        seTemp = fitObj.plotParams.seAct(histcoeffStrIndex{j},i);    
+                        histMat(j,epochIndices{j},i) = bTemp';
+                        SEMat(j,epochIndices{j},i) = seTemp';
+                    end
+                end
+            else
+                histMat = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2));
+                SEMat   = nan(size(histcoeffIndMat,1),size(histcoeffIndMat,2));
+                for j=1:length(uniqueCoeffs)
+                    bTemp=fitObj.plotParams.bAct(histcoeffStrIndex{j},fitNum);       
+                    seTemp=fitObj.plotParams.seAct(histcoeffStrIndex{j},fitNum);
+                    histMat(j,epochIndices{j}) = bTemp';
+                    SEMat(j,epochIndices{j}) = seTemp';
+                end
+
+            end
+            
+            
+%             
+%             if(nargin<2 || isempty(fitNum))
+%                 fitNum =1:fitObj.numResults;
+%             end
+%             sortByEpoch = 0; % Make sure we have different time series if the history is divided into epochs;
+%             [histIndex, epochId, numEpochs] = fitObj.getHistIndex(fitNum,sortByEpoch);
+%             epochNums = unique(epochId);
+%             for i=1:numEpochs
+%                 epochIndices{i} = find(epochId==epochNums(i));
+%                 epochLength(i) = length(epochIndices{i});
+%             end
+%             
+%             histIndMat= nan(max(epochLength),numEpochs);
+%             labels = cell(size(histIndMat));
+%             for i=1:numEpochs
+%                histIndMat(1:epochLength(i),i) = histIndex(epochIndices{i});
+%                labels(1:epochLength(i),i) = fitObj.uniqueCovLabels(histIndMat(1:epochLength(i),i));
+%             end
+%             
+%             
+%             
+%             if(length(fitNum)>1)
+%                 histMat = nan(size(histIndMat,1),size(histIndMat,2), length(fitNum));
+%                 for i=1:length(fitNum)
+%                     for j=1:numEpochs
+%                         bTemp=fitObj.plotParams.bAct(epochIndices{j},i);                
+%                         histMat(1:epochLength(j),j,i) = bTemp;
+%                     end
+%                 end
+%             else
+%                 histMat = nan(size(histIndMat,1),size(histIndMat,2));
+%                 
+%                 for j=1:numEpochs
+%                     bTemp=fitObj.plotParams.bAct(epochIndices{j},fitNum);                
+%                     histMat(1:epochLength(j),j) = bTemp;
+%                 end
+% 
+%             end
+            
+        end
+        function h=plotHistCoeffs(fitObj,fitNum,sortByEpoch,plotSignificance)
+          if(nargin<4 || isempty(plotSignificance))
+            plotSignificance=1;
+          end
+          if(nargin<3 || isempty(sortByEpoch))
+             sortByEpoch=0; 
+          end
+          if(nargin<2 || isempty(fitNum))
+              fitNum = 1:fitObj.numResults;
+          end
+          if(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+          end  
+          histIndex = fitObj.getHistIndex(fitNum,sortByEpoch);
+          h=fitObj.plotCoeffs([],fitNum,[],plotSignificance,histIndex);
+        end
+            
+            
+        function h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance,subIndex)
            % h=plotCoeffs(fitObj,handle,fitNum,plotProps,plotSignificance)
            % plots the GLM coefficients for each fit along with the
            % confidence intervals. 
@@ -1546,7 +2882,8 @@ classdef FitResult < handle
            %                   parameters that are statistically different
            %                   from zero with alpha=5%.
            
-           if(nargin<5)
+           
+           if(nargin<5 || isempty(plotSignificance))
                plotSignificance = 1;
            end
            
@@ -1563,21 +2900,43 @@ classdef FitResult < handle
            end
            
            if(isempty(fitObj.plotParams))
-               fitObj.computePlotParams(fitNum);
+               fitObj.computePlotParams;
            end
-              
-           bAct = fitObj.getPlotParams.bAct;
-           seAct= fitObj.getPlotParams.seAct;
-           sigIndex=fitObj.getPlotParams.sigIndex;
+           
+           if(nargin<6 || isempty(subIndex))
+              subIndex = [fitObj.getHistIndex, fitObj.getCoeffIndex];
+           end
+           
+           bAct = fitObj.getPlotParams.bAct(subIndex,fitNum);
+           seAct= fitObj.getPlotParams.seAct(subIndex,fitNum);
+           sigIndex=fitObj.getPlotParams.sigIndex(subIndex,fitNum);
            
            if(~isempty(plotProps))
                for i=1:length(fitNum)
-                    h=errorbar(handle,1:length(index),bAct,seAct,plotProps{i}); hold on;
+                    h(i)=errorbar(handle,1:length(subIndex),bAct(:,i),seAct(:,i),plotProps{i}); hold on;
+                    set(h(i), 'LineStyle', 'none', 'Marker', '.');%,...
+%                         'Linewidth',1,'Marker','o','MarkerSize',6);
+                    currColor = get(h(i),'Color');
+                    set(h(i),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+%                     hE= get(h(i),'Children');
+%                     errorbarXData = get(hE(2),'XData');
+%                     errorbarXData(4:9:end) = errorbarXData(1:9:end) - 0.2;
+%                     errorbarXData(7:9:end) = errorbarXData(1:9:end) - 0.2;
+%                     errorbarXData(5:9:end) = errorbarXData(1:9:end) + 0.2;
+%                     errorbarXData(8:9:end) = errorbarXData(1:9:end) + 0.2;
+%                     set(hE(2), 'XData', errorbarXData);
                end
            else
                Xaxis=repmat(1:length(bAct(:,1)),[length(bAct(1,:)) 1]);
                h=errorbar(handle,Xaxis',bAct,seAct,'.');%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1})); 
-           end
+               set(h, 'LineStyle', 'none', 'Marker', '.');%,...
+               
+               for n=1:length(h)
+                   currColor = get(h(n),'Color');
+                   set(h(n),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+
+               end
+            end
 
             hold on;
            
@@ -1586,24 +2945,40 @@ classdef FitResult < handle
                v=axis;
                vdiff = .8*v(4);
 
-               for i=fitNum
-                  plot(handle,find(sigIndex(:,i)==1),vdiff*ones(length(find(sigIndex(:,i)==1)),1)-i*.1,strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1})); hold on;
+               for i=1:length(fitNum)
+                  plot(handle,find(sigIndex(:,i)==1),vdiff*ones(length(find(sigIndex(:,i)==1)),1)-i*.1,strcat('*',FitResult.colors{mod(i-1,length(FitResult.colors))+1})); hold on;
                end
             end
-           ylabel('Fit Coefficients','Interpreter','latex');
-           xtickLabels = fitObj.getPlotParams.xLabels;
+           ylabel('GLM Fit Coefficients','Interpreter','none');
+           xtickLabels = fitObj.getPlotParams.xLabels(subIndex);
            xticks = 1:(length(xtickLabels));
            
            set(handle,'xtick',xticks,'xtickLabel',xtickLabels,'FontSize',6);
-           if(max(fitObj.numCoeffs)>1)
-            xticklabel_rotate([],90,[],'Fontsize',6);
+%            axis tight;
+           if(max(fitObj.numCoeffs)>=1)
+            xticklabel_rotate([],90,[],'Fontsize',10);
            end
 %            hT=rotateticklabel(gca,-90);
-           legend(handle,fitObj.lambda.dataLabels,'Location','Best');
-           %axis tight;
+           h_legend=legend(handle,fitObj.lambda.dataLabels(fitNum),'Location','NorthEast');
+           set(h_legend,'FontSize',14)
+            pos = get(h_legend,'position');
+            set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
+            
+%            axis tight;
+            title({'GLM Coefficients with 95% CIs (* p<0.05)'},'FontWeight','bold',...
+            'FontSize',11,...
+            'FontName','Arial');
+            set(gca,'FontName', 'Arial' );
+            set(gca, ...
+              'TickLength'  , [.02 .02] , ...
+              'YGrid'       , 'on'      , ...
+              'LineWidth'   , 1         );
+            hx=get(gca,'XLabel');  hy=get(gca,'YLabel');
+            set([hx hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+           
 
         end
-        function plotResults(fitObj)
+        function h=plotResults(fitObj)
             % plotResults(fitObj)
             % Generates KS plot, auto-correlation function of the inverse
             % gaussian transformed rescaled ISIs, the sequential
@@ -1611,46 +2986,67 @@ classdef FitResult < handle
             % rescaled ISIs (zj vs. zj-1), the GLM regression coefficients,
             % and the Point Process Residual.
                 scrsz = get(0,'ScreenSize');
-                figure('Position',[scrsz(3)*.1 scrsz(4)*.1 scrsz(3)*.8 scrsz(4)*.8]);
+                h=figure('OuterPosition',[scrsz(3)*.01 scrsz(4)*.04 scrsz(3)*.98 scrsz(4)*.95]);
                 
                 subplot(2,4,[1 2]); fitObj.KSPlot; %make the plot
-                text(.45, .95,strcat('Neuron:',num2str(fitObj.neuronNumber)));
+                ht=text(.45, .95,strcat('Neuron:',num2str(fitObj.neuronNumber)));
+                set(ht,'FontName', 'Arial','FontWeight','bold','FontSize',10);
+
                 subplot(2,4,3); fitObj.plotInvGausTrans;
                 subplot(2,4,4); fitObj.plotSeqCorr;
                 subplot(2,4,[7 8]); fitObj.plotResidual;
                 subplot(2,4,[5 6]); fitObj.plotCoeffs;
         end
-        function handle = KSPlot(fitObj)
+        function handle = KSPlot(fitObj,fitNum)
             % handle = KSPlot(fitObj)
             % computes the K-S plot for each of the the candidate rate
             % functions in this FitResult object. These candidate rate
             % functions are numbered according to the order in which they
             % were added to the FitResult.
+            if(nargin<2)
+                fitNum=1:fitObj.numResults;
+            end
             h=gcf; 
             %h=[];
             figure(h); 
         %     size(xAxis) 
         %     size(KSSorted)
             N = length(fitObj.KSStats.KSSorted);
-            xaxis = fitObj.KSStats.xAxis(:,1);
-            handle=plot(fitObj.KSStats.xAxis,fitObj.KSStats.KSSorted, xaxis,xaxis, 'k-.',xaxis, xaxis+1.36/sqrt(N), 'r', xaxis,xaxis-1.36/sqrt(N), 'r' );
-
-            %set(gca,'xtick',[],'ytick',[],'ztick', [])
-            axis( [0 1 0 1] );
-            dataLabels = cell(1,fitObj.lambda.dimension);
-            for i=1:fitObj.lambda.dimension
-                dataLabels{i} = fitObj.lambda.dataLabels{i};
+            if(~isempty(fitObj.KSStats.xAxis))
+                xaxis = fitObj.KSStats.xAxis(:,1);
+                % Plot the CIs
+                plot(xaxis,xaxis, 'k-.'); hold on;
+                plot(xaxis, xaxis+1.36/sqrt(N), 'r','Linewidth',1); 
+                plot(xaxis,xaxis-1.36/sqrt(N), 'r','Linewidth',1 );
+                handle=plot(fitObj.KSStats.xAxis(:,fitNum),fitObj.KSStats.KSSorted(:,fitNum),'Linewidth',2);
+            
+                %set(gca,'xtick',[],'ytick',[],'ztick', [])
+                axis( [0 1 0 1] );
+%             dataLabels = cell(1,fitObj.lambda.dimension);
+%             for i=1:fitObj.lambda.dimension
+                dataLabels = fitObj.lambda.dataLabels(fitNum);
+%             end
+                h_legend=legend(handle,dataLabels,'Location','SouthEast');
+                set(h_legend,'FontSize',14)
             end
-            legend(dataLabels,'Location','Best');
-            xlabel('Uniform CDF');
-            ylabel('Empirical CDF of Rescaled ISIs');
-            title('KS Plot with 95% Confidence Intervals');
+            hx=xlabel('Ideal Uniform CDF');
+            hy=ylabel('Empirical CDF');
+            title({'KS Plot of Rescaled ISIs'; 'with 95% Confidence Intervals'},'FontWeight','bold','FontSize',11,'FontName','Arial');
+            set([hx, hy],'FontName', 'Arial','FontWeight','bold','FontSize',12);
 
+            set(gca, ...
+              'TickLength'  , [.02 .02] , ...
+              'YTick'       , 0:.2:1, ...
+              'XTick'       , 0:.2:1, ...
+              'LineWidth'   , 1         );
+            end
 
-        end
-        
         function structure = toStructure(fitObj)
-            %
+            % structure =  toStructure(fitObj)
+            % Converts FitResult object to a matlab structure than can then
+            % be saved. The structure is compatible with the FitResult
+            % static method FitResult.fromStructure(structure) that returns
+            % the object corresponding structure passed in.
             fnames = fieldnames(fitObj);
             
             for i=1:length(fnames)
@@ -1703,8 +3099,8 @@ classdef FitResult < handle
             pval=zeros(1,fitObj.numResults);
             dataLabels = fitObj.lambda.dataLabels;
             for i=1:fitObj.numResults
-               handle = plot(fitObj.Z(1:end-1,i),fitObj.Z(2:end,i),strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
-               [rhoTemp,p]= corrcoef(fitObj.Z(1:end-1,i),fitObj.Z(2:end,i));%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))
+               handle = plot(fitObj.U(1:end-1,i),fitObj.U(2:end,i),strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
+               [rhoTemp,p]= corrcoef(fitObj.U(1:end-1,i),fitObj.U(2:end,i));%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))
                
                [~,columns]=size(rhoTemp);
                 if(columns>1)
@@ -1720,17 +3116,51 @@ classdef FitResult < handle
             end
             
            
-            legend(dataLabels,'Location','Best');            
-            ylabel('z_{j+1}'); xlabel('z_j');
-            axis tight;
+            h_legend=legend(dataLabels,'Location','NorthEast');     
+            set(h_legend,'FontSize',14)
+            pos = get(h_legend,'position');
+            if(~isempty(pos))
+                 set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
+            end
+            
+            hy=ylabel('u_{j+1}'); hx=xlabel('u_j');
+            set([hx, hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+
+            axis([0 1 0 1]);
+            title({'Sequential Correlation of'; 'Rescaled ISIs'},'FontWeight','bold',...
+            'FontSize',11,...
+            'FontName','Arial');
+        
+    
+            set(gca, ...
+              'TickLength'  , [.02 .02] , ...
+              'YTick'       , 0:.25:1, ...
+              'XTick'       , 0:.25:1, ...
+              'LineWidth'   , 1         );
+        
+
+            
         end
         function handle = plotInvGausTrans(fitObj)
+            % handle = plotInvGausTrans(fitObj)
+            % Plots the Auto-correlation function of the X_j's where:
+            % Z_j: rescaled ISI from the Time Rescaling Theorem. 
+            %      Exponential Rate 1 under true conditional intensity
+            %      function.
+            % U_j: 1-exp(-Z_j). Uniform on the interval [0,1) if Z_j's
+            %      are exponential rate 1.
+            %
+            % X_j: norminv(U_j,0,1). Gaussian mean 0, stdev 1 if U_j's are
+            %      U([0,1))
+            %
+            
             %[rows,colm] = size(fitObj.X);
             %index=find(fitObj.invGausStats.lags==1);
             %lags=fitObj.invGausStats.lags;
-            rhoSig=fitObj.invGausStats.rhoSig;
+            [fitObj.X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(fitObj.Z);
+%             rhoSig=fitObj.invGausStats.rhoSig;
             n=length(fitObj.X);
-            confBoundSig = fitObj.invGausStats.confBoundSig;
+%             confBoundSig = fitObj.invGausStats.confBoundSig;
             handle=[];
 %              for i=1:colm
 %                     %i
@@ -1739,19 +3169,51 @@ classdef FitResult < handle
 %                     hold on; 
 %                     %labelArray{i} = ['Fit ' num2str(i)];
 %              end
-            
-            rhoSig.plot;
-            legend(fitObj.lambda.dataLabels,'Location','Best');            
+            if(~isempty(rhoSig))
+                rhoSig.plot;
+            end
+            h_legend=legend(fitObj.lambda.dataLabels,'Location','NorthEast');            
+            set(h_legend,'FontSize',14)
+            pos = get(h_legend,'position');
+            if(~isempty(pos))
+             set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
+            end
             %legend(h,labelArray); 
-            hold on; confBoundSig.plot;
-  
+            hold on; 
+            if(~isempty(confBoundSig))
+                confBoundSig.plot;
+            end
+            title({'Autocorrelation Function';'of Rescaled ISIs'; 'with 95% CIs'},'FontWeight','bold',...
+            'FontSize',11,...
+            'FontName','Arial');
+            hx=get(gca,'XLabel');  hy=get(gca,'YLabel');
+            set([hx, hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+            set(gca, ...
+              'TickLength'  , [.02 .02] , ...
+              'LineWidth'   , 1         );
+            v=axis;
+            maxY = max(abs(v(3:4)))*(1.1); %add 10%
+            axis([v(1:2) -maxY maxY]);
         end
         function handle = plotResidual(fitObj)
             % handle = plotResidual(fitObj)
             % Plots the Point Process Residual
             handle=fitObj.Residual.plot;
             legend off;
-            legend(fitObj.Residual.dataLabels,'Location','Best'); 
+            h_legend=legend(fitObj.lambda.dataLabels,'Location','NorthEast'); 
+            set(h_legend,'FontSize',14)
+            pos = get(h_legend,'position');
+%             set(h_legend, 'position',[.91 .41 pos(3:4)]);
+            set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
+            title('Point Process Residual','FontWeight','bold',...
+            'FontSize',11,...
+            'FontName','Arial');
+            xlabel('time [s]','Interpreter','none');
+            hx=get(gca,'XLabel');  hy=get(gca,'YLabel');
+            set([hx, hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+            v=axis;
+            maxY = max(abs(v(3:4)))*(1.1); %add 10%
+            axis([v(1:2) -maxY maxY]);
         end
         
         
@@ -1768,9 +3230,23 @@ classdef FitResult < handle
             fitObj.U        =U;
             fitObj.KSStats.xAxis    =xAxis;
             fitObj.KSStats.KSSorted =KSSorted;
+            
+            
+            for i=1:size(xAxis,2);
+                [differentDists(i),pVal(i),ks_stat(i)]=kstest2(fitObj.KSStats.xAxis(:,i) ,fitObj.KSStats.KSSorted(:,i));
+            end
+            if(~exist('differentDists'))
+                differentDists=1;
+            end
+            if(~exist('pVal'))
+                pVal=1;
+            end
+            
             fitObj.KSStats.ks_stat  =ks_stat;
-            N = length(fitObj.KSStats.KSSorted);
-            fitObj.KSStats.withinConfInt = ks_stat<1.36/sqrt(N);
+%             N = length(fitObj.KSStats.KSSorted);
+%             fitObj.KSStats.withinConfInt = ks_stat<1.36/sqrt(N);
+            fitObj.KSStats.withinConfInt = ~differentDists;
+            fitObj.KSStats.pValue = pVal;
         end
         function setInvGausStats(fitObj, X,rhoSig,confBoundSig)
             % setInvGausStats(fitObj,X,rhoSig,confBoundSig)
@@ -1787,6 +3263,39 @@ classdef FitResult < handle
            fitObj.Residual = M; 
         end
         
+        function [paramVals, paramSE, paramSigIndex] = getParam(fitObj,paramNames,fitNum)
+           % output is a matrix of length equal to the total number of
+           % paramNames
+           % and one column for each fit
+             
+            if(nargin<3)
+                fitNum = 1:fitObj.numResults;
+            end
+           if(isempty(fitObj.plotParams))
+               fitObj.computePlotParams;
+           end
+           paramVals = zeros(length(paramNames),length(fitNum));
+           
+           if(nargout>1)
+            paramSE = zeros(length(paramNames),length(fitNum));
+           end
+           
+           if(nargout>2)
+            paramSigIndex = zeros(length(paramNames),length(fitNum));
+           end
+           
+           for i=1:length(paramNames)
+                paramIndex=find(strcmp(paramNames(i),fitObj.uniqueCovLabels));
+                paramVals(i,:) = fitObj.plotParams.bAct(paramIndex,fitNum);
+                if(nargout>1)
+                    paramSE(i,:) = fitObj.plotParams.seAct(paramIndex,fitNum);
+                end
+                if(nargout>2)
+                    paramSigIndex(i,:) = fitObj.plotParams.sigIndex(paramIndex,fitNum);
+                end
+           end
+            
+        end
         
             
     end
@@ -1794,8 +3303,19 @@ classdef FitResult < handle
     methods (Static)
         
         function fitObj = fromStructure(structure)
+            % fitObj = fromStructure(structure)
+            % Returns a FitResult object from the input structure.
+            % This is used to be able to save and restore FitResult
             if(isa(structure,'struct'))
-                spikeObj=nspikeTrain.fromStructure(structure.neuralSpikeTrain);
+                if(isa(structure.neuralSpikeTrain,'cell'))
+                    spikeObj = cell(1,length(structure.neuralSpikeTrain));
+                   for k=1:length(structure.neuralSpikeTrain)
+                       spikeObj{k} = nspikeTrain.fromStructure(structure.neuralSpikeTrain{k}); 
+                       
+                   end
+                else
+                    spikeObj=nspikeTrain.fromStructure(structure.neuralSpikeTrain); 
+                end
                 lambda=Covariate.fromStructure(structure.lambda);
                 rhoSig=SignalObj.signalFromStruct(structure.invGausStats.rhoSig);
                 confBoundSig = SignalObj.signalFromStruct(structure.invGausStats.confBoundSig);
@@ -1805,10 +3325,40 @@ classdef FitResult < handle
                     ensHistObject{i} = History.fromStructure(structure.ensHistObjects{i});
                 end
                 configColl = ConfigColl.fromStructure(structure.configs);
-                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,configColl,structure.XvalData,structure.XvalTime,structure.fitType);
+
+                % Support legacy saved structures that predate select fields.
+                logLL = NaN(1,max(1,structure.numResults));
+                if isfield(structure,'logLL')
+                    logLL = structure.logLL;
+                    if isscalar(logLL) && structure.numResults > 1
+                        logLL = repmat(logLL,1,structure.numResults);
+                    end
+                end
+
+                XvalData = [];
+                if isfield(structure,'XvalData')
+                    XvalData = structure.XvalData;
+                end
+
+                XvalTime = [];
+                if isfield(structure,'XvalTime')
+                    XvalTime = structure.XvalTime;
+                end
+
+                fitType = '';
+                if isfield(structure,'fitType')
+                    fitType = structure.fitType;
+                elseif isfield(structure,'distribution')
+                    fitType = structure.distribution;
+                end
+
+%                 fitObj=FitResult(spikeObj,covLabels,numHist,histObjects,ensHistObj,lambda,b, dev, stats,AIC,BIC,logLL, configColl,XvalData,XvalTime,distribution)
+                fitObj=FitResult(spikeObj,structure.covLabels,structure.numHist,histObjects,ensHistObject,lambda,structure.b, structure.dev, structure.stats,structure.AIC,structure.BIC,logLL,configColl,XvalData,XvalTime,fitType);
                 fitObj.setKSStats(structure.Z,structure.U, structure.KSStats.xAxis, structure.KSStats.KSSorted, structure.KSStats.ks_stat);
                 fitObj.setInvGausStats(structure.X,rhoSig,confBoundSig);
                 fitObj.setFitResidual(M);
+                fitObj.setNeuronName(structure.neuronNumber);
+                
             elseif(isa(structure,'cell')) %cell array of FitResult objects
                 fitObj = cell(size(structure));
                for i=1:length(structure)
@@ -1819,15 +3369,21 @@ classdef FitResult < handle
         end
         
         function structCell = CellArrayToStructure(fitResObjCell)
+            % structCell = CellArrayToStructure(fitResObjCell)
+            % For every FitResult structure in the a cell array, it calls 
+            % FitResults.fromStructure
+            
            if(isa(fitResObjCell,'FitResult'))
                structCell = fitResObjCell.toStructure;
-           elseif(isa(fitResObjCell,'cell'))
+           elseif(isa(fitResObjCell,'cell')&&~isempty(fitResObjCell))
                if(isa(fitResObjCell{1},'FitResult'))
                    structCell = cell(size(fitResObjCell));
                   for i=1:length(fitResObjCell)
                      structCell{i} = fitResObjCell{i}.toStructure;
                   end
                end
+           else
+            structCell={};
            end
             
         end
@@ -1912,7 +3468,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
 
     % if no XTickLabel AND no XTick are defined use the current XTickLabel
     %if nargin < 3 & (~exist('XTick') | isempty(XTick)),
-    if (nargin < 3 || isempty(varargin{1})) & (~exist('XTick') | isempty(XTick)),
+    if (nargin < 3 || isempty(varargin{1})) && (~exist('XTick') || isempty(XTick)),
         xTickLabels = get(gca,'XTickLabel')  ; % use current XTickLabel
         if ~iscell(xTickLabels)
             % remove trailing spaces if exist (typical with auto generated XTickLabel)
@@ -1996,7 +3552,17 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     set(get(gca,'ylabel'),'units','pixel')          ;
 
     origpos = get(gca,'position')                   ;
-    textsizes = cell2mat(get(hText,'extent'))       ;
+    
+    % Modified by Iahn Cajigas
+    % 3/4/2011 to allow for a single
+    % xTickLabel to work properly
+    temphText = get(hText,'extent');
+    if(isa(temphText,'cell'))
+        textsizes = cell2mat(temphText)       ;
+    else
+        textsizes = temphText;
+    end
+    
     longest =  max(textsizes(:,4))                  ;
 
     laborigext = get(get(gca,'xlabel'),'extent')    ;
@@ -2051,6 +3617,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
 
 end
 function [uniqueLabels, indexIntoOriginal, restoreIndex] = getUniqueLabels(covLabels)
+% Given a set of covLabels, returns a subset of labels that are unique
             offset = 0;
             for i=1:length(covLabels)
                 currLabels = covLabels{i};                
@@ -2062,5 +3629,8 @@ end
         
 
    
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

@@ -5,9 +5,9 @@ classdef DecodingAlgorithms
 % The observations can come from either a gaussian observation model 
 % or via a point process observation model.
 %
-% <a href="matlab: methods('DecodingAlgorithms')">methods</a>
+% <a href="matlab:nstatOpenHelpPage('DecodingExample.html')">Decoding Algorithms Reference</a>
 % Reference page in Help browser
-% <a href="matlab: doc('DecodingAlgorithms')">doc DecodingAlgorithms</a>
+% <a href="matlab:nstatOpenHelpPage('DecodingExample.html')">Decoding Algorithms Examples</a>
 
 
 %

@@ -407,6 +407,12 @@ classdef FitResSummary < handle
                 xticklabel_rotate([],90,[],'Fontsize',10);%rotateticklabel(gca,-90); 
            end
             
+           if exist('nstat.applyPlotStyle', 'file') == 2
+               try
+                   nstat.applyPlotStyle(h);
+               catch
+               end
+           end
         end
         function handle = plot3dCoeffSummary(frsObj,h)
             % handle = plot3dCoeffSummary(frsObj,h)
@@ -605,6 +611,12 @@ classdef FitResSummary < handle
                     h= legend; set(h,'Location','BestOutside'); ylabel(''); xlabel(''); title('');
                 end
             end
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(handle);
+                catch
+                end
+            end
         end
             
         function handle = plotSummary(frsObj)
@@ -636,6 +648,12 @@ classdef FitResSummary < handle
             set([hx hy],'FontName', 'Arial','FontSize',11,'FontWeight','bold');
             title('Change in BIC Across Neurons','FontWeight','bold','FontSize',11,'FontName','Arial');
             set(gca,'XTickLabelRotation',90);
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(handle);
+                catch
+                end
+            end
         end     
         function handle = boxPlot(frsObj,X,diffIndex,h,dataLabels,varargin)
             if(nargin<3)

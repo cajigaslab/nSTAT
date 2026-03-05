@@ -37,6 +37,16 @@ nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false)
 - `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
 - `CleanUserPathPrefs` removes stale user MATLAB path entries.
 
+Plot style policy:
+
+```matlab
+% Modern readability-focused plots (default)
+nstat.setPlotStyle('modern');
+
+% Legacy visual style for strict reproduction
+nstat.setPlotStyle('legacy');
+```
+
 Rendered help documentation (GitHub Pages):
 - https://cajigaslab.github.io/nSTAT/
 

@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "timestamp": "2026-03-05T13:21:18-05:00",
+    "rootDir": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local",
+    "seed": 0,
+    "style": "legacy",
+    "mlxPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/helpfiles/nSTATPaperExamples.mlx",
+    "mPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/helpfiles/nSTATPaperExamples.m",
+    "liveScriptDurationSec": 248.571779875,
+    "publishHtmlPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/fixtures/published_help/nSTATPaperExamples_legacy.html",
+    "mScriptDurationSec": 141.91717616666668
+  },
+  "plot": {
+    "style": "legacy",
+    "figureCount": 1,
+    "figures": {
+      "index": 1,
+      "number": 1,
+      "name": "",
+      "axesCount": 7,
+      "lineCount": 422,
+      "scatterCount": 0,
+      "barCount": 0,
+      "imageCount": 0,
+      "legendEntries": [
+        "Actual",
+        "PPAF+Goal",
+        "PPAF"
+      ],
+      "axes": [
+        {
+          "title": "Estimated vs. Actual State",
+          "xlabel": "time [s]",
+          "ylabel": "state",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            0.5,
+            2.5
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 63,
+          "childrenCount": 63
+        },
+        {
+          "title": "Probability of State",
+          "xlabel": "time [s]",
+          "ylabel": "P(s(t)=M | data)",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            0,
+            1.1
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 42,
+          "childrenCount": 42
+        },
+        {
+          "title": "Estimated vs. Actual Reach Path",
+          "xlabel": "x [cm]",
+          "ylabel": "y [cm]",
+          "zlabel": "",
+          "xlim": [
+            -10,
+            2
+          ],
+          "ylim": [
+            -20,
+            5
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 65,
+          "childrenCount": 65
+        },
+        {
+          "title": "X Position",
+          "xlabel": "time [s]",
+          "ylabel": "x(t) [cm]",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            -10,
+            2
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 63,
+          "childrenCount": 63
+        },
+        {
+          "title": "Y Position",
+          "xlabel": "time [s]",
+          "ylabel": "y(t) [cm]",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            -20,
+            5
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 63,
+          "childrenCount": 63
+        },
+        {
+          "title": "X Velocity",
+          "xlabel": "time [s]",
+          "ylabel": "v_{x}(t) [cm/s]",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            -40,
+            20
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 63,
+          "childrenCount": 63
+        },
+        {
+          "title": "Y Velocity",
+          "xlabel": "time [s]",
+          "ylabel": "v_{y}(t) [cm/s]",
+          "zlabel": "",
+          "xlim": [
+            0,
+            2
+          ],
+          "ylim": [
+            -60.234687695235458,
+            20
+          ],
+          "zlim": [
+            -1,
+            1
+          ],
+          "lineCount": 63,
+          "childrenCount": 63
+        }
+      ],
+      "exportPath": "/Users/iahncajigas/Library/CloudStorage/Dropbox/Research/Matlab/nSTAT_currentRelease_Local/fixtures/baseline_figures_legacy/figure_001.png"
+    }
+  }
+}

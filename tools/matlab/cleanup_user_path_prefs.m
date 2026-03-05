@@ -1,13 +1,15 @@
 function removedEntries = cleanup_user_path_prefs(rootDir)
-% cleanup_user_path_prefs Remove stale nSTAT Python-port paths from MATLAB path.
+% cleanup_user_path_prefs Remove stale nSTAT path entries from MATLAB path.
 %
 % Usage:
 %   cleanup_user_path_prefs
 %   cleanup_user_path_prefs(rootDir)
 %   removedEntries = cleanup_user_path_prefs(...)
 %
-% This utility removes stale path entries under the current nSTAT repository
-% that point to deleted Python-port maintenance trees.
+% This utility removes stale path entries under the current nSTAT repository.
+% It targets deleted Python-port maintenance trees and missing repo-local
+% folders that can trigger startup warnings such as:
+%   "Name is nonexistent or not a directory: .../tools/matlab"
 
 if nargin < 1 || isempty(rootDir)
     installPath = which('nSTAT_Install');
@@ -44,6 +46,9 @@ for iEntry = 1:numel(pathEntries)
         end
     end
     if startsWith(entry, fullfile(rootDir, 'python')) && contains(entry, '__pycache__')
+        toRemoveMask(iEntry) = true;
+    end
+    if startsWith(entry, rootDir) && ~isfolder(entry)
         toRemoveMask(iEntry) = true;
     end
 end

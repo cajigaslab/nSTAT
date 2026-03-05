@@ -37,6 +37,34 @@ nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false)
 - `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
 - `CleanUserPathPrefs` removes stale user MATLAB path entries.
 
+Quickstart (MATLAB 2025b):
+
+```matlab
+cd('/path/to/nSTAT')
+nSTAT_Install('RebuildDocSearch',true,'CleanUserPathPrefs',true);
+addpath(fullfile(pwd,'tools'));
+run_all_checks('GenerateBaseline',false,'CheckParity',true,'RunTests',true,'PublishDocs',false,'Style','legacy');
+```
+
+Reproduce paper examples and export generated figures:
+
+```matlab
+addpath(fullfile(pwd,'tools'));
+
+% Default docs style (readability-focused)
+publish_examples('Style','modern');
+
+% Strict visual reproduction mode
+publish_examples('Style','legacy');
+```
+
+Outputs are generated under `docs/figures/` and are created from repository
+code only (no publication PDF image embedding).
+
+Example generated output (modern style):
+
+![nSTAT paper examples (modern)](docs/figures/paper_examples_modern/figure_001.png)
+
 Plot style policy:
 
 ```matlab
@@ -46,7 +74,6 @@ nstat.setPlotStyle('modern');
 % Legacy visual style for strict reproduction
 nstat.setPlotStyle('legacy');
 ```
-
 Rendered help documentation (GitHub Pages):
 - https://cajigaslab.github.io/nSTAT/
 
@@ -76,7 +103,7 @@ This page ties major toolbox components to the paper's workflow categories:
 If you use nSTAT in your work, please remember to cite the above paper in any publications.
 nSTAT is protected by the GPL v2 Open Source License.
 
-The code respository for nSTAT is hosted on GitHub at https://github.com/iahncajigas/nSTAT. 
+The code repository for nSTAT is hosted on GitHub at https://github.com/cajigaslab/nSTAT.
 You can download the example data file from the paper at: https://doi.org/10.6084/m9.figshare.4834640
 
 Python port

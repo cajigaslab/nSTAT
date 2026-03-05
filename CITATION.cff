@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use nSTAT, please cite the toolbox paper below."
+title: "nSTAT: Neural Spike Train Analysis Toolbox for MATLAB"
+type: software
+license: GPL-2.0-only
+repository-code: "https://github.com/cajigaslab/nSTAT"
+authors:
+  - family-names: Cajigas
+    given-names: Iahn
+    email: icajigas@upenn.edu
+  - family-names: Malik
+    given-names: Wasim Q.
+  - family-names: Brown
+    given-names: Emery N.
+preferred-citation:
+  type: article
+  title: "nSTAT: Open-source neural spike train analysis toolbox for Matlab"
+  authors:
+    - family-names: Cajigas
+      given-names: I.
+    - family-names: Malik
+      given-names: W. Q.
+    - family-names: Brown
+      given-names: E. N.
+  journal: "Journal of Neuroscience Methods"
+  year: 2012
+  volume: 211
+  issue: 2
+  start: 245
+  end: 264
+  doi: "10.1016/j.jneumeth.2012.08.009"
+

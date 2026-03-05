@@ -12,7 +12,7 @@ Although created with neural signal processing in mind, nSTAT can be used as a g
 
 Like all open-source projects, nSTAT will benefit from your involvement, suggestions and contributions. This platform is intended as a repository for extensions to the toolbox based on your code contributions as well as for flagging and tracking open issues.
 
-The current release version of nSTAT can be downloaded from https://www.neurostat.mit.edu/nstat .
+The current release version of nSTAT can be downloaded from https://github.com/cajigaslab/nSTAT/ .
 Lab websites:
 - Neuroscience Statistics Research Laboratory: https://www.neurostat.mit.edu
 - RESToRe Lab: https://www.med.upenn.edu/cajigaslab/

@@ -31,7 +31,7 @@ classdef TestPlotStyleApi < matlab.unittest.TestCase
     methods (Test)
         function testSetAndGetRoundTrip(tc)
             addpath(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'tools'));
-            tc.assumeEqual(exist('nstat.setPlotStyle', 'file'), 2, ...
+            tc.assumeNotEmpty(which('nstat.setPlotStyle'), ...
                 'Plot style API not available on this branch.');
             nstat.setPlotStyle('legacy');
             tc.verifyEqual(nstat.getPlotStyle, 'legacy');
@@ -42,7 +42,7 @@ classdef TestPlotStyleApi < matlab.unittest.TestCase
 
         function testApplyStyleDoesNotCreateLegend(tc)
             addpath(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'tools'));
-            tc.assumeEqual(exist('nstat.applyPlotStyle', 'file'), 2, ...
+            tc.assumeNotEmpty(which('nstat.applyPlotStyle'), ...
                 'Plot style API not available on this branch.');
             f = figure('Visible', 'off');
             c = onCleanup(@()close(f)); %#ok<NASGU>

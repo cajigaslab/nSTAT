@@ -390,7 +390,7 @@ end
 result = struct();
 result.example_id = 'example03';
 result.title = 'PSTH and SSGLM Dynamics Example';
-result.source_script = mfilename('fullpath');
+result.source_script = [mfilename('fullpath') '.m'];
 result.description = [ ...
     'Generates simulated/real PSTH analyses and SSGLM between-trial dynamics ', ...
     'diagnostics using bundled deterministic example data.'];

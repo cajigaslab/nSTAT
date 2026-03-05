@@ -187,7 +187,7 @@ end
 result = struct();
 result.example_id = 'example01';
 result.title = 'mEPSC Poisson Models Under Constant and Washout Magnesium';
-result.source_script = mfilename('fullpath');
+result.source_script = [mfilename('fullpath') '.m'];
 result.description = [ ...
     'Fits constant and piecewise Poisson GLM baselines to mEPSC spike trains ', ...
     'and visualizes model diagnostics (KS, inverse-Gaussian transform, lambda).'];

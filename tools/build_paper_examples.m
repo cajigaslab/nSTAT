@@ -43,6 +43,9 @@ for iExample = 1:numel(exampleSpecs)
     exampleDir = fullfile(figureRoot, spec.id);
     if exist(exampleDir, 'dir') ~= 7
         mkdir(exampleDir);
+    else
+        deleteIfExists(fullfile(exampleDir, '*.png'));
+        deleteIfExists(fullfile(exampleDir, '*.svg'));
     end
 
     result = feval(spec.functionName, ...
@@ -120,4 +123,11 @@ else
 end
 
 relPath = strrep(relPath, '\\', '/');
+end
+
+function deleteIfExists(globExpr)
+files = dir(globExpr);
+for iFile = 1:numel(files)
+    delete(fullfile(files(iFile).folder, files(iFile).name));
+end
 end

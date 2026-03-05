@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-03-05T17:05:39-05:00",
+  "matlab_version": "25.2.0.3123386 (R2025b) Update 3",
+  "seed": 0,
+  "figure_root": "docs/figures",
+  "examples": [
+    {
+      "example_id": "example01",
+      "title": "mEPSC Poisson Models Under Constant and Washout Magnesium",
+      "source_script": "examples/paper/example01_mepsc_poisson.m",
+      "description": "Fits constant and piecewise Poisson GLM baselines to mEPSC spike trains and visualizes model diagnostics (KS, inverse-Gaussian transform, lambda).",
+      "figure_files": [
+        "docs/figures/example01/fig01_constant_mg_summary.png",
+        "docs/figures/example01/fig02_washout_raster_overview.png",
+        "docs/figures/example01/fig03_piecewise_baseline_comparison.png"
+      ],
+      "paper_mapping": "Section 2.3.1; Figs. 3 and 10 (nSTAT paper, 2012)."
+    },
+    {
+      "example_id": "example02",
+      "title": "Whisker Stimulus GLM With Lag and History Selection",
+      "source_script": "examples/paper/example02_whisker_stimulus_thalamus.m",
+      "description": "Fits explicit-stimulus point-process GLMs, estimates lag from residual xcov, and compares baseline/stimulus/history models via AIC/BIC/KS.",
+      "figure_files": [
+        "docs/figures/example02/fig01_data_overview.png",
+        "docs/figures/example02/fig02_lag_and_model_comparison.png"
+      ],
+      "paper_mapping": "Section 2.3.2; Figs. 4 and 11 (nSTAT paper, 2012)."
+    },
+    {
+      "example_id": "example03",
+      "title": "PSTH and SSGLM Dynamics Example",
+      "source_script": "examples/paper/example03_psth_and_ssglm.m",
+      "description": "Generates simulated/real PSTH analyses and SSGLM between-trial dynamics diagnostics using bundled deterministic example data.",
+      "figure_files": [
+        "docs/figures/example03/fig01_simulated_and_real_rasters.png",
+        "docs/figures/example03/fig02_psth_comparison.png",
+        "docs/figures/example03/fig03_ssglm_simulation_summary.png",
+        "docs/figures/example03/fig04_ssglm_fit_diagnostics.png",
+        "docs/figures/example03/fig05_stimulus_effect_surfaces.png",
+        "docs/figures/example03/fig06_learning_trial_comparison.png"
+      ],
+      "paper_mapping": "Sections 2.3.3-2.3.4; Figs. 5, 6, and 12 (nSTAT paper, 2012)."
+    },
+    {
+      "example_id": "example04",
+      "title": "Place-Cell Receptive Fields (Gaussian vs Zernike)",
+      "source_script": "examples/paper/example04_place_cells_continuous_stimulus.m",
+      "description": "Loads place-cell datasets and precomputed fit results, compares Gaussian and Zernike receptive-field models, and visualizes full population maps.",
+      "figure_files": [
+        "docs/figures/example04/fig01_example_cells_path_overlay.png",
+        "docs/figures/example04/fig02_model_summary_statistics.png",
+        "docs/figures/example04/fig03_gaussian_place_fields_animal1.png",
+        "docs/figures/example04/fig04_zernike_place_fields_animal1.png",
+        "docs/figures/example04/fig05_gaussian_place_fields_animal2.png",
+        "docs/figures/example04/fig06_zernike_place_fields_animal2.png",
+        "docs/figures/example04/fig07_example_cell_mesh_comparison.png"
+      ],
+      "paper_mapping": "Section 2.3.5; Figs. 7 and 13 (nSTAT paper, 2012)."
+    },
+    {
+      "example_id": "example05",
+      "title": "Stimulus Decoding With PPAF and PPHF",
+      "source_script": "examples/paper/example05_decoding_ppaf_pphf.m",
+      "description": "Runs univariate and movement decoding examples with point-process adaptive and hybrid filters, including goal-aware comparisons.",
+      "figure_files": [
+        "docs/figures/example05/fig01_univariate_setup.png",
+        "docs/figures/example05/fig02_univariate_decoding.png",
+        "docs/figures/example05/fig03_reach_and_population_setup.png",
+        "docs/figures/example05/fig04_ppaf_goal_vs_free.png",
+        "docs/figures/example05/fig05_hybrid_setup.png",
+        "docs/figures/example05/fig06_hybrid_decoding_summary.png"
+      ],
+      "paper_mapping": "Sections 2.3.6-2.3.7; Figs. 8, 9, 14 plus hybrid extension from canonical example."
+    }
+  ]
+}

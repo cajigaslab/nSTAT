@@ -482,7 +482,7 @@ end
 result = struct();
 result.example_id = 'example05';
 result.title = 'Stimulus Decoding With PPAF and PPHF';
-result.source_script = mfilename('fullpath');
+result.source_script = [mfilename('fullpath') '.m'];
 result.description = [ ...
     'Runs univariate and movement decoding examples with point-process ', ...
     'adaptive and hybrid filters, including goal-aware comparisons.'];

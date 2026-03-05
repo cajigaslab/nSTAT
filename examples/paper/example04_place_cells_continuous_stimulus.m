@@ -226,7 +226,7 @@ end
 result = struct();
 result.example_id = 'example04';
 result.title = 'Place-Cell Receptive Fields (Gaussian vs Zernike)';
-result.source_script = mfilename('fullpath');
+result.source_script = [mfilename('fullpath') '.m'];
 result.description = [ ...
     'Loads place-cell datasets and precomputed fit results, compares Gaussian ', ...
     'and Zernike receptive-field models, and visualizes full population maps.'];

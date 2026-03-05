@@ -46,24 +46,35 @@ addpath(fullfile(pwd,'tools'));
 run_all_checks('GenerateBaseline',false,'CheckParity',true,'RunTests',true,'PublishDocs',false,'Style','legacy');
 ```
 
-Reproduce paper examples and export generated figures:
+Paper Examples (Self-Contained)
+-------------------------------
+
+Canonical source files:
+- `helpfiles/nSTATPaperExamples.mlx` (preferred narrative source)
+- `helpfiles/nSTATPaperExamples.m` (script source used for extraction)
+
+Single command to regenerate every standalone paper example and figure:
 
 ```matlab
-addpath(fullfile(pwd,'tools'));
-
-% Default docs style (readability-focused)
-publish_examples('Style','modern');
-
-% Strict visual reproduction mode
-publish_examples('Style','legacy');
+cd('/path/to/nSTAT')
+addpath(genpath(pwd));
+build_paper_examples;
 ```
 
-Outputs are generated under `docs/figures/` and are created from repository
-code only (no publication PDF image embedding).
+This produces `docs/figures/<example_id>/...` and
+`docs/figures/manifest.json`. All images are generated from MATLAB code in
+this repository; no figures are copied from the publication PDF.
 
-Example generated output (modern style):
+| Example | Thumbnail | What question it answers | Run command | Links |
+|---|---|---|---|---|
+| Example 01 | ![Example 01](docs/figures/example01/fig01_constant_mg_summary.png) | Do mEPSCs follow constant vs piecewise Poisson firing under Mg2+ washout? | `example01_mepsc_poisson('ExportFigures',true,'ExportDir',fullfile(pwd,'docs','figures','example01'));` | [Script](examples/paper/example01_mepsc_poisson.m) · [Figures](docs/figures/example01/) |
+| Example 02 | ![Example 02](docs/figures/example02/fig01_data_overview.png) | How do explicit whisker stimulus and spike history improve thalamic GLM fits? | `example02_whisker_stimulus_thalamus('ExportFigures',true,'ExportDir',fullfile(pwd,'docs','figures','example02'));` | [Script](examples/paper/example02_whisker_stimulus_thalamus.m) · [Figures](docs/figures/example02/) |
+| Example 03 | ![Example 03](docs/figures/example03/fig01_simulated_and_real_rasters.png) | How do PSTH and SSGLM capture within-trial and across-trial dynamics? | `example03_psth_and_ssglm('ExportFigures',true,'ExportDir',fullfile(pwd,'docs','figures','example03'));` | [Script](examples/paper/example03_psth_and_ssglm.m) · [Figures](docs/figures/example03/) |
+| Example 04 | ![Example 04](docs/figures/example04/fig01_example_cells_path_overlay.png) | Which receptive-field basis (Gaussian vs Zernike) better fits place cells? | `example04_place_cells_continuous_stimulus('ExportFigures',true,'ExportDir',fullfile(pwd,'docs','figures','example04'));` | [Script](examples/paper/example04_place_cells_continuous_stimulus.m) · [Figures](docs/figures/example04/) |
+| Example 05 | ![Example 05](docs/figures/example05/fig01_univariate_setup.png) | How well do adaptive/hybrid point-process filters decode stimulus and reach state? | `example05_decoding_ppaf_pphf('ExportFigures',true,'ExportDir',fullfile(pwd,'docs','figures','example05'));` | [Script](examples/paper/example05_decoding_ppaf_pphf.m) · [Figures](docs/figures/example05/) |
 
-![nSTAT paper examples (modern)](docs/figures/paper_examples_modern/figure_001.png)
+Expanded paper-example index and figure gallery:
+- [docs/paper_examples.md](docs/paper_examples.md)
 
 Plot style policy:
 

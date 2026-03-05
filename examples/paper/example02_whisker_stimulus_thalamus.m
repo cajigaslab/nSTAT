@@ -214,7 +214,7 @@ end
 result = struct();
 result.example_id = 'example02';
 result.title = 'Whisker Stimulus GLM With Lag and History Selection';
-result.source_script = mfilename('fullpath');
+result.source_script = [mfilename('fullpath') '.m'];
 result.description = [ ...
     'Fits explicit-stimulus point-process GLMs, estimates lag from residual ', ...
     'xcov, and compares baseline/stimulus/history models via AIC/BIC/KS.'];

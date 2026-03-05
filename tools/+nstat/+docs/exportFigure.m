@@ -40,6 +40,16 @@ end
 set(figHandle, 'Color', 'w', 'InvertHardcopy', 'off');
 set(figHandle, 'Units', 'pixels');
 set(figHandle, 'Position', [100 100 opts.WidthPx opts.HeightPx]);
+
+axesHandles = findall(figHandle, 'Type', 'axes');
+for iAx = 1:numel(axesHandles)
+    try
+        axesHandles(iAx).Toolbar.Visible = 'off';
+    catch
+        % Older graphics objects may not expose a Toolbar property.
+    end
+end
+
 drawnow;
 
 pngPath = [outputBase '.png'];

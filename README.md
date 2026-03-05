@@ -65,6 +65,15 @@ Example generated output (modern style):
 
 ![nSTAT paper examples (modern)](docs/figures/paper_examples_modern/figure_001.png)
 
+Plot style policy:
+
+```matlab
+% Modern readability-focused plots (default)
+nstat.setPlotStyle('modern');
+
+% Legacy visual style for strict reproduction
+nstat.setPlotStyle('legacy');
+```
 Rendered help documentation (GitHub Pages):
 - https://cajigaslab.github.io/nSTAT/
 

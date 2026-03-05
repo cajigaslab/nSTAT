@@ -1117,6 +1117,12 @@ classdef FitResult < handle
               'LineWidth'   , 1         );
             hx=get(gca,'XLabel');  hy=get(gca,'YLabel');
             set([hx hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch
+                end
+            end
            
 
         end
@@ -1138,6 +1144,12 @@ classdef FitResult < handle
                 subplot(2,4,4); fitObj.plotSeqCorr;
                 subplot(2,4,[7 8]); fitObj.plotResidual;
                 subplot(2,4,[5 6]); fitObj.plotCoeffs;
+                if exist('nstat.applyPlotStyle', 'file') == 2
+                    try
+                        nstat.applyPlotStyle(h);
+                    catch
+                    end
+                end
         end
         function handle = KSPlot(fitObj,fitNum)
             % handle = KSPlot(fitObj)
@@ -1181,6 +1193,12 @@ classdef FitResult < handle
               'YTick'       , 0:.2:1, ...
               'XTick'       , 0:.2:1, ...
               'LineWidth'   , 1         );
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch
+                end
+            end
             end
 
         function structure = toStructure(fitObj)
@@ -1279,6 +1297,12 @@ classdef FitResult < handle
               'YTick'       , 0:.25:1, ...
               'XTick'       , 0:.25:1, ...
               'LineWidth'   , 1         );
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch
+                end
+            end
         
 
             
@@ -1336,6 +1360,12 @@ classdef FitResult < handle
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); %add 10%
             axis([v(1:2) -maxY maxY]);
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch
+                end
+            end
         end
         function handle = plotResidual(fitObj)
             % handle = plotResidual(fitObj)
@@ -1356,6 +1386,12 @@ classdef FitResult < handle
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); %add 10%
             axis([v(1:2) -maxY maxY]);
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch
+                end
+            end
         end
         
         

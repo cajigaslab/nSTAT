@@ -6,3 +6,4 @@ python/plots/
 
 python/docs/_build/
 python/.pytest_cache/
+test-results/

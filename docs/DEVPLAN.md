@@ -38,14 +38,14 @@ Parity Gate:
 - Plot structure parity must pass in both styles.
 - Legacy style should reproduce baseline appearance as closely as deterministic rendering allows.
 
-### PR2 — Tests + CI
+### PR2 — Local Tests (No Remote CI)
 Scope:
 - `matlab.unittest` unit/integration coverage.
 - Fixture-backed parity tests.
-- GitHub Actions via `matlab-actions`.
+- Local execution only (`run_tests`, `run_all_checks`).
 
 Parity Gate:
-- `runtests('tests')` passes locally and in CI.
+- `runtests('tests')` passes locally.
 - Parity checker remains green.
 
 ### PR3 — README/Docs + Paper Examples Integration

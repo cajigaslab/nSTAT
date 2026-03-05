@@ -99,4 +99,7 @@ run_all_checks('GenerateBaseline',true,'CheckParity',true,'Style','legacy');
 
 % Routine parity check (post-change)
 run_all_checks('GenerateBaseline',false,'CheckParity',true,'Style','legacy');
+
+% Run matlab.unittest suite
+run_tests('IncludeParity',true);
 ```

@@ -15,3 +15,5 @@ PlaceCellAnimal2Results.mat
 helpfiles/PlaceCellAnimal1Results.mat
 helpfiles/PlaceCellAnimal2Results.mat
 helpfiles/SSGLMExampleData.mat
+tests/python_port_fidelity/*.slxc
+tests/python_port_fidelity/slprj/

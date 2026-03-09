@@ -1,41 +1,19 @@
-# Python nSTAT
+# Python Port Tombstone
 
-Standalone Python port of the nSTAT toolbox, organized around core MATLAB-mirroring classes with a Pythonic API.
+This MATLAB repository no longer carries an active embedded Python implementation.
 
-## Core API
+The standalone Python port now lives in the separate repository:
 
-- `nstat.signal`: `Signal`, `Covariate`
-- `nstat.spikes`: `SpikeTrain`, `SpikeTrainCollection`
-- `nstat.events`: `Events`
-- `nstat.history`: `HistoryBasis`
-- `nstat.trial`: `CovariateCollection`, `TrialConfig`, `ConfigCollection`, `Trial`
-- `nstat.cif`: `CIFModel`
-- `nstat.analysis`: `Analysis`
-- `nstat.fit`: `FitResult`, `FitSummary`
-- `nstat.decoding`: `DecoderSuite`
-- `nstat.datasets`: `list_datasets`, `get_dataset_path`, `verify_checksums`
+- [cajigaslab/nSTAT-python](https://github.com/cajigaslab/nSTAT-python)
 
-MATLAB-style module names remain importable as compatibility adapters and emit `DeprecationWarning`.
+Clean-room boundary:
 
-## Install
+- MATLAB-repo Python usage is allowed only inside:
+  - `tests/python_port_fidelity/**`
+  - `tools/python/**`
+- Those paths exist only to verify the standalone Python port from MATLAB.
+- The MATLAB toolbox itself must not depend on this archived `python/` subtree for
+  runtime behavior, examples, packaging, or documentation.
 
-```bash
-cd python
-python3 -m pip install -e .
-```
-
-## Run basic examples
-
-```bash
-cd python
-python3 examples/basic_data_workflow.py
-python3 examples/fit_poisson_glm.py
-python3 examples/simulate_population_psth.py
-```
-
-## Run tests
-
-```bash
-cd python
-python3 -m pytest
-```
+This directory is retained only as a tombstone pointer so historical links do not
+silently disappear.

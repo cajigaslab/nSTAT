@@ -40,6 +40,26 @@ classdef TestCleanRoomBoundary < matlab.unittest.TestCase
 
             tc.verifyEmpty(violations, sprintf('Python bridge usage escaped the harness:\n%s', strjoin(violations, newline)));
         end
+
+        function testLegacyPythonSubtreeIsTombstoned(tc)
+            pythonDir = fullfile(tc.RootDir, 'python');
+            if exist(pythonDir, 'dir') ~= 7
+                tc.assertFalse(false);
+                return;
+            end
+
+            files = dir(fullfile(pythonDir, '**', '*'));
+            files = files(~[files.isdir]);
+            absolute = string(fullfile({files.folder}, {files.name}));
+            prefix = string(pythonDir) + filesep;
+            relative = sort(erase(absolute, prefix));
+            tc.verifyEqual(relative, "README.md", ...
+                "The MATLAB repo python/ subtree must be reduced to a tombstone README.");
+
+            readme = fileread(fullfile(pythonDir, 'README.md'));
+            tc.verifyNotEmpty(regexp(readme, 'nSTAT-python', 'once'));
+            tc.verifyNotEmpty(regexp(readme, 'tombstone', 'once'));
+        end
     end
 
     methods (Access = private)
@@ -55,4 +75,3 @@ classdef TestCleanRoomBoundary < matlab.unittest.TestCase
         end
     end
 end
-

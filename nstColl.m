@@ -832,7 +832,23 @@ classdef nstColl < handle
             A=eye(numBasis,numBasis);
 %             fitType='poisson';
             delta = 1/nstCollObj.sampleRate;
-            [xK,WK, Qhat,gammahat,logll]=DecodingAlgortihms.PPSS_EM(A,Q0,x0,dN,fitType,delta,gamma0,windowTimes, numBasis);
+            minTime=0;
+            maxTime=(size(dN,2)-1)*delta;
+            if(~isempty(windowTimes))
+                histObj = History(windowTimes,minTime,maxTime);
+                for k=1:size(dN,1)
+                    nstTmp = nstCollObj.nstrain{k}.nstCopy;
+                    nstTmp.setMinTime(minTime);
+                    nstTmp.setMaxTime(maxTime);
+                    HkAll{k} = histObj.computeHistory(nstTmp).dataToMatrix;
+                end
+            else
+                for k=1:size(dN,1)
+                    HkAll{k} = 0;
+                end
+                gamma0=0;
+            end
+            [xK,WK, Qhat,gammahat,logll]=DecodingAlgorithms.PPSS_EM(A,Q0,x0,dN,fitType,delta,gamma0,windowTimes, numBasis,HkAll);
 
              minTime=nstCollObj.minTime; maxTime = nstCollObj.maxTime;
              if(~isempty(numBasis))
@@ -870,7 +886,8 @@ classdef nstColl < handle
                     
                 end
             end
-            lambdaTime = minTime:delta:(length(lambdaData)-1)*delta;
+            lambdaData = lambdaData(:);
+            lambdaTime = (minTime:delta:(length(lambdaData)-1)*delta)';
             nCopy.setMaxTime(max(lambdaTime));
             nCopy.setMinTime(min(lambdaTime));
 %             otherLabels  = tObj.getLabelsFromMask(neuronNumber);
@@ -907,9 +924,10 @@ classdef nstColl < handle
             XvalData{1} = [];
             XvalTime{1} = [];
             spikeTraining = currSpikes;
+            configColl = ConfigColl();
 
                         
-            fitResults=FitResult(nCopy,labels,numHist,histObj,ensHistObj,lambda,b, dev, stats,AIC,BIC,configColl,XvalData,XvalTime,distrib);
+            fitResults=FitResult(nCopy,labels,numHist,histObj,ensHistObj,lambda,b, dev, stats,AIC,BIC,logll(end),configColl,XvalData,XvalTime,distrib);
             DTCorrection=1;
             makePlot=0;
             Analysis.KSPlot(fitResults,DTCorrection,makePlot);

@@ -237,5 +237,43 @@ classdef TestPythonPortFidelity < matlab.unittest.TestCase
             tc.verifyEqual(payload.bic_minus_aic, fit.BIC(1) - fit.AIC(1), 'AbsTol', 1e-10);
             tc.verifyEqual(payload.summary_aic, payload.aic, 'AbsTol', 1e-10);
         end
+
+        function testNSTCollSSGLMSurfaceAgainstPython(tc)
+            ss1 = nspikeTrain([0.1 0.3], '1', 10, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
+            ss2 = nspikeTrain([0.2], '1', 10, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
+            coll = nstColl({ss1, ss2});
+            [xK, WK, Qhat, gammahat, logll, fitSummary] = coll.ssglm([0.0 0.1 0.2], 2, 2, 'binomial');
+
+            payload = helpers.runPythonJson(strjoin({
+                'import json'
+                'import numpy as np'
+                'import nstat'
+                'ss1 = nstat.nspikeTrain([0.1, 0.3], ''1'', 10.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
+                'ss2 = nstat.nspikeTrain([0.2], ''1'', 10.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
+                'coll = nstat.nstColl([ss1, ss2])'
+                'xK, WK, Qhat, gammahat, logll, fit_summary = coll.ssglm([0.0, 0.1, 0.2], 2, 2, ''binomial'')'
+                'json_text = json.dumps({'
+                '    ''xK_shape'': list(np.asarray(xK, dtype=float).shape),'
+                '    ''WK_shape'': list(np.asarray(WK, dtype=float).shape),'
+                '    ''Qhat_finite'': bool(np.all(np.isfinite(np.asarray(Qhat, dtype=float)))),'
+                '    ''gammahat_finite'': bool(np.all(np.isfinite(np.asarray(gammahat, dtype=float)))),'
+                '    ''logll_finite'': bool(np.all(np.isfinite(np.asarray(logll, dtype=float)))),'
+                '    ''summary_aic_finite'': bool(np.all(np.isfinite(np.asarray(fit_summary.AIC, dtype=float)))),'
+                '    ''logll_last'': float(np.asarray(logll, dtype=float).reshape(-1)[-1])'
+                '})'
+            }, newline));
+
+            tc.verifyEqual(double(payload.xK_shape(:))', double(size(xK)));
+            tc.verifyEqual(double(payload.WK_shape(:))', double(size(WK)));
+            tc.verifyTrue(payload.Qhat_finite);
+            tc.verifyTrue(payload.gammahat_finite);
+            tc.verifyTrue(payload.logll_finite);
+            tc.verifyGreaterThan(numel(Qhat), 0);
+            tc.verifyGreaterThan(numel(gammahat), 0);
+            tc.verifyTrue(payload.summary_aic_finite);
+            tc.verifyTrue(all(isfinite(fitSummary.AIC(:))));
+            tc.verifyTrue(isfinite(payload.logll_last));
+            tc.verifyTrue(isfinite(logll(end)));
+        end
     end
 end

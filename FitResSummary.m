@@ -410,7 +410,7 @@ classdef FitResSummary < handle
            if exist('nstat.applyPlotStyle', 'file') == 2
                try
                    nstat.applyPlotStyle(h);
-               catch
+               catch ME %#ok<NASGU> % FIX: capture exception; optional styling failure is non-critical
                end
            end
         end
@@ -614,7 +614,7 @@ classdef FitResSummary < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(handle);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; optional styling failure is non-critical
                 end
             end
         end
@@ -651,7 +651,7 @@ classdef FitResSummary < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(handle);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; optional styling failure is non-critical
                 end
             end
         end     
@@ -1151,7 +1151,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     % {opt}     XTick       - vector array of XTick positions & values (numeric) 
     %                           uses current XTick values or XTickLabel cell array by
     %                           default (if empty) 
-    % {opt}     rot         - angle of rotation in degrees, 90° by default
+    % {opt}     rot         - angle of rotation in degrees, 90ï¿½ by default
     % {opt}     XTickLabel  - cell array of label strings
     % {opt}     [var]       - "Property-value" pairs passed to text generator
     %                           ex: 'interpreter','none'
@@ -1159,21 +1159,21 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     %
     % Output:   hText       - handle vector to text labels
     %
-    % Example 1:  Rotate existing XTickLabels at their current position by 90°
+    % Example 1:  Rotate existing XTickLabels at their current position by 90ï¿½
     %    xticklabel_rotate
     %
-    % Example 2:  Rotate existing XTickLabels at their current position by 45° and change
+    % Example 2:  Rotate existing XTickLabels at their current position by 45ï¿½ and change
     % font size
     %    xticklabel_rotate([],45,[],'Fontsize',14)
     %
-    % Example 3:  Set the positions of the XTicks and rotate them 90°
+    % Example 3:  Set the positions of the XTicks and rotate them 90ï¿½
     %    figure;  plot([1960:2004],randn(45,1)); xlim([1960 2004]);
     %    xticklabel_rotate([1960:2:2004]);
     %
-    % Example 4:  Use text labels at XTick positions rotated 45° without tex interpreter
+    % Example 4:  Use text labels at XTick positions rotated 45ï¿½ without tex interpreter
     %    xticklabel_rotate(XTick,45,NameFields,'interpreter','none');
     %
-    % Example 5:  Use text labels rotated 90° at current positions
+    % Example 5:  Use text labels rotated 90ï¿½ at current positions
     %    xticklabel_rotate([],90,NameFields);
     %
     % Note : you can not re-run xticklabel_rotate on the same graph. 

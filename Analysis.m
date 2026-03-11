@@ -771,9 +771,9 @@ end
             lags=lags(index:end);
             rho=c(index:end,:)./repmat(c(index-1,:),length(lags),1);
             n=length(X);
-            % Defaults to the 95% confidence intervals
+            % Defaults to the 95% confidence intervals (z_{0.025} = 1.96)
             % Can extend to allow selection of 95% or 99% CI
-            confBound = 1.96/sqrt(n)*ones(length(lags),1);
+            confBound = 1.96/sqrt(n)*ones(length(lags),1); % 1.96 = norminv(0.975) for 95% CI
     %              size(lags)
     %              size(rho)
 

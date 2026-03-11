@@ -1,9 +1,27 @@
 classdef FitResult < handle
-% FITRESULT 
-% stores results of a fit using the Analysis object
-% The results are for a single neuron over a range of configurations
+% FITRESULT - Stores GLM fit results for a single neuron across configurations.
 %
-% <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult Examples</a> 
+% Holds regression coefficients (b), deviance, AIC, BIC, log-likelihood,
+% rescaled spike times (Z, U, X), KS statistics, and point process
+% residuals for one neuron over multiple GLM model configurations.
+%
+% Implements goodness-of-fit assessment via:
+%   - Time-rescaling theorem: u_s = 1 - exp(-integral lambda dt), Eq. (4)
+%   - Normal transform: x_s = Phi^{-1}(u_s), Eq. (5)
+%   - KS plot (Brown et al. 2002)
+%   - Point process residual, Eq. (6)
+%   - AIC (Akaike 1973): AIC = 2p + deviance
+%   - BIC (Schwarz 1978): BIC = p*log(n) + deviance
+%
+% See Sections 2.1.2--2.1.3 and 2.2.3 in:
+%   Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012).
+%
+% Usage:
+%   fitObj = FitResult(spikeObj, covLabels, numHist, histObjects, ...
+%                      ensHistObj, lambda, b, dev, stats, AIC, BIC, ...
+%                      logLL, configColl, XvalData, XvalTime, distribution)
+%
+% <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult Examples</a>
 %
 % see also <a href="matlab:nstatOpenHelpPage('Analysis.html')">Analysis</a>
 %
@@ -332,7 +350,8 @@ classdef FitResult < handle
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(data*delta, eps); % FIX: guard against log(0)
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -349,10 +368,10 @@ classdef FitResult < handle
                       if(nargin<7)
                           fitObj.AIC(fitObj.numResults+i)  = 2*length(b{i})+dev(i);
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
-                          delta=fitObj.neuralSpikeTrain.sampleRate;
+                          delta=1/fitObj.neuralSpikeTrain.sampleRate; % FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-                          
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(newLambda.data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: guard against log(0)
+                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -393,7 +412,8 @@ classdef FitResult < handle
                   fitObj.lambda.xunits,'Hz',fitObj.lambda.dataLabels);
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-            logLL =sum(y.*log(lambda.data*delta)+(1-y).*(1-lambda.data*delta));
+            lambdaDelta = max(lambda.data*delta, eps); % FIX: guard against log(0)
+            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
         end
         
         function mapCovLabelsToUniqueLabels(fitObj)
@@ -1120,7 +1140,7 @@ classdef FitResult < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(gca);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                 end
             end
            
@@ -1147,7 +1167,7 @@ classdef FitResult < handle
                 if exist('nstat.applyPlotStyle', 'file') == 2
                     try
                         nstat.applyPlotStyle(h);
-                    catch
+                    catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                     end
                 end
         end
@@ -1196,7 +1216,7 @@ classdef FitResult < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(gca);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                 end
             end
             end
@@ -1300,7 +1320,7 @@ classdef FitResult < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(gca);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                 end
             end
         
@@ -1363,7 +1383,7 @@ classdef FitResult < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(gca);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                 end
             end
         end
@@ -1389,7 +1409,7 @@ classdef FitResult < handle
             if exist('nstat.applyPlotStyle', 'file') == 2
                 try
                     nstat.applyPlotStyle(gca);
-                catch
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
                 end
             end
         end
@@ -1580,7 +1600,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     % {opt}     XTick       - vector array of XTick positions & values (numeric) 
     %                           uses current XTick values or XTickLabel cell array by
     %                           default (if empty) 
-    % {opt}     rot         - angle of rotation in degrees, 90° by default
+    % {opt}     rot         - angle of rotation in degrees, 90ï¿½ by default
     % {opt}     XTickLabel  - cell array of label strings
     % {opt}     [var]       - "Property-value" pairs passed to text generator
     %                           ex: 'interpreter','none'
@@ -1588,21 +1608,21 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     %
     % Output:   hText       - handle vector to text labels
     %
-    % Example 1:  Rotate existing XTickLabels at their current position by 90°
+    % Example 1:  Rotate existing XTickLabels at their current position by 90ï¿½
     %    xticklabel_rotate
     %
-    % Example 2:  Rotate existing XTickLabels at their current position by 45° and change
+    % Example 2:  Rotate existing XTickLabels at their current position by 45ï¿½ and change
     % font size
     %    xticklabel_rotate([],45,[],'Fontsize',14)
     %
-    % Example 3:  Set the positions of the XTicks and rotate them 90°
+    % Example 3:  Set the positions of the XTicks and rotate them 90ï¿½
     %    figure;  plot([1960:2004],randn(45,1)); xlim([1960 2004]);
     %    xticklabel_rotate([1960:2:2004]);
     %
-    % Example 4:  Use text labels at XTick positions rotated 45° without tex interpreter
+    % Example 4:  Use text labels at XTick positions rotated 45ï¿½ without tex interpreter
     %    xticklabel_rotate(XTick,45,NameFields,'interpreter','none');
     %
-    % Example 5:  Use text labels rotated 90° at current positions
+    % Example 5:  Use text labels rotated 90ï¿½ at current positions
     %    xticklabel_rotate([],90,NameFields);
     %
     % Note : you can not re-run xticklabel_rotate on the same graph. 

@@ -24,7 +24,7 @@ end
 
 try
     activeFile = matlab.desktop.editor.getActiveFilename;
-catch
+catch ME %#ok<NASGU> % FIX: capture exception; editor API may be unavailable in non-desktop mode
     activeFile = '';
 end
 if ~isempty(activeFile)

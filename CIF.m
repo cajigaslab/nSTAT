@@ -121,6 +121,9 @@ classdef CIF < handle
             if(nargin<4)
                 fitType = 'poisson';
             end
+            if(~ismember(fitType,{'poisson','binomial'})) % FIX: validate fitType to prevent silent fallthrough
+                error('CIF:InvalidFitType','fitType must be ''poisson'' or ''binomial'', got ''%s''',fitType);
+            end
             
             
             if(isa(Xnames,'sym'))
@@ -230,6 +233,10 @@ classdef CIF < handle
             
             % Define the functional form of the Conditonal Intensity
             % Function based on how the data was fit.
+            % FIX: all matlabFunction 'vars' arguments now use cifObj.varIn
+            % directly instead of symvar(cifObj.varIn). symvar() reorders
+            % variables alphabetically, but callers pass args in varIn order,
+            % causing silent argument mismatch for non-alphabetical variable names.
             cifObj.fitType = fitType;            
             if(isempty(cifObj.histVars))
                 if(strcmp(fitType,'poisson'))
@@ -237,7 +244,7 @@ classdef CIF < handle
                     cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',cifObj.varIn);
                 elseif(strcmp(fitType,'binomial'))
                     cifObj.lambdaDelta = simplify(exp(beta*cifObj.varIn)./(1+exp(beta*cifObj.varIn)));
-                    cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',symvar(cifObj.varIn));
+                    cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',cifObj.varIn);
                 end
             else
                 if(strcmp(fitType,'poisson'))
@@ -249,8 +256,8 @@ classdef CIF < handle
                 elseif(strcmp(fitType,'binomial'))
                     cifObj.lambdaDelta = simplify(exp(beta*cifObj.varIn  + cifObj.histCoeffs*cifObj.histVars)./(1+exp(beta*cifObj.varIn  + cifObj.histCoeffs*cifObj.histVars)));
                     cifObj.lambdaDeltaGamma = simplify(exp(beta*cifObj.varIn  + cifObj.histCoeffVars*cifObj.histVars)./(1+exp(beta*cifObj.varIn  + cifObj.histCoeffVars*cifObj.histVars)));
-                    cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',symvar([cifObj.varIn; cifObj.histVars]));
-                    cifObj.lambdaDeltaGammaFunction = matlabFunction(cifObj.lambdaDeltaGamma,'vars',symvar([cifObj.varIn; cifObj.histVars; histCoeffsVarsTrans]));
+                    cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
+                    cifObj.lambdaDeltaGammaFunction = matlabFunction(cifObj.lambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars; histCoeffsVarsTrans]);
                 end
                 
                 
@@ -261,30 +268,30 @@ classdef CIF < handle
             % log(lambda*delta)
             cifObj.gradientLambdaDelta = simplify(jacobian(cifObj.lambdaDelta,cifObj.stimVars));
             cifObj.gradientLogLambdaDelta=simplify(jacobian(log(cifObj.lambdaDelta),cifObj.stimVars));
-            cifObj.gradientFunction    = matlabFunction(cifObj.gradientLambdaDelta,'vars',[symvar(cifObj.varIn); cifObj.histVars]);
-            cifObj.gradientLogFunction = matlabFunction(cifObj.gradientLogLambdaDelta,'vars',[symvar(cifObj.varIn); cifObj.histVars]);
+            cifObj.gradientFunction    = matlabFunction(cifObj.gradientLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
+            cifObj.gradientLogFunction = matlabFunction(cifObj.gradientLogLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
             
             
             cifObj.jacobianLambdaDelta=simplify(jacobian(cifObj.gradientLambdaDelta,cifObj.stimVars));
-            cifObj.jacobianFunction = matlabFunction(cifObj.jacobianLambdaDelta,'vars',[symvar(cifObj.varIn); cifObj.histVars]);
+            cifObj.jacobianFunction = matlabFunction(cifObj.jacobianLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
             
             cifObj.jacobianLogLambdaDelta=simplify(jacobian(cifObj.gradientLogLambdaDelta,cifObj.stimVars));
-            cifObj.jacobianLogFunction = matlabFunction(cifObj.jacobianLogLambdaDelta,'vars',[symvar(cifObj.varIn); cifObj.histVars]);
+            cifObj.jacobianLogFunction = matlabFunction(cifObj.jacobianLogLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
             
             
             if(and(~isempty(cifObj.histCoeffs),~isempty(cifObj.history)))
                 cifObj.LogLambdaDeltaGamma=simplify(log(cifObj.lambdaDeltaGamma));
-                cifObj.LogLambdaDeltaGammaFunction = matlabFunction(cifObj.LogLambdaDeltaGamma,'vars',[symvar(cifObj.varIn); cifObj.histVars;histCoeffsVarsTrans]);
+                cifObj.LogLambdaDeltaGammaFunction = matlabFunction(cifObj.LogLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
 
                 cifObj.gradientLogLambdaDeltaGamma=simplify(jacobian(log(cifObj.lambdaDeltaGamma),cifObj.histCoeffVars));
                 cifObj.gradientLambdaDeltaGamma=simplify(jacobian((cifObj.lambdaDeltaGamma),cifObj.histCoeffVars));
-                cifObj.gradientLogFunctionGamma = matlabFunction(cifObj.gradientLogLambdaDeltaGamma,'vars',[symvar(cifObj.varIn); cifObj.histVars;histCoeffsVarsTrans]);
-                cifObj.gradientFunctionGamma = matlabFunction(cifObj.gradientLambdaDeltaGamma,'vars',[symvar(cifObj.varIn); cifObj.histVars;histCoeffsVarsTrans]);
+                cifObj.gradientLogFunctionGamma = matlabFunction(cifObj.gradientLogLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
+                cifObj.gradientFunctionGamma = matlabFunction(cifObj.gradientLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
 
                 cifObj.jacobianLogLambdaDeltaGamma=simplify(jacobian(cifObj.gradientLogLambdaDeltaGamma,cifObj.histCoeffVars));
                 cifObj.jacobianLambdaDeltaGamma=simplify(jacobian(cifObj.gradientLambdaDeltaGamma,cifObj.histCoeffVars));
-                cifObj.jacobianLogFunctionGamma = matlabFunction(cifObj.jacobianLogLambdaDeltaGamma,'vars',[symvar(cifObj.varIn); cifObj.histVars;histCoeffsVarsTrans]);
-                cifObj.jacobianFunctionGamma = matlabFunction(cifObj.jacobianLambdaDeltaGamma,'vars',[symvar(cifObj.varIn); cifObj.histVars;histCoeffsVarsTrans]);
+                cifObj.jacobianLogFunctionGamma = matlabFunction(cifObj.jacobianLogLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
+                cifObj.jacobianFunctionGamma = matlabFunction(cifObj.jacobianLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
 
             else
                 cifObj.LogLambdaDeltaGamma=[];
@@ -312,10 +319,10 @@ classdef CIF < handle
             % now simplifies how we evaluate these functions
             argstr='';
             
-            if(length([symvar(cifObj.varIn); cifObj.histVars])==1)
+            if(length([cifObj.varIn; cifObj.histVars])==1)
                 argstr = 'val';
             else
-                for i=1:(length(symvar(cifObj.varIn))+length(cifObj.histVars))
+                for i=1:(length(cifObj.varIn)+length(cifObj.histVars))
                     if(i==1)
                         argstr = 'val(1)';
                     else 
@@ -330,10 +337,10 @@ classdef CIF < handle
             
             argstrVarHist='';
             
-            if(length([symvar(cifObj.varIn); cifObj.histVars; histCoeffsVarsTrans])==1)
+            if(length([cifObj.varIn; cifObj.histVars; histCoeffsVarsTrans])==1)
                 argstrVarHist = 'val';
             else
-                for i=1:(length(symvar(cifObj.varIn))+length(cifObj.histVars)+length(histCoeffsVarsTrans))
+                for i=1:(length(cifObj.varIn)+length(cifObj.histVars)+length(histCoeffsVarsTrans))
                     if(i==1)
                         argstrVarHist = 'val(1)';
                     else 
@@ -909,7 +916,7 @@ classdef CIF < handle
                 end
                 assignin('base','simTypeSelect',simTypeSelect);
                 
-                options = simget;
+                options = simget; % FIX: simget is legacy; options unused below (sim call uses explicit params)
                 thinningModelName = CIF.resolveSimulinkModelName('PointProcessSimulationThinning');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 t=inputStimSignal.time;
@@ -998,7 +1005,7 @@ classdef CIF < handle
                 end
                 assignin('base','simTypeSelect',simTypeSelect);
                 
-                options = simget;
+                options = simget; % FIX: simget is legacy; replace with Simulink.SimulationInput in future
                 simModelName = CIF.resolveSimulinkModelName('PointProcessSimulation');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 for i=1:numRealizations

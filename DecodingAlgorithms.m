@@ -1,9 +1,29 @@
 classdef DecodingAlgorithms
-% DECODINGALGORITHMS A class that contains static functions for 
-% decoding the hidden states of linear discrete stochastic systems or 
-% hybrid linear discrete stochastic systems subject to gaussian noise. 
-% The observations can come from either a gaussian observation model 
-% or via a point process observation model.
+% DECODINGALGORITHMS - Static methods for state estimation and neural decoding.
+%
+% Implements four major algorithm classes for decoding hidden states from
+% neural point process observations:
+%
+%   1. PPAF  (Point Process Adaptive Filter): Eqs. (16)-(19)
+%      - PPDecodeFilter: generic CIF-based (symbolic Jacobian/Hessian)
+%      - PPDecodeFilterLinear: optimized for linear CIF (Poisson/binomial)
+%
+%   2. PPHF  (Point Process Hybrid Filter): Section 2.1.5
+%      - PPHybridFilter / PPHybridFilterLinear
+%      - Mixed discrete/continuous state estimation
+%
+%   3. SSGLM (State-Space GLM via EM): Section 2.1.6, Eqs. (9)-(10)
+%      - PPSS_EM / PPSS_EMFB
+%      - Across-trial plasticity with random walk model
+%
+%   4. Kalman filter/smoother for Gaussian observations
+%      - kalman_filter, kalman_smoother, kalman_smootherFromFiltered
+%
+% Also includes standard Kalman filter, PPSS_EMFB (forward-backward EM),
+% and Monte Carlo variants (mPPCO_EM).
+%
+% See Sections 2.1.5--2.1.6 in:
+%   Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012).
 %
 % <a href="matlab:nstatOpenHelpPage('DecodingExample.html')">Decoding Algorithms Reference</a>
 % Reference page in Help browser
@@ -742,7 +762,7 @@ classdef DecodingAlgorithms
                     if(isempty(Wconv))
                         W_p    = A * W_u * A' + Q;
                         condNum=rcond(W_p);
-                        if(condNum<eps || isa(condNum,'nan'));
+                        if(condNum<eps || isnan(condNum)) % FIX: isa(condNum,'nan') always false; use isnan()
                            W_p=W_u;
                         end
                     
@@ -902,14 +922,14 @@ classdef DecodingAlgorithms
                     I=eye(size(W_p));
                     Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
                     condNum=rcond(Wu);
-                    if(condNum<eps || isa(condNum,'nan'));
+                    if(condNum<eps || isnan(condNum)) % FIX: isa(condNum,'nan') always false; use isnan()
                         Wu=W_p;
                     end
                 else
                     I=eye(size(W_p));
                     Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
                     condNum=rcond(Wu);
-                    if(condNum<eps || isa(condNum,'nan'));
+                    if(condNum<eps || isnan(condNum)) % FIX: isa(condNum,'nan') always false; use isnan()
                         Wu=W_p;
                     end
                 end 
@@ -5460,7 +5480,7 @@ pools=0;
                                 ld = exp(terms)./(1+exp(terms));
                                 ExplambdaDelta = 1/McExp*sum(ld,2);
                                 ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
-                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^2,2);
+                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
                                 HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
                                     +ExplambdaDeltaSquare*(dN(c,k)+3)...
                                     -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
@@ -5514,7 +5534,7 @@ pools=0;
                                 ld = exp(terms)./(1+exp(terms));
                                 ExplambdaDelta = 1/McExp*sum(ld,2);
                                 ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
-                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^2,2);
+                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
                                 HessianTerm(:,:,k)=+(-ExplambdaDelta*(dN(c,k)+1)...
                                     +ExplambdaDeltaSquare*(dN(c,k)+3)...
                                     -2*ExplambdaDeltaCubed)*Hk'*Hk;
@@ -8048,7 +8068,7 @@ pools=0;
                                 ld = exp(terms)./(1+exp(terms));
                                 ExplambdaDelta = 1/McExp*sum(ld,2);
                                 ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
-                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^2,2);
+                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
                                 HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
                                     +ExplambdaDeltaSquare*(dN(c,k)+3)...
                                     -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
@@ -8102,7 +8122,7 @@ pools=0;
                                 ld = exp(terms)./(1+exp(terms));
                                 ExplambdaDelta = 1/McExp*sum(ld,2);
                                 ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
-                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^2,2);
+                                ExplambdaDeltaCubed  = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
                                 HessianTerm(:,:,k)=+(-ExplambdaDelta*(dN(c,k)+1)...
                                     +ExplambdaDeltaSquare*(dN(c,k)+3)...
                                     -2*ExplambdaDeltaCubed)*Hk'*Hk;
@@ -9276,8 +9296,8 @@ pools=0;
             HkPerm=permute(HkAll, [2 3 1]);
             for k=1:K
                 [x_u(:,k), W_u(:,:,k)] = DecodingAlgorithms.PPDecode_updateLinear(x_p(:,k), W_p(:,:,k), dN,mu,beta,fitType,gamma,HkPerm,k,[]);
-                [x_p(:,k+1), W_p(:,:,k+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,k), W_u(:,:,k), A(:,:,min(size(A,3),k)), Q(:,:,min(size(Q,3))));
-            end  
+                [x_p(:,k+1), W_p(:,:,k+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,k), W_u(:,:,k), A(:,:,min(size(A,3),k)), Q(:,:,min(size(Q,3),k))); % FIX: added k index for time-varying Q support
+            end
             
             [x_K, W_K,Lk] = DecodingAlgorithms.kalman_smootherFromFiltered(A, x_p, W_p, x_u, W_u); 
              

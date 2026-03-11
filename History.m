@@ -128,11 +128,11 @@ classdef History <handle
             % plots each of the history windows
             tmin=HistObj.windowTimes(1:end-1);
             tmax=HistObj.windowTimes(2:end);
-            sampleRate = 1000;
+            sampleRate = 1000; % Visualization-only sample rate (Hz) for plotting history windows
             data=zeros((max(tmax)-min(tmin))*sampleRate,length(tmax));
             for i = 1:length(tmax)
-                indMin = max(1,(tmin(i)-min(tmin))*sampleRate);
-                indMax = (tmax(i)-min(tmin))*sampleRate;
+                indMin = max(1,round((tmin(i)-min(tmin))*sampleRate)); % FIX: round to avoid fractional index
+                indMax = round((tmax(i)-min(tmin))*sampleRate); % FIX: round to avoid fractional index
                 data(indMin:indMax,i)=1;
                 dataLabels{i} = strcat('[',num2str(tmin(i),3),',',num2str(tmax(i),3),']');
             end
@@ -226,7 +226,7 @@ classdef History <handle
                   %Delay by 1 to make lag the actual spike 
                   bdelay=[0 1]; adelay=1;
                   sOut{i} = sTemp.filter(bdelay,adelay);
-                  data=[data, sOut{i}.dataToMatrix];
+                  data=[data, sOut{i}.dataToMatrix]; %#ok<AGROW> % FIX: loop count is small (num history windows); pre-alloc not warranted
                   if(isempty(historyNum))
                     dataLabels{i} = strcat('[',num2str(tmin(i),3),',',num2str(tmax(i),3),']');
                   else

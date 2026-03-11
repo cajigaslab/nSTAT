@@ -129,6 +129,41 @@ The paper-example dataset is distributed separately from the Git repository:
 - Figshare dataset DOI: https://doi.org/10.6084/m9.figshare.4834640.v3
 - Paper DOI: https://doi.org/10.1016/j.jneumeth.2012.08.009
 
+Code audit (2026-03-10)
+-----------------------
+
+A comprehensive 5-phase code audit identified and fixed 67 bugs across 8
+core files. All changes are tagged with inline `% FIX:` comments for easy
+review. See [AUDIT_REPORT.md](AUDIT_REPORT.md) for full details.
+
+**Critical bugs fixed:**
+
+- **FitResult.m** — Time-rescaling KS test used `sampleRate` as bin width
+  instead of `1/sampleRate`, invalidating goodness-of-fit for any
+  sampleRate != 1
+- **DecodingAlgorithms.m** — `isa(condNum,'nan')` always returned false,
+  so NaN condition numbers were never caught and singular matrices passed
+  unchecked through PPAF/PPHF decoding; `ExplambdaDeltaCubed` used `.^2`
+  instead of `.^3`, corrupting higher-order filter corrections
+- **CIF.m** — `symvar()` reordered variables alphabetically, but all
+  callers passed arguments in `varIn` order, causing silent argument
+  mismatch in `matlabFunction`-generated handles for non-alphabetical
+  variable names
+- **SignalObj.m** — `findPeaks('minima')` silently returned maxima;
+  `findGlobalPeak('minima')` always crashed due to `sOBj` typo; handle
+  aliasing in `times`/`rdivide`/`ldivide` mutated input signals
+- **nspikeTrain.m** — Burst detection had off-by-one index error and
+  wrong append order
+
+**Code quality improvements:**
+
+- 22 `eval()` → `feval()` conversions (SignalObj.m)
+- 11 silent `catch` → named exception captures
+- 7 `roundn` → `round` replacements (removes Mapping Toolbox dependency)
+- 3 `log(0)` guards, division-by-zero guards, floating-point index fixes
+- `fitType` validation in CIF constructor
+- Deprecated function annotations (`histc`, `simget`)
+
 Python port
 -----------
 

@@ -44,7 +44,7 @@ dataMat = [ones(length(time),1) px py px.^2 py.^2 px.*py];
      n{i}.setName(num2str(i));
     
      try
-         lambdaCIF{i} = CIF(coeffs(i,:),{'1','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
+         lambdaCIF{i} = CIF(coeffs(i,:),{'one','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
      catch ME_sym
          if(i==1)
              warning('StimulusDecode2D:SymbolicCIFFallback', ...

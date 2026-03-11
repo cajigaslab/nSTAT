@@ -1,6 +1,6 @@
 %% Test CovColl
 close all;
-load CovariateSample.mat;
+load(fullfile(fileparts(which('CovCollExamples')),'CovariateSample.mat'));
 cc=CovColl({position,force});
 figure; cc.plot; %plots all covariates and their components
 

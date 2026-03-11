@@ -40,9 +40,9 @@ for i=1:numRealizations
 % Construct a CIF object for each realization based on our encoding
 % results above
     %correct CIF w/ History
-    lambdaCIF{i} = CIF([mu b1],{'1','x'},{'x'},'binomial',histCoeffs,histObj); 
+    lambdaCIF{i} = CIF([mu b1],{'one','x'},{'x'},'binomial',histCoeffs,histObj);
     %CIF ignoring the history effect
-    lambdaCIFNoHist{i} = CIF([mu b1],{'1','x'},{'x'},'binomial');
+    lambdaCIFNoHist{i} = CIF([mu b1],{'one','x'},{'x'},'binomial');
 end
 
     

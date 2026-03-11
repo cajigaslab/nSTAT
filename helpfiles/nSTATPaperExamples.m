@@ -1626,7 +1626,7 @@ set([hx, hy],'FontName', 'Arial','FontSize',22,'FontWeight','bold');
          % Generate CIF representation in case we want to use the symbolic
          % versions of the PPDecodeFilter (i.e. not PPDecodeFilterLinear
          lambdaCIF{i} = CIF([MuCoeffs(i) 0 0 bCoeffs(i,:)],...
-             {'1','x','y','vx','vy'},{'x','y','vx','vy'},fitType);
+             {'one','x','y','vx','vy'},{'x','y','vx','vy'},fitType);
          % generate one realization for each cell
          tempSpikeColl{i} = CIF.simulateCIFByThinningFromLambda(lambda{i},1);          nst{i} = tempSpikeColl{i}.getNST(1);     % grab the realization
          nst{i}.setName(num2str(i));              % give each cell a unique name

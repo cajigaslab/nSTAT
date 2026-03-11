@@ -234,9 +234,11 @@ classdef CIF < handle
             % Define the functional form of the Conditonal Intensity
             % Function based on how the data was fit.
             % FIX: all matlabFunction 'vars' arguments now use cifObj.varIn
-            % directly instead of symvar(cifObj.varIn). symvar() reorders
-            % variables alphabetically, but callers pass args in varIn order,
-            % causing silent argument mismatch for non-alphabetical variable names.
+            % instead of symvar(cifObj.varIn). symvar() reorders variables
+            % alphabetically, but callers pass args in varIn order, causing
+            % silent argument mismatch for non-alphabetical variable names.
+            % Callers must use valid variable names (e.g. 'one' not '1')
+            % for the constant/intercept term.
             cifObj.fitType = fitType;            
             if(isempty(cifObj.histVars))
                 if(strcmp(fitType,'poisson'))

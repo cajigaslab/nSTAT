@@ -14,8 +14,8 @@ function opts = nSTAT_Install(varargin)
 %                     external figshare paper-example data package. Accepts
 %                     true/'always', false/'never', or 'prompt'.
 %
-% This installer intentionally excludes non-runtime trees (helpfiles, python,
-% cache folders, hidden folders) from the MATLAB path to avoid shadowing.
+% This installer excludes non-runtime trees (python, cache folders, hidden
+% folders) from the MATLAB path to avoid shadowing.
 
 %
 % nSTAT v1 Copyright (C) 2012 Masschusetts Institute of Technology
@@ -148,9 +148,10 @@ for iDir = 1:numel(rawPath)
         continue;
     end
     hasMatlabFiles = ~isempty(dir(fullfile(dirPath, '*.m')));
+    hasDataFiles = ~isempty(dir(fullfile(dirPath, '*.mat')));
     hasClassFolders = ~isempty(dir(fullfile(dirPath, '@*')));
     hasPackageFolders = ~isempty(dir(fullfile(dirPath, '+*')));
-    if hasMatlabFiles || hasClassFolders || hasPackageFolders
+    if hasMatlabFiles || hasDataFiles || hasClassFolders || hasPackageFolders
         runtimePaths{end+1} = dirPath; %#ok<AGROW>
     end
 end
@@ -170,7 +171,7 @@ if isempty(segments)
 end
 
 excludedExact = { ...
-    '.git', '.github', 'helpfiles', 'python', 'slprj', 'porting', ...
+    '.git', '.github', 'python', 'slprj', 'porting', ...
     '__pycache__', '.pytest_cache', '.mypy_cache', '.vscode', '.idea'};
 tf = false;
 for iSeg = 1:numel(segments)

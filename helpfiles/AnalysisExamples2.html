@@ -176,7 +176,7 @@ plot(position.getSubSignal(<span class="string">'x'</span>).dataToMatrix,positio
 axis <span class="string">tight</span> <span class="string">square</span>;
 xlabel(<span class="string">'x position (m)'</span>); ylabel(<span class="string">'y position (m)'</span>);
 </pre>
-<img vspace="5" hspace="5" src="AnalysisExamples2_03.png" alt=""> <img vspace="5" hspace="5" src="AnalysisExamples2_04.png" alt=""> <h2 id="8">Toolbox vs. Standard GLM comparison</h2>
+<img vspace="5" hspace="5" src="AnalysisExamples2_03.png" alt=""> <h2 id="8">Toolbox vs. Standard GLM comparison</h2>
 <p>Compare the results using our approach with the standard approach used in the first example previous standard regression</p>
 <pre class="codeinput">[b,dev,stats] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,<span class="string">'poisson'</span>);
 b-fitResults.b{2} <span class="comment">% should be close to zero</span>
@@ -213,7 +213,7 @@ Analyzing Configuration #9: Neuron #1
 Analyzing Configuration #10: Neuron #1
 Analyzing Configuration #11: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="AnalysisExamples2_05.png" alt=""> <img vspace="5" hspace="5" src="AnalysisExamples2_06.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="AnalysisExamples2_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

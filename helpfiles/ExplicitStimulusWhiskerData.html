@@ -157,7 +157,7 @@ trial = Trial(nspikeColl,cc);
 </pre>
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2 id="3">Compare constant rate model with model including stimulus effect</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="3">Compare constant rate model with model including stimulus effect</h2>
 <p>Addition of the stimulus improves the fits in terms of the KS plot and the making the rescaled ISIs less correlated. The Point Process Residula also looks more "white"</p>
 <pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
@@ -174,7 +174,7 @@ results.plotResults;
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="4">History Effect</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <h2 id="4">History Effect</h2>
 <p>Determine the best history effect model using AIC, BIC, and KS statistic</p>
 <pre class="codeinput">sampleRate=1000;
 delta=1/sampleRate*1;
@@ -242,7 +242,7 @@ windowIndex =
      8
 
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <pre class="codeinput">figure;
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <pre class="codeinput">figure;
 x=1:length(windowTimes);
 subplot(3,1,1); plot(x,results{1}.KSStats.ks_stat,<span class="string">'.'</span>); axis <span class="string">tight</span>; hold <span class="string">on</span>;
 plot(x(windowIndex),results{1}.KSStats.ks_stat(windowIndex),<span class="string">'r*'</span>);

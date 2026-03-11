@@ -137,7 +137,7 @@ meanParams = mean(paramEst,2);
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1,2,3,4,5,6,7,8,9,10
 Analyzing Configuration #2: Neuron #1,2,3,4,5,6,7,8,9,10
 </pre>
-<img vspace="5" hspace="5" src="DecodingExample_02.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_03.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_04.png" alt=""> <p>So we now have a model for lambda lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta because exp(b_0 + b_1*x(t))&lt;&lt;1 we can approximate this lambda by just the numerator i.e. lambda = exp(b_0 + b_1*x(t))./delta</p>
+<img vspace="5" hspace="5" src="DecodingExample_02.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_03.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_04.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_05.png" alt=""> <p>So we now have a model for lambda lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta because exp(b_0 + b_1*x(t))&lt;&lt;1 we can approximate this lambda by just the numerator i.e. lambda = exp(b_0 + b_1*x(t))./delta</p>
 <p>Now suppose we wanted to decode x(t) based on only having observed lambda</p>
 <pre class="codeinput">clear <span class="string">lambdaCIF</span>;
 b0=paramEst(1,:);
@@ -167,7 +167,7 @@ legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
 </pre>
-<img vspace="5" hspace="5" src="DecodingExample_05.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="DecodingExample_06.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_07.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

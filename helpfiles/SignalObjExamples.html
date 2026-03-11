@@ -208,7 +208,7 @@ s.MTMspectrum;
 figure
 s.periodogram;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_14.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_15.png" alt=""> <h2 id="13">Example 6: View signal variability</h2>
+<img vspace="5" hspace="5" src="SignalObjExamples_14.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_15.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_16.png" alt=""> <h2 id="13">Example 6: View signal variability</h2>
 <p>We can look at the variability of signals with regards to their labels or or irrespective of their labels. Lets create a SignalObj that has several components, and some noise. We mislabel two signals to add alot of variability for illustration</p>
 <pre class="codeinput">sampleRate=5000; t=0:1/sampleRate:1; t=t'; freq=2;
 v1=sin(2*pi*freq*t); v2=sin(v1.^2);
@@ -220,7 +220,7 @@ subplot(2,1,1); s.plot;
 subplot(2,1,2); s.plotAllVariability; <span class="comment">%disregards labels;</span>
 s.plotVariability; <span class="comment">%creates two figures, one for 'v1' and one for 'v2'</span>
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_16.png" alt=""> <p>sObj.plotAllVariability assumes that all the data can be considered together. It also allows more custimization of the plotting properties. Example we can specify a different faceColor by passing the color in the same format as plot. Assymetric confidence intervals can be specified. If the CIs are single numbers, they specify the multiple of the standard deviations to use (default is 1). If they are the same length as the SignalObj, then it specifies the actual values above and/or below the mean at each point in time. If ciLower is not specifed, it is assumed to equal ciUpper. For convinience the inputs to plotAllVariability are: s.plotAllVariability(sObj,faceColor,linewidth,ciUpper,ciLower)</p>
+<img vspace="5" hspace="5" src="SignalObjExamples_17.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_18.png" alt=""> <p>sObj.plotAllVariability assumes that all the data can be considered together. It also allows more custimization of the plotting properties. Example we can specify a different faceColor by passing the color in the same format as plot. Assymetric confidence intervals can be specified. If the CIs are single numbers, they specify the multiple of the standard deviations to use (default is 1). If they are the same length as the SignalObj, then it specifies the actual values above and/or below the mean at each point in time. If ciLower is not specifed, it is assumed to equal ciUpper. For convinience the inputs to plotAllVariability are: s.plotAllVariability(sObj,faceColor,linewidth,ciUpper,ciLower)</p>
 <pre class="codeinput">figure;
 <span class="comment">%blue color for CI patch;</span>
 subplot(3,1,1); s.plotAllVariability(<span class="string">'b'</span>);
@@ -233,7 +233,7 @@ subplot(3,1,3); s.plotAllVariability(<span class="string">'c'</span>,3,2,1);
 parity = struct();
 parity.sample_rate_hz = sampleRate;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_17.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="SignalObjExamples_19.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

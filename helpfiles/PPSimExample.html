@@ -166,7 +166,7 @@ spikeColl = sC;               <span class="comment">%Use the generated data as o
 cc=CovColl({stim,baseline});  <span class="comment">%Use stimulation and baseline as possible covariates</span>
 trial = Trial(spikeColl,cc); sampleRate = 1/Ts; <span class="comment">%Create trial</span>
 </pre>
-<h2 id="10">GLM Model Fitting and Results</h2>
+<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="10">GLM Model Fitting and Results</h2>
 <pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [0:0.001:0.003]; <span class="comment">%We know the history effect goes back 3 lag orders</span>
 </pre>
@@ -201,11 +201,11 @@ Analyzing Configuration #3: Neuron #1,2,3,4,5
 <h2 id="15">Results for sample neuron</h2>
 <pre class="codeinput">results{1}.plotResults;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="16">Results for across all sample paths</h2>
+<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="16">Results for across all sample paths</h2>
 <pre class="codeinput">Summary = FitResSummary(results);
 Summary.plotSummary;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

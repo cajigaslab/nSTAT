@@ -512,7 +512,7 @@ results = Analysis.RunAnalysisForAllNeurons(trial2,cfgColl,0);
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 </pre>
-<h2 id="14">History Effect</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_06.png" alt=""> <h2 id="14">History Effect</h2>
 <p>Determine the best history effect model using AIC, BIC, and KS statistic</p>
 <pre class="codeinput">sampleRate=1000;
 delta=1/sampleRate*1;
@@ -647,7 +647,7 @@ Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_06.png" alt=""> <h2 id="15">Example 3 - PSTH Data</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_07.png" alt=""> <h2 id="15">Example 3 - PSTH Data</h2>
 <pre class="codeinput">
 <span class="comment">% Generate a known Conditional Intensity Function</span>
 <span class="comment">% We generated a known conditional intensity function (rate function) and</span>
@@ -731,7 +731,7 @@ ylabel(<span class="string">'Trial [k]'</span>,<span class="string">'Interpreter
 title(<span class="string">'Response to Moving Visual Stimulus (Neuron 1)'</span>,<span class="string">'FontWeight'</span>,<span class="keyword">...</span>
     <span class="string">'bold'</span>,<span class="string">'Fontsize'</span>,14,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_07.png" alt=""> <h2 id="16">Estimate the PSTH with 50ms windows</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_08.png" alt=""> <h2 id="16">Estimate the PSTH with 50ms windows</h2>
 <pre class="codeinput">close <span class="string">all</span>;
 
 scrsz = get(0,<span class="string">'ScreenSize'</span>);
@@ -815,7 +815,7 @@ Analyzing Configuration #1: Neuron #6
 Running in batch mode: neurons with same name are fit simultaneously
 Analyzing Configuration #1: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_08.png" alt=""> <h2 id="17">Example 3b - SSGLM Example</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_09.png" alt=""> <h2 id="17">Example 3b - SSGLM Example</h2>
 <p>Example of estimating with-in and across trial dynamics Methods from: G. Czanner, U. T. Eden, S. Wirth, M. Yanike, W. A. Suzuki, and E. N. Brown, "Analysis of between-trial and within-trial neural spiking dynamics.," Journal of neurophysiology, vol. 99, no. 5, pp. 2672?2693, May. 2008.</p>
 <pre class="codeinput">close <span class="string">all</span>;
 clear <span class="string">all</span>;
@@ -921,7 +921,7 @@ title(<span class="string">'True Conditional Intensity Function'</span>,<span cl
 
 axis <span class="string">tight</span>;
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_09.png" alt=""> <h2 id="19">Estimation of the Stimulus Response</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_10.png" alt=""> <h2 id="19">Estimation of the Stimulus Response</h2>
 <pre class="codeinput">
 <span class="comment">% Create the covariates that will be used for the GLM regression</span>
 stim = Covariate(time,sin(2*pi*f*time),<span class="string">'Stimulus'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'stim'</span>});
@@ -1007,7 +1007,7 @@ Analyzing Configuration #1: Neuron #1
 A=eye(numBasis,numBasis);
 delta = 1/spikeColl.sampleRate;
 </pre>
-<h2 id="20">Run the SSGLM Filter</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_11.png" alt=""> <h2 id="20">Run the SSGLM Filter</h2>
 <pre class="codeinput">CompilingHelpFile=1;
     <span class="comment">% Commented out to speed up help file creation ...</span>
     <span class="keyword">if</span>(~CompilingHelpFile)
@@ -1057,7 +1057,7 @@ load(fullfile(nstatRoot,'data','SSGLMExampleData.mat'));
 fitResults = FitResult.fromStructure(fR);
 psthResult = FitResult.fromStructure(psthR);
 </pre>
-<pre class="codeinput">t=psthResult.mergeResults(fitResults);
+<img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <pre class="codeinput">t=psthResult.mergeResults(fitResults);
 <span class="comment">%t.plotResults; %Compare the results with the PSTH Model</span>
 t.lambda.setDataLabels({<span class="string">'\lambda_{PSTH}'</span>,<span class="string">'\lambda_{SSGLM}'</span>});
 scrsz = get(0,<span class="string">'ScreenSize'</span>);
@@ -1099,7 +1099,7 @@ dBIC =
 
 dKS =diff(S.KSStats); 
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_10.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_13.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_14.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 <span class="comment">% Generate the actual stimulus effect</span>
 minTime=0; maxTime = Tmax;
 stimData = stim.data*b1;
@@ -1313,7 +1313,7 @@ set(gca,'ytick',[],'ytickLabel',[]);
 set(gca, 'YDir','normal')
 view(gca,[90 -90]);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_11.png" alt=""> <h2 id="24">Compare differences across trials</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_15.png" alt=""> <h2 id="24">Compare differences across trials</h2>
 <pre class="codeinput">echo <span class="string">off</span>;
 close <span class="string">all</span>;
    minTime=0; maxTime = Tmax;
@@ -1409,9 +1409,9 @@ set(h_legend, <span class="string">'position'</span>,[pos(1)+.03 pos(2)+.01 pos(
 
 %% Compare differences across trials 
 echo off;
-The learning trial (compared to the first trial) is trial #12
+The learning trial (compared to the first trial) is trial #11
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <h2 id="25">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_16.png" alt=""> <h2 id="25">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
 <p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p>
 <p>
 <b>Author</b>: Iahn Cajigas</p>
@@ -1446,7 +1446,7 @@ The learning trial (compared to the first trial) is trial #12
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_13.png" alt=""> <h2 id="28">Analyze All Cells</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_17.png" alt=""> <h2 id="28">Analyze All Cells</h2>
 <pre class="codeinput">numAnimals=2;
 CompilingHelpFile=1;
 <span class="keyword">if</span>(~CompilingHelpFile)
@@ -1562,7 +1562,7 @@ title(<span class="string">'\Delta BIC'</span>,<span class="string">'FontWeight'
 
 <span class="comment">%  close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_14.png" alt=""> <h2 id="31">Visualize the results</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_18.png" alt=""> <h2 id="31">Visualize the results</h2>
 <pre class="codeinput">close <span class="string">all</span>;
 <span class="comment">% Define a grid</span>
 [x_new,y_new]=meshgrid(-1:.01:1); <span class="comment">%define new x and y</span>
@@ -1682,7 +1682,7 @@ cnt=0;
 
 <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_15.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_16.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_17.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_18.png" alt=""> <pre class="codeinput">    clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_19.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_20.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_21.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_22.png" alt=""> <pre class="codeinput">    clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
     load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
     resData = load(fullfile(dataDir,<span class="string">'PlaceCellAnimal1Results.mat'</span>));
     results = FitResult.fromStructure(resData.resStruct);
@@ -1725,7 +1725,7 @@ cnt=0;
     hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
     set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_19.png" alt=""> <h2 id="33">Example 5 - STIMULUS DECODING</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_23.png" alt=""> <h2 id="33">Example 5 - STIMULUS DECODING</h2>
 <p>In this example we show how to decode a univariate and a bivariate stimulus based on a point process observations using nSTAT. Even though due to the simulated nature of the data, we know the exact condition intensity function, we estimate the parameters before moving on to the decoding stage.</p>
 <h2 id="34">Generate the conditional Intensity Function</h2>
 <pre class="codeinput">    close <span class="string">all</span>; clear <span class="string">all</span>;
@@ -1792,7 +1792,7 @@ baseline = Covariate(time,ones(length(time),1),<span class="string">'Baseline'</
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_20.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_24.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 
 clear <span class="string">lambdaCIF</span>;
 spikeColl.resample(1/delta);
@@ -1837,7 +1837,7 @@ ylabel(<span class="string">'Stimulus'</span>,<span class="string">'Interpreter'
 hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
 set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,22,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_21.png" alt=""> <h2 id="36">Example 5b - Arm reaching to target Simulation</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_25.png" alt=""> <h2 id="36">Example 5b - Arm reaching to target Simulation</h2>
 <p>See L. Srinivasan, U. T. Eden, A. S. Willsky, and E. N. Brown, "A state-space analysis for reconstruction of goal-directed movements using neural signals.," Neural computation, vol. 18, no. 10, pp. 2465?2494, Oct. 2006.</p>
 <pre class="codeinput">    close <span class="string">all</span>;
     clear <span class="string">all</span>;
@@ -1990,7 +1990,7 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_22.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_26.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 numExamples=20;
 scrsz = get(0,<span class="string">'ScreenSize'</span>);
 fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1 <span class="keyword">...</span>
@@ -2119,7 +2119,7 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_23.png" alt=""> <h2 id="38">Experiment 6 - Hybrid Point Process Filter Example</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_27.png" alt=""> <h2 id="38">Experiment 6 - Hybrid Point Process Filter Example</h2>
 <p>NOTE THIS EXAMPLE WAS NOT INCLUDED IN THE FINAL VERSION OF THE PAPER This example is based on an implementation of the Hybrid Point Process filter described in <i>General-purpose filter design for neural prosthetic devices</i> by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol. 2007 Oct, 98(4):2456-75.</p>
 <h2 id="39">Problem Statement</h2>
 <p>Suppose that a process of interest can be modeled as consisting of several discrete states where the evolution of the system under each state can be modeled as a linear state space model. The observations of both the state and the continuous dynamics are not direct, but rather observed through how the continuous and discrete states affect the firing of a population of neurons. The goal of the hybrid filter is to estimate both the continuous dynamics and the underlying system state from only the neural population firing (point process observations).</p>
@@ -2287,7 +2287,7 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
 
 <span class="comment">% close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_24.png" alt=""> <h2 id="43">Simulate Neural Firing</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_28.png" alt=""> <h2 id="43">Simulate Neural Firing</h2>
 <p>We simulate a population of neurons that fire in response to the movement velocity (x and y coorinates)</p>
 <pre class="codeinput">
 <span class="comment">%Use the data to estimate the process noise for the moving case and</span>
@@ -2604,7 +2604,7 @@ thisDir = startDir;
 <span class="keyword">end</span>
 <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_25.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="nSTATPaperExamples_29.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

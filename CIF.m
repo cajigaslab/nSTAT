@@ -431,7 +431,7 @@ classdef CIF < handle
                 end
             end
             
-           val = [stimVal;histVal];
+           val = [cifObj.expandStimToVarIn(stimVal);histVal]; % FIX: expand stim-only values to full varIn
            outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaFunction,val);
         end
         function outVal = evalGradient(cifObj,stimVal,time_index,nst)
@@ -463,7 +463,7 @@ classdef CIF < handle
                 end
             end
             
-            val = [stimVal;histVal];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientFunction,val);
             
         end
@@ -497,7 +497,7 @@ classdef CIF < handle
                 end
             end
             
-            val = [stimVal;histVal];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientLogFunction,val);
             
          end
@@ -532,7 +532,7 @@ classdef CIF < handle
                     error('Second Input must be of class nspikeTrain');
                 end
             end
-            val = [stimVal;histVal];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianFunction,val);
         end      
         
@@ -565,7 +565,7 @@ classdef CIF < handle
                     error('Second Input must be of class nspikeTrain');
                 end
             end
-            val = [stimVal;histVal];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianLogFunction,val);
         end      
         
@@ -601,7 +601,7 @@ classdef CIF < handle
                 end
             end
             
-           val = [stimVal;histVal;gamma];
+           val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
            outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaGammaFunction,val);
         end
          
@@ -633,7 +633,7 @@ classdef CIF < handle
                 end
             end
             
-           val = [stimVal;histVal;gamma];
+           val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
            outVal = CIF.evalFunctionWithVectorArgs(cifObj.LogLambdaDeltaGammaFunction,val);
         end
         
@@ -667,7 +667,7 @@ classdef CIF < handle
                 end
             end
             
-            val = [stimVal;histVal;gamma];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientFunctionGamma,val);
             
         end
@@ -701,7 +701,7 @@ classdef CIF < handle
             end
 
             
-            val = [stimVal;histVal;gamma];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.gradientLogFunctionGamma,val);
             
         end
@@ -737,7 +737,7 @@ classdef CIF < handle
                     error('Second Input must be of class nspikeTrain');
                 end
             end
-            val = [stimVal;histVal;gamma];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianLogFunctionGamma,val);
         end
         function outVal = evalJacobianLDGamma(cifObj,stimVal,time_index,nst,gamma)
@@ -769,7 +769,7 @@ classdef CIF < handle
                     error('Second Input must be of class nspikeTrain');
                 end
             end
-            val = [stimVal;histVal;gamma];
+            val = [cifObj.expandStimToVarIn(stimVal);histVal;gamma]; % FIX: expand stim-only values to full varIn
             outVal = CIF.evalFunctionWithVectorArgs(cifObj.jacobianFunctionGamma,val);
         end
         
@@ -1032,6 +1032,33 @@ classdef CIF < handle
                 error('History and Stimulus Transfer functions be discrete and have ''Ts'' equal to 1/inputStimSignal.sampleRate');
             end
             
+        end
+    end
+
+    methods (Access = private)
+        function fullVal = expandStimToVarIn(cifObj, stimVal)
+            % FIX: expand decoder-provided stimulus values to full varIn vector.
+            % When the decoder passes only stimulus-dimension values (length ==
+            % numel(stimVars)), map them into their positions within varIn and
+            % fill the remaining positions (intercept / constant terms) with 1.0.
+            % When stimVal already matches varIn length, pass through unchanged.
+            nVar  = numel(cifObj.varIn);
+            nStim = numel(cifObj.stimVars);
+            if length(stimVal) == nVar
+                fullVal = stimVal;                   % caller already supplied all vars
+            elseif length(stimVal) == nStim
+                fullVal = ones(nVar, 1);             % default intercept terms to 1.0
+                for k = 1:nStim
+                    idx = find(cifObj.varIn == cifObj.stimVars(k), 1);
+                    if ~isempty(idx)
+                        fullVal(idx) = stimVal(k);
+                    end
+                end
+            else
+                error('CIF:InvalidStimValSize', ...
+                    'stimVal must have length %d (all vars) or %d (stim vars only), got %d.', ...
+                    nVar, nStim, length(stimVal));
+            end
         end
     end
 

@@ -156,26 +156,7 @@ legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus No Hist +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
 </pre>
-<pre class="codeoutput error">Not enough input arguments.
-
-Error in sym/matlabFunction&gt;@(one,x,dN1,dN2,dN3)exp(x)./(exp(x)+exp(dN1.*2.0).*exp(dN2.*2.0).*exp(dN3.*4.0).*exp(one.*2.0))
-
-Error in CIF/evalFunctionWithVectorArgs (line 1044)
-            outVal = funHandle(args{:});
-                     ^^^^^^^^^^^^^^^^^^
-Error in CIF/evalLambdaDelta (line 435)
-           outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaFunction,val);
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error in DecodingAlgorithms.PPDecode_update (line 805)
-                        lambdaDeltaMat(C,1) = lambda{C}.evalLambdaDelta(x_p,time_index,nst);
-                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error in DecodingAlgorithms.PPDecodeFilter (line 233)
-                [x_u(:,n),   W_u(:,:,n)]   = DecodingAlgorithms.PPDecode_update( x_p(:,n), W_p(:,:,n), dN(:,1:n),lambdaCIFColl, binwidth,n);
-                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error in DecodingExampleWithHist (line 58)
-[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</pre>
-<p>We see that inclusion of history effect improves (as expected) the decoding of the stimulus based on the point process observations</p>
+<img vspace="5" hspace="5" src="DecodingExampleWithHist_01.png" alt=""> <img vspace="5" hspace="5" src="DecodingExampleWithHist_02.png" alt=""> <p>We see that inclusion of history effect improves (as expected) the decoding of the stimulus based on the point process observations</p>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>

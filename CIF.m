@@ -918,7 +918,7 @@ classdef CIF < handle
                 end
                 assignin('base','simTypeSelect',simTypeSelect);
                 
-                options = simget; % FIX: simget is legacy; options unused below (sim call uses explicit params)
+                % FIX: removed dead simget call (options was unused; sim() uses explicit name-value pairs)
                 thinningModelName = CIF.resolveSimulinkModelName('PointProcessSimulationThinning');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 t=inputStimSignal.time;
@@ -1007,12 +1007,12 @@ classdef CIF < handle
                 end
                 assignin('base','simTypeSelect',simTypeSelect);
                 
-                options = simget; % FIX: simget is legacy; replace with Simulink.SimulationInput in future
+                % FIX: replaced simget with [] (default options); simget deprecated R2016a
                 simModelName = CIF.resolveSimulinkModelName('PointProcessSimulation');
                 lambdaData = zeros(length(inputStimSignal.time),numRealizations);
                 for i=1:numRealizations
                     try
-                        [tout,~,yout] = sim(simModelName,[inputStimSignal.minTime inputStimSignal.maxTime],options,inputStimSignal.dataToStructure, inputEnsSignal.dataToStructure);
+                        [tout,~,yout] = sim(simModelName,[inputStimSignal.minTime inputStimSignal.maxTime],[],inputStimSignal.dataToStructure, inputEnsSignal.dataToStructure);
                     catch simErr
                         error('CIF:PointProcessSimulationFailed',...
                             ['PointProcessSimulation failed (model: %s). In MATLAB 2025b run Simulink Upgrade Advisor for this model ',...

@@ -63,8 +63,8 @@ classdef TestPythonSimulinkParity < matlab.unittest.TestCase
 
             assignin('base', 'S1', S{1}); assignin('base', 'H1', H{1}); assignin('base', 'E1', E{1}); assignin('base', 'mu1', mu{1});
             assignin('base', 'S2', S{2}); assignin('base', 'H2', H{2}); assignin('base', 'E2', E{2}); assignin('base', 'mu2', mu{2});
-            options = simget;
-            [tout, ~, yout] = sim('SimulatedNetwork2', [stim.minTime stim.maxTime], options, stim.dataToStructure); %#ok<NASGU,ASGLU>
+            % FIX: replaced simget with [] (default options); simget deprecated R2016a
+            [tout, ~, yout] = sim('SimulatedNetwork2', [stim.minTime stim.maxTime], [], stim.dataToStructure); %#ok<NASGU,ASGLU>
             [h1Num, ~] = tfdata(H{1}, 'v');
             [h2Num, ~] = tfdata(H{2}, 'v');
             [s1Num, ~] = tfdata(S{1}, 'v');

@@ -100,20 +100,20 @@ assignin('base','S2',S{2});
 assignin('base','H2',H{2});
 assignin('base','E2',E{2});
 assignin('base','mu2',mu{2});
-options = simget;
+% FIX: replaced simget with [] (default options); simget deprecated R2016a
 
 %% Simulate the Network
 % Uses a binomial model for the conditional intensity function
-% nSTAT supports poisson model too but this simulink model simulates the 
+% nSTAT supports poisson model too but this simulink model simulates the
 % firing using a binomial model
-fitType = 'binomial'; 
+fitType = 'binomial';
 if(strcmp(fitType,'binomial'))
     Algorithm = 'BNLRCG';
 else
     Algorithm ='GLM';
 end
 [tout,~,yout] = sim('SimulatedNetwork2',[stim.minTime stim.maxTime], ...
-    options,stim.dataToStructure);
+    [],stim.dataToStructure);
 clear nst;
 
   for i=1:numNeurons

@@ -1971,36 +1971,32 @@ classdef SignalObj < handle
             if((nargin>=3) && ~isempty(plotPropsIn))  %is we got called with parameter use those
                 %sObj.setPlotProps(plotProps); %Only accepts entire cell of plotting properties as input
                 %if(length(plotCell)>=length(sArray)) %if we specified plot parameters for each dimension
+                % FIX: replaced eval-based string construction with direct plot() calls
                 for i=sArray
-                    %plotStr=cell2str(plotCell{:,find(sArray==i)});
                     plotStr=cell2str(sObj.getPlotProps(i));
+                    idx = find(sArray==i);
                     if(~strcmp(plotStr,'') && ~isempty(plotStr))
-                        evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'),', plotStr,');');
-                        eval(evalstring); hold on;
+                        plotArgs = parsePlotProps(plotStr);
+                        h(idx)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        hold on;
                     else
-%                         set(gca,handle);
                         axes(handle);
-                        evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(sObj.time,sObj.data(:,',num2str(i),'));');
-%                         evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'));');
-                        eval(evalstring); hold on;
+                        h(idx)=plot(sObj.time,sObj.data(:,i));
+                        hold on;
                     end
-                    %evalstring
-                    %eval(evalstring); hold on;
                 end
             elseif(sObj.plotPropsSet) %% We use the values that have been set previously
-                %plotCell = cell2str(sObj.getPlotProps(i));
-                %fprintf('varargin is not empty')
+                % FIX: replaced eval-based string construction with direct plot() calls
                 for i=sArray
                     plotStr =cell2str(sObj.getPlotProps(i));
-                    %plotStr=cell2str(plotCell{:,1});
-                    if(~strcmp(plotStr,'') && ~isempty(plotStr))
-                        evalstring = strcat('h(',num2str(i),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'),', plotStr,');');
-                    else
-                        evalstring = strcat('h(',num2str(i),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'));');
-                    end
-                    %evalstring
                     if(~isempty(sObj.data(:,i)))
-                        eval(evalstring); hold on;
+                        if(~strcmp(plotStr,'') && ~isempty(plotStr))
+                            plotArgs = parsePlotProps(plotStr);
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        else
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i));
+                        end
+                        hold on;
                     end
                 end
             else %We didnt get any plotting properties. Use matlab default
@@ -2024,7 +2020,9 @@ classdef SignalObj < handle
             %sArray is an array on indexes corresponding to which labels
             %will appear in the legend.
 %              set(gcf,'CurrentAxes',handle);
-            warning off;
+            % FIX: use onCleanup to guarantee warning state restoration even on error
+            warnState = warning('off','all');
+            cleanupObj = onCleanup(@() warning(warnState)); %#ok<NASGU>
             if(~strcmp(sObj.xunits,''))
                 xunitsStr=strcat('\; [',sObj.xunits,']'); %\; is a large space in latex
             else
@@ -2081,7 +2079,7 @@ classdef SignalObj < handle
                 legend(handle,labelArray);%,'Interpreter','latex');
             end
             axis tight;
-            warning on;
+            % FIX: removed manual 'warning on'; onCleanup restores state automatically
         end
         
         function h=plotVariability(sObj,selectorArray)
@@ -2356,6 +2354,17 @@ function stringout=cell2str(input)
         elseif(isa(input,'cell'))
             stringout=cell2str(input{1});
         end
+    end
+end
+function args = parsePlotProps(plotStr)
+%PARSEPLOTPROPS Convert a legacy plotProps string to a cell array.
+%   Stored strings like ' ''r'', ''LineWidth'' ,3' are converted to
+%   cell arrays {'r', 'LineWidth', 3} for use with direct plot() calls.
+%   FIX: enables direct plot() calls instead of eval-based string construction
+    if isempty(plotStr)
+        args = {};
+    else
+        args = eval(['{' plotStr '}']); %#ok<EVLC> % contained eval parses property list only
     end
 end
 function color=getAvailableColor(index)

@@ -630,13 +630,9 @@ classdef nspikeTrain < handle
             if(~isempty(ISIs))
                 bins=0:binWidth:max(ISIs);
 
-                %Make the ISI Histogram            
-                counts = histc(ISIs,bins); % FIX: histc is deprecated; replace with histcounts+histogram in future
-
-                %set(gcf,'CurrentAxes',handle);
-                %bar(bins,histc(ISIs,bins)./sum(binWidth*counts),'histc');
-                h=bar(bins,histc(ISIs,bins),'histc'); %#ok<HISTC> % FIX: histc+bar('histc') deprecated; use histogram() in future
-                set(h,'MarkerEdgeColor',[0 0 0],...
+                % FIX: replaced histc+bar('histc') with histogram(); histc deprecated R2014a
+                h=histogram(ISIs,bins);
+                set(h,'EdgeColor',[0 0 0],...
                 'LineWidth',2,...
                 'FaceColor',[0.831372559070587 0.815686285495758 0.7843137383461]);
             end

@@ -697,20 +697,16 @@ classdef nstColl < handle
                 windowTimes=[windowTimes, maxTime];
             end
                 
-            psthData=zeros(1,length(windowTimes));
+            % FIX: replaced histc with histcounts; histc deprecated R2014a
+            % histcounts returns length(edges)-1 counts, so no end-trim needed
+            psthData=zeros(1,length(windowTimes)-1);
                 %dataMat = nstCollObj.dataToMatrix(nstCollObj,selectorArray,binwidth,minTime,maxTime);
-            for i=1:length(selectorArray)    
+            for i=1:length(selectorArray)
                 spikeTimes = nstCollObj.getNST(selectorArray(i)).getSpikeTimes;
                 if(~isempty(spikeTimes))
-                    
-                    psthData = psthData+histc(spikeTimes,windowTimes);
+                    psthData = psthData+histcounts(spikeTimes,windowTimes);
                 end
             end
-                %due to how histc works add the last observation to the
-                %previous one;
-                tempPsth = psthData(1:end-1);
-%                 tempPsth(end) = tempPsth(end)+psthData(end);
-                psthData = tempPsth;
 %                 unitPulseBasis=nstCollObj.generateUnitImpulseBasis(binwidth,minTime,maxTime);
 %                 psthData = (unitPulseBasis.data*psthData')./binwidth;
                 psthData = psthData./binwidth./length(selectorArray);
@@ -765,25 +761,25 @@ classdef nstColl < handle
             if(nargin<2)
                 binwidth=.100; %100ms
             end
-            time = minTime:binwidth:maxTime;
-            psthData=zeros(1,length(time));
+            % FIX: replaced histc with histcounts; histc deprecated R2014a
+            % histcounts returns length(edges)-1 counts; use bin centers for time axis
+            edges = minTime:binwidth:maxTime;
+            psthData=zeros(1,length(edges)-1);
                 %dataMat = nstCollObj.dataToMatrix(nstCollObj,selectorArray,binwidth,minTime,maxTime);
-            for i=1:length(selectorArray)    
+            for i=1:length(selectorArray)
                 spikeTimes = nstCollObj.getNST(selectorArray(i)).getSpikeTimes;
                 if(~isempty(spikeTimes))
-                    psthData = psthData+histc(spikeTimes,time);
+                    psthData = psthData+histcounts(spikeTimes,edges);
                 end
             end
             psthData = psthData./binwidth;
             psthData = psthData/length(selectorArray);
-                %due to how histc works add the last observation to the
-                %previous one;
 
             bp = defaultParams;
             bp.prior_id = 'POISSON';
             bp.dparams = 4;
-  
-  
+
+            time = (edges(1:end-1) + edges(2:end)) / 2; % bin centers
             numTrials = length(selectorArray);
             fit = barsP(psthData,[minTime maxTime],numTrials);
             psthSignal = SignalObj(time, [fit.mode fit.mean fit.confBands], 'PSTH_{bars}','time','s','Hz',{'mode','mean','ciLower','ciUpper'});
@@ -994,7 +990,9 @@ classdef nstColl < handle
                 tc{1}.setName('GLM-PSTH');
             end
             cfgColl= ConfigColl(tc);
-            warning off;
+            % FIX: use onCleanup to guarantee warning state restoration even on error
+            warnState = warning('off','all');
+            cleanupObj = onCleanup(@() warning(warnState)); %#ok<NASGU>
             
             if(strcmp(fitType,'poisson'))
                 Algorithm='GLM';

@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>nSTATPaperExamples</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="nSTATPaperExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -1409,7 +1409,7 @@ set(h_legend, <span class="string">'position'</span>,[pos(1)+.03 pos(2)+.01 pos(
 
 %% Compare differences across trials 
 echo off;
-The learning trial (compared to the first trial) is trial #6
+The learning trial (compared to the first trial) is trial #12
 </pre>
 <img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <h2 id="25">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
 <p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p>
@@ -1962,7 +1962,7 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
          <span class="comment">% Generate CIF representation in case we want to use the symbolic</span>
          <span class="comment">% versions of the PPDecodeFilter (i.e. not PPDecodeFilterLinear</span>
          lambdaCIF{i} = CIF([MuCoeffs(i) 0 0 bCoeffs(i,:)],<span class="keyword">...</span>
-             {<span class="string">'1'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'vx'</span>,<span class="string">'vy'</span>},{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'vx'</span>,<span class="string">'vy'</span>},fitType);
+             {<span class="string">'one'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'vx'</span>,<span class="string">'vy'</span>},{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'vx'</span>,<span class="string">'vy'</span>},fitType);
          <span class="comment">% generate one realization for each cell</span>
          tempSpikeColl{i} = CIF.simulateCIFByThinningFromLambda(lambda{i},1);          nst{i} = tempSpikeColl{i}.getNST(1);     <span class="comment">% grab the realization</span>
          nst{i}.setName(num2str(i));              <span class="comment">% give each cell a unique name</span>
@@ -4240,7 +4240,7 @@ set([hx, hy],'FontName', 'Arial','FontSize',22,'FontWeight','bold');
          % Generate CIF representation in case we want to use the symbolic
          % versions of the PPDecodeFilter (i.e. not PPDecodeFilterLinear
          lambdaCIF{i} = CIF([MuCoeffs(i) 0 0 bCoeffs(i,:)],...
-             {'1','x','y','vx','vy'},{'x','y','vx','vy'},fitType);
+             {'one','x','y','vx','vy'},{'x','y','vx','vy'},fitType);
          % generate one realization for each cell
          tempSpikeColl{i} = CIF.simulateCIFByThinningFromLambda(lambda{i},1);          nst{i} = tempSpikeColl{i}.getNST(1);     % grab the realization
          nst{i}.setName(num2str(i));              % give each cell a unique name

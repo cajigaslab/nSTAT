@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>StimulusDecode2D</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="StimulusDecode2D.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -115,7 +115,7 @@ plot(px,py);
 title(<span class="string">'Simulated X-Y trajectory'</span>);
 xlabel(<span class="string">'x'</span>); ylabel(<span class="string">'y'</span>);
 </pre>
-<img vspace="5" hspace="5" src="StimulusDecode2D_01.png" alt=""> <img vspace="5" hspace="5" src="StimulusDecode2D_02.png" alt=""> <h2 id="2">Generate random receptive fields to simulate different neurons</h2>
+<img vspace="5" hspace="5" src="StimulusDecode2D_01.png" alt=""> <h2 id="2">Generate random receptive fields to simulate different neurons</h2>
 <pre class="codeinput">clear <span class="string">lambdaCIF</span> <span class="string">lambda</span> <span class="string">tempSpikeColl</span> <span class="string">n</span> <span class="string">spikeColl</span>
 numRealizations=80;
 
@@ -132,7 +132,7 @@ dataMat = [ones(length(time),1) px py px.^2 py.^2 px.*py];
      n{i}.setName(num2str(i));
 
      <span class="keyword">try</span>
-         lambdaCIF{i} = CIF(coeffs(i,:),{<span class="string">'1'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'x^2'</span>,<span class="string">'y^2'</span>,<span class="string">'x*y'</span>},{<span class="string">'x'</span>,<span class="string">'y'</span>},<span class="string">'binomial'</span>);
+         lambdaCIF{i} = CIF(coeffs(i,:),{<span class="string">'one'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'x^2'</span>,<span class="string">'y^2'</span>,<span class="string">'x*y'</span>},{<span class="string">'x'</span>,<span class="string">'y'</span>},<span class="string">'binomial'</span>);
      <span class="keyword">catch</span> ME_sym
          <span class="keyword">if</span>(i==1)
              warning(<span class="string">'StimulusDecode2D:SymbolicCIFFallback'</span>, <span class="keyword">...</span>
@@ -177,11 +177,7 @@ fact=factor(numRealizations);
 
 <span class="keyword">end</span>
 </pre>
-<pre class="codeoutput">Warning: CIF symbolic setup failed
-(symbolic:sym:sym:ArgumentMustBeVarnameOrNumber). Decoder will use linear
-fallback. 
-</pre>
-<img vspace="5" hspace="5" src="StimulusDecode2D_03.png" alt=""> <img vspace="5" hspace="5" src="StimulusDecode2D_04.png" alt=""> <img vspace="5" hspace="5" src="StimulusDecode2D_05.png" alt=""> <h2 id="3">Decode the x-y trajectory</h2>
+<img vspace="5" hspace="5" src="StimulusDecode2D_02.png" alt=""> <img vspace="5" hspace="5" src="StimulusDecode2D_03.png" alt=""> <h2 id="3">Decode the x-y trajectory</h2>
 <pre class="codeinput"> spikeColl = nstColl(n);
  spikeColl.resample(1/delta);
  dN = spikeColl.dataToMatrix;
@@ -213,10 +209,7 @@ parity = struct();
 parity.num_cells = num_cells;
 parity.decode_rmse = decode_rmse;
 </pre>
-<pre class="codeoutput">Warning: PPDecodeFilter failed (MATLAB:structRefFromNonStruct). Falling back to
-PPDecodeFilterLinear. 
-</pre>
-<img vspace="5" hspace="5" src="StimulusDecode2D_06.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="StimulusDecode2D_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>
@@ -270,7 +263,7 @@ dataMat = [ones(length(time),1) px py px.^2 py.^2 px.*py];
      n{i}.setName(num2str(i));
     
      try
-         lambdaCIF{i} = CIF(coeffs(i,:),{'1','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
+         lambdaCIF{i} = CIF(coeffs(i,:),{'one','x','y','x^2','y^2','x*y'},{'x','y'},'binomial');
      catch ME_sym
          if(i==1)
              warning('StimulusDecode2D:SymbolicCIFFallback', ...

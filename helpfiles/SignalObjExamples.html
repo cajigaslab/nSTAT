@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Using the SignalObj Class</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="SignalObjExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -186,7 +186,7 @@ figure
 s2=mean(s,2); <span class="comment">%mean of s across its dimensions;</span>
 s2.plot;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_10.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_11.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_12.png" alt=""> <p>SignalObj's can be added, subtracted, and multiplied.\</p>
+<img vspace="5" hspace="5" src="SignalObjExamples_10.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_11.png" alt=""> <p>SignalObj's can be added, subtracted, and multiplied.\</p>
 <pre class="codeinput">figure
 s4=2*s+s5;
 s4.plot;
@@ -200,7 +200,7 @@ subplot(3,1,3);
 s6=s.integral.derivative-s; <span class="comment">%should equal zero;</span>
 s6.plot;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_13.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_14.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_15.png" alt=""> <h2 id="12">Example 5: Spectra</h2>
+<img vspace="5" hspace="5" src="SignalObjExamples_12.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_13.png" alt=""> <h2 id="12">Example 5: Spectra</h2>
 <pre class="codeinput">s=SignalObj(t,v,<span class="string">'Voltage'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'v1'</span>,<span class="string">'v2'</span>});
 figure;
 s.MTMspectrum;
@@ -208,7 +208,7 @@ s.MTMspectrum;
 figure
 s.periodogram;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_16.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_17.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_18.png" alt=""> <h2 id="13">Example 6: View signal variability</h2>
+<img vspace="5" hspace="5" src="SignalObjExamples_14.png" alt=""> <img vspace="5" hspace="5" src="SignalObjExamples_15.png" alt=""> <h2 id="13">Example 6: View signal variability</h2>
 <p>We can look at the variability of signals with regards to their labels or or irrespective of their labels. Lets create a SignalObj that has several components, and some noise. We mislabel two signals to add alot of variability for illustration</p>
 <pre class="codeinput">sampleRate=5000; t=0:1/sampleRate:1; t=t'; freq=2;
 v1=sin(2*pi*freq*t); v2=sin(v1.^2);
@@ -220,7 +220,7 @@ subplot(2,1,1); s.plot;
 subplot(2,1,2); s.plotAllVariability; <span class="comment">%disregards labels;</span>
 s.plotVariability; <span class="comment">%creates two figures, one for 'v1' and one for 'v2'</span>
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_19.png" alt=""> <p>sObj.plotAllVariability assumes that all the data can be considered together. It also allows more custimization of the plotting properties. Example we can specify a different faceColor by passing the color in the same format as plot. Assymetric confidence intervals can be specified. If the CIs are single numbers, they specify the multiple of the standard deviations to use (default is 1). If they are the same length as the SignalObj, then it specifies the actual values above and/or below the mean at each point in time. If ciLower is not specifed, it is assumed to equal ciUpper. For convinience the inputs to plotAllVariability are: s.plotAllVariability(sObj,faceColor,linewidth,ciUpper,ciLower)</p>
+<img vspace="5" hspace="5" src="SignalObjExamples_16.png" alt=""> <p>sObj.plotAllVariability assumes that all the data can be considered together. It also allows more custimization of the plotting properties. Example we can specify a different faceColor by passing the color in the same format as plot. Assymetric confidence intervals can be specified. If the CIs are single numbers, they specify the multiple of the standard deviations to use (default is 1). If they are the same length as the SignalObj, then it specifies the actual values above and/or below the mean at each point in time. If ciLower is not specifed, it is assumed to equal ciUpper. For convinience the inputs to plotAllVariability are: s.plotAllVariability(sObj,faceColor,linewidth,ciUpper,ciLower)</p>
 <pre class="codeinput">figure;
 <span class="comment">%blue color for CI patch;</span>
 subplot(3,1,1); s.plotAllVariability(<span class="string">'b'</span>);
@@ -233,7 +233,7 @@ subplot(3,1,3); s.plotAllVariability(<span class="string">'c'</span>,3,2,1);
 parity = struct();
 parity.sample_rate_hz = sampleRate;
 </pre>
-<img vspace="5" hspace="5" src="SignalObjExamples_20.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="SignalObjExamples_17.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

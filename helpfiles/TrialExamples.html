@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Trial Examples</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="TrialExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -100,7 +100,7 @@ h=History(windowTimes);
 figure; h.plot;
 </pre>
 <img vspace="5" hspace="5" src="TrialExamples_01.png" alt=""> <p>Load Covariates</p>
-<pre class="codeinput">load <span class="string">CovariateSample.mat</span>; <span class="comment">%load position and force covariates</span>
+<pre class="codeinput">load(fullfile(fileparts(which(<span class="string">'TrialExamples'</span>)),<span class="string">'CovariateSample.mat'</span>)); <span class="comment">%load position and force covariates</span>
 cc=CovColl({position,force});
 cc.setMaxTime(lengthTrial);
 figure; cc.plot;
@@ -157,7 +157,7 @@ figure; h.plot;
 
 %%
 % Load Covariates
-load CovariateSample.mat; %load position and force covariates
+load(fullfile(fileparts(which('TrialExamples')),'CovariateSample.mat')); %load position and force covariates
 cc=CovColl({position,force});
 cc.setMaxTime(lengthTrial);
 figure; cc.plot;

@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>FitResult Examples</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="FitResultExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -77,6 +77,53 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <body>
 <div class="content">
 <h1>FitResult Examples</h1>
+<!--introduction-->
+<p>
+<tt>FitResult</tt> objects are created automatically by <tt>Analysis.RunAnalysisForAllNeurons</tt> and <tt>Analysis.RunAnalysisForNeuron</tt>. They encapsulate the fitted model coefficients, goodness-of-fit statistics, and the conditional intensity.</p>
+<p>See <a href="AnalysisExamples2.html">Analysis Examples 2</a> for a complete walkthrough that produces <tt>FitResult</tt> objects and the <a href="FitResultReference.html">FitResult Reference</a> for a full property/method listing.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Creating a FitResult via Analysis</a>
+</li>
+<li>
+<a href="#2">Inspecting a FitResult</a>
+</li>
+<li>
+<a href="#3">Plotting</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Creating a FitResult via Analysis</h2>
+<p>After defining a Trial and TrialConfig, run the analysis:</p>
+<pre class="language-matlab">fitResults = Analysis.RunAnalysisForAllNeurons(trial, configColl, 0);
+</pre>
+<p>
+<tt>fitResults</tt> is a <tt>FitResSummary</tt> containing one <tt>FitResult</tt> per (neuron, configuration) pair.</p>
+<h2 id="2">Inspecting a FitResult</h2>
+<p>Key properties available on each FitResult:</p>
+<div>
+<ul>
+<li>
+<tt>b</tt> -- fitted coefficient vector</li>
+<li>
+<tt>dev</tt> -- model deviance</li>
+<li>
+<tt>stats</tt> -- GLM statistics structure (standard errors, p-values)</li>
+<li>
+<tt>lambda</tt> -- estimated conditional intensity (<tt>SignalObj</tt>)</li>
+<li>
+<tt>AIC</tt>, <tt>BIC</tt> -- information criteria for model comparison</li>
+<li>
+<tt>KSStats</tt> -- Kolmogorov-Smirnov goodness-of-fit results</li>
+</ul>
+</div>
+<h2 id="3">Plotting</h2>
+<pre class="language-matlab">fitResults.plotResults;          <span class="comment">% summary panel of all fits</span>
+fitResults.plotResults_KS;       <span class="comment">% KS goodness-of-fit plots</span>
+</pre>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
@@ -86,6 +133,36 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <!--
 ##### SOURCE BEGIN #####
 %% FitResult Examples
+% |FitResult| objects are created automatically by |Analysis.RunAnalysisForAllNeurons|
+% and |Analysis.RunAnalysisForNeuron|.  They encapsulate the fitted model
+% coefficients, goodness-of-fit statistics, and the conditional intensity.
+%
+% See <AnalysisExamples2.html Analysis Examples 2> for a complete walkthrough
+% that produces |FitResult| objects and the <FitResultReference.html FitResult Reference>
+% for a full property/method listing.
+%
+%% Creating a FitResult via Analysis
+% After defining a Trial and TrialConfig, run the analysis:
+%
+%   fitResults = Analysis.RunAnalysisForAllNeurons(trial, configColl, 0);
+%
+% |fitResults| is a |FitResSummary| containing one |FitResult| per
+% (neuron, configuration) pair.
+%
+%% Inspecting a FitResult
+% Key properties available on each FitResult:
+%
+% * |b| REPLACE_WITH_DASH_DASH fitted coefficient vector
+% * |dev| REPLACE_WITH_DASH_DASH model deviance
+% * |stats| REPLACE_WITH_DASH_DASH GLM statistics structure (standard errors, p-values)
+% * |lambda| REPLACE_WITH_DASH_DASH estimated conditional intensity (|SignalObj|)
+% * |AIC|, |BIC| REPLACE_WITH_DASH_DASH information criteria for model comparison
+% * |KSStats| REPLACE_WITH_DASH_DASH Kolmogorov-Smirnov goodness-of-fit results
+%
+%% Plotting
+%
+%   fitResults.plotResults;          % summary panel of all fits
+%   fitResults.plotResults_KS;       % KS goodness-of-fit plots
 
 ##### SOURCE END #####
 -->

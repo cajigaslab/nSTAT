@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>STIMULUS DECODING</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="DecodingExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -145,7 +145,7 @@ b1=paramEst(2,:);
 <span class="keyword">for</span> i=1:numRealizations
     <span class="comment">% Construct a CIF object for each realization based on our encoding</span>
     <span class="comment">% results abovel</span>
-    lambdaCIF{i} = CIF([b0(i) b1(i)],{<span class="string">'1'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>);
+    lambdaCIF{i} = CIF([b0(i) b1(i)],{<span class="string">'one'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>);
 <span class="keyword">end</span>
 <span class="comment">% close all;</span>
 spikeColl.resample(1/delta);
@@ -166,8 +166,6 @@ legend <span class="string">off</span>;
 legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,strcat(<span class="string">'x_{k|k}(t)-'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="keyword">...</span>
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
-</pre>
-<pre class="codeoutput">Warning: Ignoring extra legend entries. 
 </pre>
 <img vspace="5" hspace="5" src="DecodingExample_05.png" alt=""> <p class="footer">
 <br>
@@ -247,7 +245,7 @@ b1=paramEst(2,:);
 for i=1:numRealizations
     % Construct a CIF object for each realization based on our encoding
     % results abovel
-    lambdaCIF{i} = CIF([b0(i) b1(i)],{'1','x'},{'x'},'binomial');
+    lambdaCIF{i} = CIF([b0(i) b1(i)],{'one','x'},{'x'},'binomial');
 end
 % close all;
 spikeColl.resample(1/delta);

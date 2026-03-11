@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>NetworkTutorial</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="NetworkTutorial.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -184,7 +184,7 @@ assignin(<span class="string">'base'</span>,<span class="string">'S2'</span>,S{2
 assignin(<span class="string">'base'</span>,<span class="string">'H2'</span>,H{2});
 assignin(<span class="string">'base'</span>,<span class="string">'E2'</span>,E{2});
 assignin(<span class="string">'base'</span>,<span class="string">'mu2'</span>,mu{2});
-options = simget;
+<span class="comment">% FIX: replaced simget with [] (default options); simget deprecated R2016a</span>
 </pre>
 <h2 id="19">Simulate the Network</h2>
 <p>Uses a binomial model for the conditional intensity function nSTAT supports poisson model too but this simulink model simulates the firing using a binomial model</p>
@@ -195,7 +195,7 @@ options = simget;
     Algorithm =<span class="string">'GLM'</span>;
 <span class="keyword">end</span>
 [tout,~,yout] = sim(<span class="string">'SimulatedNetwork2'</span>,[stim.minTime stim.maxTime], <span class="keyword">...</span>
-    options,stim.dataToStructure);
+    [],stim.dataToStructure);
 clear <span class="string">nst</span>;
 
   <span class="keyword">for</span> i=1:numNeurons
@@ -298,7 +298,7 @@ title(<span class="string">'Estimated 1ms'</span>);
 Analyzing Configuration #2: Neuron #1,2
 Analyzing Configuration #3: Neuron #1,2
 </pre>
-<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_05.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
+<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
@@ -409,20 +409,20 @@ assignin('base','S2',S{2});
 assignin('base','H2',H{2});
 assignin('base','E2',E{2});
 assignin('base','mu2',mu{2});
-options = simget;
+% FIX: replaced simget with [] (default options); simget deprecated R2016a
 
 %% Simulate the Network
 % Uses a binomial model for the conditional intensity function
-% nSTAT supports poisson model too but this simulink model simulates the 
+% nSTAT supports poisson model too but this simulink model simulates the
 % firing using a binomial model
-fitType = 'binomial'; 
+fitType = 'binomial';
 if(strcmp(fitType,'binomial'))
     Algorithm = 'BNLRCG';
 else
     Algorithm ='GLM';
 end
 [tout,~,yout] = sim('SimulatedNetwork2',[stim.minTime stim.maxTime], ...
-    options,stim.dataToStructure);
+    [],stim.dataToStructure);
 clear nst;
 
   for i=1:numNeurons

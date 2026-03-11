@@ -123,8 +123,13 @@ end
 end
 
 function validateHtmlGeneratorMetadata(helpDir, expectedGenerator)
+% FIX: skip hand-crafted HTML files that are not MATLAB-published
+skipFiles = {'index.html'};
 htmlFiles = dir(fullfile(helpDir, '*.html'));
 for i = 1:numel(htmlFiles)
+    if any(strcmpi(htmlFiles(i).name, skipFiles))
+        continue;
+    end
     htmlPath = fullfile(helpDir, htmlFiles(i).name);
     raw = fileread(htmlPath);
     if isempty(regexp(raw, ['<meta name="generator" content="' regexptranslate('escape', expectedGenerator) '"'], 'once'))

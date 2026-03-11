@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>FitResSummary Examples</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="FitResSummaryExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -77,6 +77,49 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <body>
 <div class="content">
 <h1>FitResSummary Examples</h1>
+<!--introduction-->
+<p>
+<tt>FitResSummary</tt> collects multiple <tt>FitResult</tt> objects returned by <tt>Analysis.RunAnalysisForAllNeurons</tt>. It provides aggregate plotting and model-comparison utilities.</p>
+<p>See <a href="AnalysisExamples2.html">Analysis Examples 2</a> for a complete workflow that builds and visualises a <tt>FitResSummary</tt>.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Key Properties</a>
+</li>
+<li>
+<a href="#2">Aggregate Methods</a>
+</li>
+<li>
+<a href="#3">Example</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Key Properties</h2>
+<div>
+<ul>
+<li>
+<tt>numResults</tt> -- number of contained FitResult objects</li>
+<li>
+<tt>lambda</tt> -- combined conditional-intensity signal across fits</li>
+<li>
+<tt>b</tt> -- cell array of coefficient vectors (one per fit)</li>
+</ul>
+</div>
+<h2 id="2">Aggregate Methods</h2>
+<pre class="language-matlab">fitResults.plotResults;            <span class="comment">% side-by-side fit comparison</span>
+fitResults.plotResults_KS;         <span class="comment">% KS plots for all fits</span>
+fitResults.evalLambda(idx, newData); <span class="comment">% evaluate model idx on new data</span>
+fitResults.plotCoeffBoxPlots;      <span class="comment">% boxplots across configurations</span>
+</pre>
+<h2 id="3">Example</h2>
+<pre class="language-matlab">
+<span class="comment">% After running an analysis:</span>
+fitResults = Analysis.RunAnalysisForAllNeurons(trial, configColl, 0);
+fitResults.plotResults;            <span class="comment">% visualise all configurations</span>
+disp(fitResults.numResults);       <span class="comment">% number of fits</span>
+</pre>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
@@ -86,6 +129,32 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <!--
 ##### SOURCE BEGIN #####
 %% FitResSummary Examples
+% |FitResSummary| collects multiple |FitResult| objects returned by
+% |Analysis.RunAnalysisForAllNeurons|.  It provides aggregate plotting and
+% model-comparison utilities.
+%
+% See <AnalysisExamples2.html Analysis Examples 2> for a complete workflow
+% that builds and visualises a |FitResSummary|.
+%
+%% Key Properties
+%
+% * |numResults| REPLACE_WITH_DASH_DASH number of contained FitResult objects
+% * |lambda| REPLACE_WITH_DASH_DASH combined conditional-intensity signal across fits
+% * |b| REPLACE_WITH_DASH_DASH cell array of coefficient vectors (one per fit)
+%
+%% Aggregate Methods
+%
+%   fitResults.plotResults;            % side-by-side fit comparison
+%   fitResults.plotResults_KS;         % KS plots for all fits
+%   fitResults.evalLambda(idx, newData); % evaluate model idx on new data
+%   fitResults.plotCoeffBoxPlots;      % boxplots across configurations
+%
+%% Example
+%
+%   % After running an analysis:
+%   fitResults = Analysis.RunAnalysisForAllNeurons(trial, configColl, 0);
+%   fitResults.plotResults;            % visualise all configurations
+%   disp(fitResults.numResults);       % number of fits
 
 ##### SOURCE END #####
 -->

@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>SignalObj</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="SignalObj.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -740,7 +740,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">if</span>(isa(s1,<span class="string">'SignalObj'</span>) &amp;&amp; isa(s2,<span class="string">'SignalObj'</span>))
                <span class="keyword">if</span>(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; <span class="comment">% FIX: was s3=s1c (handle alias); copySignal prevents mutating input</span>
                    s3.data = s1c.data.*s2c.data;
                    <span class="comment">%can multiply units</span>
                <span class="keyword">else</span>
@@ -789,7 +789,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">if</span>(isa(s1,<span class="string">'SignalObj'</span>) &amp;&amp; isa(s2,<span class="string">'SignalObj'</span>))
                <span class="keyword">if</span>(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; <span class="comment">% FIX: was s3=s1c (handle alias); copySignal prevents mutating input</span>
                    s3.data = s1c.data./s2c.data;
                    <span class="comment">%can multiply units</span>
                <span class="keyword">else</span>
@@ -809,7 +809,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">if</span>(isa(s1,<span class="string">'SignalObj'</span>) &amp;&amp; isa(s2,<span class="string">'SignalObj'</span>))
                <span class="keyword">if</span>(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; <span class="comment">% FIX: was s3=s1c (handle alias); copySignal prevents mutating input</span>
                    s3.data = s1c.data.\s2c.data;
                    <span class="comment">%can multiply units</span>
                <span class="keyword">else</span>
@@ -971,16 +971,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             plotProps  = sObj.plotProps;
             <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-<span class="comment">%                     plotProps  = sObj.plotProps;</span>
                     <span class="keyword">for</span> i=1:sObj.dimension
                         dataLabels{i} = strcat(<span class="string">'|'</span>,sObj.dataLabels{i},<span class="string">'|'</span>);
                     <span class="keyword">end</span>
-                evalstring = strcat(<span class="string">'s='</span>,class(sObj),<span class="string">'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps);'</span>);
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">else</span>
-
-                evalstring = strcat(<span class="string">'s='</span>,class(sObj),<span class="string">'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps);'</span>);
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">end</span>
-            eval(evalstring);
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> s = log(sObj)
@@ -991,16 +988,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             plotProps  = sObj.plotProps;
             <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-<span class="comment">%                     plotProps  = sObj.plotProps;</span>
                     <span class="keyword">for</span> i=1:sObj.dimension
                         dataLabels{i} = strcat(<span class="string">'ln('</span>,sObj.dataLabels{i},<span class="string">')'</span>);
                     <span class="keyword">end</span>
-                evalstring = strcat(<span class="string">'s='</span>,class(sObj),<span class="string">'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps);'</span>);
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps); <span class="comment">% FIX: replaced eval() with feval()</span>
             <span class="keyword">else</span>
-
-                evalstring = strcat(<span class="string">'s='</span>,class(sObj),<span class="string">'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps);'</span>);
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps); <span class="comment">% FIX: replaced eval() with feval()</span>
             <span class="keyword">end</span>
-            eval(evalstring);
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> m=median(sObj,varargin)
@@ -1016,8 +1010,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             [nrows,ncolumns]=size(mdata);
             <span class="keyword">if</span>( (nrows==length(sObj.time)) &amp;&amp; (ncolumns==1) ) <span class="comment">%mean across dimensions</span>
                 name =  [<span class="string">'median('</span>, sObj.name <span class="string">')'</span>];
-                evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">elseif</span>( (nrows==1) &amp;&amp; (ncolumns == sObj.dimension) )  <span class="comment">%mean of each dimension</span>
                 <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1025,14 +1018,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                         dataLabels{i} = strcat(<span class="string">'median('</span>,sObj.dataLabels{i},<span class="string">')'</span>);
                     <span class="keyword">end</span>
                      name =  [<span class="string">'median('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">else</span>
                      name =  [<span class="string">'median('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">end</span>
 
 
@@ -1054,8 +1043,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             [nrows,ncolumns]=size(mdata);
             <span class="keyword">if</span>( (nrows==length(sObj.time)) &amp;&amp; (ncolumns==1) ) <span class="comment">%mean across dimensions</span>
                 name =  [<span class="string">'mode('</span>, sObj.name <span class="string">')'</span>];
-                evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">elseif</span>( (nrows==1) &amp;&amp; (ncolumns == sObj.dimension) )  <span class="comment">%mean of each dimension</span>
                 <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1063,14 +1051,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                         dataLabels{i} = strcat(<span class="string">'mode('</span>,sObj.dataLabels{i},<span class="string">')'</span>);
                     <span class="keyword">end</span>
                      name =  [<span class="string">'mode('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">else</span>
                      name =  [<span class="string">'mode('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">end</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
@@ -1089,8 +1073,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             [nrows,ncolumns]=size(mdata);
             <span class="keyword">if</span>( (nrows==length(sObj.time)) &amp;&amp; (ncolumns==1) ) <span class="comment">%mean across dimensions</span>
                 name =  [<span class="string">'\mu('</span>, sObj.name <span class="string">')'</span>];
-                evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">elseif</span>( (nrows==1) &amp;&amp; (ncolumns == sObj.dimension) )  <span class="comment">%mean of each dimension</span>
                 <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1098,14 +1081,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                         dataLabels{i} = strcat(<span class="string">'\mu('</span>,sObj.dataLabels{i},<span class="string">')'</span>);
                     <span class="keyword">end</span>
                      name =  [<span class="string">'\mu('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">else</span>
                      name =  [<span class="string">'\mu('</span>, sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">end</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
@@ -1122,9 +1101,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             [nrows,ncolumns]=size(stdData);
             <span class="keyword">if</span>( (nrows==length(sObj.time)) &amp;&amp; (ncolumns==1) ) <span class="comment">%mean across dimensions</span>
                      name=[<span class="string">'\sigma('</span> sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'(sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj(sObj.time, stdData, name,sObj.xlabelval, sObj.xunits,sObj.yunits);</span>
+                     m = feval(class(sObj),sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">elseif</span>( (nrows==1) &amp;&amp; (ncolumns == sObj.dimension) )  <span class="comment">%mean of each dimension</span>
                 <span class="keyword">if</span>(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1132,14 +1109,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                         dataLabels{i} = strcat(<span class="string">'\sigma('</span>,sObj.dataLabels{i},<span class="string">')'</span>);
                     <span class="keyword">end</span>
                      name=[<span class="string">'\sigma('</span> sObj.name <span class="string">')'</span>];
-                     evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);'</span>);
-                     eval(evalstring);
-                     <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData], ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);</span>
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">else</span>
                     name=[<span class="string">'\sigma('</span> sObj.name <span class="string">')'</span>];
-                    evalstring = strcat(<span class="string">'m='</span>,class(sObj),<span class="string">'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits);'</span>);
-                    eval(evalstring);
-                    <span class="comment">%m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData],  ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);</span>
+                    m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 <span class="keyword">end</span>
             <span class="keyword">end</span>
 
@@ -1169,7 +1142,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 <span class="comment">%autocorrelation of each dimension with itself</span>
                 <span class="keyword">for</span> i=1:sObj.dimension
 
-                    [ACF(:,i),lags,bounds] = crosscor(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1);
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); <span class="comment">% FIX: typo crosscor&rarr;crosscorr</span>
 
                 <span class="keyword">end</span>
                 s=SignalObj(lags/sObj.sampleRate, ACF,[<span class="string">'ACF('</span> sObj.name, <span class="string">')'</span>], <span class="string">'Lag'</span>, sObj.xunits, [sObj.yunits <span class="string">'^2'</span>]);
@@ -1336,8 +1309,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 lags=tempLags(1:end)./s1c.sampleRate;
              <span class="keyword">end</span>
              name = [ <span class="string">'corr('</span> s1.name <span class="string">','</span> s2.name <span class="string">')'</span>];
-             evalstring=strcat(<span class="string">'sxCorr='</span>,class(s1),<span class="string">'(lags,data,name,''\Delta \tau'',''s'',dataLabels);'</span>);
-             eval(evalstring);
+             sxCorr = feval(class(s1),lags,data,name,<span class="string">'\Delta \tau'</span>,<span class="string">'s'</span>,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> sxCov = xcov(s1,s2,varargin)
              <span class="keyword">if</span>(nargin&lt;2)
@@ -1372,9 +1344,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                  lags=tempLags(1:end)./s1c.sampleRate;
              <span class="keyword">end</span>
              name = [ <span class="string">'cov('</span> s1.name <span class="string">','</span> s2.name <span class="string">')'</span>];
-             evalstring=strcat(<span class="string">'sxCov='</span>,class(s1),<span class="string">'(lags,data,name,''\Delta \tau'',''s'',dataLabels);'</span>);
-             eval(evalstring);
-             <span class="comment">%sxCov=SignalObj(lags,data,name,'lags','n',dataLabels);</span>
+             sxCov = feval(class(s1),lags,data,name,<span class="string">'\Delta \tau'</span>,<span class="string">'s'</span>,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
 
 
          <span class="keyword">end</span>
@@ -1414,8 +1384,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                  <span class="keyword">end</span>
                  name = s1c.name;<span class="comment">%, ',', s2c.name]; %name of the original is kept</span>
 
-                 evalstring = strcat(<span class="string">'mergedSig = '</span>,class(sObj),<span class="string">'(s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels);'</span>);
-                 eval(evalstring);
+                 mergedSig = feval(class(sObj),s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
             <span class="keyword">else</span>
                   mergedSig = sObj.merge(varargin{1},holdVals);
                   <span class="keyword">for</span> i=2:numToMerge
@@ -1438,9 +1407,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 yunits=sigIn.yunits;
                 dataLabels=sigIn.dataLabels;
                 plotProps=sigIn.plotProps;
-                evalstring = strcat(<span class="string">'sigOut='</span>,class(sigIn),<span class="string">'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);'</span>);
-                eval(evalstring);
-                <span class="comment">%sigOut = SignalObj(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);</span>
+                sigOut = feval(class(sigIn),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
                 sigOut.dataMask = sigIn.dataMask;
         <span class="keyword">end</span>
         <span class="keyword">function</span> sObjOut=resample(sObj, newSampleRate)
@@ -1683,7 +1650,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                [val,index] = max(sObj.data);
                ind = sObj.time(index);
            <span class="keyword">elseif</span>(strcmp(type,<span class="string">'minima'</span>))
-               [val,index] = min(sOBj.data);
+               [val,index] = min(sObj.data); <span class="comment">% FIX: typo sOBj&rarr;sObj</span>
                ind = sObj.time(index);
            <span class="keyword">end</span>
         <span class="keyword">end</span>
@@ -1706,7 +1673,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 <span class="keyword">end</span>
             <span class="keyword">elseif</span>(strcmp(type,<span class="string">'minima'</span>))
                 <span class="keyword">for</span> i=1:sObj.dimension
-                    [values{i},indices{i}] = findpeaks(sObj.data(:,i),<span class="string">'MINPEAKDISTANCE'</span>,minDistance);
+                    [values{i},indices{i}] = findpeaks(-sObj.data(:,i),<span class="string">'MINPEAKDISTANCE'</span>,minDistance); <span class="comment">% FIX: negate data to find minima (was finding maxima)</span>
+                    values{i} = -values{i}; <span class="comment">% FIX: negate values back to original sign</span>
                 <span class="keyword">end</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
@@ -1893,8 +1861,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                   dataLabels(1:size(data,2)) =sObj.dataLabels;
                   <span class="comment">%plotProps = sObj.plotProps;</span>
 <span class="comment">%                   if(i==1)</span>
-                        evalstring = strcat(<span class="string">'sOut='</span>,class(sObj),<span class="string">'(actTime, data,name, xlabelval, xunits, yunits,dataLabels);'</span>);
-                        eval(evalstring);
+                        sOut = feval(class(sObj),actTime, data,name, xlabelval, xunits, yunits,dataLabels); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
 <span class="comment">%                         sOut.setMinTime(0);</span>
 <span class="comment">%                     else</span>
 <span class="comment">%                         evalstring = strcat('sOut = sOut.merge(',class(sObj),'(actTime, data,name, xlabelval, xunits, yunits,dataLabels,plotProps));');</span>
@@ -2083,36 +2050,32 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">if</span>((nargin&gt;=3) &amp;&amp; ~isempty(plotPropsIn))  <span class="comment">%is we got called with parameter use those</span>
                 <span class="comment">%sObj.setPlotProps(plotProps); %Only accepts entire cell of plotting properties as input</span>
                 <span class="comment">%if(length(plotCell)&gt;=length(sArray)) %if we specified plot parameters for each dimension</span>
+                <span class="comment">% FIX: replaced eval-based string construction with direct plot() calls</span>
                 <span class="keyword">for</span> i=sArray
-                    <span class="comment">%plotStr=cell2str(plotCell{:,find(sArray==i)});</span>
                     plotStr=cell2str(sObj.getPlotProps(i));
+                    idx = find(sArray==i);
                     <span class="keyword">if</span>(~strcmp(plotStr,<span class="string">''</span>) &amp;&amp; ~isempty(plotStr))
-                        evalstring = strcat(<span class="string">'h('</span>,num2str(find(sArray==i)),<span class="string">')=plot(handle,sObj.time,sObj.data(:,'</span>,num2str(i),<span class="string">'),'</span>, plotStr,<span class="string">');'</span>);
-                        eval(evalstring); hold <span class="string">on</span>;
+                        plotArgs = parsePlotProps(plotStr);
+                        h(idx)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        hold <span class="string">on</span>;
                     <span class="keyword">else</span>
-<span class="comment">%                         set(gca,handle);</span>
                         axes(handle);
-                        evalstring = strcat(<span class="string">'h('</span>,num2str(find(sArray==i)),<span class="string">')=plot(sObj.time,sObj.data(:,'</span>,num2str(i),<span class="string">'));'</span>);
-<span class="comment">%                         evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'));');</span>
-                        eval(evalstring); hold <span class="string">on</span>;
+                        h(idx)=plot(sObj.time,sObj.data(:,i));
+                        hold <span class="string">on</span>;
                     <span class="keyword">end</span>
-                    <span class="comment">%evalstring</span>
-                    <span class="comment">%eval(evalstring); hold on;</span>
                 <span class="keyword">end</span>
             <span class="keyword">elseif</span>(sObj.plotPropsSet) <span class="comment">%% We use the values that have been set previously</span>
-                <span class="comment">%plotCell = cell2str(sObj.getPlotProps(i));</span>
-                <span class="comment">%fprintf('varargin is not empty')</span>
+                <span class="comment">% FIX: replaced eval-based string construction with direct plot() calls</span>
                 <span class="keyword">for</span> i=sArray
                     plotStr =cell2str(sObj.getPlotProps(i));
-                    <span class="comment">%plotStr=cell2str(plotCell{:,1});</span>
-                    <span class="keyword">if</span>(~strcmp(plotStr,<span class="string">''</span>) &amp;&amp; ~isempty(plotStr))
-                        evalstring = strcat(<span class="string">'h('</span>,num2str(i),<span class="string">')=plot(handle,sObj.time,sObj.data(:,'</span>,num2str(i),<span class="string">'),'</span>, plotStr,<span class="string">');'</span>);
-                    <span class="keyword">else</span>
-                        evalstring = strcat(<span class="string">'h('</span>,num2str(i),<span class="string">')=plot(handle,sObj.time,sObj.data(:,'</span>,num2str(i),<span class="string">'));'</span>);
-                    <span class="keyword">end</span>
-                    <span class="comment">%evalstring</span>
                     <span class="keyword">if</span>(~isempty(sObj.data(:,i)))
-                        eval(evalstring); hold <span class="string">on</span>;
+                        <span class="keyword">if</span>(~strcmp(plotStr,<span class="string">''</span>) &amp;&amp; ~isempty(plotStr))
+                            plotArgs = parsePlotProps(plotStr);
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        <span class="keyword">else</span>
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i));
+                        <span class="keyword">end</span>
+                        hold <span class="string">on</span>;
                     <span class="keyword">end</span>
                 <span class="keyword">end</span>
             <span class="keyword">else</span> <span class="comment">%We didnt get any plotting properties. Use matlab default</span>
@@ -2123,6 +2086,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">end</span>
 
                 sObj.setupPlots(handle,sArray);
+                <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                    <span class="keyword">try</span>
+                        nstat.applyPlotStyle(handle);
+                    <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; optional styling failure is non-critical</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> setupPlots(sObj,handle,sArray)
             <span class="comment">%setupPlots(sObj,sArray)</span>
@@ -2130,7 +2099,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="comment">%sArray is an array on indexes corresponding to which labels</span>
             <span class="comment">%will appear in the legend.</span>
 <span class="comment">%              set(gcf,'CurrentAxes',handle);</span>
-            warning <span class="string">off</span>;
+            <span class="comment">% FIX: use onCleanup to guarantee warning state restoration even on error</span>
+            warnState = warning(<span class="string">'off'</span>,<span class="string">'all'</span>);
+            cleanupObj = onCleanup(@() warning(warnState)); <span class="comment">%#ok&lt;NASGU&gt;</span>
             <span class="keyword">if</span>(~strcmp(sObj.xunits,<span class="string">''</span>))
                 xunitsStr=strcat(<span class="string">'\; ['</span>,sObj.xunits,<span class="string">']'</span>); <span class="comment">%\; is a large space in latex</span>
             <span class="keyword">else</span>
@@ -2187,7 +2158,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 legend(handle,labelArray);<span class="comment">%,'Interpreter','latex');</span>
             <span class="keyword">end</span>
             axis <span class="string">tight</span>;
-            warning <span class="string">on</span>;
+            <span class="comment">% FIX: removed manual 'warning on'; onCleanup restores state automatically</span>
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> h=plotVariability(sObj,selectorArray)
@@ -2277,7 +2248,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
             <span class="keyword">if</span>(length(ciLower)==1)
                 ciBottom=meanSig-ciLower.*stdSig;
-            <span class="keyword">elseif</span>(length(ciUpper)==length(sObj.time))
+            <span class="keyword">elseif</span>(length(ciLower)==length(sObj.time)) <span class="comment">% FIX: was length(ciUpper); should check ciLower for lower bound</span>
                 ciBottom=meanSig-ciLower;
             <span class="keyword">else</span>
                 error(<span class="string">'Lower confidence interval must be either length 1 or same length as the time vector'</span>);
@@ -2396,9 +2367,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             name = s3.name;
             xlabelval = s3.xlabelval; xunits=s3.xunits; yunits = s3.yunits;
 
-            <span class="comment">%sOut=SignalObj(time, data, name, xlabelval, xunits, yunits, dataLabels, plotProps);</span>
-            evalstring = strcat(<span class="string">'sOut='</span>,class(sObj),<span class="string">'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);'</span>);
-            eval(evalstring);
+            sOut = feval(class(sObj),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); <span class="comment">% FIX: replaced eval() with feval() for safety</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> sOut = getSubSignalFromNames(sObj,labels)
             ind   = sObj.getIndicesFromLabels(labels);
@@ -2464,6 +2433,17 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
         <span class="keyword">elseif</span>(isa(input,<span class="string">'cell'</span>))
             stringout=cell2str(input{1});
         <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">function</span> args = parsePlotProps(plotStr)
+<span class="comment">%PARSEPLOTPROPS Convert a legacy plotProps string to a cell array.</span>
+<span class="comment">%   Stored strings like ' ''r'', ''LineWidth'' ,3' are converted to</span>
+<span class="comment">%   cell arrays {'r', 'LineWidth', 3} for use with direct plot() calls.</span>
+<span class="comment">%   FIX: enables direct plot() calls instead of eval-based string construction</span>
+    <span class="keyword">if</span> isempty(plotStr)
+        args = {};
+    <span class="keyword">else</span>
+        args = eval([<span class="string">'{'</span> plotStr <span class="string">'}'</span>]); <span class="comment">%#ok&lt;EVLC&gt; % contained eval parses property list only</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 <span class="keyword">function</span> color=getAvailableColor(index)
@@ -3142,9 +3122,9 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data.*s2c.data;
-                   %can multiply units 
+                   %can multiply units
                else
                    error('can only multiply signals with same dimension');
                end
@@ -3191,7 +3171,7 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data./s2c.data;
                    %can multiply units 
                else
@@ -3211,7 +3191,7 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data.\s2c.data;
                    %can multiply units 
                else
@@ -3373,16 +3353,13 @@ classdef SignalObj < handle
             plotProps  = sObj.plotProps;
             if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-%                     plotProps  = sObj.plotProps;
                     for i=1:sObj.dimension
                         dataLabels{i} = strcat('|',sObj.dataLabels{i},'|');
                     end
-                evalstring = strcat('s=',class(sObj),'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps);');
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
             else
-                
-                evalstring = strcat('s=',class(sObj),'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps);');
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps); % FIX: replaced eval() with feval() for safety
             end
-            eval(evalstring);            
         end
         
         function s = log(sObj)
@@ -3393,16 +3370,13 @@ classdef SignalObj < handle
             plotProps  = sObj.plotProps;
             if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-%                     plotProps  = sObj.plotProps;
                     for i=1:sObj.dimension
                         dataLabels{i} = strcat('ln(',sObj.dataLabels{i},')');
                     end
-                evalstring = strcat('s=',class(sObj),'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps);');
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps); % FIX: replaced eval() with feval()
             else
-                
-                evalstring = strcat('s=',class(sObj),'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps);');
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps); % FIX: replaced eval() with feval()
             end
-            eval(evalstring);            
         end
         
         function m=median(sObj,varargin)
@@ -3418,8 +3392,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['median(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -3427,14 +3400,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('median(',sObj.dataLabels{i},')');
                     end
                      name =  ['median(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['median(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
                 
             
@@ -3456,8 +3425,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['mode(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -3465,14 +3433,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('mode(',sObj.dataLabels{i},')');
                     end
                      name =  ['mode(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['mode(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
         end
@@ -3491,8 +3455,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['\mu(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -3500,14 +3463,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('\mu(',sObj.dataLabels{i},')');
                     end
                      name =  ['\mu(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['\mu(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
         end
@@ -3524,9 +3483,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(stdData);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                      name=['\sigma(' sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'(sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj(sObj.time, stdData, name,sObj.xlabelval, sObj.xunits,sObj.yunits); 
+                     m = feval(class(sObj),sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -3534,14 +3491,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('\sigma(',sObj.dataLabels{i},')');
                     end
                      name=['\sigma(' sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData], ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                     name=['\sigma(' sObj.name ')'];
-                    evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                    eval(evalstring);
-                    %m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData],  ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                    m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
             
@@ -3571,7 +3524,7 @@ classdef SignalObj < handle
                 %autocorrelation of each dimension with itself
                 for i=1:sObj.dimension
                     
-                    [ACF(:,i),lags,bounds] = crosscor(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1);
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); % FIX: typo crosscor→crosscorr
                     
                 end
                 s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
@@ -3738,8 +3691,7 @@ classdef SignalObj < handle
                 lags=tempLags(1:end)./s1c.sampleRate;
              end
              name = [ 'corr(' s1.name ',' s2.name ')'];
-             evalstring=strcat('sxCorr=',class(s1),'(lags,data,name,''\Delta \tau'',''s'',dataLabels);');
-             eval(evalstring);    
+             sxCorr = feval(class(s1),lags,data,name,'\Delta \tau','s',dataLabels); % FIX: replaced eval() with feval() for safety    
         end        
         function sxCov = xcov(s1,s2,varargin)
              if(nargin<2)
@@ -3774,9 +3726,7 @@ classdef SignalObj < handle
                  lags=tempLags(1:end)./s1c.sampleRate;
              end
              name = [ 'cov(' s1.name ',' s2.name ')'];
-             evalstring=strcat('sxCov=',class(s1),'(lags,data,name,''\Delta \tau'',''s'',dataLabels);');
-             eval(evalstring);    
-             %sxCov=SignalObj(lags,data,name,'lags','n',dataLabels);
+             sxCov = feval(class(s1),lags,data,name,'\Delta \tau','s',dataLabels); % FIX: replaced eval() with feval() for safety
 
                  
          end
@@ -3816,8 +3766,7 @@ classdef SignalObj < handle
                  end
                  name = s1c.name;%, ',', s2c.name]; %name of the original is kept
                  
-                 evalstring = strcat('mergedSig = ',class(sObj),'(s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels);');
-                 eval(evalstring);
+                 mergedSig = feval(class(sObj),s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels); % FIX: replaced eval() with feval() for safety
             else
                   mergedSig = sObj.merge(varargin{1},holdVals);
                   for i=2:numToMerge
@@ -3840,9 +3789,7 @@ classdef SignalObj < handle
                 yunits=sigIn.yunits; 
                 dataLabels=sigIn.dataLabels;
                 plotProps=sigIn.plotProps;
-                evalstring = strcat('sigOut=',class(sigIn),'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);');
-                eval(evalstring);
-                %sigOut = SignalObj(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);
+                sigOut = feval(class(sigIn),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
                 sigOut.dataMask = sigIn.dataMask;
         end
         function sObjOut=resample(sObj, newSampleRate)
@@ -4085,7 +4032,7 @@ classdef SignalObj < handle
                [val,index] = max(sObj.data);
                ind = sObj.time(index);
            elseif(strcmp(type,'minima'))
-               [val,index] = min(sOBj.data);
+               [val,index] = min(sObj.data); % FIX: typo sOBj→sObj
                ind = sObj.time(index);
            end
         end
@@ -4108,7 +4055,8 @@ classdef SignalObj < handle
                 end
             elseif(strcmp(type,'minima'))
                 for i=1:sObj.dimension
-                    [values{i},indices{i}] = findpeaks(sObj.data(:,i),'MINPEAKDISTANCE',minDistance);
+                    [values{i},indices{i}] = findpeaks(-sObj.data(:,i),'MINPEAKDISTANCE',minDistance); % FIX: negate data to find minima (was finding maxima)
+                    values{i} = -values{i}; % FIX: negate values back to original sign
                 end
             end
         end
@@ -4295,8 +4243,7 @@ classdef SignalObj < handle
                   dataLabels(1:size(data,2)) =sObj.dataLabels;
                   %plotProps = sObj.plotProps;
 %                   if(i==1)
-                        evalstring = strcat('sOut=',class(sObj),'(actTime, data,name, xlabelval, xunits, yunits,dataLabels);');
-                        eval(evalstring);
+                        sOut = feval(class(sObj),actTime, data,name, xlabelval, xunits, yunits,dataLabels); % FIX: replaced eval() with feval() for safety
 %                         sOut.setMinTime(0);
 %                     else
 %                         evalstring = strcat('sOut = sOut.merge(',class(sObj),'(actTime, data,name, xlabelval, xunits, yunits,dataLabels,plotProps));');
@@ -4485,36 +4432,32 @@ classdef SignalObj < handle
             if((nargin>=3) && ~isempty(plotPropsIn))  %is we got called with parameter use those
                 %sObj.setPlotProps(plotProps); %Only accepts entire cell of plotting properties as input
                 %if(length(plotCell)>=length(sArray)) %if we specified plot parameters for each dimension
+                % FIX: replaced eval-based string construction with direct plot() calls
                 for i=sArray
-                    %plotStr=cell2str(plotCell{:,find(sArray==i)});
                     plotStr=cell2str(sObj.getPlotProps(i));
+                    idx = find(sArray==i);
                     if(~strcmp(plotStr,'') && ~isempty(plotStr))
-                        evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'),', plotStr,');');
-                        eval(evalstring); hold on;
+                        plotArgs = parsePlotProps(plotStr);
+                        h(idx)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        hold on;
                     else
-%                         set(gca,handle);
                         axes(handle);
-                        evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(sObj.time,sObj.data(:,',num2str(i),'));');
-%                         evalstring = strcat('h(',num2str(find(sArray==i)),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'));');
-                        eval(evalstring); hold on;
+                        h(idx)=plot(sObj.time,sObj.data(:,i));
+                        hold on;
                     end
-                    %evalstring
-                    %eval(evalstring); hold on;
                 end
             elseif(sObj.plotPropsSet) %% We use the values that have been set previously
-                %plotCell = cell2str(sObj.getPlotProps(i));
-                %fprintf('varargin is not empty')
+                % FIX: replaced eval-based string construction with direct plot() calls
                 for i=sArray
                     plotStr =cell2str(sObj.getPlotProps(i));
-                    %plotStr=cell2str(plotCell{:,1});
-                    if(~strcmp(plotStr,'') && ~isempty(plotStr))
-                        evalstring = strcat('h(',num2str(i),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'),', plotStr,');');
-                    else
-                        evalstring = strcat('h(',num2str(i),')=plot(handle,sObj.time,sObj.data(:,',num2str(i),'));');
-                    end
-                    %evalstring
                     if(~isempty(sObj.data(:,i)))
-                        eval(evalstring); hold on;
+                        if(~strcmp(plotStr,'') && ~isempty(plotStr))
+                            plotArgs = parsePlotProps(plotStr);
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i), plotArgs{:});
+                        else
+                            h(i)=plot(handle,sObj.time,sObj.data(:,i));
+                        end
+                        hold on;
                     end
                 end
             else %We didnt get any plotting properties. Use matlab default
@@ -4525,6 +4468,12 @@ classdef SignalObj < handle
             end
 
                 sObj.setupPlots(handle,sArray);
+                if exist('nstat.applyPlotStyle', 'file') == 2
+                    try
+                        nstat.applyPlotStyle(handle);
+                    catch ME %#ok<NASGU> % FIX: capture exception; optional styling failure is non-critical
+                    end
+                end
         end        
         function setupPlots(sObj,handle,sArray)
             %setupPlots(sObj,sArray)
@@ -4532,7 +4481,9 @@ classdef SignalObj < handle
             %sArray is an array on indexes corresponding to which labels
             %will appear in the legend.
 %              set(gcf,'CurrentAxes',handle);
-            warning off;
+            % FIX: use onCleanup to guarantee warning state restoration even on error
+            warnState = warning('off','all');
+            cleanupObj = onCleanup(@() warning(warnState)); %#ok<NASGU>
             if(~strcmp(sObj.xunits,''))
                 xunitsStr=strcat('\; [',sObj.xunits,']'); %\; is a large space in latex
             else
@@ -4589,7 +4540,7 @@ classdef SignalObj < handle
                 legend(handle,labelArray);%,'Interpreter','latex');
             end
             axis tight;
-            warning on;
+            % FIX: removed manual 'warning on'; onCleanup restores state automatically
         end
         
         function h=plotVariability(sObj,selectorArray)
@@ -4679,7 +4630,7 @@ classdef SignalObj < handle
             
             if(length(ciLower)==1)
                 ciBottom=meanSig-ciLower.*stdSig;
-            elseif(length(ciUpper)==length(sObj.time))
+            elseif(length(ciLower)==length(sObj.time)) % FIX: was length(ciUpper); should check ciLower for lower bound
                 ciBottom=meanSig-ciLower;
             else
                 error('Lower confidence interval must be either length 1 or same length as the time vector');
@@ -4798,9 +4749,7 @@ classdef SignalObj < handle
             name = s3.name;
             xlabelval = s3.xlabelval; xunits=s3.xunits; yunits = s3.yunits;
             
-            %sOut=SignalObj(time, data, name, xlabelval, xunits, yunits, dataLabels, plotProps);
-            evalstring = strcat('sOut=',class(sObj),'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);');
-            eval(evalstring);
+            sOut = feval(class(sObj),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
         end
         function sOut = getSubSignalFromNames(sObj,labels)
             ind   = sObj.getIndicesFromLabels(labels);
@@ -4866,6 +4815,17 @@ function stringout=cell2str(input)
         elseif(isa(input,'cell'))
             stringout=cell2str(input{1});
         end
+    end
+end
+function args = parsePlotProps(plotStr)
+%PARSEPLOTPROPS Convert a legacy plotProps string to a cell array.
+%   Stored strings like ' ''r'', ''LineWidth'' ,3' are converted to
+%   cell arrays {'r', 'LineWidth', 3} for use with direct plot() calls.
+%   FIX: enables direct plot() calls instead of eval-based string construction
+    if isempty(plotStr)
+        args = {};
+    else
+        args = eval(['{' plotStr '}']); %#ok<EVLC> % contained eval parses property list only
     end
 end
 function color=getAvailableColor(index)

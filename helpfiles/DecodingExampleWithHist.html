@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>1-D Stimulus Decode with History Effect</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="DecodingExampleWithHist.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -109,9 +109,9 @@ subplot(2,1,2); stim.plot;
 <span class="comment">% Construct a CIF object for each realization based on our encoding</span>
 <span class="comment">% results above</span>
     <span class="comment">%correct CIF w/ History</span>
-    lambdaCIF{i} = CIF([mu b1],{<span class="string">'1'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>,histCoeffs,histObj);
+    lambdaCIF{i} = CIF([mu b1],{<span class="string">'one'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>,histCoeffs,histObj);
     <span class="comment">%CIF ignoring the history effect</span>
-    lambdaCIFNoHist{i} = CIF([mu b1],{<span class="string">'1'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>);
+    lambdaCIFNoHist{i} = CIF([mu b1],{<span class="string">'one'</span>,<span class="string">'x'</span>},{<span class="string">'x'</span>},<span class="string">'binomial'</span>);
 <span class="keyword">end</span>
 
 
@@ -156,10 +156,26 @@ legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus No Hist +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
 </pre>
-<pre class="codeoutput">Warning: Ignoring extra legend entries. 
-Warning: Ignoring extra legend entries. 
-</pre>
-<img vspace="5" hspace="5" src="DecodingExampleWithHist_01.png" alt=""> <img vspace="5" hspace="5" src="DecodingExampleWithHist_02.png" alt=""> <p>We see that inclusion of history effect improves (as expected) the decoding of the stimulus based on the point process observations</p>
+<pre class="codeoutput error">Not enough input arguments.
+
+Error in sym/matlabFunction&gt;@(one,x,dN1,dN2,dN3)exp(x)./(exp(x)+exp(dN1.*2.0).*exp(dN2.*2.0).*exp(dN3.*4.0).*exp(one.*2.0))
+
+Error in CIF/evalFunctionWithVectorArgs (line 1044)
+            outVal = funHandle(args{:});
+                     ^^^^^^^^^^^^^^^^^^
+Error in CIF/evalLambdaDelta (line 435)
+           outVal = CIF.evalFunctionWithVectorArgs(cifObj.lambdaDeltaFunction,val);
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in DecodingAlgorithms.PPDecode_update (line 805)
+                        lambdaDeltaMat(C,1) = lambda{C}.evalLambdaDelta(x_p,time_index,nst);
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in DecodingAlgorithms.PPDecodeFilter (line 233)
+                [x_u(:,n),   W_u(:,:,n)]   = DecodingAlgorithms.PPDecode_update( x_p(:,n), W_p(:,:,n), dN(:,1:n),lambdaCIFColl, binwidth,n);
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error in DecodingExampleWithHist (line 58)
+[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</pre>
+<p>We see that inclusion of history effect improves (as expected) the decoding of the stimulus based on the point process observations</p>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
@@ -210,9 +226,9 @@ for i=1:numRealizations
 % Construct a CIF object for each realization based on our encoding
 % results above
     %correct CIF w/ History
-    lambdaCIF{i} = CIF([mu b1],{'1','x'},{'x'},'binomial',histCoeffs,histObj); 
+    lambdaCIF{i} = CIF([mu b1],{'one','x'},{'x'},'binomial',histCoeffs,histObj);
     %CIF ignoring the history effect
-    lambdaCIFNoHist{i} = CIF([mu b1],{'1','x'},{'x'},'binomial');
+    lambdaCIFNoHist{i} = CIF([mu b1],{'one','x'},{'x'},'binomial');
 end
 
     

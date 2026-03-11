@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>FitResult</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-02-27">
+<meta name="DC.date" content="2026-03-11">
 <meta name="DC.source" content="FitResult.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -78,9 +78,27 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <div class="content">
 <pre class="codeinput">
 <span class="keyword">classdef</span> FitResult &lt; handle
-<span class="comment">% FITRESULT</span>
-<span class="comment">% stores results of a fit using the Analysis object</span>
-<span class="comment">% The results are for a single neuron over a range of configurations</span>
+<span class="comment">% FITRESULT - Stores GLM fit results for a single neuron across configurations.</span>
+<span class="comment">%</span>
+<span class="comment">% Holds regression coefficients (b), deviance, AIC, BIC, log-likelihood,</span>
+<span class="comment">% rescaled spike times (Z, U, X), KS statistics, and point process</span>
+<span class="comment">% residuals for one neuron over multiple GLM model configurations.</span>
+<span class="comment">%</span>
+<span class="comment">% Implements goodness-of-fit assessment via:</span>
+<span class="comment">%   - Time-rescaling theorem: u_s = 1 - exp(-integral lambda dt), Eq. (4)</span>
+<span class="comment">%   - Normal transform: x_s = Phi^{-1}(u_s), Eq. (5)</span>
+<span class="comment">%   - KS plot (Brown et al. 2002)</span>
+<span class="comment">%   - Point process residual, Eq. (6)</span>
+<span class="comment">%   - AIC (Akaike 1973): AIC = 2p + deviance</span>
+<span class="comment">%   - BIC (Schwarz 1978): BIC = p*log(n) + deviance</span>
+<span class="comment">%</span>
+<span class="comment">% See Sections 2.1.2--2.1.3 and 2.2.3 in:</span>
+<span class="comment">%   Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012).</span>
+<span class="comment">%</span>
+<span class="comment">% Usage:</span>
+<span class="comment">%   fitObj = FitResult(spikeObj, covLabels, numHist, histObjects, ...</span>
+<span class="comment">%                      ensHistObj, lambda, b, dev, stats, AIC, BIC, ...</span>
+<span class="comment">%                      logLL, configColl, XvalData, XvalTime, distribution)</span>
 <span class="comment">%</span>
 <span class="comment">% &lt;a href="matlab:nstatOpenHelpPage('FitResultExamples.html')"&gt;FitResult Examples&lt;/a&gt;</span>
 <span class="comment">%</span>
@@ -411,7 +429,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -428,10 +447,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                       <span class="keyword">if</span>(nargin&lt;7)
                           fitObj.AIC(fitObj.numResults+i)  = 2*length(b{i})+dev(i);
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
-                          delta=fitObj.neuralSpikeTrain.sampleRate;
+                          delta=1/fitObj.neuralSpikeTrain.sampleRate; <span class="comment">% FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)</span>
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(newLambda.data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(newLambda.data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
+                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -472,7 +491,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                   fitObj.lambda.xunits,<span class="string">'Hz'</span>,fitObj.lambda.dataLabels);
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-            logLL =sum(y.*log(lambda.data*delta)+(1-y).*(1-lambda.data*delta));
+            lambdaDelta = max(lambda.data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
+            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> mapCovLabelsToUniqueLabels(fitObj)
@@ -1196,6 +1216,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
               <span class="string">'LineWidth'</span>   , 1         );
             hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
             set([hx hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+            <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                <span class="keyword">try</span>
+                    nstat.applyPlotStyle(gca);
+                <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
 
 
         <span class="keyword">end</span>
@@ -1217,6 +1243,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 subplot(2,4,4); fitObj.plotSeqCorr;
                 subplot(2,4,[7 8]); fitObj.plotResidual;
                 subplot(2,4,[5 6]); fitObj.plotCoeffs;
+                <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                    <span class="keyword">try</span>
+                        nstat.applyPlotStyle(h);
+                    <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = KSPlot(fitObj,fitNum)
             <span class="comment">% handle = KSPlot(fitObj)</span>
@@ -1260,6 +1292,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
               <span class="string">'YTick'</span>       , 0:.2:1, <span class="keyword">...</span>
               <span class="string">'XTick'</span>       , 0:.2:1, <span class="keyword">...</span>
               <span class="string">'LineWidth'</span>   , 1         );
+            <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                <span class="keyword">try</span>
+                    nstat.applyPlotStyle(gca);
+                <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
             <span class="keyword">end</span>
 
         <span class="keyword">function</span> structure = toStructure(fitObj)
@@ -1358,6 +1396,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
               <span class="string">'YTick'</span>       , 0:.25:1, <span class="keyword">...</span>
               <span class="string">'XTick'</span>       , 0:.25:1, <span class="keyword">...</span>
               <span class="string">'LineWidth'</span>   , 1         );
+            <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                <span class="keyword">try</span>
+                    nstat.applyPlotStyle(gca);
+                <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
 
 
 
@@ -1415,6 +1459,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); <span class="comment">%add 10%</span>
             axis([v(1:2) -maxY maxY]);
+            <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                <span class="keyword">try</span>
+                    nstat.applyPlotStyle(gca);
+                <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = plotResidual(fitObj)
             <span class="comment">% handle = plotResidual(fitObj)</span>
@@ -1435,6 +1485,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); <span class="comment">%add 10%</span>
             axis([v(1:2) -maxY maxY]);
+            <span class="keyword">if</span> exist(<span class="string">'nstat.applyPlotStyle'</span>, <span class="string">'file'</span>) == 2
+                <span class="keyword">try</span>
+                    nstat.applyPlotStyle(gca);
+                <span class="keyword">catch</span> ME <span class="comment">%#ok&lt;NASGU&gt; % FIX: capture exception; styling is optional</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
         <span class="keyword">end</span>
 
 
@@ -1456,10 +1512,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">for</span> i=1:size(xAxis,2);
                 [differentDists(i),pVal(i),ks_stat(i)]=kstest2(fitObj.KSStats.xAxis(:,i) ,fitObj.KSStats.KSSorted(:,i));
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(~exist(<span class="string">'differentDists'</span>))
+            <span class="keyword">if</span>(~exist(<span class="string">'differentDists'</span>,<span class="string">'var'</span>)) <span class="comment">% FIX: added 'var' to avoid path shadowing</span>
                 differentDists=1;
             <span class="keyword">end</span>
-            <span class="keyword">if</span>(~exist(<span class="string">'pVal'</span>))
+            <span class="keyword">if</span>(~exist(<span class="string">'pVal'</span>,<span class="string">'var'</span>)) <span class="comment">% FIX: added 'var' to avoid path shadowing</span>
                 pVal=1;
             <span class="keyword">end</span>
 
@@ -1623,7 +1679,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     <span class="comment">% {opt}     XTick       - vector array of XTick positions &amp; values (numeric)</span>
     <span class="comment">%                           uses current XTick values or XTickLabel cell array by</span>
     <span class="comment">%                           default (if empty)</span>
-    <span class="comment">% {opt}     rot         - angle of rotation in degrees, 90&deg; by default</span>
+    <span class="comment">% {opt}     rot         - angle of rotation in degrees, 90� by default</span>
     <span class="comment">% {opt}     XTickLabel  - cell array of label strings</span>
     <span class="comment">% {opt}     [var]       - "Property-value" pairs passed to text generator</span>
     <span class="comment">%                           ex: 'interpreter','none'</span>
@@ -1631,21 +1687,21 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     <span class="comment">%</span>
     <span class="comment">% Output:   hText       - handle vector to text labels</span>
     <span class="comment">%</span>
-    <span class="comment">% Example 1:  Rotate existing XTickLabels at their current position by 90&deg;</span>
+    <span class="comment">% Example 1:  Rotate existing XTickLabels at their current position by 90�</span>
     <span class="comment">%    xticklabel_rotate</span>
     <span class="comment">%</span>
-    <span class="comment">% Example 2:  Rotate existing XTickLabels at their current position by 45&deg; and change</span>
+    <span class="comment">% Example 2:  Rotate existing XTickLabels at their current position by 45� and change</span>
     <span class="comment">% font size</span>
     <span class="comment">%    xticklabel_rotate([],45,[],'Fontsize',14)</span>
     <span class="comment">%</span>
-    <span class="comment">% Example 3:  Set the positions of the XTicks and rotate them 90&deg;</span>
+    <span class="comment">% Example 3:  Set the positions of the XTicks and rotate them 90�</span>
     <span class="comment">%    figure;  plot([1960:2004],randn(45,1)); xlim([1960 2004]);</span>
     <span class="comment">%    xticklabel_rotate([1960:2:2004]);</span>
     <span class="comment">%</span>
-    <span class="comment">% Example 4:  Use text labels at XTick positions rotated 45&deg; without tex interpreter</span>
+    <span class="comment">% Example 4:  Use text labels at XTick positions rotated 45� without tex interpreter</span>
     <span class="comment">%    xticklabel_rotate(XTick,45,NameFields,'interpreter','none');</span>
     <span class="comment">%</span>
-    <span class="comment">% Example 5:  Use text labels rotated 90&deg; at current positions</span>
+    <span class="comment">% Example 5:  Use text labels rotated 90� at current positions</span>
     <span class="comment">%    xticklabel_rotate([],90,NameFields);</span>
     <span class="comment">%</span>
     <span class="comment">% Note : you can not re-run xticklabel_rotate on the same graph.</span>
@@ -1689,7 +1745,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
     <span class="comment">% if no XTickLabel AND no XTick are defined use the current XTickLabel</span>
     <span class="comment">%if nargin &lt; 3 &amp; (~exist('XTick') | isempty(XTick)),</span>
-    <span class="keyword">if</span> (nargin &lt; 3 || isempty(varargin{1})) &amp;&amp; (~exist(<span class="string">'XTick'</span>) || isempty(XTick)),
+    <span class="keyword">if</span> (nargin &lt; 3 || isempty(varargin{1})) &amp;&amp; (~exist(<span class="string">'XTick'</span>,<span class="string">'var'</span>) || isempty(XTick)), <span class="comment">% FIX: added 'var'</span>
         xTickLabels = get(gca,<span class="string">'XTickLabel'</span>)  ; <span class="comment">% use current XTickLabel</span>
         <span class="keyword">if</span> ~iscell(xTickLabels)
             <span class="comment">% remove trailing spaces if exist (typical with auto generated XTickLabel)</span>
@@ -1703,7 +1759,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     <span class="keyword">end</span>
 
     <span class="comment">% if no XTick is defined use the current XTick</span>
-    <span class="keyword">if</span> (~exist(<span class="string">'XTick'</span>) | isempty(XTick)),
+    <span class="keyword">if</span> (~exist(<span class="string">'XTick'</span>,<span class="string">'var'</span>) || isempty(XTick)), <span class="comment">% FIX: added 'var', use short-circuit operator</span>
         XTick = get(gca,<span class="string">'XTick'</span>)        ; <span class="comment">% use current XTick</span>
     <span class="keyword">end</span>
 
@@ -1857,11 +1913,29 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <!--
 ##### SOURCE BEGIN #####
 classdef FitResult < handle
-% FITRESULT 
-% stores results of a fit using the Analysis object
-% The results are for a single neuron over a range of configurations
+% FITRESULT - Stores GLM fit results for a single neuron across configurations.
 %
-% <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult Examples</a> 
+% Holds regression coefficients (b), deviance, AIC, BIC, log-likelihood,
+% rescaled spike times (Z, U, X), KS statistics, and point process
+% residuals for one neuron over multiple GLM model configurations.
+%
+% Implements goodness-of-fit assessment via:
+%   - Time-rescaling theorem: u_s = 1 - exp(-integral lambda dt), Eq. (4)
+%   - Normal transform: x_s = Phi^{-1}(u_s), Eq. (5)
+%   - KS plot (Brown et al. 2002)
+%   - Point process residual, Eq. (6)
+%   - AIC (Akaike 1973): AIC = 2p + deviance
+%   - BIC (Schwarz 1978): BIC = p*log(n) + deviance
+%
+% See Sections 2.1.2REPLACE_WITH_DASH_DASH2.1.3 and 2.2.3 in:
+%   Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012).
+%
+% Usage:
+%   fitObj = FitResult(spikeObj, covLabels, numHist, histObjects, ...
+%                      ensHistObj, lambda, b, dev, stats, AIC, BIC, ...
+%                      logLL, configColl, XvalData, XvalTime, distribution)
+%
+% <a href="matlab:nstatOpenHelpPage('FitResultExamples.html')">FitResult Examples</a>
 %
 % see also <a href="matlab:nstatOpenHelpPage('Analysis.html')">Analysis</a>
 %
@@ -2190,7 +2264,8 @@ classdef FitResult < handle
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(data*delta, eps); % FIX: guard against log(0)
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -2207,10 +2282,10 @@ classdef FitResult < handle
                       if(nargin<7)
                           fitObj.AIC(fitObj.numResults+i)  = 2*length(b{i})+dev(i);
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
-                          delta=fitObj.neuralSpikeTrain.sampleRate;
+                          delta=1/fitObj.neuralSpikeTrain.sampleRate; % FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-                          
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(newLambda.data*delta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: guard against log(0)
+                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -2251,7 +2326,8 @@ classdef FitResult < handle
                   fitObj.lambda.xunits,'Hz',fitObj.lambda.dataLabels);
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-            logLL =sum(y.*log(lambda.data*delta)+(1-y).*(1-lambda.data*delta));
+            lambdaDelta = max(lambda.data*delta, eps); % FIX: guard against log(0)
+            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
         end
         
         function mapCovLabelsToUniqueLabels(fitObj)
@@ -2975,6 +3051,12 @@ classdef FitResult < handle
               'LineWidth'   , 1         );
             hx=get(gca,'XLabel');  hy=get(gca,'YLabel');
             set([hx hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                end
+            end
            
 
         end
@@ -2996,6 +3078,12 @@ classdef FitResult < handle
                 subplot(2,4,4); fitObj.plotSeqCorr;
                 subplot(2,4,[7 8]); fitObj.plotResidual;
                 subplot(2,4,[5 6]); fitObj.plotCoeffs;
+                if exist('nstat.applyPlotStyle', 'file') == 2
+                    try
+                        nstat.applyPlotStyle(h);
+                    catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                    end
+                end
         end
         function handle = KSPlot(fitObj,fitNum)
             % handle = KSPlot(fitObj)
@@ -3039,6 +3127,12 @@ classdef FitResult < handle
               'YTick'       , 0:.2:1, ...
               'XTick'       , 0:.2:1, ...
               'LineWidth'   , 1         );
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                end
+            end
             end
 
         function structure = toStructure(fitObj)
@@ -3137,6 +3231,12 @@ classdef FitResult < handle
               'YTick'       , 0:.25:1, ...
               'XTick'       , 0:.25:1, ...
               'LineWidth'   , 1         );
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                end
+            end
         
 
             
@@ -3194,6 +3294,12 @@ classdef FitResult < handle
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); %add 10%
             axis([v(1:2) -maxY maxY]);
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                end
+            end
         end
         function handle = plotResidual(fitObj)
             % handle = plotResidual(fitObj)
@@ -3214,6 +3320,12 @@ classdef FitResult < handle
             v=axis;
             maxY = max(abs(v(3:4)))*(1.1); %add 10%
             axis([v(1:2) -maxY maxY]);
+            if exist('nstat.applyPlotStyle', 'file') == 2
+                try
+                    nstat.applyPlotStyle(gca);
+                catch ME %#ok<NASGU> % FIX: capture exception; styling is optional
+                end
+            end
         end
         
         
@@ -3235,10 +3347,10 @@ classdef FitResult < handle
             for i=1:size(xAxis,2);
                 [differentDists(i),pVal(i),ks_stat(i)]=kstest2(fitObj.KSStats.xAxis(:,i) ,fitObj.KSStats.KSSorted(:,i));
             end
-            if(~exist('differentDists'))
+            if(~exist('differentDists','var')) % FIX: added 'var' to avoid path shadowing
                 differentDists=1;
             end
-            if(~exist('pVal'))
+            if(~exist('pVal','var')) % FIX: added 'var' to avoid path shadowing
                 pVal=1;
             end
             
@@ -3402,7 +3514,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     % {opt}     XTick       - vector array of XTick positions & values (numeric) 
     %                           uses current XTick values or XTickLabel cell array by
     %                           default (if empty) 
-    % {opt}     rot         - angle of rotation in degrees, 90° by default
+    % {opt}     rot         - angle of rotation in degrees, 90� by default
     % {opt}     XTickLabel  - cell array of label strings
     % {opt}     [var]       - "Property-value" pairs passed to text generator
     %                           ex: 'interpreter','none'
@@ -3410,21 +3522,21 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     %
     % Output:   hText       - handle vector to text labels
     %
-    % Example 1:  Rotate existing XTickLabels at their current position by 90°
+    % Example 1:  Rotate existing XTickLabels at their current position by 90�
     %    xticklabel_rotate
     %
-    % Example 2:  Rotate existing XTickLabels at their current position by 45° and change
+    % Example 2:  Rotate existing XTickLabels at their current position by 45� and change
     % font size
     %    xticklabel_rotate([],45,[],'Fontsize',14)
     %
-    % Example 3:  Set the positions of the XTicks and rotate them 90°
+    % Example 3:  Set the positions of the XTicks and rotate them 90�
     %    figure;  plot([1960:2004],randn(45,1)); xlim([1960 2004]);
     %    xticklabel_rotate([1960:2:2004]);
     %
-    % Example 4:  Use text labels at XTick positions rotated 45° without tex interpreter
+    % Example 4:  Use text labels at XTick positions rotated 45� without tex interpreter
     %    xticklabel_rotate(XTick,45,NameFields,'interpreter','none');
     %
-    % Example 5:  Use text labels rotated 90° at current positions
+    % Example 5:  Use text labels rotated 90� at current positions
     %    xticklabel_rotate([],90,NameFields);
     %
     % Note : you can not re-run xticklabel_rotate on the same graph. 
@@ -3468,7 +3580,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
 
     % if no XTickLabel AND no XTick are defined use the current XTickLabel
     %if nargin < 3 & (~exist('XTick') | isempty(XTick)),
-    if (nargin < 3 || isempty(varargin{1})) && (~exist('XTick') || isempty(XTick)),
+    if (nargin < 3 || isempty(varargin{1})) && (~exist('XTick','var') || isempty(XTick)), % FIX: added 'var'
         xTickLabels = get(gca,'XTickLabel')  ; % use current XTickLabel
         if ~iscell(xTickLabels)
             % remove trailing spaces if exist (typical with auto generated XTickLabel)
@@ -3482,8 +3594,8 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     end
 
     % if no XTick is defined use the current XTick
-    if (~exist('XTick') | isempty(XTick)),
-        XTick = get(gca,'XTick')        ; % use current XTick 
+    if (~exist('XTick','var') || isempty(XTick)), % FIX: added 'var', use short-circuit operator
+        XTick = get(gca,'XTick')        ; % use current XTick
     end
 
     %Make XTick a column vector

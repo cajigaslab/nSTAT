@@ -1221,7 +1221,7 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
 
     % if no XTickLabel AND no XTick are defined use the current XTickLabel
     %if nargin < 3 & (~exist('XTick') | isempty(XTick)),
-    if (nargin < 3 || isempty(varargin{1})) & (~exist('XTick') | isempty(XTick)),
+    if (nargin < 3 || isempty(varargin{1})) && (~exist('XTick','var') || isempty(XTick)), % FIX: added 'var', use short-circuit operators
         xTickLabels = get(gca,'XTickLabel')  ; % use current XTickLabel
         if ~iscell(xTickLabels)
             % remove trailing spaces if exist (typical with auto generated XTickLabel)
@@ -1235,8 +1235,8 @@ function hText = xticklabel_rotate(XTick,rot,varargin)
     end
 
     % if no XTick is defined use the current XTick
-    if (~exist('XTick') | isempty(XTick)),
-        XTick = get(gca,'XTick')        ; % use current XTick 
+    if (~exist('XTick','var') || isempty(XTick)), % FIX: added 'var', use short-circuit operator
+        XTick = get(gca,'XTick')        ; % use current XTick
     end
 
     %Make XTick a column vector

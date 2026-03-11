@@ -990,7 +990,9 @@ classdef nstColl < handle
                 tc{1}.setName('GLM-PSTH');
             end
             cfgColl= ConfigColl(tc);
-            warning off;
+            % FIX: use onCleanup to guarantee warning state restoration even on error
+            warnState = warning('off','all');
+            cleanupObj = onCleanup(@() warning(warnState)); %#ok<NASGU>
             
             if(strcmp(fitType,'poisson'))
                 Algorithm='GLM';

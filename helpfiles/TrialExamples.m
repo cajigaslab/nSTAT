@@ -14,7 +14,7 @@ figure; h.plot;
 
 %%
 % Load Covariates
-load CovariateSample.mat; %load position and force covariates
+load(fullfile(fileparts(which('TrialExamples')),'CovariateSample.mat')); %load position and force covariates
 cc=CovColl({position,force});
 cc.setMaxTime(lengthTrial);
 figure; cc.plot;

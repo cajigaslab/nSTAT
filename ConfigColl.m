@@ -72,7 +72,7 @@ classdef ConfigColl < handle
                     tcColl.configArray{tcColl.numConfigs} = tcObj;
                elseif(isa(tcObj,'char'))
                     tcColl.numConfigs = tcColl.numConfigs+1;
-                    tcColl.setConfigNames(tcObj.name,tcColl.numConfigs);
+                    tcColl.setConfigNames(tcObj,tcColl.numConfigs); % FIX: was tcObj.name; char has no .name property
                     tcColl.configArray{tcColl.numConfigs} = tcObj;
                end
            else

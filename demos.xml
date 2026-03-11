@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<demos>
+  <name>nSTAT Neural Spike Train Analysis Toolbox</name>
+  <type>toolbox</type>
+  <icon>helpfiles/LogoSmall.png</icon>
+  <website>https://github.com/cajigaslab/nSTAT</website>
+  <description>Point process GLMs, neural spike train analysis, and adaptive decoding.</description>
+
+  <demosection>
+    <label>Getting Started</label>
+    <demoitem>
+      <label>SignalObj — Continuous Signal Basics</label>
+      <type>M-file</type>
+      <source>SignalObjExamples</source>
+      <file>helpfiles/SignalObjExamples.m</file>
+      <thumbnail>helpfiles/SignalObjExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Covariate — Named Multivariate Covariates</label>
+      <type>M-file</type>
+      <source>CovariateExamples</source>
+      <file>helpfiles/CovariateExamples.m</file>
+      <thumbnail>helpfiles/CovariateExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>CovColl — Covariate Collections</label>
+      <type>M-file</type>
+      <source>CovCollExamples</source>
+      <file>helpfiles/CovCollExamples.m</file>
+      <thumbnail>helpfiles/CovCollExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>nspikeTrain — Neural Spike Trains</label>
+      <type>M-file</type>
+      <source>nSpikeTrainExamples</source>
+      <file>helpfiles/nSpikeTrainExamples.m</file>
+      <thumbnail>helpfiles/nSpikeTrainExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>nstColl — Spike Train Collections</label>
+      <type>M-file</type>
+      <source>nstCollExamples</source>
+      <file>helpfiles/nstCollExamples.m</file>
+      <thumbnail>helpfiles/nstCollExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Events — Experimental Events</label>
+      <type>M-file</type>
+      <source>EventsExamples</source>
+      <file>helpfiles/EventsExamples.m</file>
+      <thumbnail>helpfiles/EventsExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>History — Spike History Windows</label>
+      <type>M-file</type>
+      <source>HistoryExamples</source>
+      <file>helpfiles/HistoryExamples.m</file>
+      <thumbnail>helpfiles/HistoryExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Trial — Combining Data for Analysis</label>
+      <type>M-file</type>
+      <source>TrialExamples</source>
+      <file>helpfiles/TrialExamples.m</file>
+      <thumbnail>helpfiles/TrialExamples.png</thumbnail>
+    </demoitem>
+  </demosection>
+
+  <demosection>
+    <label>Model Fitting</label>
+    <demoitem>
+      <label>Analysis Class — GLM Fitting</label>
+      <type>M-file</type>
+      <source>AnalysisExamples</source>
+      <file>helpfiles/AnalysisExamples.m</file>
+      <thumbnail>helpfiles/AnalysisExamples.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Analysis — Advanced Fitting Options</label>
+      <type>M-file</type>
+      <source>AnalysisExamples2</source>
+      <file>helpfiles/AnalysisExamples2.m</file>
+      <thumbnail>helpfiles/AnalysisExamples2.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Point Process Simulation via Thinning</label>
+      <type>M-file</type>
+      <source>PPThinning</source>
+      <file>helpfiles/PPThinning.m</file>
+      <thumbnail>helpfiles/PPThinning.png</thumbnail>
+    </demoitem>
+  </demosection>
+
+  <demosection>
+    <label>Data Analysis Examples</label>
+    <demoitem>
+      <label>PSTH Estimation — Simulated Data</label>
+      <type>M-file</type>
+      <source>PSTHEstimation</source>
+      <file>helpfiles/PSTHEstimation.m</file>
+      <thumbnail>helpfiles/PSTHEstimation.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Validation — Constant-Rate Poisson</label>
+      <type>M-file</type>
+      <source>ValidationDataSet</source>
+      <file>helpfiles/ValidationDataSet.m</file>
+      <thumbnail>helpfiles/ValidationDataSet.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>mEPSC Analysis</label>
+      <type>M-file</type>
+      <source>mEPSCAnalysis</source>
+      <file>helpfiles/mEPSCAnalysis.m</file>
+      <thumbnail>helpfiles/mEPSCAnalysis.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Stimulus and History — Simulated</label>
+      <type>M-file</type>
+      <source>PPSimExample</source>
+      <file>helpfiles/PPSimExample.m</file>
+      <thumbnail>helpfiles/PPSimExample.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Explicit Stimulus — Whisker Data</label>
+      <type>M-file</type>
+      <source>ExplicitStimulusWhiskerData</source>
+      <file>helpfiles/ExplicitStimulusWhiskerData.m</file>
+      <thumbnail>helpfiles/ExplicitStimulusWhiskerData.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Hippocampal Place Cell Estimation</label>
+      <type>M-file</type>
+      <source>HippocampalPlaceCellExample</source>
+      <file>helpfiles/HippocampalPlaceCellExample.m</file>
+      <thumbnail>helpfiles/HippocampalPlaceCellExample.png</thumbnail>
+    </demoitem>
+  </demosection>
+
+  <demosection>
+    <label>Decoding</label>
+    <demoitem>
+      <label>Decoding Univariate Stimulus</label>
+      <type>M-file</type>
+      <source>DecodingExample</source>
+      <file>helpfiles/DecodingExample.m</file>
+      <thumbnail>helpfiles/DecodingExample.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Decoding with History Effects</label>
+      <type>M-file</type>
+      <source>DecodingExampleWithHist</source>
+      <file>helpfiles/DecodingExampleWithHist.m</file>
+      <thumbnail>helpfiles/DecodingExampleWithHist.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Decoding Bivariate Stimulus (2D)</label>
+      <type>M-file</type>
+      <source>StimulusDecode2D</source>
+      <file>helpfiles/StimulusDecode2D.m</file>
+      <thumbnail>helpfiles/StimulusDecode2D.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Hybrid Point Process Filter</label>
+      <type>M-file</type>
+      <source>HybridFilterExample</source>
+      <file>helpfiles/HybridFilterExample.m</file>
+      <thumbnail>helpfiles/HybridFilterExample.png</thumbnail>
+    </demoitem>
+    <demoitem>
+      <label>Network Simulation and Estimation</label>
+      <type>M-file</type>
+      <source>NetworkTutorial</source>
+      <file>helpfiles/NetworkTutorial.m</file>
+      <thumbnail>helpfiles/NetworkTutorial.png</thumbnail>
+    </demoitem>
+  </demosection>
+
+  <demosection>
+    <label>Paper Reproduction</label>
+    <demoitem>
+      <label>nSTAT Paper Examples (Cajigas et al. 2012)</label>
+      <type>M-file</type>
+      <source>nSTATPaperExamples</source>
+      <file>helpfiles/nSTATPaperExamples.m</file>
+      <thumbnail>helpfiles/nSTATPaperExamples.png</thumbnail>
+    </demoitem>
+  </demosection>
+</demos>

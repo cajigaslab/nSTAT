@@ -102,7 +102,7 @@ for i = 1:length(time)
 end
 %%
 %save paperHybridFilterExample time Tmax delta mstate X p_ij ind A Q Px0
-load paperHybridFilterExample;
+load(fullfile(fileparts(which('HybridFilterExample')),'paperHybridFilterExample.mat'));
 Q{1}=minCovVal*eye(2,2);
 numCells=40;
 close all;

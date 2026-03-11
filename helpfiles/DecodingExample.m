@@ -68,7 +68,7 @@ b1=paramEst(2,:);
 for i=1:numRealizations
     % Construct a CIF object for each realization based on our encoding
     % results abovel
-    lambdaCIF{i} = CIF([b0(i) b1(i)],{'1','x'},{'x'},'binomial');
+    lambdaCIF{i} = CIF([b0(i) b1(i)],{'one','x'},{'x'},'binomial');
 end
 % close all;
 spikeColl.resample(1/delta);

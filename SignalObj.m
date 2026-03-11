@@ -661,9 +661,9 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data.*s2c.data;
-                   %can multiply units 
+                   %can multiply units
                else
                    error('can only multiply signals with same dimension');
                end
@@ -710,7 +710,7 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data./s2c.data;
                    %can multiply units 
                else
@@ -730,7 +730,7 @@ classdef SignalObj < handle
             if(isa(s1,'SignalObj') && isa(s2,'SignalObj'))
                if(s1.dimension == s2.dimension)
                    [s1c,s2c] = makeCompatible(s1,s2);
-                   s3 = s1c;
+                   s3 = s1c.copySignal; % FIX: was s3=s1c (handle alias); copySignal prevents mutating input
                    s3.data = s1c.data.\s2c.data;
                    %can multiply units 
                else
@@ -892,16 +892,13 @@ classdef SignalObj < handle
             plotProps  = sObj.plotProps;
             if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-%                     plotProps  = sObj.plotProps;
                     for i=1:sObj.dimension
                         dataLabels{i} = strcat('|',sObj.dataLabels{i},'|');
                     end
-                evalstring = strcat('s=',class(sObj),'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps);');
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
             else
-                
-                evalstring = strcat('s=',class(sObj),'(sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps);');
+                s = feval(class(sObj),sObj.time, absData,name,sObj.xlabelval, sObj.xunits,sObj.yunits,[],plotProps); % FIX: replaced eval() with feval() for safety
             end
-            eval(evalstring);            
         end
         
         function s = log(sObj)
@@ -912,16 +909,13 @@ classdef SignalObj < handle
             plotProps  = sObj.plotProps;
             if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
-%                     plotProps  = sObj.plotProps;
                     for i=1:sObj.dimension
                         dataLabels{i} = strcat('ln(',sObj.dataLabels{i},')');
                     end
-                evalstring = strcat('s=',class(sObj),'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps);');
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,dataLabels,plotProps); % FIX: replaced eval() with feval()
             else
-                
-                evalstring = strcat('s=',class(sObj),'(sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps);');
+                s = feval(class(sObj),sObj.time, logData,name,sObj.xlabelval, sObj.xunits,yunits,[],plotProps); % FIX: replaced eval() with feval()
             end
-            eval(evalstring);            
         end
         
         function m=median(sObj,varargin)
@@ -937,8 +931,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['median(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -946,14 +939,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('median(',sObj.dataLabels{i},')');
                     end
                      name =  ['median(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['median(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
                 
             
@@ -975,8 +964,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['mode(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -984,14 +972,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('mode(',sObj.dataLabels{i},')');
                     end
                      name =  ['mode(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['mode(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
         end
@@ -1010,8 +994,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(mdata);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                 name =  ['\mu(', sObj.name ')'];
-                evalstring = strcat('m=',class(sObj),'(sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                eval(evalstring);
+                m = feval(class(sObj),sObj.time, mdata,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1019,14 +1002,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('\mu(',sObj.dataLabels{i},')');
                     end
                      name =  ['\mu(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata], ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                      name =  ['\mu(', sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [mdata;mdata],  ['Mean of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [mdata;mdata],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
         end
@@ -1043,9 +1022,7 @@ classdef SignalObj < handle
             [nrows,ncolumns]=size(stdData);
             if( (nrows==length(sObj.time)) && (ncolumns==1) ) %mean across dimensions
                      name=['\sigma(' sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'(sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                     eval(evalstring);
-                     %m=SignalObj(sObj.time, stdData, name,sObj.xlabelval, sObj.xunits,sObj.yunits); 
+                     m = feval(class(sObj),sObj.time, stdData,name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
             elseif( (nrows==1) && (ncolumns == sObj.dimension) )  %mean of each dimension
                 if(~sObj.areDataLabelsEmpty)
                     dataLabels = cell(size(sObj.dataLabels));
@@ -1053,14 +1030,10 @@ classdef SignalObj < handle
                         dataLabels{i} = strcat('\sigma(',sObj.dataLabels{i},')');
                     end
                      name=['\sigma(' sObj.name ')'];
-                     evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);');
-                     eval(evalstring);
-                     %m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData], ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels);
+                     m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits,dataLabels); % FIX: replaced eval() with feval() for safety
                 else
                     name=['\sigma(' sObj.name ')'];
-                    evalstring = strcat('m=',class(sObj),'([sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits);');
-                    eval(evalstring);
-                    %m=SignalObj([sObj.time(1); sObj.time(end)], [stdData;stdData],  ['Std. Dev. of ' sObj.name],sObj.xlabelval, sObj.xunits,sObj.yunits);
+                    m = feval(class(sObj),[sObj.time(1); sObj.time(end)], [stdData;stdData],name,sObj.xlabelval, sObj.xunits,sObj.yunits); % FIX: replaced eval() with feval() for safety
                 end
             end
             
@@ -1090,7 +1063,7 @@ classdef SignalObj < handle
                 %autocorrelation of each dimension with itself
                 for i=1:sObj.dimension
                     
-                    [ACF(:,i),lags,bounds] = crosscor(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1);
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); % FIX: typo crosscor→crosscorr
                     
                 end
                 s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
@@ -1257,8 +1230,7 @@ classdef SignalObj < handle
                 lags=tempLags(1:end)./s1c.sampleRate;
              end
              name = [ 'corr(' s1.name ',' s2.name ')'];
-             evalstring=strcat('sxCorr=',class(s1),'(lags,data,name,''\Delta \tau'',''s'',dataLabels);');
-             eval(evalstring);    
+             sxCorr = feval(class(s1),lags,data,name,'\Delta \tau','s',dataLabels); % FIX: replaced eval() with feval() for safety    
         end        
         function sxCov = xcov(s1,s2,varargin)
              if(nargin<2)
@@ -1293,9 +1265,7 @@ classdef SignalObj < handle
                  lags=tempLags(1:end)./s1c.sampleRate;
              end
              name = [ 'cov(' s1.name ',' s2.name ')'];
-             evalstring=strcat('sxCov=',class(s1),'(lags,data,name,''\Delta \tau'',''s'',dataLabels);');
-             eval(evalstring);    
-             %sxCov=SignalObj(lags,data,name,'lags','n',dataLabels);
+             sxCov = feval(class(s1),lags,data,name,'\Delta \tau','s',dataLabels); % FIX: replaced eval() with feval() for safety
 
                  
          end
@@ -1335,8 +1305,7 @@ classdef SignalObj < handle
                  end
                  name = s1c.name;%, ',', s2c.name]; %name of the original is kept
                  
-                 evalstring = strcat('mergedSig = ',class(sObj),'(s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels);');
-                 eval(evalstring);
+                 mergedSig = feval(class(sObj),s1c.time, data, name, s1c.xlabelval,s1c.xunits, s1c.yunits, dataLabels); % FIX: replaced eval() with feval() for safety
             else
                   mergedSig = sObj.merge(varargin{1},holdVals);
                   for i=2:numToMerge
@@ -1359,9 +1328,7 @@ classdef SignalObj < handle
                 yunits=sigIn.yunits; 
                 dataLabels=sigIn.dataLabels;
                 plotProps=sigIn.plotProps;
-                evalstring = strcat('sigOut=',class(sigIn),'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);');
-                eval(evalstring);
-                %sigOut = SignalObj(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);
+                sigOut = feval(class(sigIn),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
                 sigOut.dataMask = sigIn.dataMask;
         end
         function sObjOut=resample(sObj, newSampleRate)
@@ -1604,7 +1571,7 @@ classdef SignalObj < handle
                [val,index] = max(sObj.data);
                ind = sObj.time(index);
            elseif(strcmp(type,'minima'))
-               [val,index] = min(sOBj.data);
+               [val,index] = min(sObj.data); % FIX: typo sOBj→sObj
                ind = sObj.time(index);
            end
         end
@@ -1627,7 +1594,8 @@ classdef SignalObj < handle
                 end
             elseif(strcmp(type,'minima'))
                 for i=1:sObj.dimension
-                    [values{i},indices{i}] = findpeaks(sObj.data(:,i),'MINPEAKDISTANCE',minDistance);
+                    [values{i},indices{i}] = findpeaks(-sObj.data(:,i),'MINPEAKDISTANCE',minDistance); % FIX: negate data to find minima (was finding maxima)
+                    values{i} = -values{i}; % FIX: negate values back to original sign
                 end
             end
         end
@@ -1814,8 +1782,7 @@ classdef SignalObj < handle
                   dataLabels(1:size(data,2)) =sObj.dataLabels;
                   %plotProps = sObj.plotProps;
 %                   if(i==1)
-                        evalstring = strcat('sOut=',class(sObj),'(actTime, data,name, xlabelval, xunits, yunits,dataLabels);');
-                        eval(evalstring);
+                        sOut = feval(class(sObj),actTime, data,name, xlabelval, xunits, yunits,dataLabels); % FIX: replaced eval() with feval() for safety
 %                         sOut.setMinTime(0);
 %                     else
 %                         evalstring = strcat('sOut = sOut.merge(',class(sObj),'(actTime, data,name, xlabelval, xunits, yunits,dataLabels,plotProps));');
@@ -2047,7 +2014,7 @@ classdef SignalObj < handle
                 if exist('nstat.applyPlotStyle', 'file') == 2
                     try
                         nstat.applyPlotStyle(handle);
-                    catch
+                    catch ME %#ok<NASGU> % FIX: capture exception; optional styling failure is non-critical
                     end
                 end
         end        
@@ -2204,7 +2171,7 @@ classdef SignalObj < handle
             
             if(length(ciLower)==1)
                 ciBottom=meanSig-ciLower.*stdSig;
-            elseif(length(ciUpper)==length(sObj.time))
+            elseif(length(ciLower)==length(sObj.time)) % FIX: was length(ciUpper); should check ciLower for lower bound
                 ciBottom=meanSig-ciLower;
             else
                 error('Lower confidence interval must be either length 1 or same length as the time vector');
@@ -2323,9 +2290,7 @@ classdef SignalObj < handle
             name = s3.name;
             xlabelval = s3.xlabelval; xunits=s3.xunits; yunits = s3.yunits;
             
-            %sOut=SignalObj(time, data, name, xlabelval, xunits, yunits, dataLabels, plotProps);
-            evalstring = strcat('sOut=',class(sObj),'(time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps);');
-            eval(evalstring);
+            sOut = feval(class(sObj),time, data,name, xlabelval, xunits, yunits,dataLabels,plotProps); % FIX: replaced eval() with feval() for safety
         end
         function sOut = getSubSignalFromNames(sObj,labels)
             ind   = sObj.getIndicesFromLabels(labels);

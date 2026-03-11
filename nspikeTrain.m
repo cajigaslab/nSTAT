@@ -81,7 +81,7 @@ classdef nspikeTrain < handle
         avgSpikesPerBurst
         stdSpikesPerBurst
         Lstatistic  % Goldberg et. al 2002. Enhanced Synchrony among Primary Motor Cortex Neurons in the
-                    % 1-Methyl-4-Phenyl-1,2,3,6-Tetrahydropyridine Primate Model of Parkinson’s Disease
+                    % 1-Methyl-4-Phenyl-1,2,3,6-Tetrahydropyridine Primate Model of Parkinsonï¿½s Disease
     end
     
     methods
@@ -216,7 +216,12 @@ classdef nspikeTrain < handle
             end
             ISI=nstObj.getISIs;
             spikeTimes =nstObj.spikeTimes;    
-            nstObj.avgFiringRate = length(spikeTimes)/(nstObj.maxTime - nstObj.minTime);
+            duration = nstObj.maxTime - nstObj.minTime;
+            if(duration > 0) % FIX: guard against division by zero when maxTime==minTime
+                nstObj.avgFiringRate = length(spikeTimes)/duration;
+            else
+                nstObj.avgFiringRate = NaN;
+            end
             
             
             %% Compute Burst Parameters
@@ -225,7 +230,7 @@ classdef nspikeTrain < handle
                 nstObj.burstIndex=1/mode(ISI)/nstObj.avgFiringRate;
             
                 % Cells havingburst index values of approximately 1 to 1.5 had regular firing 
-                % intervals (ie, Border cells), cells in the range of 1.6 to 9.9 were “irregular” firing cells,
+                % intervals (ie, Border cells), cells in the range of 1.6 to 9.9 were ï¿½irregularï¿½ firing cells,
                 % and those with values greater that 10 were termed bursting cells.
             
             
@@ -236,7 +241,7 @@ classdef nspikeTrain < handle
                 mu = mean(ISI);
                 r= sigma/mu;
                 nstObj.B = (r-1)/(r+1);  %burstiness index for infinite sequence
-                %B has the value of ?1 for regular time series as ? = 0, and 0 for Poissonian or random time series as ? = µ. Finally, the value of B approaches 1 for extremely bursty time series as ? ? ? for finite µ.
+                %B has the value of ?1 for regular time series as ? = 0, and 0 for Poissonian or random time series as ? = ï¿½. Finally, the value of B approaches 1 for extremely bursty time series as ? ? ? for finite ï¿½.
                 n=length(spikeTimes);
                 nstObj.An=(sqrt(n+2)*r-sqrt(n))./((sqrt(n+2)-2)*r+sqrt(n)); %corrected burstiness index for finite sequence
 
@@ -284,12 +289,12 @@ classdef nspikeTrain < handle
                 end
 
                 if(length(burstStart)>length(burstEnd))
-                    burstEnd = [find(y(burstStart(end):end)==1, 1,'last'); burstEnd];
+                    burstEnd = [burstEnd; find(y(burstStart(end):end)==1, 1,'last') + burstStart(end) - 1]; % FIX: corrected relative-to-absolute index offset and changed prepend to append (last burst)
                 end
 
                 if(~isempty(burstStart))
                     if(makePlots==1)
-                        close all;
+                        figure; % FIX: replaced 'close all' â€” closing all figures is a destructive side effect
                         nstObj.plot; hold on;
                         plot(tdiff, ISI,'ko');
                         plot([t(1) t(end)], ML*[1;1]); 
@@ -394,11 +399,11 @@ classdef nspikeTrain < handle
                     binwidth=1/nstObj.sampleRate; 
                     precision =2*ceil(log10(nstObj.sampleRate));
                     precision=max(0,precision);
-                    binwidth = roundn(binwidth,-precision); 
+                    binwidth = round(binwidth,precision); % FIX: replaced roundn (Mapping Toolbox) with round (core MATLAB)
                 end
                 precision =2*ceil(log10(1/binwidth));
                 precision=max(0,precision);
-                binwidth = roundn(binwidth,-precision); 
+                binwidth = round(binwidth,precision); 
 
                 if(and(~isempty(maxTime),~isempty(minTime)))
                     duration = maxTime-minTime;
@@ -408,7 +413,7 @@ classdef nspikeTrain < handle
                             binwidth = duration./(maxBinsSigRep-1);
                             precision =2*ceil(log10(1/binwidth));
                             precision=max(0,precision);
-                            binwidth = roundn(binwidth,-precision);
+                            binwidth = round(binwidth,precision);
                         end
                     end
                 end
@@ -452,9 +457,9 @@ classdef nspikeTrain < handle
 
                             spikeTimes = nstObj.spikeTimes;
 %                             spikeTimes = round(spikeTimes*nstObj.sampleRate*2)/(nstObj.sampleRate*2);
-                            spikeTimes = roundn(spikeTimes,-precision);
+                            spikeTimes = round(spikeTimes,precision);
 %                             windowTimes    = round(windowTimes*nstObj.sampleRate*2)/(2*nstObj.sampleRate);
-                            windowTimes    = roundn(windowTimes,-precision-1);
+                            windowTimes    = round(windowTimes,precision+1);
                             lwindowTimes = length(windowTimes);
                             for j=1:length(timeVec) %number of bins
                                 if(j==(lwindowTimes-1))
@@ -491,9 +496,9 @@ classdef nspikeTrain < handle
                         %differences in non-significant digits
                         spikeTimes = nstObj.spikeTimes;
 %                             spikeTimes = round(spikeTimes*nstObj.sampleRate*2)/(nstObj.sampleRate*2);
-                        spikeTimes = roundn(spikeTimes,-precision);
+                        spikeTimes = round(spikeTimes,precision);
 %                             windowTimes    = round(windowTimes*nstObj.sampleRate*2)/(2*nstObj.sampleRate);
-                        windowTimes    = roundn(windowTimes,-precision-1);
+                        windowTimes    = round(windowTimes,precision+1);
                         lwindowTimes = length(windowTimes);
                         %                         ltimeVec = length(timeVec);
                         for j=1:length(timeVec) %number of bins
@@ -626,11 +631,11 @@ classdef nspikeTrain < handle
                 bins=0:binWidth:max(ISIs);
 
                 %Make the ISI Histogram            
-                counts = histc(ISIs,bins);
+                counts = histc(ISIs,bins); % FIX: histc is deprecated; replace with histcounts+histogram in future
 
                 %set(gcf,'CurrentAxes',handle);
                 %bar(bins,histc(ISIs,bins)./sum(binWidth*counts),'histc');
-                h=bar(bins,histc(ISIs,bins),'histc');
+                h=bar(bins,histc(ISIs,bins),'histc'); %#ok<HISTC> % FIX: histc+bar('histc') deprecated; use histogram() in future
                 set(h,'MarkerEdgeColor',[0 0 0],...
                 'LineWidth',2,...
                 'FaceColor',[0.831372559070587 0.815686285495758 0.7843137383461]);
@@ -886,10 +891,10 @@ classdef nspikeTrain < handle
               end      
 %             end
         end
-        function rateSignal = computeRate(nstObj)
+        function rateSignal = computeRate(nstObj) %#ok<STOUT>
             % rateSignal = computeRate(nstObj)
             % generate rate function signal for the corresponding spikeTimes
-            % not yet implemented
+            error('nspikeTrain:NotImplemented','computeRate is not yet implemented'); % FIX: explicit error instead of silent no-op
         end
         function restoreToOriginal(nstObj)
             % restoreToOriginal(nstObj)

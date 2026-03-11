@@ -286,6 +286,8 @@ classdef FitResSummary < handle
                 
             end
             
+           % FIX: replaced histc with histcounts; histc deprecated R2014a
+           % histcounts returns length(edges)-1 counts (column via transpose)
            edges=(minVal:binSize:maxVal)';
            sigVals = frsObj.plotParams.bAct;%frsObj.plotParams.sigIndex;
            numPlotCoeffs = length(frsObj.plotParams.xLabels);
@@ -298,7 +300,7 @@ classdef FitResSummary < handle
                 tempsigVals = tempsigVals(squeeze(frsObj.plotParams.sigIndex(i,:,:))==1);
                 %sigValArray = [sigValArray;tempsigVals];
                 sigGroup    = [sigGroup; repmat(i,[length(tempsigVals),1])];
-                Ntemp=histc(tempsigVals,edges);
+                Ntemp=histcounts(tempsigVals,edges)'; % transpose to column to match edges dim
                 numSig(i) = sum(Ntemp);
                 [nr,nc] = size(squeeze(sigVals(i,:,:))); %for this coefficient across all fits
                 %percentSig(i) = numSig(i)./(nr*nc)*frsObj.numResults./frsObj.plotParams.numResultsCoeffPresent(i);
@@ -424,8 +426,9 @@ classdef FitResSummary < handle
             end
            frsObj.plotAllCoeffs(h);
            [N,edges] = frsObj.binCoeffs;
+           binCenters = (edges(1:end-1)+edges(2:end))/2; % FIX: histcounts returns length(edges)-1 counts
            numPlotCoeffs = length(frsObj.plotParams.xLabels);
-           handle=ribbon(repmat(edges,[1 numPlotCoeffs]),N); 
+           handle=ribbon(repmat(binCenters,[1 numPlotCoeffs]),N); 
            set(handle,'edgecolor','none');
            alpha(.6);
            legend off;
@@ -441,11 +444,12 @@ classdef FitResSummary < handle
                 h=gca;
             end
             [N,edges,percentSig] = frsObj.binCoeffs;
+            binCenters = (edges(1:end-1)+edges(2:end))/2; % FIX: histcounts returns length(edges)-1 counts
             offset=0;
             numPlotCoeffs = length(frsObj.plotParams.xLabels);
             for i=1:numPlotCoeffs
                 offset=offset+1;
-                handle(i)=plot(h,edges,N(:,i)+offset); hold on;
+                handle(i)=plot(h,binCenters,N(:,i)+offset); hold on;
 %                 plot(edges,N(:,i)+offset,'.');
                  set(gca,'xtick',[],'ytick',[]);
             end
@@ -676,7 +680,7 @@ classdef FitResSummary < handle
                    
                 
                 if(columns>1)
-                    handle = boxplot(X,strvcat(dataLabels));
+                    handle = boxplot(X,char(dataLabels)); % FIX: strvcat deprecated R2013b
                 else
                     handle = boxplot(X,dataLabels); % when only one column
                 end
@@ -687,9 +691,9 @@ classdef FitResSummary < handle
                % hT=rotateticklabel(gca,90);
               %  FitResSummary.xticklabel_rotate([],45,[],'interpreter','none');
             elseif(nargin>5)
-                handle = boxplot(h,X,strvcat(dataLabels),varargin{:});
+                handle = boxplot(h,X,char(dataLabels),varargin{:}); % FIX: strvcat deprecated R2013b
             elseif(nargin==5)
-                handle = boxplot(h,X,strvcat(dataLabels));
+                handle = boxplot(h,X,char(dataLabels)); % FIX: strvcat deprecated R2013b
             end
             h = get(get(gca,'child'),'child');
             group_name_handle = findobj(h,'type','text');

@@ -635,6 +635,11 @@ classdef nspikeTrain < handle
                 set(h,'EdgeColor',[0 0 0],...
                 'LineWidth',2,...
                 'FaceColor',[0.831372559070587 0.815686285495758 0.7843137383461]);
+                % Return histc-compatible counts: one per bin edge. The last
+                % element counts values exactly at the final edge.
+                counts = [h.Values, sum(ISIs == bins(end))];
+            else
+                counts = [];
             end
             
             

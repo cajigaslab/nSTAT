@@ -239,7 +239,7 @@ classdef CIF < handle
             % silent argument mismatch for non-alphabetical variable names.
             % Callers must use valid variable names (e.g. 'one' not '1')
             % for the constant/intercept term.
-            cifObj.fitType = fitType;            
+            cifObj.fitType = fitType;
             if(isempty(cifObj.histVars))
                 if(strcmp(fitType,'poisson'))
                     cifObj.lambdaDelta = simplify(exp(beta*cifObj.varIn)); 
@@ -261,12 +261,12 @@ classdef CIF < handle
                     cifObj.lambdaDeltaFunction = matlabFunction(cifObj.lambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
                     cifObj.lambdaDeltaGammaFunction = matlabFunction(cifObj.lambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars; histCoeffsVarsTrans]);
                 end
-                
-                
+
+
             end
-                
+
             % Additional Functions needed for decoding
-            % The gradient of log(lambda*delta) and the jacobian of 
+            % The gradient of log(lambda*delta) and the jacobian of
             % log(lambda*delta)
             cifObj.gradientLambdaDelta = simplify(jacobian(cifObj.lambdaDelta,cifObj.stimVars));
             cifObj.gradientLogLambdaDelta=simplify(jacobian(log(cifObj.lambdaDelta),cifObj.stimVars));
@@ -276,11 +276,11 @@ classdef CIF < handle
             
             cifObj.jacobianLambdaDelta=simplify(jacobian(cifObj.gradientLambdaDelta,cifObj.stimVars));
             cifObj.jacobianFunction = matlabFunction(cifObj.jacobianLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
-            
+
             cifObj.jacobianLogLambdaDelta=simplify(jacobian(cifObj.gradientLogLambdaDelta,cifObj.stimVars));
             cifObj.jacobianLogFunction = matlabFunction(cifObj.jacobianLogLambdaDelta,'vars',[cifObj.varIn; cifObj.histVars]);
-            
-            
+
+
             if(and(~isempty(cifObj.histCoeffs),~isempty(cifObj.history)))
                 cifObj.LogLambdaDeltaGamma=simplify(log(cifObj.lambdaDeltaGamma));
                 cifObj.LogLambdaDeltaGammaFunction = matlabFunction(cifObj.LogLambdaDeltaGamma,'vars',[cifObj.varIn; cifObj.histVars;histCoeffsVarsTrans]);
@@ -1042,10 +1042,22 @@ classdef CIF < handle
             % numel(stimVars)), map them into their positions within varIn and
             % fill the remaining positions (intercept / constant terms) with 1.0.
             % When stimVal already matches varIn length, pass through unchanged.
+            %
+            % When varIn contains composite symbolic expressions (e.g.
+            % x^2, x*y) the compiled matlabFunction accepts only the unique
+            % symbolic variables (from symvar), not all varIn entries.  In
+            % that case pass stimVal through unchanged so that the function
+            % receives the correct number of arguments.
             nVar  = numel(cifObj.varIn);
             nStim = numel(cifObj.stimVars);
+            nActualVars = numel(symvar(cifObj.varIn));
             if length(stimVal) == nVar
                 fullVal = stimVal;                   % caller already supplied all vars
+            elseif nActualVars < nVar && length(stimVal) == nStim
+                % varIn has polynomial/composite terms — compiled function
+                % accepts nActualVars args, not nVar.  Pass stim values
+                % directly so the argument count matches.
+                fullVal = stimVal;
             elseif length(stimVal) == nStim
                 fullVal = ones(nVar, 1);             % default intercept terms to 1.0
                 for k = 1:nStim

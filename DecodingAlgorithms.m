@@ -850,8 +850,11 @@ classdef DecodingAlgorithms
             end
             if(nargin<8 || isempty(HkAll))
                 [C,N]=size(dN);
-                numWindows = size(HkAll,2);
-                
+                if nargin >= 8
+                    numWindows = size(HkAll,2);
+                else
+                    numWindows = 0;
+                end
                 HkAll = zeros(N,numWindows,C);
 %                 HkAll=cell(C,1);
 %                 for c=1:C
@@ -859,7 +862,9 @@ classdef DecodingAlgorithms
 %                 end
             end
             if(nargin<7 || isempty(gamma))
-                gamma=zeros(1,C);
+                % No history: set gamma to empty so the history term
+                % evaluates to zero without dimension-mismatch errors.
+                gamma=[];
             end
             if(nargin<6 || isempty(fitType))
                 fitType = 'poisson';
@@ -875,11 +880,16 @@ classdef DecodingAlgorithms
             if(strcmp(fitType,'binomial'))
                 %  Histtermperm = permute(HkAll,[2 3 1]); need to send it a
                 %  permuted version of HkAll
-                Histterm = HkAll(:,:,time_index);
-                if(size(Histterm,2)~=size(mu,1))
-                    Histterm=Histterm';
+                if isempty(gamma) || isempty(HkAll) || size(HkAll,2)==0
+                    histEffect = zeros(C,1);
+                else
+                    Histterm = HkAll(:,:,time_index);
+                    if(size(Histterm,2)~=size(mu,1))
+                        Histterm=Histterm';
+                    end
+                    histEffect = diag(gamma'*Histterm);
                 end
-                linTerm = mu+beta'*x_p + diag(gamma'*Histterm);
+                linTerm = mu+beta'*x_p + histEffect;
                 lambdaDeltaMat = exp(linTerm)./(1+exp(linTerm));
                 if(any(isnan(lambdaDeltaMat))||any(isinf(lambdaDeltaMat)))
                     indNan = isnan(lambdaDeltaMat);
@@ -893,15 +903,19 @@ classdef DecodingAlgorithms
 %                 tempVec((tempVec>1))=1;
                 sumValMat = (repmat(tempVec,size(beta,1),1).*beta)*beta';
             elseif(strcmp(fitType,'poisson'))
-                Histterm = HkAll(:,:,time_index);
-  
-                if(~any(gamma~=0))
-                    Histterm = Histterm';
+                if isempty(gamma) || isempty(HkAll) || size(HkAll,2)==0
+                    histEffect = zeros(C,1);
+                else
+                    Histterm = HkAll(:,:,time_index);
+                    if(~any(gamma~=0))
+                        Histterm = Histterm';
+                    end
+                    if(size(Histterm,2)~=size(mu,1))
+                        Histterm=Histterm';
+                    end
+                    histEffect = diag(gamma'*Histterm);
                 end
-                if(size(Histterm,2)~=size(mu,1))
-                    Histterm=Histterm';
-                end
-                linTerm = mu+beta'*x_p + diag(gamma'*Histterm);
+                linTerm = mu+beta'*x_p + histEffect;
                 lambdaDeltaMat = exp(linTerm);
                 if(any(isnan(lambdaDeltaMat))||any(isinf(lambdaDeltaMat)))
                     indNan = isnan(lambdaDeltaMat);

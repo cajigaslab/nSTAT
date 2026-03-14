@@ -1191,10 +1191,10 @@ classdef DecodingAlgorithms
                 error('Mu0 must be a column or row vector with the same number of dimensions as the number of states');
             end
             for s=1:nmodels
-                [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3))));
-              
-                if((estimateTarget==0 && ~isempty(yT{s})))               
-                    invA= pinv(Amat{s}(:,:,min(size(Amat,3),1)));
+                [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3),1)));
+
+                if((estimateTarget==0 && ~isempty(yT{s})))
+                    invA= pinv(Amat{s}(:,:,min(size(Amat{s},3),1)));
                     ut{s}(:,1) = (Q{s}*pinv(PitT{s}(:,:,1)))*PhitT{s}(:,:,1)*(yT{s}-pinv(invA*PhitT{s}(:,:,1))*x0{s});
                     X_p{s}(ind{s},1) = X_p{s}(ind{s},1)+ut{s}(:,1);
                     W_p{s}(ind{s},ind{s},1) =W_p{s}(ind{s},ind{s},1) + (Q{s}*pinv(PitT{s}(:,:,1)))*A{s}*Pi0{s}*A{s}'*(Q{s}*pinv(PitT{s}(:,:,1)))';
@@ -1322,7 +1322,8 @@ classdef DecodingAlgorithms
                for s=1:nmodels
 
                    % Prediction Step
-                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat,3),k)), Qmat{s}(:,:,min(size(Qmat{s},3))));
+                   % Fix: use Amat{s} (cell contents) for size, and add k to Qmat index
+                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3),k)));
 
                    if(estimateTarget==0 && ~isempty(yT{s}))
                        if(k>1)
@@ -1625,10 +1626,10 @@ classdef DecodingAlgorithms
                 error('Mu0 must be a column or row vector with the same number of dimensions as the number of states');
             end
             for s=1:nmodels
-                 [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3))));
-              
-                if((estimateTarget==0 && ~isempty(yT{s})))               
-                    invA= pinv(Amat{s}(:,:,min(size(Amat,3),1)));
+                 [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3),1)));
+
+                if((estimateTarget==0 && ~isempty(yT{s})))
+                    invA= pinv(Amat{s}(:,:,min(size(Amat{s},3),1)));
                     ut{s}(:,1) = (Q{s}*pinv(PitT{s}(:,:,1)))*PhitT{s}(:,:,1)*(yT{s}-pinv(invA*PhitT{s}(:,:,1))*x0{s});
                     X_p{s}(ind{s},1) = X_p{s}(ind{s},1)+ut{s}(:,1);
                     W_p{s}(ind{s},ind{s},1) =W_p{s}(ind{s},ind{s},1) + (Q{s}*pinv(PitT{s}(:,:,1)))*A{s}*Pi0{s}*A{s}'*(Q{s}*pinv(PitT{s}(:,:,1)))';
@@ -1754,7 +1755,8 @@ classdef DecodingAlgorithms
                for s=1:nmodels
 
                    % Prediction Step
-                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat,3),k)), Qmat{s}(:,:,min(size(Qmat{s},3))));
+                   % Fix: use Amat{s} (cell contents) for size, and add k to Qmat index
+                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3),k)));
 
                    if(estimateTarget==0 && ~isempty(yT{s}))
                        if(k>1)

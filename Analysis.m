@@ -243,7 +243,7 @@ end
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     else
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     end
                                 end
@@ -361,7 +361,7 @@ end
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     else
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     end
                                 end

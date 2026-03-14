@@ -956,13 +956,13 @@ function [covName, covLabels] = parseDataSelectorArray(entry)
 end
 function answer=containsChars(x)
     if(isa(x,'cell'))
+        answer=0; % FIX: initialize before loop; was after loop, overwriting any true result
         for i=1:length(x)
             if(isa(x{i},'char'))
                 answer=1;
                 break;
             end
         end
-        answer=0;
     elseif(isa(x,'char'))
         answer =1;
     else

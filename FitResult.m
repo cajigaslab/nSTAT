@@ -350,7 +350,8 @@ classdef FitResult < handle
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          lambdaDelta = max(data*delta, eps); % FIX: guard against log(0)
+                          y = fitObj.neuralSpikeTrain.getSigRep.dataToMatrix; % FIX: was bare 'y' (undefined); mirror multi-result branch (line 372)
+                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: was bare 'data' (undefined); guard against log(0)
                           fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;

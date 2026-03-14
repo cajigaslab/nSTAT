@@ -84,7 +84,7 @@ classdef Events
                     times = repmat(EObj.eventTimes,[2 1]);
                     y =  [v(3); v(4)]*ones(1,length(EObj.eventTimes));
                     hold on;
-                    h=plot(handle(j),times,y,'r','LineWidth',4);
+                    h=plot(handle(j),times,y,colorString,'LineWidth',4); % FIX: was hardcoded 'r', ignoring colorString
                     %tcolor(1,1,1:3) = [1 0 0];
 %                     p=patch(times,y,colorString);%'FaceAlpha',.7,'EdgeAlpha',0)
 %                     set(p,'facecolor',colorString,'edgecolor','none');

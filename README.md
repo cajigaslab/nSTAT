@@ -101,7 +101,7 @@ Rendered help documentation (GitHub Pages):
 For mathematical and programmatic details of the toolbox, see:
 
 Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train analysis toolbox for Matlab. Journal of Neuroscience Methods 211: 245–264, Nov. 2012
-http://doi.org/10.1016/j.jneumeth.2012.08.009
+https://doi.org/10.1016/j.jneumeth.2012.08.009
 PMID: 22981419
 
 Paper-aligned toolbox map

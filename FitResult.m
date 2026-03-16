@@ -1280,9 +1280,13 @@ classdef FitResult < handle
             pval=zeros(1,fitObj.numResults);
             dataLabels = fitObj.lambda.dataLabels;
             for i=1:fitObj.numResults
-               handle = plot(fitObj.U(1:end-1,i),fitObj.U(2:end,i),strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
-               [rhoTemp,p]= corrcoef(fitObj.U(1:end-1,i),fitObj.U(2:end,i));%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))
-               
+               uj  = fitObj.U(1:end-1,i);
+               uj1 = fitObj.U(2:end,i);
+               handle = plot(uj,uj1,strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
+               % FIX: filter non-finite values before correlation
+               valid = isfinite(uj) & isfinite(uj1);
+               [rhoTemp,p]= corrcoef(uj(valid),uj1(valid));
+
                [~,columns]=size(rhoTemp);
                 if(columns>1)
                     rho(i) = rhoTemp(1,2);

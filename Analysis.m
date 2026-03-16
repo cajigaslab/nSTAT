@@ -905,7 +905,8 @@ end
             end
             Z = intValues; % rescales spike times - exponential rate 1
             U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
-             
+            U(U>=.999999)=.999999; % FIX: clamp to prevent inf/-inf (matches computeInvGausTrans)
+            U(U<=0)=.000001;
 
             KSSorted = sort( U,'ascend' );
             N = size(KSSorted,1);

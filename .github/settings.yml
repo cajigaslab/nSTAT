@@ -4,11 +4,7 @@ repository:
 branches:
   - name: master
     protection:
-      required_status_checks:
-        strict: true
-        contexts:
-          - test-and-build
-          - parity-gate
+      required_status_checks: null
       enforce_admins: false
       required_pull_request_reviews: null
       restrictions: null

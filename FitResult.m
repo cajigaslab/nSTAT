@@ -1366,9 +1366,10 @@ classdef FitResult < handle
              set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
             end
             %legend(h,labelArray); 
-            hold on; 
+            hold on;
             if(~isempty(confBoundSig))
-                confBoundSig.plot;
+                hCI = confBoundSig.plot;
+                set(hCI, 'HandleVisibility', 'off'); % FIX: prevent CI lines from appearing in legend as "data 1"/"data 2"
             end
             title({'Autocorrelation Function';'of Rescaled ISIs'; 'with 95% CIs'},'FontWeight','bold',...
             'FontSize',11,...

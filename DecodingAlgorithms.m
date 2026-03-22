@@ -211,7 +211,7 @@ classdef DecodingAlgorithms
                 invA     = pinv(A);
                 invPhi0T = pinv(invA*PhitT(:,:,1));
                 ut(:,1) = (Q*invPitT)*PhitT(:,:,1)*(yT-invPhi0T*x0);
-                [x_p(:,1), W_p(:,:,1)] = DecodingAlgorithms.PPDecode_predict(x0, Pi0, Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3))));
+                [x_p(:,1), W_p(:,:,1)] = DecodingAlgorithms.PPDecode_predict(x0, Pi0, Amat(:,:,min(size(Amat,3),1)), Qmat(:,:,min(size(Qmat,3),1)));
                 x_p(:,1) = x_p(:,1)+ut(:,1);
                 W_p(:,:,1) = W_p(:,:,1) + (Q*invPitT)*A*Pi0*A'*(Q*invPitT)';
 
@@ -234,13 +234,13 @@ classdef DecodingAlgorithms
     %             [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(A,3),n)), Qmat(:,:,min(size(Qmat,3))));
 
                 if((estimateTarget==1 && ~isempty(yT)) || isempty(yT))
-                    [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(A,3),n)), Qmat(:,:,min(size(Qmat,3))));
+                    [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3),n)));
                 else
                     %ut= Q_{t}\Pi(t,T)^{-1}\phi(t,T)(y_{T}-phi(T,t-1)x_{t-1}
                     if(n<N)
                         ut(:,n+1) = (Q*pinv(PitT(:,:,n+1)))*PhitT(:,:,n+1)*(yT-pinv(PhitT(:,:,n))*x_u(:,n));
         %                 ut(:,n+1) = ut(:,n+1)*delta;
-                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(A,3),n)), Qmat(:,:,min(size(Qmat,3))));
+                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3),n)));
                         x_p(:,n+1) = x_p(:,n+1)+ut(:,n+1);
                         W_p(:,:,n+1) = W_p(:,:,n+1) + (Q*pinv(PitT(:,:,n+1)))*A*W_u(:,:,n)*A'*(Q*pinv(PitT(:,:,n+1)))';
                     end
@@ -573,7 +573,7 @@ classdef DecodingAlgorithms
                 invA     = pinv(A1);
                 invPhi0T = pinv(invA*PhitT(:,:,1));
                 ut(:,1) = (Q1*invPitT)*PhitT(:,:,1)*(yT-invPhi0T*x0);
-                [x_p(:,1), W_p(:,:,1)] = DecodingAlgorithms.PPDecode_predict(x0, Pi0, Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3))));
+                [x_p(:,1), W_p(:,:,1)] = DecodingAlgorithms.PPDecode_predict(x0, Pi0, Amat(:,:,min(size(Amat,3),1)), Qmat(:,:,min(size(Qmat,3),1)));
                 x_p(:,1) = x_p(:,1)+ut(:,1);
                 W_p(:,:,1) = W_p(:,:,1) + (Q1*invPitT)*A1*Pi0*A1'*(Q1*invPitT)';
 
@@ -600,7 +600,7 @@ classdef DecodingAlgorithms
                 % it is independent of the CIF
 
                 if((estimateTarget==1 && ~isempty(yT)) || isempty(yT))
-                    [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3))),Wconv);
+                    [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3),n)),Wconv);
                 else
                     %ut= Q_{t}\Pi(t,T)^{-1}\phi(t,T)(y_{T}-phi(T,t-1)x_{t-1}
                     if(n<N)
@@ -610,7 +610,7 @@ classdef DecodingAlgorithms
                         invPhitm1T = pinv(PhitT(:,:,n));
                         ut(:,n+1) = (Qn*invPitT)*PhitT(:,:,n+1)*(yT-invPhitm1T*x_u(:,n));
         %                 ut(:,n+1) = ut(:,n+1)*delta;
-                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(A,3),n)), Qmat(:,:,min(size(Qmat,3))));
+                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3),n)));
                         x_p(:,n+1) = x_p(:,n+1)+ut(:,n+1);
                         W_p(:,:,n+1) = W_p(:,:,n+1) + (Qn*invPitT)*An*W_u(:,:,n)*An'*(Qn*invPitT)';
                     end

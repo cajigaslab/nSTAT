@@ -239,8 +239,8 @@ classdef TestPythonPortFidelity < matlab.unittest.TestCase
         end
 
         function testNSTCollSSGLMSurfaceAgainstPython(tc)
-            ss1 = nspikeTrain([0.1 0.3], '1', 10, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
-            ss2 = nspikeTrain([0.2], '1', 10, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
+            ss1 = nspikeTrain([0.1 0.3], '1', 1000, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
+            ss2 = nspikeTrain([0.2], '1', 1000, 0.0, 0.5, 'time', 's', 'spikes', 'spk', -1);
             coll = nstColl({ss1, ss2});
             [xK, WK, Qhat, gammahat, logll, fitSummary] = coll.ssglm([0.0 0.1 0.2], 2, 2, 'binomial');
 
@@ -248,8 +248,8 @@ classdef TestPythonPortFidelity < matlab.unittest.TestCase
                 'import json'
                 'import numpy as np'
                 'import nstat'
-                'ss1 = nstat.nspikeTrain([0.1, 0.3], ''1'', 10.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
-                'ss2 = nstat.nspikeTrain([0.2], ''1'', 10.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
+                'ss1 = nstat.nspikeTrain([0.1, 0.3], ''1'', 1000.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
+                'ss2 = nstat.nspikeTrain([0.2], ''1'', 1000.0, 0.0, 0.5, ''time'', ''s'', ''spikes'', ''spk'', -1)'
                 'coll = nstat.nstColl([ss1, ss2])'
                 'xK, WK, Qhat, gammahat, logll, fit_summary = coll.ssglm([0.0, 0.1, 0.2], 2, 2, ''binomial'')'
                 'json_text = json.dumps({'

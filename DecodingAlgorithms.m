@@ -610,7 +610,14 @@ classdef DecodingAlgorithms
                         invPhitm1T = pinv(PhitT(:,:,n));
                         ut(:,n+1) = (Qn*invPitT)*PhitT(:,:,n+1)*(yT-invPhitm1T*x_u(:,n));
         %                 ut(:,n+1) = ut(:,n+1)*delta;
-                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(Amat,3),n)), Qmat(:,:,min(size(Qmat,3),n)));
+                        % Predict using modified dynamics B and noise QT.
+                        % For time-invariant A, size(A,3)=1 so this always
+                        % selects B(:,:,1). The Qmat index selects the last
+                        % slice QT(:,:,N). This matches the original
+                        % Srinivasan et al. implementation where the
+                        % prediction uses the initial modified dynamics
+                        % with the terminal modified noise covariance.
+                        [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPDecode_predict(x_u(:,n), W_u(:,:,n), Amat(:,:,min(size(A,3),n)), Qmat(:,:,min(size(Qmat,3))));
                         x_p(:,n+1) = x_p(:,n+1)+ut(:,n+1);
                         W_p(:,:,n+1) = W_p(:,:,n+1) + (Qn*invPitT)*An*W_u(:,:,n)*An'*(Qn*invPitT)';
                     end
@@ -1344,9 +1351,10 @@ classdef DecodingAlgorithms
     
                for s=1:nmodels
 
-                   % Prediction Step
-                   % Fix: use Amat{s} (cell contents) for size, and add k to Qmat index
-                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3),k)));
+                   % Prediction Step — use original Srinivasan indexing:
+                   % size(A{s},3) for Amat (selects B(:,:,1) for time-invariant A)
+                   % min(size(Qmat{s},3)) for Qmat (selects QT(:,:,N))
+                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(A{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3))));
 
                    if(estimateTarget==0 && ~isempty(yT{s}))
                        if(k>1)
@@ -1797,9 +1805,10 @@ classdef DecodingAlgorithms
     %            k
                for s=1:nmodels
 
-                   % Prediction Step
-                   % Fix: use Amat{s} (cell contents) for size, and add k to Qmat index
-                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(Amat{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3),k)));
+                   % Prediction Step — use original Srinivasan indexing:
+                   % size(A{s},3) for Amat (selects B(:,:,1) for time-invariant A)
+                   % min(size(Qmat{s},3)) for Qmat (selects QT(:,:,N))
+                   [X_p{s}(ind{s},k),W_p{s}(ind{s},ind{s},k)] = DecodingAlgorithms.PPDecode_predict(X_s{s}(ind{s},k), W_s{s}(ind{s},ind{s},k), Amat{s}(:,:,min(size(A{s},3),k)), Qmat{s}(:,:,min(size(Qmat{s},3))));
 
                    if(estimateTarget==0 && ~isempty(yT{s}))
                        if(k>1)

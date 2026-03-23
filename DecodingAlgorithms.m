@@ -1190,6 +1190,29 @@ classdef DecodingAlgorithms
             else
                 error('Mu0 must be a column or row vector with the same number of dimensions as the number of states');
             end
+
+            % Fuse initial state prior with terminal constraint for each
+            % model, matching PPDecodeFilterLinear (Srinivasan et al. Eq. 2.23).
+            % This was missing from PPHybridFilterLinear since the original
+            % 2013 implementation and caused the goal-directed filter to
+            % underperform because x0/Pi0 never incorporated target info.
+            for s=1:nmodels
+                if(~isempty(yT) && ~isempty(yT{s}) && estimateTarget==0)
+                    Pi0s = Pi0{s}(ind{s},ind{s});
+                    x0s  = x0{s}(ind{s});
+                    if(det(Pi0s)~=0)
+                        invPi0s  = pinv(Pi0s);
+                        invPitTs = pinv(PitT{s}(:,:,1));
+                        Pi0New   = pinv(invPi0s + invPitTs);
+                        Pi0New(isnan(Pi0New)) = 0;
+                        x0New    = Pi0New*(invPi0s*x0s + invPitTs*PhitT{s}(:,:,1)*yT{s});
+                        x0{s}(ind{s})            = x0New;
+                        Pi0{s}(ind{s},ind{s})    = Pi0New;
+                        W_u{s}(ind{s},ind{s},1)  = Pi0New;
+                    end
+                end
+            end
+
             for s=1:nmodels
                 [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3),1)));
 
@@ -1625,6 +1648,26 @@ classdef DecodingAlgorithms
             else
                 error('Mu0 must be a column or row vector with the same number of dimensions as the number of states');
             end
+
+            % Fuse initial state prior with terminal constraint for each
+            % model, matching PPDecodeFilterLinear (Srinivasan et al. Eq. 2.23).
+            for s=1:nmodels
+                if(~isempty(yT) && ~isempty(yT{s}) && estimateTarget==0)
+                    Pi0s = Pi0{s}(ind{s},ind{s});
+                    x0s  = x0{s}(ind{s});
+                    if(det(Pi0s)~=0)
+                        invPi0s  = pinv(Pi0s);
+                        invPitTs = pinv(PitT{s}(:,:,1));
+                        Pi0New   = pinv(invPi0s + invPitTs);
+                        Pi0New(isnan(Pi0New)) = 0;
+                        x0New    = Pi0New*(invPi0s*x0s + invPitTs*PhitT{s}(:,:,1)*yT{s});
+                        x0{s}(ind{s})            = x0New;
+                        Pi0{s}(ind{s},ind{s})    = Pi0New;
+                        W_u{s}(ind{s},ind{s},1)  = Pi0New;
+                    end
+                end
+            end
+
             for s=1:nmodels
                  [X_p{s}(ind{s},1),W_p{s}(ind{s},ind{s},1)] = DecodingAlgorithms.PPDecode_predict(x0{s}(ind{s}), Pi0{s}(ind{s},ind{s}), Amat{s}(ind{s},ind{s},min(size(Amat{s},3),1)), Qmat{s}(:,:,min(size(Qmat{s},3),1)));
 

@@ -1081,79 +1081,87 @@ classdef SignalObj < handle
             end
         end
         
-        function periodogram = periodogram(sObj)
+        function result = periodogram(sObj)
             %periodogram = periodogram(sObj)
-            % computes the periodogram of each component of the SignalObj.
-            % Calls matlab periodogram with each component. 
-            %   fs = sObj.sampleRate;
-            %   NFFT = 1024
-            fs = sObj.sampleRate;  % Sampling frequency
-            periodogram = cell(1,sObj.dimension);
-            for i=1:sObj.dimension
-                xn = sObj.data(:,i);
-                Hs = spectrum.periodogram('rectangular');
+            % Computes the periodogram of each component of the SignalObj.
+            %
+            % Returns a cell array; each element is a struct with fields:
+            %   .Pxx — power-spectral-density estimate
+            %   .f   — frequency vector (Hz)
+            %
+            % Phase 3 Task 3.7 modernization (2026-05): the prior
+            % implementation used spectrum.periodogram + psd() +
+            % dspdata.psd, all of which were removed from MATLAB in
+            % R2014a. Now uses the function-form periodogram() from the
+            % Signal Processing Toolbox.
+
+            fs = sObj.sampleRate;
+            result = cell(1, sObj.dimension);
+            for i = 1:sObj.dimension
+                xn = sObj.data(:, i);
+                [Pxx, f] = periodogram(xn, [], 1024, fs);
+                result{i} = struct('Pxx', Pxx, 'f', f);
+
+                % Plot in subplot grid matching dimension
                 switch sObj.dimension
-                    case 2
-                        subplot(1,2,i)
-                    case 3
-                        subplot(1,3,i)
-                    case 4
-                        subplot(2,2,i)
-                    case 5
-                        subplot(3,2,i)
-                    case 6
-                        subplot(3,2,i)
-                    otherwise
-                         h=gcf;figure(h);
+                    case 2;     subplot(1,2,i);
+                    case 3;     subplot(1,3,i);
+                    case 4;     subplot(2,2,i);
+                    case {5,6}; subplot(3,2,i);
+                    otherwise;  h = gcf; figure(h);
                 end
-                periodogram{i}=psd(Hs,xn,'Fs',fs,'NFFT',1024);
-                
-                if(~isempty(sObj.dataLabels))
-                    h=periodogram{i}.plot;legend(h, sObj.dataLabels{i});
-                else
-                    h=periodogram{i}.plot;
+                plot(f, 10*log10(Pxx));
+                xlabel('Frequency (Hz)');
+                ylabel('Power/frequency (dB/Hz)');
+                if ~isempty(sObj.dataLabels)
+                    legend(sObj.dataLabels{i});
                 end
             end
         end
-        function mtmSpec = MTMspectrum(sObj,NW,NFFT,Pval)
-            %mtmSpec = MTMspectrum(sObj,NW,NFFT,Pval)
-            %computes Multi-taper spectral estimate of each component of
-            %the SignalObj with defaults:
-            %NW=4, NFFT=[], Pval=.95
-            % Defaults can be changed by passing in additional arguments
-            if(nargin<4)
-                Pval=.95;
-            end
-            if(nargin<3)
-                NFFT=[];
-            end
-            if(nargin<2)
-                NW=4;
-            end
-            
-            Fs=sObj.sampleRate;
-            mtmSpec = cell(1,sObj.dimension);
-            for i=1:sObj.dimension
-                xn=sObj.data(:,i);
-                [Pxx,Pxxc,f] = pmtm(xn,NW,NFFT,Fs,Pval);
-                hpsd = dspdata.psd([Pxx Pxxc],'Fs',Fs);
-                mtmSpec{i} = hpsd;
+
+        function mtmSpec = MTMspectrum(sObj, NW, NFFT, Pval)
+            %mtmSpec = MTMspectrum(sObj, NW, NFFT, Pval)
+            % Multi-taper spectral estimate of each component of the
+            % SignalObj. Defaults: NW=4, NFFT=[], Pval=0.95.
+            %
+            % Returns a cell array; each element is a struct with fields:
+            %   .Pxx  — multi-taper PSD estimate
+            %   .Pxxc — Pval-confidence-interval matrix [lo, hi]
+            %   .f    — frequency vector (Hz)
+            %
+            % Phase 3 Task 3.7 modernization (2026-05): the prior
+            % implementation wrapped the pmtm output in dspdata.psd
+            % which was removed from MATLAB in R2014a. Plotting now uses
+            % the function-form plot() directly.
+
+            if nargin < 4 || isempty(Pval), Pval = 0.95; end
+            if nargin < 3, NFFT = []; end
+            if nargin < 2 || isempty(NW), NW = 4; end
+
+            Fs = sObj.sampleRate;
+            mtmSpec = cell(1, sObj.dimension);
+            for i = 1:sObj.dimension
+                xn = sObj.data(:, i);
+                [Pxx, Pxxc, f] = pmtm(xn, NW, NFFT, Fs, Pval);
+                mtmSpec{i} = struct('Pxx', Pxx, 'Pxxc', Pxxc, 'f', f);
+
                 switch sObj.dimension
-                    case 2
-                        subplot(1,2,i)
-                    case 3
-                        subplot(1,3,i)
-                    case 4
-                        subplot(2,2,i)
-                    case 5
-                        subplot(3,2,i)
-                    case 6
-                        subplot(3,2,i)
-                    otherwise
-                         h=gcf;figure(h);
+                    case 2;     subplot(1,2,i);
+                    case 3;     subplot(1,3,i);
+                    case 4;     subplot(2,2,i);
+                    case {5,6}; subplot(3,2,i);
+                    otherwise;  h = gcf; figure(h);
                 end
-                str1=strcat(num2str(Pval*100), '% Conf. Int.');
-                h=plot(hpsd); legend(h, sObj.dataLabels{i},strcat('-',str1),strcat('+',str1));
+                plot(f, 10*log10(Pxx), 'LineWidth', 1.5); hold on;
+                plot(f, 10*log10(Pxxc(:,1)), '--');
+                plot(f, 10*log10(Pxxc(:,2)), '--');
+                hold off;
+                xlabel('Frequency (Hz)');
+                ylabel('Power/frequency (dB/Hz)');
+                str1 = sprintf('%g%% Conf. Int.', Pval*100);
+                if ~isempty(sObj.dataLabels)
+                    legend(sObj.dataLabels{i}, ['-', str1], ['+', str1]);
+                end
             end
         end
         function [spectrogramData,h] = spectrogram(sObj,freqVec,h)

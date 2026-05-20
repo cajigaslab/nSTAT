@@ -912,11 +912,21 @@ end
             N = size(KSSorted,1);
             if(N~=0)
                 xAxis=(([1:N]-.5)/N)'*ones(1,lambdaInput.dimension);
-                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension))); 
+                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension)));
             else
                 ks_stat=1;
                 xAxis=[];
             end
+        end
+        function varargout = ksdiscrete(pk, st, spikeflag)
+            %KSDISCRETE Thin static wrapper around the file-local ksdiscrete()
+            % Exposed for unit testing. Production code calls the local
+            % function from computeKSStats; both routes share the same
+            % implementation.
+            %
+            % Refs: Haslinger, Pipa & Brown 2010 (discrete-time time-
+            % rescaling); bci-curriculum §4.C.1 Cor. 2.
+            [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
         end
         function M=computeFitResidual(nspikeObj,lambda,windowSize)
             % M=computeFitResidual(nspikeTrain,lambda,windowSize)
@@ -1507,9 +1517,8 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
     % Now do the actual discrete time KS test
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
-    % initialize random number generator
-    rng('shuffle','twister');
-    %rand('twister',sum(100*clock));
+    % FIX: removed `rng('shuffle','twister')` — was clobbering caller seed
+    % and making KS non-reproducible run-to-run. Caller controls RNG state.
 
     % make the qk's
 

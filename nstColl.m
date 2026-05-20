@@ -844,7 +844,7 @@ classdef nstColl < handle
                 end
                 gamma0=0;
             end
-            [xK,WK, Qhat,gammahat,logll]=DecodingAlgorithms.PPSS_EM(A,Q0,x0,dN,fitType,delta,gamma0,windowTimes, numBasis,HkAll);
+            [xK,WK, Qhat,gammahat,logll]=nstat.decoding.SSGLM.PPSS_EM(A,Q0,x0,dN,fitType,delta,gamma0,windowTimes, numBasis,HkAll);
 
              minTime=nstCollObj.minTime; maxTime = nstCollObj.maxTime;
              if(~isempty(numBasis))

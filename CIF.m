@@ -1,9 +1,27 @@
 classdef CIF < handle
-    %CIF - Conditional Intensity function. 
-    %<a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Example</a>
-    % 
-    %Reference page in Help browser
-    %<a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Reference Workflow</a>
+    %CIF - Conditional Intensity function (symbolic derivatives).
+    %
+    %  This class computes derivatives of lambda*delta and log(lambda*delta)
+    %  symbolically via the Symbolic Math Toolbox and matlabFunction. For
+    %  canonical-link cases (Poisson with log link or binomial with logit
+    %  link) the derivatives are closed-form and a faster, dependency-free
+    %  alternative is available:
+    %
+    %      lambdaCIF = LinearCIF(beta, Xnames, stimNames, fitType, ...);
+    %
+    %  LinearCIF is a drop-in replacement for the 5 eval methods used by
+    %  nstat.decoding.PPAF.PPDecode_update (Phase 3 Task 3.5; numerical
+    %  parity to AbsTol 1e-12 verified). Use LinearCIF when:
+    %    - fitType is 'poisson' or 'binomial' (canonical link), AND
+    %    - the CIF is linear in the stimulus variables (no symbolic
+    %      transformations like x^2, x*y in the variable list).
+    %  Use CIF (this class) when you need symbolic expressions involving
+    %  arbitrary nonlinear transforms of the stimulus.
+    %
+    %  <a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Example</a>
+    %
+    %  Reference page in Help browser
+    %  <a href="matlab:nstatOpenHelpPage('PPSimExample.html')">CIF Reference Workflow</a>
 
     
     %

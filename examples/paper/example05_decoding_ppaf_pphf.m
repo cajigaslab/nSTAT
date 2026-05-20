@@ -103,7 +103,7 @@ dN = spikeColl.dataToMatrix;
 Q = std(stim.data(2:end) - stim.data(1:end-1));
 A = 1;
 
-[~, ~, x_u, W_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN', b0, b1', 'binomial', delta);
+[~, ~, x_u, W_u] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Q, dN', b0, b1', 'binomial', delta);
 
 zVal = 1.96;
 ciLower = min(x_u(1:end) - zVal * sqrt(squeeze(W_u(1:end)))', x_u(1:end) + zVal * sqrt(squeeze(W_u(1:end))'));
@@ -245,10 +245,10 @@ for k = 1:numExamples
 
     beta = [zeros(2, numCells); bCoeffs'];
 
-    [~, ~, x_u, ~] = DecodingAlgorithms.PPDecodeFilterLinear(A, Qreach, dN, ...
+    [~, ~, x_u, ~] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Qreach, dN, ...
         muCoeffs, beta, fitType, delta, gamma, windowTimes, x0, pi0, yT, piT, 0);
 
-    [~, ~, x_uf, ~] = DecodingAlgorithms.PPDecodeFilterLinear(A, Qreach, dN, ...
+    [~, ~, x_uf, ~] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Qreach, dN, ...
         muCoeffs, beta, fitType, delta, gamma, windowTimes, x0);
 
     if k == 1
@@ -403,10 +403,10 @@ for n = 1:numExamples
     yT{2} = X(ind{2},end);
     piTLocal{2} = 1e-9 * eye(size(x0{2},1), size(x0{2},1));
 
-    [S_est, X_est, ~, MU_est] = DecodingAlgorithms.PPHybridFilterLinear(Ahy, Qhy, p_ij, mu0, dN', ...
+    [S_est, X_est, ~, MU_est] = nstat.decoding.PPHF.PPHybridFilterLinear(Ahy, Qhy, p_ij, mu0, dN', ...
         coeffs(:,1), coeffs(:,2:end)', 'binomial', delta, [], [], x0, pi0Local, yT, piTLocal);
 
-    [S_estNT, X_estNT, ~, MU_estNT] = DecodingAlgorithms.PPHybridFilterLinear(Ahy, Qhy, p_ij, mu0, dN', ...
+    [S_estNT, X_estNT, ~, MU_estNT] = nstat.decoding.PPHF.PPHybridFilterLinear(Ahy, Qhy, p_ij, mu0, dN', ...
         coeffs(:,1), coeffs(:,2:end)', 'binomial', delta, [], [], x0, pi0Local);
 
     X_estAll(:,:,n) = X_est; %#ok<AGROW>

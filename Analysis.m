@@ -855,7 +855,19 @@ end
                 
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 for i=1:lambdaInput.dimension
-                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
+                    % FIX: warn when lambda*delta exceeds the empirical validity bound
+                    % (Haslinger-Pipa-Brown 2010; bci-curriculum §4.C.1 Cor. 2).
+                    pkRaw = pk(:,i);
+                    fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
+                    if fracHighRate > 0.01
+                        warning('nSTAT:DTCorrectionRegime', ...
+                            ['%.1f%% of bins have lambda*delta > 0.4; ' ...
+                             'discrete-time KS correction may be biased ' ...
+                             'toward acceptance. Use a smaller binwidth ' ...
+                             'or DTCorrection=0 (continuous-time form).'], ...
+                            100*fracHighRate);
+                    end
+                    pk(:,i) = nanmin(nanmax(pkRaw,0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 %                     length(temp)
 %                     length(intValues(:,i))

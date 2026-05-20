@@ -6,15 +6,20 @@
 
 ## Tier 1 — Confirmed broken (or about to be); ship as soon as possible
 
-### B1 — Delete `helpfiles/nSTATPaperExamples.mlx`
+### B1 — `helpfiles/nSTATPaperExamples.mlx` — **KEEP (paper-reference exception)**
 
-**Confirmed broken:** the `.mlx` shadows the migrated `.m` and emits `nSTAT:deprecated:DecodingAlgorithms`. Trap-via-`warning('error', ...)` verification traced the warning to inside `.mlx` execution.
+**Status:** **WONTFIX / explicit exception** as of 2026-05-20 owner decision.
 
-**Fix:** `git rm helpfiles/nSTATPaperExamples.mlx`. Same pattern as PR #39 for the 4 already-deleted stale `.mlx` files.
+**Original finding:** the `.mlx` shadows the migrated `.m` and emits `nSTAT:deprecated:DecodingAlgorithms` when run, because its embedded outputs were generated against the pre-Phase-3 `DecodingAlgorithms` static-method API.
 
-**Effort:** 5 minutes. Single-file change. **High priority.**
+**Decision:** this specific `.mlx` is preserved because **it is the artifact referenced in Cajigas, Malik, Brown 2012 (PMID 22981419)**. Its embedded outputs document the figures and numerical results as they appeared in the published paper. Deleting it would erase a citation-bound historical record.
 
-**Acceptance:** post-deletion, re-run V1.4 — `nSTATPaperExamples` should report PASS (clean), bringing the suite to 34/34 PASS clean.
+**Consequences accepted:**
+- Users running `nSTATPaperExamples` from MATLAB hit the `.mlx` first (MATLAB's `run()` resolves `.mlx` over `.m` when both exist on path). They will see a `nSTAT:deprecated:DecodingAlgorithms` warning from the embedded code path.
+- The canonical, warning-free source is `helpfiles/nSTATPaperExamples.m` — invoke it explicitly by `.m` path if a clean run is needed: `run('helpfiles/nSTATPaperExamples.m')` resolves to the `.m` only when the `.mlx` is not on the same directory's resolver scope (in practice, copy the `.m` to a temp directory first, as the V3.1 MVP harness does).
+- This is the **only** `.mlx` granted this exception. All other stale `.mlx` files (see B2) should still be deleted.
+
+**Documentation:** [CONTRIBUTING.md](../../CONTRIBUTING.md) — "`.m` is canonical" section — records this exception explicitly.
 
 ---
 
@@ -116,8 +121,8 @@ PR #36's Phase 4.1 added iterated-Laplace PPAF as `PPDecode_updateIterated`. Wir
 
 If you commit to remediation:
 
-1. **B1** (5 min) — ship as a same-day PR. Closes the only confirmed-broken item.
-2. **B2** (15 min) — ship in the same or next PR. Closes the broader stale-`.mlx` class of risk.
+1. ~~**B1**~~ — WONTFIX per owner decision (paper-reference exception, see B1 above).
+2. **B2** (15 min) — ship as same-day PR. Closes the broader stale-`.mlx` class of risk for the 11 non-paper-referenced files.
 3. Pause and re-evaluate. The toolbox is now in citation-ready state.
 4. If still motivated: **B5** (paper-value comparison) is the next-most-valuable item — it's what makes V2.1 complete and the citation-ready snippet stronger.
 5. Defer **B3, B4, B6-B9** unless a specific consumer surfaces them. They're real but low-urgency.

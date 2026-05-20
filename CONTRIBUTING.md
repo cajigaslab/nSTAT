@@ -13,6 +13,17 @@ The `.mlx` files are binary (a zipped XML format) and cannot be diff-reviewed. T
 - If an `.mlx` drifts from its `.m`, prefer **deleting the `.mlx`** over hand-patching it. The `.m` is the source of truth.
 - The historical `matlab-repo-integrity.yml` workflow enforced full `.mlx` coverage. That workflow was removed alongside the MATLAB-based CI (May 2026) because it depended on running MATLAB on GitHub-hosted runners. No automated `.mlx` parity check currently exists.
 
+**Explicit exception — `helpfiles/nSTATPaperExamples.mlx`:**
+
+This single `.mlx` is preserved deliberately, despite drifting from its `.m` sibling, because **it is the artifact referenced in Cajigas, Malik, Brown 2012 (*J. Neurosci. Methods* 211(2):245–264, PMID 22981419)**. Its embedded outputs document the figures and numerical results as they appeared in the published paper, and so it functions as a citation-bound historical record rather than a maintained tutorial.
+
+Consequences:
+- Running `nSTATPaperExamples` from MATLAB resolves to the `.mlx` (MATLAB prefers `.mlx` over `.m` when both exist) and emits `nSTAT:deprecated:DecodingAlgorithms` warnings from the pre-Phase-3 static-method API baked into its embedded outputs. This is expected.
+- For a clean re-run, invoke the canonical `.m` directly via the V3.1 MVP harness pattern: copy `helpfiles/nSTATPaperExamples.m` to a temporary directory (so the `.mlx` does not shadow it on path) and `run` it there.
+- This exception applies to *only* this file. All other stale `.mlx` files should still be deleted per the policy above.
+
+The exception and its rationale are tracked as item **B1** in [`docs/verification/remediation_backlog.md`](docs/verification/remediation_backlog.md).
+
 ## Local test gate
 
 **CI does not run MATLAB.** The team's MathWorks license does not extend to GitHub-hosted runners, so there is no automated MATLAB-test gate on PRs. The local pass is the only test gate.

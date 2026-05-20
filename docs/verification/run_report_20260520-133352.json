@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-05-20T13:33:52",
+  "matlab_version": "25.2.0.3123386 (R2025b) Update 3",
+  "scope": "tutorials",
+  "n_pass": 2,
+  "n_pass_w": 0,
+  "n_fail": 0,
+  "n_total": 2,
+  "results": [
+    {
+      "script": "HelloNstat",
+      "status": "PASS",
+      "runtime_s": 3.0521792083333334,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 1,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HelloNstat/fig01.png"
+      ]
+    },
+    {
+      "script": "FoundationModelKSValidation",
+      "status": "PASS",
+      "runtime_s": 0.91250333333333333,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 1,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_FoundationModelKSValidation/fig01.png"
+      ]
+    }
+  ]
+}

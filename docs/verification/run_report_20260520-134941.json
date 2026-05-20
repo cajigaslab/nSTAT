@@ -1,0 +1,372 @@
+{
+  "generated_at": "2026-05-20T13:49:41",
+  "matlab_version": "25.2.0.3123386 (R2025b) Update 3",
+  "scope": "tier-b",
+  "n_pass": 22,
+  "n_pass_w": 1,
+  "n_fail": 0,
+  "n_total": 23,
+  "results": [
+    {
+      "script": "AnalysisExamples",
+      "status": "PASS",
+      "runtime_s": 2.4474508333333334,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 4,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples/fig04.png"
+      ]
+    },
+    {
+      "script": "AnalysisExamples2",
+      "status": "PASS",
+      "runtime_s": 386.83384641666669,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 4,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples2/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples2/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples2/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_AnalysisExamples2/fig04.png"
+      ]
+    },
+    {
+      "script": "ConfigCollExamples",
+      "status": "PASS",
+      "runtime_s": 0.077384041666666667,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 0,
+      "figure_paths": []
+    },
+    {
+      "script": "CovCollExamples",
+      "status": "PASS",
+      "runtime_s": 0.478861875,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 2,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_CovCollExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_CovCollExamples/fig02.png"
+      ]
+    },
+    {
+      "script": "CovariateExamples",
+      "status": "PASS",
+      "runtime_s": 0.37001225,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 2,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_CovariateExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_CovariateExamples/fig02.png"
+      ]
+    },
+    {
+      "script": "EventsExamples",
+      "status": "PASS",
+      "runtime_s": 0.1910985,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 3,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_EventsExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_EventsExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_EventsExamples/fig03.png"
+      ]
+    },
+    {
+      "script": "FitResSummaryExamples",
+      "status": "PASS",
+      "runtime_s": 0.032223416666666664,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 0,
+      "figure_paths": []
+    },
+    {
+      "script": "FitResultExamples",
+      "status": "PASS",
+      "runtime_s": 0.026033208333333332,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 0,
+      "figure_paths": []
+    },
+    {
+      "script": "HistoryExamples",
+      "status": "PASS",
+      "runtime_s": 0.548655,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 3,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HistoryExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HistoryExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HistoryExamples/fig03.png"
+      ]
+    },
+    {
+      "script": "PPThinning",
+      "status": "PASS",
+      "runtime_s": 8.93440725,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 3,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPThinning/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPThinning/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPThinning/fig03.png"
+      ]
+    },
+    {
+      "script": "SignalObjExamples",
+      "status": "PASS",
+      "runtime_s": 2.42304225,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 16,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig04.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig05.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig06.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig07.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig08.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig09.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig10.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig11.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig12.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig13.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig14.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig15.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_SignalObjExamples/fig16.png"
+      ]
+    },
+    {
+      "script": "TrialConfigExamples",
+      "status": "PASS",
+      "runtime_s": 0.046513041666666664,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 0,
+      "figure_paths": []
+    },
+    {
+      "script": "TrialExamples",
+      "status": "PASS",
+      "runtime_s": 2.5215944166666668,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 6,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig04.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig05.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_TrialExamples/fig06.png"
+      ]
+    },
+    {
+      "script": "ValidationDataSet",
+      "status": "PASS",
+      "runtime_s": 14.182738708333334,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 8,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig04.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig05.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig06.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig07.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ValidationDataSet/fig08.png"
+      ]
+    },
+    {
+      "script": "nSpikeTrainExamples",
+      "status": "PASS",
+      "runtime_s": 0.35089725,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 4,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nSpikeTrainExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nSpikeTrainExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nSpikeTrainExamples/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nSpikeTrainExamples/fig04.png"
+      ]
+    },
+    {
+      "script": "nstCollExamples",
+      "status": "PASS",
+      "runtime_s": 1.5111365,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 3,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nstCollExamples/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nstCollExamples/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nstCollExamples/fig03.png"
+      ]
+    },
+    {
+      "script": "NetworkTutorial",
+      "status": "PASS",
+      "runtime_s": 45.814145916666668,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 4,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_NetworkTutorial/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_NetworkTutorial/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_NetworkTutorial/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_NetworkTutorial/fig04.png"
+      ]
+    },
+    {
+      "script": "PPSimExample",
+      "status": "PASS",
+      "runtime_s": 13.529909458333334,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 3,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPSimExample/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPSimExample/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PPSimExample/fig03.png"
+      ]
+    },
+    {
+      "script": "PSTHEstimation",
+      "status": "PASS",
+      "runtime_s": 6.95848625,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 2,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PSTHEstimation/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_PSTHEstimation/fig02.png"
+      ]
+    },
+    {
+      "script": "ExplicitStimulusWhiskerData",
+      "status": "PASS",
+      "runtime_s": 11.862978083333333,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 8,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig04.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig05.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig06.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig07.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_ExplicitStimulusWhiskerData/fig08.png"
+      ]
+    },
+    {
+      "script": "HippocampalPlaceCellExample",
+      "status": "PASS",
+      "runtime_s": 29.64077,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 9,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig04.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig05.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig06.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig07.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig08.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_HippocampalPlaceCellExample/fig09.png"
+      ]
+    },
+    {
+      "script": "mEPSCAnalysis",
+      "status": "PASS",
+      "runtime_s": 37.36279591666667,
+      "warning_id": "",
+      "warning_msg": "",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 4,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_mEPSCAnalysis/fig01.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_mEPSCAnalysis/fig02.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_mEPSCAnalysis/fig03.png",
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_mEPSCAnalysis/fig04.png"
+      ]
+    },
+    {
+      "script": "nSTATPaperExamples",
+      "status": "PASS-W",
+      "runtime_s": 137.67107470833332,
+      "warning_id": "nSTAT:deprecated:DecodingAlgorithms",
+      "warning_msg": "DecodingAlgorithms.PPHybridFilterLinear is deprecated; use nstat.decoding.PPHF.PPHybridFilterLinear instead.",
+      "error_id": "",
+      "error_msg": "",
+      "figure_count": 1,
+      "figure_paths": [
+        "/Users/iahncajigas/projects/nstat/docs/figures/verify_nSTATPaperExamples/fig01.png"
+      ]
+    }
+  ]
+}

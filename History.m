@@ -191,8 +191,73 @@ classdef History <handle
                 maxTime = structure.maxTime;
                 HistObj = History(windowTimes,minTime,maxTime);
             else
-               HistObj = []; 
+               HistObj = [];
             end
+        end
+
+        function HistObj = raisedCosine(K, tMin, tMax)
+            % HistObj = History.raisedCosine(K, tMin, tMax)
+            %
+            % Constructs a History object with `K` logarithmically-spaced
+            % windows between tMin and tMax (seconds). This is the
+            % windowed-history analog of the Pillow 2008 raised-cosine
+            % basis on log time: log-spaced lag scales that capture
+            % refractory effects at short lags (small bins) and slow
+            % adaptation at long lags (large bins).
+            %
+            % Inputs:
+            %   K     — Number of history windows (typical: 5-10).
+            %   tMin  — Shortest lag (seconds). Default: 0.002 (2 ms).
+            %   tMax  — Longest lag (seconds). Default: 0.100 (100 ms).
+            %
+            % Output:
+            %   HistObj — History object with windowTimes set to K+1
+            %             log-spaced edges in [tMin, tMax]. Note that
+            %             windowTimes always starts at 0 to define the
+            %             first window from spike-onset to tMin.
+            %
+            % Caveat: this returns the WINDOWED-basis approximation of the
+            % Pillow 2008 raised-cosine basis. The true Pillow basis is a
+            % set of smooth cosine bumps (see bci-curriculum chapter-04
+            % §4.B.2 lines 1003-1010); reproducing those requires a
+            % future RaisedCosineBasis class with overloaded
+            % computeHistory. For most uses (PP-GLM history-coefficient
+            % fitting where the basis is collapsed into bin counts) the
+            % log-spaced windowed approximation is sufficient.
+            %
+            % Phase 3 Task 3.6 of the 2026-05-19 nSTAT review action plan.
+            %
+            % Refs: Pillow, Shlens, Paninski, Sher, Litke, Chichilnisky &
+            %       Simoncelli 2008, Nature 454:995-999 (the raised-cosine
+            %       basis on log time);
+            %       bci-curriculum chapter-04 §4.B.2 history-kernel basis.
+
+            if nargin < 2 || isempty(tMin)
+                tMin = 0.002;  % 2 ms — captures absolute refractory edge
+            end
+            if nargin < 3 || isempty(tMax)
+                tMax = 0.100;  % 100 ms — typical slow-adaptation horizon
+            end
+
+            if K < 2
+                error('History:raisedCosine:InvalidK', ...
+                    'K must be >= 2 (need at least 2 log-spaced peaks).');
+            end
+            if tMin <= 0
+                error('History:raisedCosine:InvalidtMin', ...
+                    'tMin must be > 0 for log spacing (got %g).', tMin);
+            end
+            if tMax <= tMin
+                error('History:raisedCosine:InvalidtMax', ...
+                    'tMax (%g) must exceed tMin (%g).', tMax, tMin);
+            end
+
+            % K log-spaced peaks → K+1 window edges spanning [tMin, tMax]
+            peaks = logspace(log10(tMin), log10(tMax), K);
+            % Prepend 0 so the first window runs from spike-onset to tMin.
+            windowTimes = [0, peaks];
+
+            HistObj = History(windowTimes);
         end
     end
     methods (Access = private)

@@ -3,14 +3,15 @@ nSTAT
 
 Neural Spike Train Analysis Toolbox for Matlab
 
+**nSTAT** is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis: PP-GLM fitting (Poisson and binomial), time-rescaling KS goodness-of-fit, PPAF (point-process adaptive filter — the spike-train analog of the Kalman filter), PPHF (hybrid discrete + continuous-state filter), SSGLM (state-space GLM for trial-drifting coefficients), and PPLFP (multi-modal spike + LFP sensor-fusion filter).
 
-nSTAT is an open-source, object-oriented Matlab toolbox that implements a range of models and algorithms for neural spike train data analysis. Such data are frequently obtained from neuroscience experiments and our intention in writing nSTAT is to facilitate quick, easy and consistent neural data analysis.
+For the canonical textbook treatment of the math — including full derivations of the time-rescaling theorem, the PPAF as one Newton step on the variational free energy, and the PPLFP additive innovation — see *Decoding the Brain*, Chapter 4 (Cajigas Lab Curriculum).
 
-One of nSTAT's key strengths is point process generalized linear models for spike train signals that provide a formal statistical framework for processing signals recorded from ensembles of single neurons. It also has extensive support for model fitting, model order analysis, and adaptive decoding. In addition to point process algorithms, nSTAT also provides tools for Gaussian signals, ranging from correlation analysis to the Kalman filter, which can be applied to continuous normally-distributed neural signals such as local field potentials, EEG, ECoG, etc.
+**Why this toolbox in 2026.** Every modern neural-foundation-model decoder (LFADS, NDT, NDT2, NDT3, POYO, POYO+, POSSM) minimizes the same Poisson NLL as a classical PP-GLM — only the function class parameterizing `log λ` changes. nSTAT's KS test (`FitResult.KSPlot` / `Analysis.computeKSStats`) applies *unchanged* to any rate-emitting decoder. No published BCI transformer paper currently runs the KS validation on its predicted rates; nSTAT is the tool that closes that gap.
 
-Although created with neural signal processing in mind, nSTAT can be used as a generic tool for analyzing any types of discrete and continuous signals, and thus has wide applicability.
+nSTAT also provides tools for Gaussian signals (correlation analysis, Kalman filter / smoother) for continuous normally-distributed neural signals such as LFP / EEG / ECoG. Although created with neural signal processing in mind, the SignalObj / Covariate abstractions can be applied to any discrete and continuous signal types.
 
-Like all open-source projects, nSTAT will benefit from your involvement, suggestions and contributions. This platform is intended as a repository for extensions to the toolbox based on your code contributions as well as for flagging and tracking open issues.
+For new work in Python, see [nSTAT-python](https://github.com/cajigaslab/nSTAT-python). This MATLAB repository remains the canonical site for reproducing Cajigas et al. 2012 and is the lab's MATLAB-side reference implementation.
 
 The current release version of nSTAT can be downloaded from https://github.com/cajigaslab/nSTAT/ .
 Lab websites:

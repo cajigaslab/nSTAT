@@ -20,3 +20,4 @@ tests/python_port_fidelity/*.slxc
 tests/python_port_fidelity/slprj/
 *.slxc
 slprj/
+CLAUDE.md

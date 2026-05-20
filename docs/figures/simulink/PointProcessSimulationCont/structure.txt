@@ -1,0 +1,116 @@
+Model: PointProcessSimulationCont.slx
+Levels: 12
+
+
+[Level 1] PointProcessSimulationCont
+  20 immediate children:
+    - Stimulus [Inport]
+    - Ensemble [Inport]
+    - Add [Sum]
+    - Binomial [SubSystem]
+    - Constant [Constant]
+    - Constant2 [Constant]
+    - Divide1 [Product]
+    - Ensemble Effect [SubSystem]
+    - Frame Status Conversion [FrameConversion]
+    - Integer Delay [Delay]
+    - Poisson [SubSystem]
+    - Random Source [S-Function]
+    - Relational Operator [RelationalOperator]
+    - Reshape [Reshape]
+    - Self-History [SubSystem]
+    - Stimulus Effect [SubSystem]
+    - Switch [Switch]
+    - simType
+Selector [Constant]
+    - pp [Outport]
+    - lambdaDelta [Outport]
+
+[Level 2] PointProcessSimulationCont/Binomial
+  6 immediate children:
+    - In1 [Inport]
+    - Add1 [Sum]
+    - Constant1 [Constant]
+    - Divide [Product]
+    - Math
+Function [Math]
+    - Out1 [Outport]
+
+[Level 3] PointProcessSimulationCont/Ensemble Effect
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 4] PointProcessSimulationCont/Ensemble Effect/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 5] PointProcessSimulationCont/Ensemble Effect/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 6] PointProcessSimulationCont/Poisson
+  3 immediate children:
+    - In1 [Inport]
+    - Math
+Function [Math]
+    - Out1 [Outport]
+
+[Level 7] PointProcessSimulationCont/Self-History
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 8] PointProcessSimulationCont/Self-History/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 9] PointProcessSimulationCont/Self-History/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 10] PointProcessSimulationCont/Stimulus Effect
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 11] PointProcessSimulationCont/Stimulus Effect/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 12] PointProcessSimulationCont/Stimulus Effect/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]

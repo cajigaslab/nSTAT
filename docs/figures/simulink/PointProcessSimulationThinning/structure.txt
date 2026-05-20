@@ -1,0 +1,174 @@
+Model: PointProcessSimulationThinning.mdl
+Levels: 16
+
+[Level 1] PointProcessSimulationThinning
+  41 immediate children:
+    - Stimulus [Inport]
+    - Ensemble [Inport]
+    - Add [Sum]
+    - Binomial [SubSystem]
+    - Clock [Clock]
+    - Constant1 [Constant]
+    - Constant3 [Constant]
+    - Constant4 [Constant]
+    - Data Type Conversion [DataTypeConversion]
+    - Data Type Conversion1 [DataTypeConversion]
+    - Delta [Constant]
+    - Detect
+Change [SubSystem]
+    - Difference [SubSystem]
+    - Discrete-Time
+Integrator [DiscreteIntegrator]
+    - Divide1 [Product]
+    - Ensemble Effect [SubSystem]
+    - Fcn [Fcn]
+    - From [From]
+    - From1 [From]
+    - From2 [From]
+    - From3 [From]
+    - Goto1 [Goto]
+    - Goto2 [Goto]
+    - Poisson [SubSystem]
+    - Rate Transition1 [RateTransition]
+    - Rate Transition2 [RateTransition]
+    - Relational
+Operator [RelationalOperator]
+    - Relational
+Operator1 [RelationalOperator]
+    - Sample
+and Hold [SubSystem]
+    - Sample
+and Hold1 [SubSystem]
+    - Scope2 [Scope]
+    - Self-History [SubSystem]
+    - Stimulus Effect [SubSystem]
+    - Switch [Switch]
+    - Uniform Random
+Number [UniformRandomNumber]
+    - Unit Delay [UnitDelay]
+    - Unit Delay2 [UnitDelay]
+    - simType
+Selector [Constant]
+    - pointProcess [Outport]
+    - lambdaDelta [Outport]
+    - SpikeTimes [Outport]
+
+[Level 2] PointProcessSimulationThinning/Binomial
+  6 immediate children:
+    - In1 [Inport]
+    - Add1 [Sum]
+    - Constant1 [Constant]
+    - Divide [Product]
+    - Math
+Function [Math]
+    - Out1 [Outport]
+
+[Level 3] PointProcessSimulationThinning/Detect
+Change
+  4 immediate children:
+    - U [Inport]
+    - Delay Input1 [UnitDelay]
+    - FixPt
+Relational
+Operator [RelationalOperator]
+    - Y [Outport]
+
+[Level 4] PointProcessSimulationThinning/Difference
+  4 immediate children:
+    - U [Inport]
+    - Diff [Sum]
+    - UD [UnitDelay]
+    - Y [Outport]
+
+[Level 5] PointProcessSimulationThinning/Ensemble Effect
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 6] PointProcessSimulationThinning/Ensemble Effect/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 7] PointProcessSimulationThinning/Ensemble Effect/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 8] PointProcessSimulationThinning/Poisson
+  3 immediate children:
+    - In1 [Inport]
+    - Math
+Function [Math]
+    - Out1 [Outport]
+
+[Level 9] PointProcessSimulationThinning/Sample
+and Hold
+  3 immediate children:
+    - In [Inport]
+    - Trigger [TriggerPort]
+    -   [Outport]
+
+[Level 10] PointProcessSimulationThinning/Sample
+and Hold1
+  3 immediate children:
+    - In [Inport]
+    - Trigger [TriggerPort]
+    -   [Outport]
+
+[Level 11] PointProcessSimulationThinning/Self-History
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 12] PointProcessSimulationThinning/Self-History/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 13] PointProcessSimulationThinning/Self-History/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 14] PointProcessSimulationThinning/Stimulus Effect
+  5 immediate children:
+    - u [Inport]
+    - Input Delay [SubSystem]
+    - Internal [StateSpace]
+    - Output Delay [SubSystem]
+    - y [Outport]
+
+[Level 15] PointProcessSimulationThinning/Stimulus Effect/Input Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]
+
+[Level 16] PointProcessSimulationThinning/Stimulus Effect/Output Delay
+  5 immediate children:
+    - Inport [Inport]
+    - TdPort [Inport]
+    - Delay [VariableTransportDelay]
+    - TdSat [Saturate]
+    - Outport [Outport]

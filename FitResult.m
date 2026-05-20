@@ -1351,18 +1351,11 @@ classdef FitResult < handle
             %[rows,colm] = size(fitObj.X);
             %index=find(fitObj.invGausStats.lags==1);
             %lags=fitObj.invGausStats.lags;
-            % FIX (Phase 0 Task 0.4): clamp U into (0,1) here, where norminv(U)
-            % would otherwise produce +/-Inf. The clamp does NOT enter
-            % Analysis.computeKSStats -- that previously biased ks_stat at the
-            % tails. Analysis.computeInvGausTrans (called below) also clamps
-            % U internally just before its own norminv call; this local clamp
-            % documents the contract at the FitResult level so a future caller
-            % consuming fitObj.U directly via norminv has an in-class reference.
-            U = fitObj.U;
-            if ~isempty(U)
-                U(U >= 0.999999) = 0.999999;
-                U(U <= 0)        = 0.000001;
-            end %#ok<NASGU> -- consumed indirectly via Z below
+            % FIX (Phase 0 Task 0.4): U clamping for norminv is centralized in
+            % Analysis.computeInvGausTrans (Analysis.m:757-759). The clamp does
+            % NOT enter Analysis.computeKSStats -- pre-fix it did and biased
+            % ks_stat at the tails. Any future caller consuming fitObj.U
+            % directly via norminv must clamp locally to (0,1).
             [fitObj.X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(fitObj.Z);
 %             rhoSig=fitObj.invGausStats.rhoSig;
             n=length(fitObj.X);

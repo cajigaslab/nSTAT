@@ -20,7 +20,7 @@ classdef DecodingAlgorithms
 %      - kalman_filter, kalman_smoother, kalman_smootherFromFiltered
 %
 % Also includes standard Kalman filter, PPSS_EMFB (forward-backward EM),
-% and Monte Carlo variants (mPPCO_EM).
+% and Monte Carlo variants (PPLFP_EM).
 %
 % See Sections 2.1.5--2.1.6 in:
 %   Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012).
@@ -4671,8 +4671,8 @@ pools=0;
             
         end
         
-        %% Mixed Point Process and Continuous Observation (mPPCO)
-        function [x_pLag, W_pLag, x_uLag, W_uLag] = mPPCO_fixedIntervalSmoother(A, Q, C, R, y, alpha, dN,lags,mu,beta,fitType,delta,gamma,windowTimes,x0,Px0,HkAll)    
+        %% Point-Process + LFP Filter (PPLFP; historically Mixed Point Process and Continuous Observation, mPPCO)
+        function [x_pLag, W_pLag, x_uLag, W_uLag] = PPLFP_fixedIntervalSmoother(A, Q, C, R, y, alpha, dN,lags,mu,beta,fitType,delta,gamma,windowTimes,x0,Px0,HkAll)    
             nStates = size(A,2);
 
             [numCells,N]   = size(dN); % N time samples
@@ -4765,7 +4765,7 @@ pools=0;
             
             betaLag = zeros((lags+1)*nStates, numCells);
             betaLag(1:nStates,1:numCells)=beta;
-            [x_p, W_p, x_u, W_u] = DecodingAlgorithms.mPPCODecodeLinear(Alag, Qlag, Clag, Rlag, y, alpha, dN,mu,betaLag,fitType,delta,gamma,windowTimes,x0lag,Px0lag,HkAll);
+            [x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPLFP_DecodeLinear(Alag, Qlag, Clag, Rlag, y, alpha, dN,mu,betaLag,fitType,delta,gamma,windowTimes,x0lag,Px0lag,HkAll);
             
 
             x_pLag = x_p((lags*nStates+1):(lags+1)*nStates,:);
@@ -4774,8 +4774,8 @@ pools=0;
             W_uLag = W_u((lags*nStates+1):(lags+1)*nStates,(lags*nStates+1):(lags+1)*nStates,:);
            
         end
-        function [x_p, W_p, x_u, W_u] = mPPCODecodeLinear(A, Q, C, R, y, alpha, dN,mu,beta,fitType,delta,gamma,windowTimes,x0,Px0,HkAll)
-        % [x_p, W_p, x_u, W_u] = mPPCODecodeLinear(A, Q, C, R, y, dN, mu, beta,fitType, delta, gamma,windowTimes, x0)
+        function [x_p, W_p, x_u, W_u] = PPLFP_DecodeLinear(A, Q, C, R, y, alpha, dN,mu,beta,fitType,delta,gamma,windowTimes,x0,Px0,HkAll)
+        % [x_p, W_p, x_u, W_u] = PPLFP_DecodeLinear(A, Q, C, R, y, dN, mu, beta,fitType, delta, gamma,windowTimes, x0)
         % Point process adaptive filter with the assumption of linear
         % expresion for the conditional intensity functions (see below). If
         % the terms in the conditional intensity function include
@@ -4914,10 +4914,10 @@ pools=0;
         Histtermperm = permute(HkAll,[2 3 1]);
 %         WuConv = [];
         for n=1:N
-%             [x_u, W_u,lambdaDeltaMat] = mPPCODecode_update(x_p, W_p, C, R, y, alpha, dN,mu,beta,fitType,gamma,HkAll,time_index,WuConv)
-            [x_u(:,n), W_u(:,:,n)] = DecodingAlgorithms.mPPCODecode_update(x_p(:,n), W_p(:,:,n),  C(:,:,min(size(C,3),n)), R(:,:,min(size(R,3),n)), y(:,n), alpha(:,min(size(alpha,3),n)),dN,mu,beta,fitType,gamma,Histtermperm,n,[]); %expects History with time on 3rd index
+%             [x_u, W_u,lambdaDeltaMat] = PPLFP_Decode_update(x_p, W_p, C, R, y, alpha, dN,mu,beta,fitType,gamma,HkAll,time_index,WuConv)
+            [x_u(:,n), W_u(:,:,n)] = DecodingAlgorithms.PPLFP_Decode_update(x_p(:,n), W_p(:,:,n),  C(:,:,min(size(C,3),n)), R(:,:,min(size(R,3),n)), y(:,n), alpha(:,min(size(alpha,3),n)),dN,mu,beta,fitType,gamma,Histtermperm,n,[]); %expects History with time on 3rd index
             if(n<N)
-                [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.mPPCODecode_predict(x_u(:,n), W_u(:,:,n), A(:,:,min(size(A,3),n)), Q(:,:,min(size(Q,3),n)));
+                [x_p(:,n+1), W_p(:,:,n+1)] = DecodingAlgorithms.PPLFP_Decode_predict(x_u(:,n), W_u(:,:,n), A(:,:,min(size(A,3),n)), Q(:,:,min(size(Q,3),n)));
             end
 %             if(n>1 && isempty(WuConv))
 %                 diffWu = abs(W_u(:,:,n)-W_u(:,:,n-1));
@@ -4931,7 +4931,7 @@ pools=0;
       
         
         end
-        function [x_p, W_p] = mPPCODecode_predict(x_u, W_u, A, Q)
+        function [x_p, W_p] = PPLFP_Decode_predict(x_u, W_u, A, Q)
             x_p     = A * x_u;
             W_p    = A * W_u * A' + Q;
 %             if(rcond(W_p)<1000*eps)
@@ -4940,7 +4940,7 @@ pools=0;
             W_p = .5*(W_p + W_p'); %To help with symmetry of matrix;
 
         end 
-        function [x_u, W_u,lambdaDeltaMat] = mPPCODecode_update(x_p, W_p, C, R, y, alpha, dN,mu,beta,fitType,gamma,HkAll,time_index,WuConv)
+        function [x_u, W_u,lambdaDeltaMat] = PPLFP_Decode_update(x_p, W_p, C, R, y, alpha, dN,mu,beta,fitType,gamma,HkAll,time_index,WuConv)
             [numCells,N]   = size(dN); % N time samples, C cells
             if(nargin<13 || isempty(WuConv))
                 WuConv=[];
@@ -5030,7 +5030,7 @@ pools=0;
 
 
         end
-        function C = mPPCO_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,RhatDiag,RhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter,EnableIkeda)
+        function C = PPLFP_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,RhatDiag,RhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter,EnableIkeda)
             %By default, all parameters are estimated. To empose diagonal
             %structure on the EM parameter results must pass in the
             %constraints element
@@ -5091,7 +5091,7 @@ pools=0;
             C.mcIter = mcIter;
             C.EnableIkeda = EnableIkeda;
         end  
-        function [SE,Pvals,nTerms] = mPPCO_ComputeParamStandardErrors(y, dN, xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal, fitType, muhat, betahat, gammahat, windowTimes, HkAll, mPPCOEM_Constraints)
+        function [SE,Pvals,nTerms] = PPLFP_ComputeParamStandardErrors(y, dN, xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal, fitType, muhat, betahat, gammahat, windowTimes, HkAll, PPLFP_EM_Constraints)
 
             % Use inverse observed information matrix to estimate the standard errors of the estimated model parameters
          % Requires computation of the complete information matrix and an estimate of the missing information matrix
@@ -5106,12 +5106,12 @@ pools=0;
         % approximate the covariance term using Monte Carlo approximation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-            if(nargin<19 || isempty(mPPCOEM_Constraints))
-                mPPCOEM_Constraints=DecodingAlgorithms.mPPCO_EMCreateConstraints;
+            if(nargin<19 || isempty(PPLFP_EM_Constraints))
+                PPLFP_EM_Constraints=DecodingAlgorithms.PPLFP_EMCreateConstraints;
             end
 
-            if(mPPCOEM_Constraints.EstimateA==1)
-                if(mPPCOEM_Constraints.AhatDiag==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
+                if(PPLFP_EM_Constraints.AhatDiag==1)
                     IAComp=zeros(numel(diag(Ahat)),numel(diag(Ahat)));
                 else
                     IAComp=zeros(numel(Ahat),numel(Ahat));
@@ -5122,7 +5122,7 @@ pools=0;
                 cnt=1;
                 N=size(y,2);
 
-                if(mPPCOEM_Constraints.AhatDiag==1)
+                if(PPLFP_EM_Constraints.AhatDiag==1)
                     for l=1:n1
                         for m=l
                             termMat=Qhat\el(:,l)*em(:,m)'*ExpectationSumsFinal.Sxkm1xkm1.*eye(n1,n2);
@@ -5170,8 +5170,8 @@ pools=0;
             em=(eye(n2,n2));
             cnt=1;
             N=size(y,2);
-            if(mPPCOEM_Constraints.RhatDiag==1)
-                if(mPPCOEM_Constraints.RhatIsotropic==1)
+            if(PPLFP_EM_Constraints.RhatDiag==1)
+                if(PPLFP_EM_Constraints.RhatIsotropic==1)
                     IRComp = 0.5*N*dy*Rhat(1,1)^(-2);
                 else
                     IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
@@ -5201,8 +5201,8 @@ pools=0;
             em=(eye(n2,n2));
             cnt=1;
             N=size(y,2);
-            if(mPPCOEM_Constraints.QhatDiag==1)
-                if(mPPCOEM_Constraints.QhatIsotropic==1)
+            if(PPLFP_EM_Constraints.QhatDiag==1)
+                if(PPLFP_EM_Constraints.QhatIsotropic==1)
                     IQComp=zeros(1,1);
                     IQComp =  0.5*N*dx*Qhat(1,1)^(-2); 
                 else
@@ -5228,8 +5228,8 @@ pools=0;
                 end
             end
 
-            if(mPPCOEM_Constraints.EstimatePx0==1)
-                if(mPPCOEM_Constraints.Px0Isotropic==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
+                if(PPLFP_EM_Constraints.Px0Isotropic==1)
                     ISComp =  0.5*dx*Px0hat(1,1)^(-2);
                 else
                     ISComp=zeros(numel(diag(Px0hat)),numel(diag(Px0hat)));
@@ -5248,7 +5248,7 @@ pools=0;
                 end
             end
 
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 Ix0Comp=eye(size(Px0hat))/Px0hat+(Ahat'/Qhat)*Ahat;
             end
 
@@ -5256,7 +5256,7 @@ pools=0;
             K=size(y,2);
             numCells=size(betahat,2);
 %             McExp=500;    
-            McExp=mPPCOEM_Constraints.mcIter;
+            McExp=PPLFP_EM_Constraints.mcIter;
             xKDrawExp = zeros(size(xKFinal,1),K,McExp);
             
 
@@ -5617,18 +5617,18 @@ pools=0;
         
               
             
-            if(mPPCOEM_Constraints.EstimateA==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
                 n1=size(IAComp,1); 
             else
                 n1=0;
             end
             n2=size(IQComp,1); n3=size(ICComp,1); n4=size(IRComp,1); 
-            if(mPPCOEM_Constraints.EstimatePx0==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
                 n5=size(ISComp,1); 
             else
                 n5=0;
             end
-            if(mPPCOEM_Constraints.Estimatex0==1)   
+            if(PPLFP_EM_Constraints.Estimatex0==1)   
                 n6=size(Ix0Comp,1);
             else
                 n6=0;
@@ -5645,7 +5645,7 @@ pools=0;
             end
             nTerms=n1+n2+n3+n4+n5+n6+n7+n8+n9+n10;
             IComp = zeros(nTerms,nTerms);
-            if(mPPCOEM_Constraints.EstimateA==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
                 IComp(1:n1,1:n1)=IAComp;
             end
             offset=n1+1;
@@ -5655,11 +5655,11 @@ pools=0;
             offset=n1+n2+n3+1;
             IComp(offset:(n1+n2+n3+n4),offset:(n1+n2+n3+n4))=IRComp;
             offset=n1+n2+n3+n4+1;
-            if(mPPCOEM_Constraints.EstimatePx0==1);
+            if(PPLFP_EM_Constraints.EstimatePx0==1);
                 IComp(offset:(n1+n2+n3+n4+n5),offset:(n1+n2+n3+n4+n5))=ISComp;
             end
             offset=n1+n2+n3+n4+n5+1;
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 IComp(offset:(n1+n2+n3+n4+n5+n6),offset:(n1+n2+n3+n4+n5+n6))=Ix0Comp;
             end
             offset=n1+n2+n3+n4+n5+n6+1;
@@ -5676,7 +5676,7 @@ pools=0;
             %Approximate cov(Sc(X;theta)Sc(X;theta)')
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            Mc=mPPCOEM_Constraints.mcIter;
+            Mc=PPLFP_EM_Constraints.mcIter;
             xKDraw = zeros(size(xKFinal,1),N,Mc);
 
             % Generate the Monte Carlo samples for the unobserved data
@@ -5688,7 +5688,7 @@ pools=0;
             end
 
 
-            if(mPPCOEM_Constraints.EstimatePx0|| mPPCOEM_Constraints.Estimatex0)
+            if(PPLFP_EM_Constraints.EstimatePx0|| PPLFP_EM_Constraints.Estimatex0)
                 [chol_m,p]=chol(Px0hat);
                 z=normrnd(0,1,size(xKFinal,1),Mc);
                 x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
@@ -5738,9 +5738,9 @@ pools=0;
 
                     sumXkTerms=0.5*(sumXkTerms+sumXkTerms');
                     sumYkTerms=0.5*(sumYkTerms+sumYkTerms');
-                    if(mPPCOEM_Constraints.EstimateA==1)
+                    if(PPLFP_EM_Constraints.EstimateA==1)
                         ScorA=Qhat\(Sxkxkm1-Ahat*Sxkm1xkm1);
-                        if(mPPCOEM_Constraints.AhatDiag==1)
+                        if(PPLFP_EM_Constraints.AhatDiag==1)
                             ScoreAMc=diag(ScorA);
                         else
                             ScoreAMc=reshape(ScorA',numel(Ahat),1);
@@ -5752,8 +5752,8 @@ pools=0;
                     ScorC=Rhat\(Sykxk-Chat*Sxkxk);
                     ScoreCMc=reshape(ScorC',numel(ScorC),1);
 
-                    if(mPPCOEM_Constraints.QhatDiag)
-                        if(mPPCOEM_Constraints.QhatIsotropic)
+                    if(PPLFP_EM_Constraints.QhatDiag)
+                        if(PPLFP_EM_Constraints.QhatIsotropic)
                             ScoreQ  =-.5*(K*Dx*Qhat(1,1)^(-1) - Qhat(1,1)^(-2)*trace(sumXkTerms));
                         else
                             ScoreQ  =(-.5*(Qhat\(K*eye(size(Qhat)) - sumXkTerms/Qhat)));
@@ -5766,8 +5766,8 @@ pools=0;
 
 
                     ScoreAlphaMc = sum(Rhat\(y-Chat*x_K-alphahat*ones(1,N)),2);
-                    if(mPPCOEM_Constraints.RhatDiag)
-                        if(mPPCOEM_Constraints.RhatIsotropic)
+                    if(PPLFP_EM_Constraints.RhatDiag)
+                        if(PPLFP_EM_Constraints.RhatIsotropic)
                             ScoreR  =-.5*(K*Dy*Rhat(1,1)^(-1) - Rhat(1,1)^(-2)*trace(sumYkTerms));
                         else
                             ScoreR  =(-.5*(Rhat\(K*eye(size(Rhat)) - sumYkTerms/Rhat)));
@@ -5779,7 +5779,7 @@ pools=0;
                     end
 
 
-                    if(mPPCOEM_Constraints.Px0Isotropic==1)
+                    if(PPLFP_EM_Constraints.Px0Isotropic==1)
                         ScoreSMc=-.5*(Dx*Px0hat(1,1)^(-1) - Px0hat(1,1)^(-2)*trace((x_0-x0hat)*(x_0-x0hat)'));
                     else
                         ScorS  =-.5*(Px0hat\(eye(size(Px0hat)) - (x_0-x0hat)*(x_0-x0hat)'/Px0hat));
@@ -5830,10 +5830,10 @@ pools=0;
                         
                     end
                     ScoreVec = [ScoreAMc; ScoreQMc; ScoreCMc; ScoreRMc];
-                    if(mPPCOEM_Constraints.EstimatePx0==1)
+                    if(PPLFP_EM_Constraints.EstimatePx0==1)
                         ScoreVec = [ScoreVec; ScoreSMc]; 
                     end
-                    if(mPPCOEM_Constraints.Estimatex0==1)
+                    if(PPLFP_EM_Constraints.Estimatex0==1)
                         ScoreVec = [ScoreVec; Scorex0Mc];
                     end
                     ScoreVec = [ScoreVec; ScoreAlphaMc];
@@ -5882,9 +5882,9 @@ pools=0;
 
                     sumXkTerms=0.5*(sumXkTerms+sumXkTerms');
                     sumYkTerms=0.5*(sumYkTerms+sumYkTerms');
-                    if(mPPCOEM_Constraints.EstimateA==1)
+                    if(PPLFP_EM_Constraints.EstimateA==1)
                         ScorA=Qhat\(Sxkxkm1-Ahat*Sxkm1xkm1);
-                        if(mPPCOEM_Constraints.AhatDiag==1)
+                        if(PPLFP_EM_Constraints.AhatDiag==1)
                             ScoreAMc=diag(ScorA);
                         else
                             ScoreAMc=reshape(ScorA',numel(Ahat),1);
@@ -5896,8 +5896,8 @@ pools=0;
                     ScorC=Rhat\(Sykxk-Chat*Sxkxk);
                     ScoreCMc=reshape(ScorC',numel(ScorC),1);
 
-                    if(mPPCOEM_Constraints.QhatDiag)
-                        if(mPPCOEM_Constraints.QhatIsotropic)
+                    if(PPLFP_EM_Constraints.QhatDiag)
+                        if(PPLFP_EM_Constraints.QhatIsotropic)
                             ScoreQ  =-.5*(K*Dx*Qhat(1,1)^(-1) - Qhat(1,1)^(-2)*trace(sumXkTerms));
                         else
                             ScoreQ  =(-.5*(Qhat\(K*eye(size(Qhat)) - sumXkTerms/Qhat)));
@@ -5910,8 +5910,8 @@ pools=0;
 
 
                     ScoreAlphaMc = sum(Rhat\(y-Chat*x_K-alphahat*ones(1,N)),2);
-                    if(mPPCOEM_Constraints.RhatDiag)
-                        if(mPPCOEM_Constraints.RhatIsotropic)
+                    if(PPLFP_EM_Constraints.RhatDiag)
+                        if(PPLFP_EM_Constraints.RhatIsotropic)
                             ScoreR  =-.5*(K*Dy*Rhat(1,1)^(-1) - Rhat(1,1)^(-2)*trace(sumYkTerms));
                         else
                             ScoreR  =(-.5*(Rhat\(K*eye(size(Rhat)) - sumYkTerms/Rhat)));
@@ -5923,7 +5923,7 @@ pools=0;
                     end
 
 
-                    if(mPPCOEM_Constraints.Px0Isotropic==1)
+                    if(PPLFP_EM_Constraints.Px0Isotropic==1)
                         ScoreSMc=-.5*(Dx*Px0hat(1,1)^(-1) - Px0hat(1,1)^(-2)*trace((x_0-x0hat)*(x_0-x0hat)'));
                     else
                         ScorS  =-.5*(Px0hat\(eye(size(Px0hat)) - (x_0-x0hat)*(x_0-x0hat)'/Px0hat));
@@ -5974,10 +5974,10 @@ pools=0;
                         
                     end
                     ScoreVec = [ScoreAMc; ScoreQMc; ScoreCMc; ScoreRMc];
-                    if(mPPCOEM_Constraints.EstimatePx0==1)
+                    if(PPLFP_EM_Constraints.EstimatePx0==1)
                         ScoreVec = [ScoreVec; ScoreSMc]; 
                     end
-                    if(mPPCOEM_Constraints.Estimatex0==1)
+                    if(PPLFP_EM_Constraints.Estimatex0==1)
                         ScoreVec = [ScoreVec; Scorex0Mc];
                     end
                     ScoreVec = [ScoreVec; ScoreAlphaMc];
@@ -6006,15 +6006,15 @@ pools=0;
             SEMuTerms = SEVec(n1+n2+n3+n4+n5+n6+n7+1:(n1+n2+n3+n4+n5+n6+n7+n8));
             SEBetaTerms = SEVec(n1+n2+n3+n4+n5+n6+n7+n8+1:(n1+n2+n3+n4+n5+n6+n7+n8+n9)); 
             SEGammaTerms = SEVec(n1+n2+n3+n4+n5+n6+n7+n8+n9+1:(n1+n2+n3+n4+n5+n6+n7+n8+n9+n10)); 
-            if(mPPCOEM_Constraints.EstimatePx0==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
                 SES = diag(SEPx0terms);
             end
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 SEx0=SEx0terms;
             end
 
-            if(mPPCOEM_Constraints.EstimateA==1)
-                if(mPPCOEM_Constraints.AhatDiag==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
+                if(PPLFP_EM_Constraints.AhatDiag==1)
                     SEA=diag(SEAterms);
                 else
                     SEA=reshape(SEAterms,size(Ahat,2),size(Ahat,1))';
@@ -6023,17 +6023,17 @@ pools=0;
             SEC=reshape(SECterms,size(Chat,2),size(Chat,1))';
             SEAlpha=reshape(SEAlphaterms,size(alphahat,2),size(alphahat,1))';
 
-            if(mPPCOEM_Constraints.RhatDiag==1)
+            if(PPLFP_EM_Constraints.RhatDiag==1)
                 SER=diag(SERterms);
             else
                 SER=reshape(SERterms,size(Rhat,2),size(Rhat,1))';
             end
-            if(mPPCOEM_Constraints.QhatDiag==1)
+            if(PPLFP_EM_Constraints.QhatDiag==1)
                 SEQ=diag(SEQterms);
             else
                 SEQ=reshape(SEQterms,size(Qhat,2),size(Qhat,1))'; 
             end
-            if(mPPCOEM_Constraints.EstimateA==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
                 SE.A = SEA;
             end
             SE.Q = SEQ;
@@ -6041,10 +6041,10 @@ pools=0;
             SE.R = SER;
             SE.alpha = SEAlpha;
 
-            if(mPPCOEM_Constraints.EstimatePx0==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
                 SE.Px0=SES;
             end
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 SE.x0=SEx0;
             end
             
@@ -6058,9 +6058,9 @@ pools=0;
                 SE.gamma = SEGamma;
             end
             % Compute parameter p-values
-            if(mPPCOEM_Constraints.EstimateA==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
                 clear h p;
-                if(mPPCOEM_Constraints.AhatDiag==1)
+                if(PPLFP_EM_Constraints.AhatDiag==1)
                     VecParams = diag(Ahat);
                     VecSE     = diag(SEA);
                     for i=1:length(VecParams)
@@ -6088,8 +6088,8 @@ pools=0;
 
             %R matrix
             clear h p;
-            if(mPPCOEM_Constraints.RhatDiag==1)
-                if(mPPCOEM_Constraints.RhatIsotropic==1)
+            if(PPLFP_EM_Constraints.RhatDiag==1)
+                if(PPLFP_EM_Constraints.RhatIsotropic==1)
                     VecParams = Rhat(1,1);
                     VecSE     = SER(1,1);
                     [h p] = ztest(VecParams,0,VecSE);
@@ -6113,8 +6113,8 @@ pools=0;
 
             %Q matrix
             clear h p;
-            if(mPPCOEM_Constraints.QhatDiag==1)
-                if(mPPCOEM_Constraints.QhatIsotropic==1)
+            if(PPLFP_EM_Constraints.QhatDiag==1)
+                if(PPLFP_EM_Constraints.QhatIsotropic==1)
                     VecParams = Qhat(1,1);
                     VecSE     = SEQ(1,1);
                     [h p] = ztest(VecParams,0,VecSE);
@@ -6136,9 +6136,9 @@ pools=0;
                 pQ = reshape(p, [size(Qhat,1) size(Qhat,2)]);
             end
             %Px0
-            if(mPPCOEM_Constraints.EstimatePx0==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
                 clear h p;
-                if(mPPCOEM_Constraints.Px0Isotropic==1)
+                if(PPLFP_EM_Constraints.Px0Isotropic==1)
                     VecParams = Px0hat(1,1);
                     VecSE     = SES(1,1);
                     [h p] = ztest(VecParams,0,VecSE);
@@ -6161,7 +6161,7 @@ pools=0;
             end
             pAlpha = p';
 
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 clear h p;
                 VecParams = x0hat;
                 VecSE     = SEx0;
@@ -6199,17 +6199,17 @@ pools=0;
                 end    
                 pGamma = reshape(p, [size(gammahat,1) size(gammahat,2)]);
             end
-            if(mPPCOEM_Constraints.EstimateA==1)
+            if(PPLFP_EM_Constraints.EstimateA==1)
                 Pvals.A = pA;
             end
             Pvals.Q = pQ;
             Pvals.C = pC;
             Pvals.R = pR;
             Pvals.alpha = pAlpha;
-            if(mPPCOEM_Constraints.EstimatePx0==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
                 Pvals.Px0 = pPX0;
             end
-            if(mPPCOEM_Constraints.Estimatex0==1)
+            if(PPLFP_EM_Constraints.Estimatex0==1)
                 Pvals.x0 = pX0;
             end
             Pvals.mu = pMu;
@@ -6224,13 +6224,13 @@ pools=0;
             end
 
         end
-        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals]=mPPCO_EM(y,dN, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,mPPCOEM_Constraints,MstepMethod)
+        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals]=PPLFP_EM(y,dN, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,PPLFP_EM_Constraints,MstepMethod)
             numStates = size(Ahat0,1);
             if(nargin<17 || isempty(MstepMethod))
                MstepMethod='GLM'; %or NewtonRaphson 
             end
-            if(nargin<16 || isempty(mPPCOEM_Constraints))
-                mPPCOEM_Constraints = DecodingAlgorithms.mPPCO_EMCreateConstraints;
+            if(nargin<16 || isempty(PPLFP_EM_Constraints))
+                PPLFP_EM_Constraints = DecodingAlgorithms.PPLFP_EMCreateConstraints;
             end
             if(nargin<15 || isempty(Px0))
                 Px0=10e-10*eye(numStates,numStates);
@@ -6326,7 +6326,7 @@ pools=0;
             dLikelihood(1)=inf;
 %             x0hat = x0;
             negLL=0;
-            IkedaAcc=mPPCOEM_Constraints.EnableIkeda;
+            IkedaAcc=PPLFP_EM_Constraints.EnableIkeda;
             %Forward EM
             stoppingCriteria =0;
 %             logllNew= -inf;
@@ -6342,10 +6342,10 @@ pools=0;
                 
                 
                 [x_K{storeInd},W_K{storeInd},ll(cnt),ExpectationSums{storeInd}]=...
-                    DecodingAlgorithms.mPPCO_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, y, alphahat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
+                    DecodingAlgorithms.PPLFP_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, y, alphahat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
                 
                 [Ahat{storeIndP1}, Qhat{storeIndP1}, Chat{storeIndP1}, Rhat{storeIndP1}, alphahat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}] ...
-                    = DecodingAlgorithms.mPPCO_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,mPPCOEM_Constraints,MstepMethod);
+                    = DecodingAlgorithms.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
               
                 if(IkedaAcc==1)
                     disp(['****Ikeda Acceleration Step****']);
@@ -6395,11 +6395,11 @@ pools=0;
                                     
                                     
                      [x_KNew,W_KNew,llNew,ExpectationSumsNew]=...
-                        DecodingAlgorithms.mPPCO_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, ykNew, alphahat{storeInd},dNNew, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0, Px0);
+                        DecodingAlgorithms.PPLFP_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, ykNew, alphahat{storeInd},dNNew, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0, Px0);
 
                 
                      [AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new] ...
-                        = DecodingAlgorithms.mPPCO_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,mPPCOEM_Constraints,MstepMethod);
+                        = DecodingAlgorithms.PPLFP_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
                
                     Ahat{storeIndP1} = 2*Ahat{storeIndP1}-AhatNew;
                     Qhat{storeIndP1} = 2*Qhat{storeIndP1}-QhatNew;
@@ -6420,7 +6420,7 @@ pools=0;
                     
                
                 end
-                if(mPPCOEM_Constraints.EstimateA==0)
+                if(PPLFP_EM_Constraints.EstimateA==0)
                     Ahat{storeIndP1}=Ahat{storeInd};
                 end
                 if(cnt==1)
@@ -6563,46 +6563,46 @@ pools=0;
             ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
 % AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new
             if(nargout>13)
-                [SE, Pvals]=DecodingAlgorithms.mPPCO_ComputeParamStandardErrors(y, dN,...
+                [SE, Pvals]=DecodingAlgorithms.PPLFP_ComputeParamStandardErrors(y, dN,...
                     xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal,...
                     fitType, muhat, betahat, gammahat, windowTimes, HkAll,...
-                    mPPCOEM_Constraints);
+                    PPLFP_EM_Constraints);
             end
             
             %Compute number of parameters
-            if(mPPCOEM_Constraints.EstimateA==1 && mPPCOEM_Constraints.AhatDiag==1)
+            if(PPLFP_EM_Constraints.EstimateA==1 && PPLFP_EM_Constraints.AhatDiag==1)
                 n1=size(Ahat,1); 
-            elseif(mPPCOEM_Constraints.EstimateA==1 && mPPCOEM_Constraints.AhatDiag==0)
+            elseif(PPLFP_EM_Constraints.EstimateA==1 && PPLFP_EM_Constraints.AhatDiag==0)
                 n1=numel(Ahat);
             else 
                 n1=0;
             end
-            if(mPPCOEM_Constraints.QhatDiag==1 && mPPCOEM_Constraints.QhatIsotropic==1)
+            if(PPLFP_EM_Constraints.QhatDiag==1 && PPLFP_EM_Constraints.QhatIsotropic==1)
                 n2=1;
-            elseif(mPPCOEM_Constraints.QhatDiag==1 && mPPCOEM_Constraints.QhatIsotropic==0)
+            elseif(PPLFP_EM_Constraints.QhatDiag==1 && PPLFP_EM_Constraints.QhatIsotropic==0)
                 n2=size(Qhat,1);
             else
                 n2=numel(Qhat);
             end
 
             n3=numel(Chat); 
-            if(mPPCOEM_Constraints.RhatDiag==1 && mPPCOEM_Constraints.RhatIsotropic==1)
+            if(PPLFP_EM_Constraints.RhatDiag==1 && PPLFP_EM_Constraints.RhatIsotropic==1)
                 n4=1;
-            elseif(mPPCOEM_Constraints.QhatDiag==1 && mPPCOEM_Constraints.QhatIsotropic==0)
+            elseif(PPLFP_EM_Constraints.QhatDiag==1 && PPLFP_EM_Constraints.QhatIsotropic==0)
                 n4=size(Rhat,1);
             else
                 n4=numel(Rhat);
             end
 
-            if(mPPCOEM_Constraints.EstimatePx0==1 && mPPCOEM_Constraints.Px0Isotropic==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1 && PPLFP_EM_Constraints.Px0Isotropic==1)
                 n5=1;
-            elseif(mPPCOEM_Constraints.EstimatePx0==1 && mPPCOEM_Constraints.Px0Isotropic==0)
+            elseif(PPLFP_EM_Constraints.EstimatePx0==1 && PPLFP_EM_Constraints.Px0Isotropic==0)
                 n5=size(Px0hat,1);
             else
                 n5=0;
             end
 
-            if(mPPCOEM_Constraints.Estimatex0==1)   
+            if(PPLFP_EM_Constraints.Estimatex0==1)   
                 n6=size(x0hat,1);
             else
                 n6=0;
@@ -6640,7 +6640,7 @@ pools=0;
          
             
         end
-        function [x_K,W_K,logll,ExpectationSums]=mPPCO_EStep(A,Q,C,R, y, alpha,dN, mu, beta,fitType,delta,gamma,HkAll, x0, Px0)
+        function [x_K,W_K,logll,ExpectationSums]=PPLFP_EStep(A,Q,C,R, y, alpha,dN, mu, beta,fitType,delta,gamma,HkAll, x0, Px0)
              DEBUG = 0;
 
              minTime=0;
@@ -6657,7 +6657,7 @@ pools=0;
             W_u    = zeros( size(A,2),size(A,2), K );
             
 
-            [x_p, W_p, x_u, W_u] = DecodingAlgorithms.mPPCODecodeLinear(A, Q, C, R, y, alpha, dN,mu,beta,fitType,delta,gamma,[],x0,Px0,HkAll);
+            [x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPLFP_DecodeLinear(A, Q, C, R, y, alpha, dN,mu,beta,fitType,delta,gamma,[],x0,Px0,HkAll);
             
             [x_K, W_K,Lk] = DecodingAlgorithms.kalman_smootherFromFiltered(A, x_p, W_p, x_u, W_u);
             
@@ -6858,12 +6858,12 @@ pools=0;
                 ExpectationSums.Sx0x0 = Px0Gy + Ex0Gy*Ex0Gy';
 
         end
-        function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = mPPCO_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,mPPCOEM_Constraints,MstepMethod)
+        function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod)
             if(nargin<14 || isempty(MstepMethod))
                 MstepMethod = 'GLM'; %GLM or NewtonRaphson
             end
-            if(nargin<13 || isempty(mPPCOEM_Constraints))
-                mPPCOEM_Constraints = DecodingAlgorithms.mPPCO_EMCreateConstraints;
+            if(nargin<13 || isempty(PPLFP_EM_Constraints))
+                PPLFP_EM_Constraints = DecodingAlgorithms.PPLFP_EMCreateConstraints;
             end
            
             Sxkm1xkm1=ExpectationSums.Sxkm1xkm1;
@@ -6880,7 +6880,7 @@ pools=0;
             dy=size(y,1);
             numCells=size(dN,1);
             
-            if(mPPCOEM_Constraints.AhatDiag==1)
+            if(PPLFP_EM_Constraints.AhatDiag==1)
                 I=eye(dx,dx);
                 Ahat = (Sxkxkm1.*I)/(Sxkm1xkm1.*I);
             else
@@ -6889,8 +6889,8 @@ pools=0;
             Chat = Sxkyk'/Sxkxk;             
             alphahat = sum(y - Chat*x_K,2)/K;
             
-            if(mPPCOEM_Constraints.QhatDiag==1)
-                 if(mPPCOEM_Constraints.QhatIsotropic==1)
+            if(PPLFP_EM_Constraints.QhatDiag==1)
+                 if(PPLFP_EM_Constraints.QhatIsotropic==1)
                      Qhat=1/(dx*K)*trace(sumXkTerms)*eye(dx,dx);
                  else
                      I=eye(dx,dx);
@@ -6902,8 +6902,8 @@ pools=0;
                  Qhat = (Qhat + Qhat')/2;
              end
              dy=size(sumYkTerms,1);
-             if(mPPCOEM_Constraints.RhatDiag==1)
-                 if(mPPCOEM_Constraints.RhatIsotropic==1)
+             if(PPLFP_EM_Constraints.RhatDiag==1)
+                 if(PPLFP_EM_Constraints.RhatIsotropic==1)
                      I=eye(dy,dy);
                      Rhat = 1/(dy*K)*trace(sumYkTerms)*I;
                  else
@@ -6916,14 +6916,14 @@ pools=0;
                  Rhat = 1/K*(sumYkTerms);
                  Rhat = (Rhat + Rhat')/2;  
              end
-             if(mPPCOEM_Constraints.Estimatex0)
+             if(PPLFP_EM_Constraints.Estimatex0)
                 x0hat = (inv(Px0)+Ahat'/Qhat*Ahat)\(Ahat'/Qhat*x_K(:,1)+Px0\x0);
             else
                 x0hat = x0;
             end
              
-            if(mPPCOEM_Constraints.EstimatePx0==1)
-                if(mPPCOEM_Constraints.Px0Isotropic==1)
+            if(PPLFP_EM_Constraints.EstimatePx0==1)
+                if(PPLFP_EM_Constraints.Px0Isotropic==1)
                    Px0hat=(trace(x0hat*x0hat' - x0*x0hat' - x0hat*x0' +(x0*x0'))/(dx*K))*eye(dx,dx); 
                 else
                     I=eye(dx,dx);
@@ -9342,7 +9342,7 @@ pools=0;
 %             sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
 %             logllobs = logll + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))+ 1/2*trace(pinv(Qhat)*sumXkTerms); 
 %                   
-% %             InfoMat = DecodingAlgorithms.estimateInfoMat_mPPCO(fitType,xKFinal, WKFinal,Ahat,Qhat,Chat, Rhat,alphahat, muhat, betahat,gammahat,dN,windowTimes, HkAll,delta,ExpectationSums{maxLLIndMod},McInfo);
+% %             InfoMat = DecodingAlgorithms.estimateInfoMat_PPLFP(fitType,xKFinal, WKFinal,Ahat,Qhat,Chat, Rhat,alphahat, muhat, betahat,gammahat,dN,windowTimes, HkAll,delta,ExpectationSums{maxLLIndMod},McInfo);
 % %             
 % %             
 % %             fitResults = DecodingAlgorithms.prepareEMResults(fitType,neuronName,dN,HkAll,xKFinal,WKFinal,Qhat,gammahat,windowTimes,delta,InfoMat,logllobs);
@@ -10853,8 +10853,111 @@ pools=0;
 % %              betahat =betahat_new;
 % %              gammahat = gammahat_new;
 % %              muhat = muhat_new;
-%             end           
+%             end
 %         end
+
+        %% Deprecation shims: mPPCO_* -> PPLFP_*
+        % The mPPCO_* method family was renamed to PPLFP_* in 2026-05 to
+        % align with bci-curriculum chapter-04 §4.B.7 PPLFP terminology
+        % (Point-Process + LFP filter; Cajigas 2013 unpublished derivation,
+        % source/PPLFPFilter_final.pdf). The old mPPCO name is historical
+        % and predates the chapter's PPLFP framing.
+        %
+        % These shims forward calls to the renamed canonical methods and
+        % emit the warning identifier `nSTAT:deprecated:mPPCO`. They will
+        % be removed in a future minor release. Callers should migrate to
+        % the PPLFP_* names. To silence the warning while migrating:
+        %   warning('off', 'nSTAT:deprecated:mPPCO');
+
+        function [varargout] = mPPCO_fixedIntervalSmoother(varargin)
+            %MPPCO_FIXEDINTERVALSMOOTHER Deprecated. Use PPLFP_fixedIntervalSmoother.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_fixedIntervalSmoother is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_fixedIntervalSmoother instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_fixedIntervalSmoother(varargin{:});
+        end
+
+        function [varargout] = mPPCODecodeLinear(varargin)
+            %MPPCODECODELINEAR Deprecated. Use PPLFP_DecodeLinear instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCODecodeLinear is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_DecodeLinear instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_DecodeLinear(varargin{:});
+        end
+
+        function [varargout] = mPPCODecode_predict(varargin)
+            %MPPCODECODE_PREDICT Deprecated. Use PPLFP_Decode_predict instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCODecode_predict is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_Decode_predict instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_Decode_predict(varargin{:});
+        end
+
+        function [varargout] = mPPCODecode_update(varargin)
+            %MPPCODECODE_UPDATE Deprecated. Use PPLFP_Decode_update instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCODecode_update is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_Decode_update instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_Decode_update(varargin{:});
+        end
+
+        function [varargout] = mPPCO_EMCreateConstraints(varargin)
+            %MPPCO_EMCREATECONSTRAINTS Deprecated. Use PPLFP_EMCreateConstraints.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_EMCreateConstraints is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_EMCreateConstraints instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_EMCreateConstraints(varargin{:});
+        end
+
+        function [varargout] = mPPCO_ComputeParamStandardErrors(varargin)
+            %MPPCO_COMPUTEPARAMSTANDARDERRORS Deprecated. Use PPLFP_ComputeParamStandardErrors.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_ComputeParamStandardErrors is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_ComputeParamStandardErrors instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_ComputeParamStandardErrors(varargin{:});
+        end
+
+        function [varargout] = mPPCO_EM(varargin)
+            %MPPCO_EM Deprecated. Use PPLFP_EM instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_EM is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_EM instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_EM(varargin{:});
+        end
+
+        function [varargout] = mPPCO_EStep(varargin)
+            %MPPCO_ESTEP Deprecated. Use PPLFP_EStep instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_EStep is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_EStep instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_EStep(varargin{:});
+        end
+
+        function [varargout] = mPPCO_MStep(varargin)
+            %MPPCO_MSTEP Deprecated. Use PPLFP_MStep instead.
+            % See bci-curriculum §4.B.7 PPLFP for the canonical derivation.
+            warning('nSTAT:deprecated:mPPCO', ...
+                ['DecodingAlgorithms.mPPCO_MStep is deprecated; ' ...
+                 'use DecodingAlgorithms.PPLFP_MStep instead. ' ...
+                 'See bci-curriculum §4.B.7 for the PPLFP derivation.']);
+            [varargout{1:nargout}] = DecodingAlgorithms.PPLFP_MStep(varargin{:});
+        end
     end
 end
 

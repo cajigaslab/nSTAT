@@ -376,14 +376,13 @@ classdef PPLFP
             end
             if(isempty(WuConv))
                 sumValMat = sumValMat+C'*(R\C);
-                I=eye(size(W_p));
-                Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
-                if(any(any(isnan(Wu)))||any(any(isinf(Wu))))
-                    Wu=W_p;
+                % Phase 3 Task 3.4: Woodbury formula + safety check
+                % extracted to nstat.decoding.internal.computeGainMatrix.
+                [W_u, isSingular] = nstat.decoding.internal.computeGainMatrix(W_p, sumValMat);
+                if isSingular
+                    W_u = W_p;
+                    W_u = 0.5*(W_u + W_u');
                 end
-               % Make sure that the update covariance is positive definite.
-                W_u = Wu;
-                W_u = .5*(W_u + W_u'); %To help with symmetry of matrix;
             else
                 W_u = WuConv;
             end

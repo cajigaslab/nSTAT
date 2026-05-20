@@ -18,11 +18,15 @@ classdef PPAF
     %   PPDecode_predict          - Time-update step.
     %   PPDecode_update           - Measurement-update step (general CIF).
     %   PPDecode_updateLinear     - Measurement-update step (linear CIF).
+    %   PPDecode_updateIterated   - Iterated-Laplace update (general CIF;
+    %                                 Newton-to-convergence at posterior mode).
+    %   PPDecode_updateLinearIterated
+    %                              - Iterated-Laplace update (linear CIF).
     %
     % Refs: Eden, Frank, Barbieri, Solo & Brown 2004, Neural Comp 16:971-998;
     %       bci-curriculum chapter-04 §4.B.5 PPAF derivation;
     %       bci-curriculum chapter-04 §4.C.2 PPAF as Newton step on
-    %       variational free energy.
+    %       variational free energy (and iterated-Laplace tightening).
 
     methods (Static)
         %PPDecodeFilter takes an object of class CIF describing the
@@ -917,6 +921,247 @@ classdef PPAF
             x_u     = x_p + W_u*(sumValVec);
 
 
+        end
+
+        function [x_u, W_u, lambdaDeltaMat, nIter] = PPDecode_updateIterated(x_p, W_p, dN, lambdaIn, binwidth, time_index, maxIters, tol)
+            %PPDECODE_UPDATEITERATED Iterated-Laplace PPAF update (general CIF).
+            %
+            % Newton-to-convergence variant of PPDecode_update: re-evaluates
+            % the gradient and Hessian of the log-likelihood at the *current*
+            % posterior-mean iterate at every step, rather than at the
+            % prediction mean once. Reduces exactly to PPDecode_update when
+            % maxIters == 1.
+            %
+            % Math (negative log-posterior F at the iterate x^(i)):
+            %   F(x)        = 0.5*(x - x_p)' * W_p^{-1} * (x - x_p) - ell(x)
+            %   gradF(x^i)  = W_p^{-1}*(x^i - x_p) - grad ell(x^i)
+            %   HessF(x^i)  = W_p^{-1} - hess ell(x^i)
+            %                = W_p^{-1} + sumValMat^(i)
+            % Newton step:
+            %   x^{i+1} = x^i - HessF^{-1} * gradF
+            %           = x^i + W_u^(i) * ( sumValVec^(i) - W_p^{-1}*(x^i - x_p) )
+            % where sumValVec^(i) = grad ell(x^i) and sumValMat^(i) is the
+            % per-channel sum of Fisher + data-dependent curvature terms,
+            % both evaluated at x^(i) instead of x_p.
+            %
+            % At i = 0 with x^(0) = x_p, the prior-gradient correction term
+            % W_p^{-1}*(x^i - x_p) is zero and the update collapses to the
+            % single-step PPDecode_update form. For i >= 1 the correction
+            % term is what distinguishes the iterated Laplace approximation
+            % from the extended-Kalman one-step linearization.
+            %
+            % Inputs:
+            %   x_p, W_p     - prior mean and covariance from PPDecode_predict.
+            %   dN           - C-by-N spike-count matrix; column `time_index`
+            %                  is the current bin's observation.
+            %   lambdaIn     - CIF or cell array of CIFs (one per channel).
+            %   binwidth     - bin width (seconds).
+            %   time_index   - column index into dN selecting the current bin.
+            %   maxIters     - maximum Newton iterations (default
+            %                  nstat.Defaults.PPAF_NewtonIters; 1 reproduces
+            %                  PPDecode_update exactly).
+            %   tol          - L2 tolerance on the iterate increment
+            %                  ||x^{i+1} - x^i|| (default
+            %                  nstat.Defaults.FilterConvergenceTol).
+            %
+            % Outputs:
+            %   x_u, W_u, lambdaDeltaMat - same shapes as PPDecode_update.
+            %                  lambdaDeltaMat is evaluated at the final x_u.
+            %   nIter        - number of Newton iterations actually performed.
+            %
+            % Refs:
+            %   bci-curriculum chapter-04 §4.C.2 PPAF as Newton step on the
+            %   variational free energy; the iterated PPAF is the standard
+            %   tightening of the Laplace approximation toward the posterior
+            %   mode at the cost of an inner loop per timestep.
+            %
+            % Phase 4 Task 4.1 of the 2026-05-19 nSTAT review action plan.
+
+            if nargin < 7 || isempty(maxIters)
+                maxIters = nstat.Defaults.PPAF_NewtonIters;
+            end
+            if nargin < 8 || isempty(tol)
+                tol = nstat.Defaults.FilterConvergenceTol;
+            end
+            if maxIters < 1
+                error('nSTAT:PPDecodeUpdateIterated:InvalidMaxIters', ...
+                      'maxIters must be a positive integer; got %g', maxIters);
+            end
+
+            clear lambda;
+            if isa(lambdaIn, 'cell')
+                lambda = lambdaIn;
+            elseif isa(lambdaIn, 'CIF')
+                lambda{1} = lambdaIn;
+            else
+                error('Lambda must be a cell of CIFs or a CIF');
+            end
+
+            Wp_inv = pinv(W_p);   % pinv for robustness on rank-deficient priors
+            x_cur = x_p;
+            x_u   = x_p;
+            W_u   = W_p;
+            lambdaDeltaMat = zeros(length(lambda), 1);
+            nIter = 0;
+
+            for nIter = 1:maxIters
+                % Re-linearize at the CURRENT iterate x_cur (not x_p).
+                sumValVec = zeros(size(W_p,1), 1);
+                sumValMat = zeros(size(W_p,2), size(W_p,2));
+                for C = 1:length(lambda)
+                    if isempty(lambda{C}.historyMat)
+                        spikeTimes = (find(dN(C,:)==1) - 1) * binwidth;
+                        nst = nspikeTrain(spikeTimes);
+                        nst.resample(1/binwidth);
+                        lambdaDeltaMat(C,1) = lambda{C}.evalLambdaDelta(x_cur, time_index, nst);
+                        sumValVec = sumValVec + dN(C,end) * lambda{C}.evalGradientLog(x_cur, time_index, nst)' ...
+                                              - lambda{C}.evalGradient(x_cur, time_index, nst)';
+                        sumValMat = sumValMat - dN(C,end) * lambda{C}.evalJacobianLog(x_cur, time_index, nst)' ...
+                                              + lambda{C}.evalJacobian(x_cur, time_index, nst)';
+                    else
+                        lambdaDeltaMat(C,1) = lambda{C}.evalLambdaDelta(x_cur, time_index);
+                        sumValVec = sumValVec + dN(C,end) * lambda{C}.evalGradientLog(x_cur, time_index)' ...
+                                              - lambda{C}.evalGradient(x_cur, time_index)';
+                        sumValMat = sumValMat - dN(C,end) * lambda{C}.evalJacobianLog(x_cur, time_index)' ...
+                                              + lambda{C}.evalJacobian(x_cur, time_index)';
+                    end
+                end
+
+                % Posterior covariance W_u = (W_p^{-1} + sumValMat)^{-1}
+                % via Woodbury (same formula PPDecode_update uses).
+                W_u = nstat.decoding.internal.computeGainMatrix(W_p, sumValMat);
+
+                % Full Newton step on the negative log-posterior, including
+                % the prior-gradient correction. At iteration 1 with x_cur =
+                % x_p, the correction vanishes and this reduces to
+                % PPDecode_update's x_p + W_u*sumValVec form.
+                priorGradCorr = Wp_inv * (x_cur - x_p);
+                x_new = x_cur + W_u * (sumValVec - priorGradCorr);
+
+                if norm(x_new - x_cur) < tol
+                    x_u = x_new;
+                    return;
+                end
+                x_cur = x_new;
+                x_u = x_new;
+            end
+        end
+
+        function [x_u, W_u, lambdaDeltaMat, nIter] = PPDecode_updateLinearIterated(x_p, W_p, dN, mu, beta, fitType, gamma, HkAll, time_index, maxIters, tol)
+            %PPDECODE_UPDATELINEARITERATED Iterated-Laplace PPAF update (linear CIF).
+            %
+            % Linear-CIF (canonical-link Poisson or binomial) counterpart of
+            % PPDecode_updateIterated. Reduces exactly to
+            % PPDecode_updateLinear when maxIters == 1.
+            %
+            % See PPDecode_updateIterated for the math; this routine
+            % specializes the gradient/Hessian evaluations to the closed-form
+            % expressions used by PPDecode_updateLinear, which are linear
+            % (Poisson) or quadratic (binomial) in the linear predictor
+            % mu + beta'*x. Re-linearization at x_cur reduces to
+            % recomputing lambdaDelta with the new x_cur.
+            %
+            % Inputs match PPDecode_updateLinear up through time_index, then:
+            %   maxIters - maximum Newton iterations
+            %              (default nstat.Defaults.PPAF_NewtonIters).
+            %   tol      - L2 tolerance on the iterate increment
+            %              (default nstat.Defaults.FilterConvergenceTol).
+            %
+            % Refs: bci-curriculum chapter-04 §4.C.2; Phase 4 Task 4.1.
+
+            C = size(dN, 1);
+            if nargin < 11 || isempty(tol)
+                tol = nstat.Defaults.FilterConvergenceTol;
+            end
+            if nargin < 10 || isempty(maxIters)
+                maxIters = nstat.Defaults.PPAF_NewtonIters;
+            end
+            if nargin < 9 || isempty(time_index)
+                time_index = 1;
+            end
+            if nargin < 8 || isempty(HkAll)
+                N = size(dN, 2);
+                HkAll = zeros(N, 0, C);
+            end
+            if nargin < 7 || isempty(gamma)
+                gamma = [];
+            end
+            if nargin < 6 || isempty(fitType)
+                fitType = 'poisson';
+            end
+            if maxIters < 1
+                error('nSTAT:PPDecodeUpdateLinearIterated:InvalidMaxIters', ...
+                      'maxIters must be a positive integer; got %g', maxIters);
+            end
+            if numel(gamma) == 1 && gamma == 0
+                gamma = zeros(size(mu))';
+            end
+
+            % Precompute history-effect contribution (constant across Newton
+            % iterations because it does not depend on x).
+            if isempty(gamma) || isempty(HkAll) || size(HkAll, 2) == 0
+                histEffect = zeros(C, 1);
+            else
+                Histterm = HkAll(:, :, time_index);
+                if ~any(gamma ~= 0)
+                    Histterm = Histterm';
+                end
+                if size(Histterm, 2) ~= size(mu, 1)
+                    Histterm = Histterm';
+                end
+                histEffect = diag(gamma' * Histterm);
+            end
+
+            Wp_inv = pinv(W_p);
+            x_cur = x_p;
+            x_u   = x_p;
+            W_u   = W_p;
+            lambdaDeltaMat = zeros(C, 1);
+            nIter = 0;
+
+            for nIter = 1:maxIters
+                linTerm = mu + beta' * x_cur + histEffect;
+                if strcmp(fitType, 'binomial')
+                    lambdaDeltaMat = exp(linTerm) ./ (1 + exp(linTerm));
+                    indNan = isnan(lambdaDeltaMat);
+                    indInf = isinf(lambdaDeltaMat);
+                    lambdaDeltaMat(indNan) = 1;
+                    lambdaDeltaMat(indInf) = 1;
+                    sumValVec = sum(repmat(((dN(:,time_index) - lambdaDeltaMat(:,1)) ...
+                                            .* (1 - lambdaDeltaMat(:,1)))', ...
+                                           size(beta,1), 1) .* beta, 2);
+                    tempVec = ((dN(:,time_index) + (1 - 2*lambdaDeltaMat(:,1))) ...
+                               .* (1 - lambdaDeltaMat(:,1)) .* lambdaDeltaMat(:,1))';
+                    sumValMat = (repmat(tempVec, size(beta,1), 1) .* beta) * beta';
+                elseif strcmp(fitType, 'poisson')
+                    lambdaDeltaMat = exp(linTerm);
+                    indNan = isnan(lambdaDeltaMat);
+                    indInf = isinf(lambdaDeltaMat);
+                    lambdaDeltaMat(indNan) = 1;
+                    lambdaDeltaMat(indInf) = 1;
+                    sumValVec = sum(repmat(((dN(:,time_index) - lambdaDeltaMat(:,1)))', ...
+                                           size(beta,1), 1) .* beta, 2);
+                    sumValMat = (repmat(lambdaDeltaMat(:,1)', size(beta,1), 1) .* beta) * beta';
+                else
+                    error('nSTAT:PPDecodeUpdateLinearIterated:UnknownFitType', ...
+                          'fitType must be ''poisson'' or ''binomial''; got %s', fitType);
+                end
+
+                [W_u, isSingular] = nstat.decoding.internal.computeGainMatrix(W_p, sumValMat);
+                if isSingular
+                    W_u = 0.5 * (W_p + W_p');
+                end
+
+                priorGradCorr = Wp_inv * (x_cur - x_p);
+                x_new = x_cur + W_u * (sumValVec - priorGradCorr);
+
+                if norm(x_new - x_cur) < tol
+                    x_u = x_new;
+                    return;
+                end
+                x_cur = x_new;
+                x_u = x_new;
+            end
         end
     end
 end

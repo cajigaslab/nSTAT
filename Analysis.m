@@ -917,8 +917,13 @@ end
             end
             Z = intValues; % rescales spike times - exponential rate 1
             U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
-            U(U>=.999999)=.999999; % FIX: clamp to prevent inf/-inf (matches computeInvGausTrans)
-            U(U<=0)=.000001;
+            % FIX (Phase 0 Task 0.4): do NOT clamp U here -- biases ks_stat
+            % at the tails by O(1/N), which matters when the 95% confidence
+            % band is 1.36/sqrt(N). The clamp belongs at the consumer that
+            % actually needs it (Analysis.computeInvGausTrans, which feeds
+            % norminv(U) and clamps U(>=.999999) and U(<=0) just before that
+            % call). The KS statistic must be computed on the raw rescaled
+            % times.
 
             KSSorted = sort( U,'ascend' );
             N = size(KSSorted,1);

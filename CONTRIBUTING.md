@@ -44,6 +44,63 @@ tools/run_unit_tests.sh --integration
 
 The integration tests are slower (~2-4 minutes) but exercise end-to-end empirical claims (e.g., KS oracle pass-rate validation against the curriculum's §4.C.1 Cor. 2).
 
+### README figure parity
+
+The `README.md` headline gallery (5 thumbnails at
+`docs/figures/exampleNN/fig01_*.png`) and the expanded gallery at
+[`docs/paper_examples.md`](docs/paper_examples.md) are produced by
+[`tools/build_paper_examples.m`](tools/build_paper_examples.m) from the
+scripts under `examples/paper/`. **The PNGs are committed; they ARE the
+documentation and they ARE what GitHub renders.**
+
+Any change that could alter the rendered output of those examples MUST
+either confirm zero pixel drift or commit regenerated figures alongside
+the code change. This applies when modifying:
+
+- `examples/paper/exampleNN_*.m` (the scripts themselves)
+- `FitResult.m`, `Analysis.m`, `CIF.m`, `Covariate.m`, `SignalObj.m`
+  (core toolbox classes consumed by every example)
+- `+nstat/+decoding/*` (decoding cluster classes — affects Example 05)
+- `+nstat/+plotting/*` and `tools/+nstat/applyPlotStyle.m`
+  (plot-style migration affects every figure)
+- `helpfiles/nSTATPaperExamples.m` (the 2012-paper artifact)
+
+Workflow:
+
+```bash
+tools/check_readme_figures.sh
+```
+
+This regenerates the gallery into a temp directory (calling
+`build_paper_examples` internally) and pixel-diffs against the
+committed PNGs in `docs/figures/`. The check takes ~4–5 minutes (it
+actually runs every paper example) and is the canonical drift detector.
+
+Interpreting the report:
+
+- `IDENTICAL` / `TINY` — proceed, no action needed.
+- `NONDETERMINISTIC` — informational, allowlisted (Example 03 SSGLM EM
+  iterations produce non-deterministic BLAS reduction order; see
+  [`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md)
+  for the full list and rationale). Treat as no action needed.
+- `SUBSTANTIVE` — triage:
+  - **Correctness fix or cosmetic update**: regenerate `docs/figures/`
+    via `build_paper_examples` and commit the new PNGs + updated
+    `manifest.json` alongside the code change. Explain in the commit
+    message.
+  - **Unexplained**: fix the regression before proceeding. Do NOT
+    blindly accept regenerated figures.
+
+Do NOT bypass this for "doc-only" changes — the figures ARE docs.
+
+Background on the original 2026-03 → 2026-05 drift incident (figures
+were 2.5 months stale, encoding pre-Phase-4 bug outputs until
+regenerated 2026-05-20) and the empirical Phase A.5 finding that
+established the NONDETERMINISTIC allowlist:
+[`docs/superpowers/plans/2026-05-20-readme-figure-parity.md`](docs/superpowers/plans/2026-05-20-readme-figure-parity.md)
+and
+[`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md).
+
 ### Why no MATLAB CI?
 
 Adding `matlab-actions/setup-matlab@v2` to a GitHub Actions workflow requires a MathWorks Service Provider Agreement seat for CI runners — which our license does not cover. We tried this once (PR #36 commit `3fd9b30`, reverted in this commit). The result was a CI workflow that consumed runner time and consistently failed on missing toolboxes. The corrective decision: don't run MATLAB on CI at all; rely on the local pre-push gate.

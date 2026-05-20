@@ -24,7 +24,11 @@ repoRoot = nstat.docs.getRepoRoot();
 addpath(genpath(repoRoot));
 
 rng(opts.Seed, 'twister');
-figureRoot = fullfile(repoRoot, opts.FigureRoot);
+if isFigureRootAbsolute(opts.FigureRoot)
+    figureRoot = opts.FigureRoot;
+else
+    figureRoot = fullfile(repoRoot, opts.FigureRoot);
+end
 if exist(figureRoot, 'dir') ~= 7
     mkdir(figureRoot);
 end
@@ -129,5 +133,19 @@ function deleteIfExists(globExpr)
 files = dir(globExpr);
 for iFile = 1:numel(files)
     delete(fullfile(files(iFile).folder, files(iFile).name));
+end
+end
+
+function tf = isFigureRootAbsolute(figureRoot)
+%ISFIGUREROOTABSOLUTE Detect absolute paths cross-platform (POSIX or Windows drive).
+figureRoot = char(string(figureRoot));
+if isempty(figureRoot)
+    tf = false;
+    return;
+end
+if ispc
+    tf = (numel(figureRoot) >= 2 && figureRoot(2) == ':') || startsWith(figureRoot, '\\');
+else
+    tf = startsWith(figureRoot, '/');
 end
 end

@@ -839,7 +839,14 @@ end
             nCopy.setMinTime(lambdaInput.minTime);
             nCopy.setMaxTime(lambdaInput.maxTime);
             
-            repBin = nCopy.isSigRepBin; 
+            % FIX: isSigRepBin cached flag is clobbered by the preceding
+            % setMinTime/setMaxTime calls (the cached value is computed at
+            % nspikeTrain construction time but the setters reset it via
+            % computeStatistics). Check the actual signal data directly.
+            % Phase 4 Task 4.2 follow-up -- Analysis.computeKSStats DT-branch
+            % was previously unreachable for typical user input.
+            sigDataCheck = nCopy.getSigRep.data;
+            repBin = ~isempty(sigDataCheck) && all(sigDataCheck(:) == 0 | sigDataCheck(:) == 1);
             if(~repBin)
                lambdaInput=lambdaInput.resample(2*lambdaInput.sampleRate);
                nCopy.resample(lambdaInput.sampleRate);

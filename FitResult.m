@@ -352,7 +352,8 @@ classdef FitResult < handle
                           delta = 1/newLambda.sampleRate;
                           y = fitObj.neuralSpikeTrain.getSigRep.dataToMatrix; % FIX: was bare 'y' (undefined); mirror multi-result branch (line 372)
                           lambdaDelta = max(newLambda.data*delta, eps); % FIX: was bare 'data' (undefined); guard against log(0)
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -372,7 +373,8 @@ classdef FitResult < handle
                           delta=1/fitObj.neuralSpikeTrain.sampleRate; % FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
                           lambdaDelta = max(newLambda.data*delta, eps); % FIX: guard against log(0)
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+                          fitObj.logLL(fitObj.numResults+i) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -414,7 +416,8 @@ classdef FitResult < handle
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
             lambdaDelta = max(lambda.data*delta, eps); % FIX: guard against log(0)
-            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
+            oneMinusLambdaDelta = max(1 - lambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+            logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
         end
         
         function mapCovLabelsToUniqueLabels(fitObj)

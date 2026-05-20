@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>1-D Stimulus Decode with History Effect</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="DecodingExampleWithHist.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -124,8 +124,8 @@ Q=2*std(stim.data(2:end)-stim.data(1:end-1));
 Px0=.1; A=1;
 <span class="comment">% Decode with the correct and incorrect CIFs</span>
 
-[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
-[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
+[x_p, W_p, x_u, W_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
 
 
 <span class="comment">% Compare the results</span>
@@ -222,8 +222,8 @@ Q=2*std(stim.data(2:end)-stim.data(1:end-1));
 Px0=.1; A=1;
 % Decode with the correct and incorrect CIFs
 
-[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
-[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
+[x_p, W_p, x_u, W_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
 
 
 % Compare the results

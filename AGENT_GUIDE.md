@@ -27,8 +27,10 @@ framework for spike-train analysis. Core capabilities:
 - **SSGLM** — State-Space GLM (Czanner et al. 2008): trial-drifting GLM
   coefficients via EM.
 - **PPLFP** — multimodal spike + LFP sensor-fusion filter (Cajigas 2013,
-  unpublished derivation). **Implemented in nSTAT as `mPPCO_*` methods —
-  poorly named; the `mPPCO` family IS the PPLFP filter.**
+  unpublished derivation). Canonical implementation: `nstat.decoding.PPLFP`
+  (as of v1.4 / Phase 3, 2026-05). The historical `mPPCO_*` static methods
+  on `DecodingAlgorithms` are deprecation shims forwarding to the package
+  class; new code should use the package directly.
 - Continuous (Gaussian) signal handling via `SignalObj` (Kalman filter,
   smoother) for LFP/EEG-like data.
 
@@ -61,6 +63,9 @@ remains authoritative for reproducing the 2012 paper examples.
   Should run on R2020a+ but Simulink models predate that.
 - **No required toolboxes beyond core MATLAB and Statistics**, *but*:
   - `CIF` uses the **Symbolic Math Toolbox** to build derivative functions.
+    For uses where this dependency is undesirable, `LinearCIF` (v1.4+) is a
+    drop-in canonical-link replacement with closed-form gradient/Hessian
+    that does not require Symbolic.
   - Several plotting paths used the (removed) `spectrum.periodogram` /
     `dspdata.psd` from old Signal Processing Toolbox — those methods on
     `SignalObj` will crash on R2014a+; avoid `SignalObj.periodogram` and
@@ -138,10 +143,11 @@ Use `copySignal()` / `nstCopy` to get a deep copy.
 | `TrialConfig` | One named model configuration (which covariates, which history) | `TrialConfig.m` | |
 | `ConfigColl` | Collection of `TrialConfig`s for model comparison | `ConfigColl.m` | |
 | `CIF` | Conditional intensity function — symbolic + compiled | `CIF.m` (1120 LOC) | `fitType ∈ {'poisson','binomial'}`. Stores 12 derivative property pairs (∇, ∇², w.r.t. stimulus and history coefficients). |
-| `Analysis` | GLM fitting engine (static methods) | `Analysis.m` (1787 LOC) | Entry points: `RunAnalysisForNeuron`, `RunAnalysisForAllNeurons`. Algorithms: `'GLM'` (MATLAB native) or `'BNLRCG'` (faster L2 logistic). |
-| `FitResult` | Single fitted model + diagnostics | `FitResult.m` (1835 LOC) | KSPlot, residuals, CIs. |
+| `Analysis` | GLM fitting engine (static methods) | `Analysis.m` (1822 LOC) | Entry points: `RunAnalysisForNeuron`, `RunAnalysisForAllNeurons`. Algorithms: `'GLM'` (MATLAB native) or `'BNLRCG'` (faster L2 logistic). |
+| `FitResult` | Single fitted model + diagnostics | `FitResult.m` (1843 LOC) | KSPlot, residuals, CIs. |
 | `FitResSummary` | Cross-neuron / cross-config summary | `FitResSummary.m` (1362 LOC) | |
-| `DecodingAlgorithms` | All filters/decoders (static methods) | `DecodingAlgorithms.m` (10860 LOC, 48 methods) | PPAF (`PPDecodeFilter*`), PPHF (`PPHybridFilter*`), SSGLM EM (`PPSS_*`), Kalman filter/smoother, **PPLFP/multimodal sensor fusion (named `mPPCO_*` for historical reasons — `mPPCODecodeLinear` IS the PPLFP filter)**. **Single huge classdef** — see §9. |
+| `LinearCIF` | Canonical-link CIF with closed-form derivatives | `LinearCIF.m` | Drop-in for `CIF` when the Symbolic Math Toolbox is undesirable. Added v1.4 (Phase 3.5). |
+| `DecodingAlgorithms` | Legacy filter facade (static methods) | `DecodingAlgorithms.m` (1189 LOC after Phase 3) | **Thin facade**: ~47 deprecation shims + 5 helpers + 9 mPPCO→PPLFP shims, all forwarding to the `+nstat/+decoding/` package classes (`PPAF`, `PPHF`, `PPLFP`, `SSGLM`, `KalmanFilter`, `UKF`, `KF_EM`, `PointProcessEM`). New code should use `nstat.decoding.<Cluster>` directly. See §9.1. |
 
 ---
 
@@ -244,20 +250,39 @@ run_all_checks('GenerateBaseline', false, ...
 
 What lives in `tests/`:
 
-- `TestParityAgainstBaseline.m` — integration test: regenerates paper examples
-  and diffs numeric outputs + plot structure against
-  `fixtures/baseline_numeric/`. **Skips silently if the LFS pointer hasn't been
-  resolved** (`git lfs pull`).
-- `TestPlotStyleApi.m` — `nstat.setPlotStyle('legacy'|'modern')` round-trip.
-- `TestFixtures.m`, `test_eval_removal.m`, `test_histc_migration.m`,
+- `tests/unit/` — 20 unit tests added during Phase 0–4 modernization (v1.4).
+  Each targets a specific bug or contract: `testFitResultLogLikelihood.m`
+  (Bernoulli LL wrap), `testKsUnclamped.m` (KS U-clamp removal),
+  `testComputeKSStatsDTBranch.m` (DT-branch reachability),
+  `testDTRegimeWarning.m`, `testKsdiscreteDeterminism.m` (seed-respect),
+  `testHistoryRaisedCosine.m`, `testLinearCIF.m`, `testComputeGainMatrix.m`
+  (Woodbury extraction), `testNstatDecoding{KalmanFilter,UKF,PPAF,PPHF,
+  PPLFP,SSGLM,KF_EM,PointProcessEM}.m` (cluster-class numerical parity vs
+  the legacy facade), `testPPDecodeUpdateIterated.m` (Phase 4.1 iterated
+  Laplace), `testMPPCODeprecationShims.m`, `testAnalysisGLMFitLogLikelihood.m`,
+  `testSignalObjSpectralModernization.m`.
+- `tests/integration/testKsAgainstCurriculumZoo.m` — KS oracle pass-rate
+  validation against the curriculum's §4.C.1 Cor. 2 (~2–4 min).
+- `tests/TestParityAgainstBaseline.m` — older integration test: regenerates
+  paper examples and diffs numeric outputs + plot structure against
+  `fixtures/baseline_numeric/`. **Skips silently if the LFS pointer hasn't
+  been resolved** (`git lfs pull`).
+- `tests/TestPlotStyleApi.m` — `nstat.setPlotStyle('legacy'|'modern')` round-trip.
+- `tests/TestFixtures.m`, `test_eval_removal.m`, `test_histc_migration.m`,
   `test_warning_exist_fixes.m` — small unit regressions tied to specific audit
-  fixes.
+  fixes from the 2026-03-10 67-bug audit.
 - `tests/python_port_fidelity/` — cross-language fixtures for the Python port.
 
-**There is no broad unit-test suite** for the math. Parity tests will not catch
-algorithmic regressions that happen to leave aggregate numeric outputs intact.
-If you change `DecodingAlgorithms.m`, `Analysis.m`, `FitResult.m`, or `CIF.m`,
-**run parity, then also test with hand-computed inputs**.
+The local test gate (CI does not run MATLAB):
+
+```bash
+tools/run_unit_tests.sh                # 20 unit tests, ~30s
+tools/run_unit_tests.sh --integration  # + KS oracle integration, ~3 min
+```
+
+If you change `DecodingAlgorithms.m`, `Analysis.m`, `FitResult.m`, or
+`CIF.m`, also run README figure parity (see below) — figures encode
+bug-fixed math invisibly to text diffs.
 
 Skip parity in CI when needed: `setenv('NSTAT_SKIP_PARITY_TESTS','1')`.
 
@@ -299,13 +324,30 @@ To open a help page from MATLAB code: `nstatOpenHelpPage('AnalysisExamples.html'
 
 Read these before editing anything in those files.
 
-### 9.1 `DecodingAlgorithms.m` is a 10860-line single classdef
+### 9.1 `DecodingAlgorithms.m` is now a 1189-line facade (post Phase 3, v1.4)
 
-- 48 static methods. No properties.
-- Largest functions: `PP_MStep` (1115 LOC), `mPPCO_MStep` (889), `KF_ComputeParamStandardErrors` (740), `PP_EM` (670).
-- The Woodbury update step is duplicated in 4 places (PPDecode_update, PPDecode_updateLinear, mPPCODecode_update, hybrid variants).
-- Tolerances (`1e-3`, `1e-6`) and the 10-iteration ring buffer are scattered as magic numbers.
-- Diagnostic plotting (`mod(cnt,25)==0`) is interleaved with EM iterations.
+Historical: this file was a 10860-line single classdef with 48 static
+methods, 4-way duplicated Woodbury update steps, scattered magic-number
+tolerances, and EM-interleaved diagnostic plotting.
+
+Current (v1.4, May 2026): a thin facade with ~47 deprecation shims +
+5 helpers + 9 mPPCO→PPLFP shims, all forwarding to per-algorithm classes
+in `+nstat/+decoding/`:
+
+- `nstat.decoding.PPAF` — Point-process adaptive filter
+- `nstat.decoding.PPHF` — Point-process hybrid filter
+- `nstat.decoding.PPLFP` — Spike + LFP sensor fusion (was `mPPCO_*`)
+- `nstat.decoding.SSGLM` — State-space GLM
+- `nstat.decoding.KalmanFilter`, `nstat.decoding.UKF`
+- `nstat.decoding.KF_EM`, `nstat.decoding.PointProcessEM`
+
+The Woodbury update is centralized in `+nstat/+decoding/+internal/computeGainMatrix.m`.
+Tolerances and constants are in `+nstat/Defaults.m`.
+
+New code should call `nstat.decoding.<Cluster>` methods directly. The
+shims on `DecodingAlgorithms` emit `nSTAT:deprecated:DecodingAlgorithms`
+warnings (warning-only; do not fail) and are retained for backwards
+compatibility with users of the v1.3 API.
 
 ### 9.2 Handle-class aliasing
 

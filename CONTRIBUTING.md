@@ -145,6 +145,71 @@ run_all_checks('GenerateBaseline', false, ...
                'Style',            'legacy');
 ```
 
+## Release & regeneration
+
+Before tagging any release `vX.Y.Z`, the release engineer runs the
+one-command deploy gate:
+
+```bash
+tools/predeploy.sh
+```
+
+This chains every existing check in canonical order:
+
+1. `tools/run_unit_tests.sh` — 20 unit tests.
+2. `tools/run_unit_tests.sh --integration` — + KS oracle integration.
+3. `tools/check_readme_figures.sh` — README figure parity (drift detector).
+4. `helpfiles/publish_all_helpfiles.m` — re-publishes every `.m` to `.html`,
+   validates helptoc target resolution, rebuilds `helpsearch-v4_0/`.
+5. `tools/lint_helptoc.py` — independent helptoc.xml validation.
+6. `tools/check_bug_patterns.sh` — sibling-bug pattern audit
+   (`docs/verification/bug_pattern_audit.md`).
+
+Wall clock: ~30–45 minutes. The publish step is the slow one because it
+re-executes every example. Flags `--skip-publish` and `--skip-readme` exist
+for iterative debugging but should not be used for final pre-release checks.
+
+After the gate passes, stamp the release inside MATLAB:
+
+```matlab
+addpath(fullfile(pwd,'tools'));
+tools.stamp_release('vX.Y.Z')   % updates Contents.m + manifest + RELEASE_NOTES.md
+```
+
+Then commit and tag:
+
+```bash
+git add Contents.m docs/figures/manifest.json RELEASE_NOTES.md
+git commit -m "release(vX.Y.Z): stamp version + manifest"
+git tag vX.Y.Z
+git push origin master --tags
+```
+
+### What gets regenerated at release time
+
+| Artifact | How | When |
+|---|---|---|
+| `docs/figures/exampleNN/*.png` | `build_paper_examples` (auto-invoked by `check_readme_figures.sh`) | Step 3 of `predeploy.sh` |
+| `helpfiles/*.html` | `publish()` via `publish_all_helpfiles` | Step 4 of `predeploy.sh` |
+| `helpfiles/helpsearch-v4_0/` | `builddocsearchdb` (auto-invoked by `publish_all_helpfiles`) | Step 4 of `predeploy.sh` |
+| `Contents.m` version stamp | `tools.stamp_release` | Manual after gate passes |
+| `docs/figures/manifest.json` `generated_at` | `tools.stamp_release` | Manual after gate passes |
+| `RELEASE_NOTES.md` section | `tools.stamp_release` (template; fill in highlights) | Manual after gate passes |
+
+### What stays manual (NOT regenerated)
+
+- `helpfiles/nSTATPaperExamples.mlx` — paper-reference exception (see "`.m` is canonical" above).
+- `AUDIT_REPORT.md` — historical record of the 2026-03-10 audit (banner says so).
+- `README.md` body prose (the figure table itself stays current because it embeds PNGs by relative path).
+- Markdown plan documents under `docs/superpowers/plans/`.
+
+### Why no MATLAB CI revisited
+
+The gate runs locally because GitHub-hosted runners do not have a
+MathWorks Service Provider Agreement seat. The decision to keep MATLAB
+off CI is documented at "Why no MATLAB CI?" above. The `predeploy.sh`
+gate is the local equivalent.
+
 ## Branch + PR conventions
 
 See the action plan at [`docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md`](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md) for the established commit-message style, deprecation-shim pattern, and audit-comment (`% FIX:`) convention. Phase 0 - Phase 4 of the 2026-05-19 review all follow this template.

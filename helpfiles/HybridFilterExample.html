@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Hybrid Point Process Filter Example</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="HybridFilterExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -331,10 +331,10 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
 
     <span class="comment">% Run the Hybrid Point Process Filter</span>
     [S_est, X_est, W_est, MU_est, X_s, W_s,pNGivenS]=<span class="keyword">...</span>
-        DecodingAlgorithms.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',<span class="keyword">...</span>
+        nstat.decoding.PPHF.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',<span class="keyword">...</span>
         coeffs(:,1),coeffs(:,2:end)',fitType,delta,[],[],x0,Pi0, yT,PiT);
     [S_estNT, X_estNT, W_estNT, MU_estNT, X_sNT, W_sNT,pNGivenSNT]=<span class="keyword">...</span>
-        DecodingAlgorithms.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',<span class="keyword">...</span>
+        nstat.decoding.PPHF.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',<span class="keyword">...</span>
         coeffs(:,1),coeffs(:,2:end)',fitType,delta,[],[],x0);
 
     <span class="comment">%Store the results for computing relevant statistics later</span>
@@ -759,10 +759,10 @@ for n=1:numExamples
 
     % Run the Hybrid Point Process Filter 
     [S_est, X_est, W_est, MU_est, X_s, W_s,pNGivenS]=...
-        DecodingAlgorithms.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',...
+        nstat.decoding.PPHF.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',...
         coeffs(:,1),coeffs(:,2:end)',fitType,delta,[],[],x0,Pi0, yT,PiT);
     [S_estNT, X_estNT, W_estNT, MU_estNT, X_sNT, W_sNT,pNGivenSNT]=...
-        DecodingAlgorithms.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',...
+        nstat.decoding.PPHF.PPHybridFilterLinear(A, Q, p_ij,Mu0, dN',...
         coeffs(:,1),coeffs(:,2:end)',fitType,delta,[],[],x0);
     
     %Store the results for computing relevant statistics later

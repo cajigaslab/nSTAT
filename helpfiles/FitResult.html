@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>FitResult</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="FitResult.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -429,8 +429,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          lambdaDelta = max(data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          y = fitObj.neuralSpikeTrain.getSigRep.dataToMatrix; <span class="comment">% FIX: was bare 'y' (undefined); mirror multi-result branch (line 372)</span>
+                          lambdaDelta = max(newLambda.data*delta, eps); <span class="comment">% FIX: was bare 'data' (undefined); guard against log(0)</span>
+                          oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); <span class="comment">% FIX: missing log() wrapper; eps guard for log(0)</span>
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -449,8 +451,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
                           delta=1/fitObj.neuralSpikeTrain.sampleRate; <span class="comment">% FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)</span>
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-                          lambdaDelta = max(newLambda.data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(newLambda.data(:,i)*delta, eps); <span class="comment">% FIX: index by loop variable i (multi-result column); guard against log(0)</span>
+                          oneMinusLambdaDelta = max(1 - newLambda.data(:,i)*delta, eps); <span class="comment">% FIX: missing log() wrapper; eps guard for log(0)</span>
+                          fitObj.logLL(fitObj.numResults+i) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       <span class="keyword">else</span>
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -492,7 +495,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
             lambdaDelta = max(lambda.data*delta, eps); <span class="comment">% FIX: guard against log(0)</span>
-            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
+            oneMinusLambdaDelta = max(1 - lambda.data*delta, eps); <span class="comment">% FIX: missing log() wrapper; eps guard for log(0)</span>
+            logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> mapCovLabelsToUniqueLabels(fitObj)
@@ -1358,8 +1362,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             pval=zeros(1,fitObj.numResults);
             dataLabels = fitObj.lambda.dataLabels;
             <span class="keyword">for</span> i=1:fitObj.numResults
-               handle = plot(fitObj.U(1:end-1,i),fitObj.U(2:end,i),strcat(<span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold <span class="string">on</span>;
-               [rhoTemp,p]= corrcoef(fitObj.U(1:end-1,i),fitObj.U(2:end,i));<span class="comment">%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))</span>
+               uj  = fitObj.U(1:end-1,i);
+               uj1 = fitObj.U(2:end,i);
+               handle = plot(uj,uj1,strcat(<span class="string">'.'</span>,Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold <span class="string">on</span>;
+               <span class="comment">% FIX: filter non-finite values before correlation</span>
+               valid = isfinite(uj) &amp; isfinite(uj1);
+               [rhoTemp,p]= corrcoef(uj(valid),uj1(valid));
 
                [~,columns]=size(rhoTemp);
                 <span class="keyword">if</span>(columns&gt;1)
@@ -1422,6 +1430,11 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="comment">%[rows,colm] = size(fitObj.X);</span>
             <span class="comment">%index=find(fitObj.invGausStats.lags==1);</span>
             <span class="comment">%lags=fitObj.invGausStats.lags;</span>
+            <span class="comment">% FIX (Phase 0 Task 0.4): U clamping for norminv is centralized in</span>
+            <span class="comment">% Analysis.computeInvGausTrans (Analysis.m:757-759). The clamp does</span>
+            <span class="comment">% NOT enter Analysis.computeKSStats -- pre-fix it did and biased</span>
+            <span class="comment">% ks_stat at the tails. Any future caller consuming fitObj.U</span>
+            <span class="comment">% directly via norminv must clamp locally to (0,1).</span>
             [fitObj.X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(fitObj.Z);
 <span class="comment">%             rhoSig=fitObj.invGausStats.rhoSig;</span>
             n=length(fitObj.X);
@@ -1446,7 +1459,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="comment">%legend(h,labelArray);</span>
             hold <span class="string">on</span>;
             <span class="keyword">if</span>(~isempty(confBoundSig))
-                confBoundSig.plot;
+                hCI = confBoundSig.plot;
+                set(hCI, <span class="string">'HandleVisibility'</span>, <span class="string">'off'</span>); <span class="comment">% FIX: prevent CI lines from appearing in legend as "data 1"/"data 2"</span>
             <span class="keyword">end</span>
             title({<span class="string">'Autocorrelation Function'</span>;<span class="string">'of Rescaled ISIs'</span>; <span class="string">'with 95% CIs'</span>},<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
             <span class="string">'FontSize'</span>,11,<span class="keyword">...</span>
@@ -2264,8 +2278,10 @@ classdef FitResult < handle
                           fitObj.AIC(fitObj.numResults+1)  = 2*length(b)+dev;
                           fitObj.BIC(fitObj.numResults+1)  = length(b)*log(length(newLambda.time))+dev;
                           delta = 1/newLambda.sampleRate;
-                          lambdaDelta = max(data*delta, eps); % FIX: guard against log(0)
-                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          y = fitObj.neuralSpikeTrain.getSigRep.dataToMatrix; % FIX: was bare 'y' (undefined); mirror multi-result branch (line 372)
+                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: was bare 'data' (undefined); guard against log(0)
+                          oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+                          fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       else
                           fitObj.AIC(fitObj.numResults+1)  = AIC;
                           fitObj.BIC(fitObj.numResults+1)  = BIC;
@@ -2284,8 +2300,9 @@ classdef FitResult < handle
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
                           delta=1/fitObj.neuralSpikeTrain.sampleRate; % FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: guard against log(0)
-                          fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
+                          lambdaDelta = max(newLambda.data(:,i)*delta, eps); % FIX: index by loop variable i (multi-result column); guard against log(0)
+                          oneMinusLambdaDelta = max(1 - newLambda.data(:,i)*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+                          fitObj.logLL(fitObj.numResults+i) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);
                           fitObj.BIC(fitObj.numResults+i)  = BIC(i);
@@ -2327,7 +2344,8 @@ classdef FitResult < handle
             delta = 1/lambda.sampleRate;
             y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
             lambdaDelta = max(lambda.data*delta, eps); % FIX: guard against log(0)
-            logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
+            oneMinusLambdaDelta = max(1 - lambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+            logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
         end
         
         function mapCovLabelsToUniqueLabels(fitObj)
@@ -3193,9 +3211,13 @@ classdef FitResult < handle
             pval=zeros(1,fitObj.numResults);
             dataLabels = fitObj.lambda.dataLabels;
             for i=1:fitObj.numResults
-               handle = plot(fitObj.U(1:end-1,i),fitObj.U(2:end,i),strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
-               [rhoTemp,p]= corrcoef(fitObj.U(1:end-1,i),fitObj.U(2:end,i));%handle=scatterhist(fitResults.Z(1:end-1,i),fitResults.Z(2:end,i))
-               
+               uj  = fitObj.U(1:end-1,i);
+               uj1 = fitObj.U(2:end,i);
+               handle = plot(uj,uj1,strcat('.',Analysis.colors{mod(i-1,length(Analysis.colors))+1})); hold on;
+               % FIX: filter non-finite values before correlation
+               valid = isfinite(uj) & isfinite(uj1);
+               [rhoTemp,p]= corrcoef(uj(valid),uj1(valid));
+
                [~,columns]=size(rhoTemp);
                 if(columns>1)
                     rho(i) = rhoTemp(1,2);
@@ -3257,6 +3279,11 @@ classdef FitResult < handle
             %[rows,colm] = size(fitObj.X);
             %index=find(fitObj.invGausStats.lags==1);
             %lags=fitObj.invGausStats.lags;
+            % FIX (Phase 0 Task 0.4): U clamping for norminv is centralized in
+            % Analysis.computeInvGausTrans (Analysis.m:757-759). The clamp does
+            % NOT enter Analysis.computeKSStats REPLACE_WITH_DASH_DASH pre-fix it did and biased
+            % ks_stat at the tails. Any future caller consuming fitObj.U
+            % directly via norminv must clamp locally to (0,1).
             [fitObj.X,rhoSig,confBoundSig] = Analysis.computeInvGausTrans(fitObj.Z);
 %             rhoSig=fitObj.invGausStats.rhoSig;
             n=length(fitObj.X);
@@ -3279,9 +3306,10 @@ classdef FitResult < handle
              set(h_legend, 'position',[pos(1)+.05 pos(2) pos(3:4)]);
             end
             %legend(h,labelArray); 
-            hold on; 
+            hold on;
             if(~isempty(confBoundSig))
-                confBoundSig.plot;
+                hCI = confBoundSig.plot;
+                set(hCI, 'HandleVisibility', 'off'); % FIX: prevent CI lines from appearing in legend as "data 1"/"data 2"
             end
             title({'Autocorrelation Function';'of Rescaled ISIs'; 'with 95% CIs'},'FontWeight','bold',...
             'FontSize',11,...

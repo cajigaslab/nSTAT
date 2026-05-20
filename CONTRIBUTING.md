@@ -1,5 +1,18 @@
 # Contributing to nSTAT
 
+## `.m` is the canonical source for help / example files
+
+The `helpfiles/` directory contains MATLAB script (`.m`) files; many of them also have a `.mlx` Live Script sibling. **The `.m` file is authoritative.**
+
+The `.mlx` files are binary (a zipped XML format) and cannot be diff-reviewed. They drift from their `.m` counterparts whenever the `.m` is edited without manually opening the `.mlx` in the Live Editor and re-saving. We learned this the hard way in May 2026: four `.mlx` files (`DecodingExample`, `DecodingExampleWithHist`, `StimulusDecode2D`, `HybridFilterExample`) were silently broken for ~3 months because the `.m` files were API-migrated but the `.mlx` siblings were not. MATLAB's `run('Foo')` resolves to the `.mlx` when both exist, so users saw the broken Live Scripts.
+
+**Policy:**
+
+- The `.m` file is the canonical source. Edits go there first.
+- When a `.mlx` file is genuinely needed (e.g., for rendering embedded outputs in published docs), regenerate it explicitly from the `.m` via `matlab.internal.live.tutorials.convertOpenToLive` or by opening the `.m` in the Live Editor and saving it as `.mlx`.
+- If an `.mlx` drifts from its `.m`, prefer **deleting the `.mlx`** over hand-patching it. The `.m` is the source of truth.
+- The historical `matlab-repo-integrity.yml` workflow enforced full `.mlx` coverage. That workflow was removed alongside the MATLAB-based CI (May 2026) because it depended on running MATLAB on GitHub-hosted runners. No automated `.mlx` parity check currently exists.
+
 ## Local test gate
 
 **CI does not run MATLAB.** The team's MathWorks license does not extend to GitHub-hosted runners, so there is no automated MATLAB-test gate on PRs. The local pass is the only test gate.

@@ -638,7 +638,9 @@ end
                 AIC = 2*length(b)+real(dev);
                 BIC = length(b)*log(length(y))+real(dev);
                 delta = 1/tObj.sampleRate;
-                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+                lambdaDelta = max(data*delta, eps); % FIX (Task 0.1c): eps guard for log(0)
+                oneMinusLambdaDelta = max(1 - data*delta, eps); % FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)
+                logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                
         end        
         function handle = plotInvGausTrans(fitResults,makePlot)

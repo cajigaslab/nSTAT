@@ -261,6 +261,16 @@ If you change `DecodingAlgorithms.m`, `Analysis.m`, `FitResult.m`, or `CIF.m`,
 
 Skip parity in CI when needed: `setenv('NSTAT_SKIP_PARITY_TESTS','1')`.
 
+### README figure parity
+
+The `docs/figures/exampleNN/*.png` files are the README's rendered gallery
+(produced by `build_paper_examples`). Touching `examples/paper/*`, core
+fitting/decoding classes, or the plotting helpers can change these PNGs —
+which is invisible to text diffs and to the unit-test suite. Run
+`tools/check_readme_figures.sh` before pushing changes in those areas. Full
+policy and triage rubric in [CONTRIBUTING.md](CONTRIBUTING.md) → "README
+figure parity".
+
 ---
 
 ## 8. Help / docs surface
@@ -335,12 +345,24 @@ Recent bug class fixes that you should not re-introduce:
   LFS. Run `git lfs pull` after clone.
 - Plot style toggle: `nstat.setPlotStyle('modern')` (default) or `'legacy'`
   (strict reproduction of 2012 figure style).
+- **Example 03 has known non-deterministic figures.** SSGLM EM iterations
+  exercise multi-threaded BLAS reductions whose accumulation order is not
+  reproducible between MATLAB process invocations. Three figures drift between
+  same-code same-seed runs (`example03/fig03_ssglm_simulation_summary.png`,
+  `fig05_stimulus_effect_surfaces.png`, `fig06_learning_trial_comparison.png`)
+  by mean |Δ| ≈ 2–7 in [0,255] space. They are allowlisted in
+  `tools/check_readme_figures.m` so the drift detector treats them as
+  informational. Full empirical write-up:
+  [`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md).
 
 ---
 
 ## 10. Tools directory (`tools/`)
 
 - `build_paper_examples.m` — regenerates all paper figures into `docs/figures/`.
+- `check_readme_figures.m` / `check_readme_figures.sh` — README gallery drift
+  detector. Regenerates + pixel-diffs; errors on unexplained `SUBSTANTIVE`
+  drift; allowlists Example 03's BLAS-noise figures.
 - `check_parity_against_baseline.m` — numeric + plot-structure parity check;
   optionally checks pixel diffs.
 - `generate_baseline_fixtures.m` — write new baselines (only when intentionally

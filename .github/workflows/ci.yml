@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch: {}
+
+jobs:
+  unit-tests:
+    name: MATLAB unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # No LFS pull — the parity-test baseline lives in Git LFS but the
+          # unit tests don't need it. CI-on-LFS is a separate workflow if
+          # parity tests are ever moved into CI.
+          lfs: false
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2025b
+          # No special toolboxes required for tests/unit/*. Phase 3.5
+          # LinearCIF avoids the Symbolic Math Toolbox dependency that
+          # the legacy CIF requires; the unit-test suite does not
+          # exercise CIF, so this is sufficient for green CI.
+          products: >
+            MATLAB
+            Statistics_and_Machine_Learning_Toolbox
+            Signal_Processing_Toolbox
+
+      - name: Run unit tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            addpath(genpath(pwd));
+            results = runtests('tests/unit', 'Strict', true);
+            disp(results);
+            if any([results.Failed]) || any([results.Incomplete])
+              error('CI:UnitTestsFailed', '%d failed / %d incomplete', ...
+                sum([results.Failed]), sum([results.Incomplete]));
+            end
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matlab-crash-dumps
+          path: |
+            ./matlab_crash_dump.*
+            ./hs_err_pid*.log
+          if-no-files-found: ignore

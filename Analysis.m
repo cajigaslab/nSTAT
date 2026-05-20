@@ -638,7 +638,9 @@ end
                 AIC = 2*length(b)+real(dev);
                 BIC = length(b)*log(length(y))+real(dev);
                 delta = 1/tObj.sampleRate;
-                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+                lambdaDelta = max(data*delta, eps); % FIX (Task 0.1c): eps guard for log(0)
+                oneMinusLambdaDelta = max(1 - data*delta, eps); % FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)
+                logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                
         end        
         function handle = plotInvGausTrans(fitResults,makePlot)
@@ -855,7 +857,19 @@ end
                 
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 for i=1:lambdaInput.dimension
-                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
+                    % FIX: warn when lambda*delta exceeds the empirical validity bound
+                    % (Haslinger-Pipa-Brown 2010; bci-curriculum §4.C.1 Cor. 2).
+                    pkRaw = pk(:,i);
+                    fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
+                    if fracHighRate > 0.01
+                        warning('nSTAT:DTCorrectionRegime', ...
+                            ['%.1f%% of bins have lambda*delta > 0.4; ' ...
+                             'discrete-time KS correction may be biased ' ...
+                             'toward acceptance. Use a smaller binwidth ' ...
+                             'or DTCorrection=0 (continuous-time form).'], ...
+                            100*fracHighRate);
+                    end
+                    pk(:,i) = nanmin(nanmax(pkRaw,0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 %                     length(temp)
 %                     length(intValues(:,i))
@@ -905,18 +919,33 @@ end
             end
             Z = intValues; % rescales spike times - exponential rate 1
             U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
-            U(U>=.999999)=.999999; % FIX: clamp to prevent inf/-inf (matches computeInvGausTrans)
-            U(U<=0)=.000001;
+            % FIX (Phase 0 Task 0.4): do NOT clamp U here -- biases ks_stat
+            % at the tails by O(1/N), which matters when the 95% confidence
+            % band is 1.36/sqrt(N). The clamp belongs at the consumer that
+            % actually needs it (Analysis.computeInvGausTrans, which feeds
+            % norminv(U) and clamps U(>=.999999) and U(<=0) just before that
+            % call). The KS statistic must be computed on the raw rescaled
+            % times.
 
             KSSorted = sort( U,'ascend' );
             N = size(KSSorted,1);
             if(N~=0)
                 xAxis=(([1:N]-.5)/N)'*ones(1,lambdaInput.dimension);
-                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension))); 
+                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension)));
             else
                 ks_stat=1;
                 xAxis=[];
             end
+        end
+        function varargout = ksdiscrete(pk, st, spikeflag)
+            %KSDISCRETE Thin static wrapper around the file-local ksdiscrete()
+            % Exposed for unit testing. Production code calls the local
+            % function from computeKSStats; both routes share the same
+            % implementation.
+            %
+            % Refs: Haslinger, Pipa & Brown 2010 (discrete-time time-
+            % rescaling); bci-curriculum §4.C.1 Cor. 2.
+            [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
         end
         function M=computeFitResidual(nspikeObj,lambda,windowSize)
             % M=computeFitResidual(nspikeTrain,lambda,windowSize)
@@ -1507,9 +1536,8 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
     % Now do the actual discrete time KS test
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
-    % initialize random number generator
-    rng('shuffle','twister');
-    %rand('twister',sum(100*clock));
+    % FIX: removed `rng('shuffle','twister')` — was clobbering caller seed
+    % and making KS non-reproducible run-to-run. Caller controls RNG state.
 
     % make the qk's
 

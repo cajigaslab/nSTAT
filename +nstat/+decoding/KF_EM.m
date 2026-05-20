@@ -106,9 +106,9 @@ classdef KF_EM
             end
             
     %         tol = 1e-3; %absolute change;
-            tolAbs = 1e-3;
-            tolRel = 1e-3;
-            llTol  = 1e-3;
+            tolAbs = nstat.Defaults.EM_TolAbs;
+            tolRel = nstat.Defaults.EM_TolRel;
+            llTol  = nstat.Defaults.EM_LogLTol;
             cnt=1;
 
             maxIter = 100;

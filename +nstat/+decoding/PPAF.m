@@ -799,17 +799,9 @@ classdef PPAF
                 % is integrated from distinct CIFs the sumValMat is very sparse. This
                 % allows us to prevent inverting singular matrices
                 if(isempty(WuConv))
-%                     invWp = pinv(W_p);
-%                     invWu = invWp + sumValMat;
-%                     invWu = 0.5*(invWu+invWu');
-%                     Wu = pinv(invWu);
-                    I=eye(size(W_p));
-                    Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
-
-                    % Make sure that the update covariate is positive definite.
-%                     W_u=nearestSPD(Wu);
-                    W_u=Wu;
-                    W_u=0.5*(W_u+W_u');
+                    % Phase 3 Task 3.4: Woodbury formula extracted to
+                    % nstat.decoding.internal.computeGainMatrix; was 5 lines.
+                    W_u = nstat.decoding.internal.computeGainMatrix(W_p, sumValMat);
                 else
                     W_u=0.5*(WuConv+WuConv');
                 end
@@ -907,29 +899,16 @@ classdef PPAF
             end
             if(isempty(WuConv))
                     usePInv=0;
-                if(usePInv==1)
-                    % Use pinv so that we do a SVD and ignore the zero singular values
-                    % Sometimes because of the state space model definition and how information
-                    % is integrated from distinct CIFs the sumValMat is very sparse. This
-                    % allows us to prevent inverting singular matrices
-                    I=eye(size(W_p));
-                    Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
-                    condNum=rcond(Wu);
-                    if(condNum<eps || isnan(condNum)) % FIX: isa(condNum,'nan') always false; use isnan()
-                        Wu=W_p;
-                    end
-                else
-                    I=eye(size(W_p));
-                    Wu=W_p*(I-(I+sumValMat*W_p)\(sumValMat*W_p));
-                    condNum=rcond(Wu);
-                    if(condNum<eps || isnan(condNum)) % FIX: isa(condNum,'nan') always false; use isnan()
-                        Wu=W_p;
-                    end
-                end 
-               % Make sure that the update covariance is positive definite.
-%                 W_u=nearestSPD(Wu);
-                W_u = Wu;
-                W_u=0.5*(W_u+W_u');
+                % Phase 3 Task 3.4: Woodbury formula + singularity check
+                % extracted to nstat.decoding.internal.computeGainMatrix.
+                % The usePInv==1 vs else branches were textually identical;
+                % the original pinv() path was never reached (commented out
+                % above) so the branch collapse is safe.
+                [W_u, isSingular] = nstat.decoding.internal.computeGainMatrix(W_p, sumValMat);
+                if isSingular
+                    W_u = W_p;
+                    W_u = 0.5*(W_u + W_u');
+                end %#ok<NASGU> -- usePInv preserved for backwards-compat callers
             else
                 W_u = WuConv;
                 W_u=0.5*(W_u+W_u');

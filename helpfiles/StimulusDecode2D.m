@@ -101,14 +101,14 @@ Q=[vx 0;0 vy];
 Px0=.1*eye(2,2); A=1*eye(2,2);
 decode_method = 'PPDecodeFilter';
 try
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
 catch ME_decode
     warning('StimulusDecode2D:SymbolicDecodeFallback', ...
         ['PPDecodeFilter failed (' ME_decode.identifier '). Falling back to PPDecodeFilterLinear.']);
     decode_method = 'PPDecodeFilterLinear';
     mu_linear = coeffs(:,1);
     beta_linear = coeffs(:,2:3)';
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, 'binomial', delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, 'binomial', delta);
 end
 nCommon = min(length(px),size(x_u,2));
 decode_rmse = sqrt(mean((x_u(1,1:nCommon)'-px(1:nCommon)).^2 + (x_u(2,1:nCommon)'-py(1:nCommon)).^2));

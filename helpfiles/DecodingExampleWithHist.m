@@ -55,8 +55,8 @@ Q=2*std(stim.data(2:end)-stim.data(1:end-1));
 Px0=.1; A=1;
 % Decode with the correct and incorrect CIFs
 
-[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
-[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
+[x_p, W_p, x_u, W_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+[x_pNoHist, W_pNoHist, x_uNoHist, W_uNoHist] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIFNoHist,delta);
 
 
 % Compare the results

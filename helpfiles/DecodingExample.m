@@ -76,7 +76,7 @@ dN=spikeColl.dataToMatrix;
 % Make noise according to the dynamic range of the stimulus
 Q=2*std(stim.data(2:end)-stim.data(1:end-1));
 A=1;
-[x_p, W_p, x_u, W_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN',b0,b1,'binomial',delta);
+[x_p, W_p, x_u, W_u] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Q, dN',b0,b1,'binomial',delta);
 figure;
 zVal=3;
 ciLower = min(x_u(1:end)-zVal*squeeze(sqrt(W_u(1:end)))',x_u(1:end)+zVal*squeeze(sqrt(W_u(1:end)))');

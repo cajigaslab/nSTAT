@@ -10,10 +10,21 @@
 
 ## 1. Critical Bugs Found and Fixed
 
-### 1.1 FitResult.m — `delta = sampleRate` (inverted sample rate)
+### 1.1 FitResult.m — `delta = sampleRate` (inverted bin width in logLL)
 - **Line 371**: `delta=sampleRate` should be `delta=1/sampleRate`
-- **Impact**: Time-rescaling KS test used sample rate as bin width instead of reciprocal
-- **Severity**: Critical — invalidates goodness-of-fit analysis for any sampleRate != 1
+- **Scope (corrected 2026-05-19)**: This `delta` is used ONLY in the log-likelihood
+  computation at `FitResult.m:372-375` and the validation branch at `FitResult.m:414-417`.
+  The time-rescaling KS test in `Analysis.computeKSStats:849` derives its own
+  `pk = lambda * (1/sampleRate)` independently and was never affected by this bug.
+- **Impact**: Reported `fitObj.logLL` was off by a multiplicative factor of `sampleRate^2`.
+  AIC and BIC unaffected (computed from `glmfit` deviance at `FitResult.m:350-351` and
+  `370-371` independently). Time-rescaling KS results were always correct as far as this
+  bug is concerned (modulo the separate Phase 0 fixes in Tasks 0.1–0.4 of the
+  2026-05-19 review action plan).
+- **Severity (re-characterized)**: Medium — cosmetically wrong `fitObj.logLL`, but
+  model comparison via AIC/BIC was unaffected. The original "Critical — invalidates
+  goodness-of-fit" framing in this report was a scope overstatement; the KS test
+  uses a different code path.
 
 ### 1.2 DecodingAlgorithms.m — `isa(condNum,'nan')` (always false)
 - **Lines 765, 925, 932**: `isa(condNum,'nan')` replaced with `isnan(condNum)`

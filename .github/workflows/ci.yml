@@ -26,14 +26,24 @@ jobs:
         uses: matlab-actions/setup-matlab@v2
         with:
           release: R2025b
-          # No special toolboxes required for tests/unit/*. Phase 3.5
-          # LinearCIF avoids the Symbolic Math Toolbox dependency that
-          # the legacy CIF requires; the unit-test suite does not
-          # exercise CIF, so this is sufficient for green CI.
+          # Toolbox dependencies of `tests/unit/*`:
+          #   - Statistics_and_Machine_Learning_Toolbox: glmfit (GLMFit path)
+          #   - Signal_Processing_Toolbox: periodogram, pmtm
+          #     (testSignalObjSpectralModernization)
+          #   - Symbolic_Math_Toolbox: sym() in CIF (line 159), used by
+          #     testLinearCIF (parity vs symbolic CIF),
+          #     testMPPCODeprecationShims (constructs CIF internally),
+          #     testPPDecodeUpdateIterated/testCIFMaxItersOneMatchesSingleStep.
+          #     Phase 3 Task 3.5 added LinearCIF to remove this dependency
+          #     for production code, but tests still cross-check against
+          #     the symbolic class — hence the toolbox is still required
+          #     here. Tracked as a future task: remove the symbolic-side
+          #     of the parity tests so CI can drop this dependency.
           products: >
             MATLAB
             Statistics_and_Machine_Learning_Toolbox
             Signal_Processing_Toolbox
+            Symbolic_Math_Toolbox
 
       - name: Run unit tests
         uses: matlab-actions/run-command@v2

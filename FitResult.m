@@ -372,8 +372,8 @@ classdef FitResult < handle
                           fitObj.BIC(fitObj.numResults+i)  = length(b{i})*log(length(newLambda.time))+dev(i);
                           delta=1/fitObj.neuralSpikeTrain.sampleRate; % FIX: was sampleRate (Hz), should be 1/sampleRate (bin width in seconds)
                           y=fitObj.neuralSpikeTrain.getSigRep.dataToMatrix;
-                          lambdaDelta = max(newLambda.data*delta, eps); % FIX: guard against log(0)
-                          oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+                          lambdaDelta = max(newLambda.data(:,i)*delta, eps); % FIX: index by loop variable i (multi-result column); guard against log(0)
+                          oneMinusLambdaDelta = max(1 - newLambda.data(:,i)*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
                           fitObj.logLL(fitObj.numResults+i) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                       else
                           fitObj.AIC(fitObj.numResults+i)  = AIC(i);

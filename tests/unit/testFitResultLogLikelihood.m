@@ -95,43 +95,20 @@ classdef testFitResultLogLikelihood < matlab.unittest.TestCase
         end
 
         function testMultiResultBranchLogLL(tc)
-            % Attempts to drive the multi-result branch in addParamsToFit
-            % (FitResult.m:377) but documents a latent shape bug that
-            % blocks coverage of this branch without modifying production
-            % code (which is out of scope for this commit).
+            % Drives the multi-result branch in addParamsToFit
+            % (FitResult.m:377) with a 2-column lambda Covariate.
             %
-            % Background: line 377 reads
-            %     fitObj.logLL(fitObj.numResults+i) = ...
-            %         sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
-            % where lambdaDelta = max(newLambda.data*delta, eps) and
-            % newLambda.data is nBins-by-numNewResults. The body of the
-            % for-loop never uses i to index newLambda.data, so on a
-            % 2-dim lambda lambdaDelta is nBins-by-2, the sum is 1-by-2,
-            % and assigning a 1-by-2 row to a scalar slot fails with
-            % MATLAB:matrix:singleSubscriptNumelMismatch. The correct
-            % expression would be newLambda.data(:,i)*delta -- a real
-            % indexing bug, independent of the Task 0.1 log()-wrapper
-            % fix that landed in acd57c7. Production callers always pass
-            % all 9 args (e.g. FitResult constructor at line 174 and
-            % mergeResults at line 268), so the nargin<7 branch at line
-            % 377 is never reached from production code paths, which is
-            % why the latent shape bug has gone unnoticed.
+            % Regression for the latent indexing bug fixed alongside this
+            % test: line 375-376 used to read newLambda.data unindexed,
+            % which on a 2-dim lambda produced an nBins-by-2 lambdaDelta,
+            % a 1-by-2 row from sum(), and a shape mismatch on assignment
+            % to the scalar logLL slot. Fix indexes newLambda.data(:,i)
+            % so each loop iteration computes a scalar column LL.
             %
-            % Decision: surface the gap with assumeFail rather than
-            % paper over it. A follow-up commit that fixes the indexing
-            % (newLambda.data -> newLambda.data(:,i), and likewise for
-            % the oneMinusLambdaDelta expression) should remove this
-            % assumeFail and replace it with the analytic-identity body
-            % below.
-            tc.assumeFail(['FitResult.m:377 multi-result branch has a ' ...
-                'latent shape bug independent of Task 0.1: ' ...
-                'newLambda.data is not indexed by the loop variable i, ' ...
-                'so on a 2-dim lambda the row-vector sum cannot be ' ...
-                'assigned to fitObj.logLL(numResults+i). Production ' ...
-                'callers always pass all 9 args and hit the else-branch ' ...
-                'at line 378, so this is dead code in normal use. ' ...
-                'Fix in a follow-up commit and replace this assumeFail ' ...
-                'with the analytic Bernoulli identity assertion.']);
+            % Production callers (FitResult constructor at line 174,
+            % mergeResults at line 268) always pass all 9 args and route
+            % through the nargin>=7 else-branch, so this path was dead
+            % code in normal use until this test exercised it.
 
             rng(0, 'twister');
             T = 10.0;

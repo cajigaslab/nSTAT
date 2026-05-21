@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Software Validation Data Set</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="ValidationDataSet.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -205,7 +205,7 @@ muConst =
    -5.1975
 
 </pre>
-<img vspace="5" hspace="5" src="ValidationDataSet_05.png" alt=""> <p>Generate the data for 2 neurons</p>
+<p>Generate the data for 2 neurons</p>
 <pre class="codeinput">
 <span class="keyword">for</span> i=1:2
     tTot = linspace(0,(T1+T2),(N1+N2+1));
@@ -250,11 +250,11 @@ subplot(1,2,2); results{2}.lambda.plot;
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1,2
 Analyzing Configuration #2: Neuron #1,2
 </pre>
-<img vspace="5" hspace="5" src="ValidationDataSet_06.png" alt=""> <img vspace="5" hspace="5" src="ValidationDataSet_07.png" alt=""> <img vspace="5" hspace="5" src="ValidationDataSet_08.png" alt=""> <p>Compare the results across the two neurons</p>
+<img vspace="5" hspace="5" src="ValidationDataSet_05.png" alt=""> <img vspace="5" hspace="5" src="ValidationDataSet_06.png" alt=""> <img vspace="5" hspace="5" src="ValidationDataSet_07.png" alt=""> <p>Compare the results across the two neurons</p>
 <pre class="codeinput">Summary = FitResSummary(results);
 Summary.plotSummary;
 </pre>
-<img vspace="5" hspace="5" src="ValidationDataSet_09.png" alt=""> <img vspace="5" hspace="5" src="ValidationDataSet_10.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="ValidationDataSet_08.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>

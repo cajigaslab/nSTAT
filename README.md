@@ -165,6 +165,68 @@ review. See [AUDIT_REPORT.md](AUDIT_REPORT.md) for full details.
 - `fitType` validation in CIF constructor
 - Deprecated function annotations (`histc`, `simget`)
 
+Phase 0–4 modernization (2026-05) and v1.4 release
+--------------------------------------------------
+
+A follow-up wave of work in May 2026 added correctness fixes,
+architectural cleanup, and CI-replacing local gates. See
+[docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md)
+for the action plan.
+
+**Additional correctness fixes (Phase 0):**
+
+- **FitResult.m / Analysis.m** — Bernoulli log-likelihood missing `log()`
+  wrap on `1−λΔ` (commits `acd57c7`, `d1e96cf`)
+- **Analysis.m** — KS U-clamping before `ks_stat` computation inflated
+  KS statistics (`ef01a82`); DT-correction branch was unreachable for
+  typical inputs (`f460aa8`); `ksdiscrete` ignored caller-set RNG seed
+  (`f2307e9`)
+- **FitResult.m** — multi-result λ branch indexed result 1 for all
+  results (`1520034`); `plotSeqCorr` had no non-finite guard for U-transform
+  overflow (`f5b5734`)
+- **DecodingAlgorithms.m** — PPAF goal-directed predict time-indexing
+  (`3ffebd5`); PPHF A/Q time-index + missing x0/Pi0 goal fusion
+  (`bc5f879`, `1bcb63e`, `ba7069a`)
+
+**Architectural cleanup (Phase 3):**
+
+- `+nstat/+decoding/` package: 8 cluster classes (`PPAF`, `PPHF`, `PPLFP`,
+  `SSGLM`, `KalmanFilter`, `UKF`, `KF_EM`, `PointProcessEM`) extracted
+  from the 10860-line `DecodingAlgorithms.m`, which is now a 1189-line
+  facade with 47 deprecation shims.
+- `mPPCO_*` methods renamed to `PPLFP_*` (paper §4.B.7 alignment;
+  `mPPCO_*` retained as deprecation shims).
+- Woodbury matrix-inversion update step centralized in
+  `+nstat/+decoding/+internal/computeGainMatrix.m`.
+- `nstat.Defaults` class for centralized tolerances (`EM_TolAbs=1e-3`,
+  `EM_MaxIter=100`, `DTRegimeBound=0.4`, …).
+
+**New capabilities (Phase 3.5 + 4):**
+
+- **`LinearCIF`** — canonical-link CIF with closed-form gradient and
+  Hessian; drop-in replacement for symbolic `CIF` when the Symbolic
+  Math Toolbox is undesirable (Poisson and binomial supported).
+- **`History.raisedCosine(K, tMin, tMax)`** — Pillow 2008 log-spaced
+  raised-cosine basis.
+- **`PPAF.PPDecode_updateIterated` / `PPDecode_updateLinearIterated`** —
+  iterated-Laplace PPAF update with prior-gradient correction term.
+
+**Local test gate (no MATLAB CI):**
+
+The team's MathWorks license does not extend to GitHub-hosted runners,
+so the test gate is local. Run `tools/run_unit_tests.sh` (20 unit tests)
+and `tools/check_readme_figures.sh` (README figure parity) before
+pushing changes that touch core code. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for the full developer workflow and [docs/superpowers/plans/](docs/superpowers/plans/)
+for plan documents.
+
+**Comprehensive audit (2026-05-20):**
+
+See [docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)
+for the four-phase help-system + cross-document + bug-pattern + deploy-gate
+audit and [docs/verification/](docs/verification/) for the empirical
+reports it produced.
+
 Python port
 -----------
 

@@ -1,0 +1,542 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>nSTAT decision tree: which class / method do I need?</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-05-20">
+<meta name="DC.source" content="WhenToUseWhich.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>nSTAT decision tree: which class / method do I need?</h1>
+<!--introduction-->
+<p>This page answers "I have X, I want to do Y -- which nSTAT pieces?" Use it after <tt>HelloNstat.m</tt> and before diving into individual example pages.</p>
+<p>Cross-reference: this is the navigation page; each leaf below points to a worked example.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Decision 1: data shape</a>
+</li>
+<li>
+<a href="#2">Decision 2: what do you want to do?</a>
+</li>
+<li>
+<a href="#3">Section A: fitting a stationary PP-GLM</a>
+</li>
+<li>
+<a href="#4">Section B: SSGLM for trial-drifting coefficients</a>
+</li>
+<li>
+<a href="#5">Section C: PPAF -- decoding continuous state from spikes</a>
+</li>
+<li>
+<a href="#6">Section D: PPHF -- joint discrete + continuous state</a>
+</li>
+<li>
+<a href="#7">Section E: PPLFP -- multimodal spike + LFP sensor fusion</a>
+</li>
+<li>
+<a href="#8">Section F: foundation-model KS validation</a>
+</li>
+<li>
+<a href="#9">Section G: simulating point processes</a>
+</li>
+<li>
+<a href="#10">Cross-class composability</a>
+</li>
+<li>
+<a href="#11">Defaults you might want to override</a>
+</li>
+<li>
+<a href="#12">Where the implementations live</a>
+</li>
+<li>
+<a href="#13">References</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Decision 1: data shape</h2>
+<div>
+<ul>
+<li>
+<b>You have spike times / spike trains:</b> continue with this guide.</li>
+<li>
+<b>You have continuous signals (LFP/EEG/ECoG):</b> use <tt>SignalObj</tt>.</li>
+<li>
+<b>You have both:</b> use both -- see "multi-modal sensor fusion" below.</li>
+</ul>
+</div>
+<h2 id="2">Decision 2: what do you want to do?</h2>
+<div>
+<ul>
+<li>Fit a <b>stationary</b> GLM to spike trains (no drift across trials): see Section A.</li>
+<li>Fit a <b>non-stationary</b> GLM where coefficients drift across trials: see Section B (SSGLM).</li>
+<li>
+<b>Decode</b> a continuous latent state (e.g., kinematics, cursor velocity) from spike trains: see Section C (PPAF).</li>
+<li>
+<b>Decode</b> a joint discrete + continuous state (e.g., reach class + trajectory): see Section D (PPHF).</li>
+<li>
+<b>Multi-modal</b> decoding from both spikes AND LFP: see Section E (PPLFP).</li>
+<li>Validate a <b>foundation-model</b> decoder's predicted intensity rates: see Section F (KS validation).</li>
+<li>
+<b>Simulate</b> a point process from a known intensity function: see Section G (CIF.simulateCIF).</li>
+</ul>
+</div>
+<h2 id="3">Section A: fitting a stationary PP-GLM</h2>
+<p>
+<b>Classes:</b> nspikeTrain, nstColl, Covariate, CovColl, Trial, TrialConfig, ConfigColl, Analysis, FitResult.</p>
+<p>
+<b>One-line summary:</b> Build <tt>Trial(nstColl, CovColl, Events, History)</tt>, define a <tt>TrialConfig</tt> listing which covariates the GLM uses, call <tt>Analysis.RunAnalysisForNeuron</tt>, inspect the returned <tt>FitResult</tt>.</p>
+<p>
+<b>For canonical-link cases (Poisson with log link or binomial with logit link) you can avoid the Symbolic Math Toolbox by passing <tt>LinearCIF</tt> instead of the symbolic <tt>CIF</tt></b> (Phase 3 Task 3.5).</p>
+<p>
+<b>Worked example:</b> <tt>helpfiles/HelloNstat.m</tt> (the minimum case), <tt>helpfiles/AnalysisExamples.m</tt> (deeper coverage).</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.1 (PP-GLM with Poisson and binomial parameterizations).</p>
+<h2 id="4">Section B: SSGLM for trial-drifting coefficients</h2>
+<p>
+<b>Class:</b> <tt>nstat.decoding.SSGLM</tt>.</p>
+<p>
+<b>One-line summary:</b> Random-walk evolution of GLM coefficients across trials, fit by EM. Use when you suspect learning, plasticity, or chronic-array drift.</p>
+<p>
+<b>Methods:</b> PPSS_EM (main loop), PPSS_EMFB (forward-backward variant), PPSS_EStep, PPSS_MStep.</p>
+<p>
+<b>Worked example:</b> <tt>helpfiles/nSTATPaperExamples.m</tt> (PSTH + SSGLM comparison, Section 2.3.3 of the 2012 paper).</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.6 SSGLM (Czanner et al. 2008).</p>
+<h2 id="5">Section C: PPAF -- decoding continuous state from spikes</h2>
+<p>
+<b>Class:</b> <tt>nstat.decoding.PPAF</tt>.</p>
+<p>
+<b>One-line summary:</b> The spike-train analog of the Kalman filter. Linear-Gaussian state dynamics + Poisson spike observations, closed by a Laplace approximation. Real-time, recursive.</p>
+<p>
+<b>Methods:</b>
+</p>
+<div>
+<ul>
+<li>
+<tt>PPDecodeFilter</tt> -- general (symbolic) CIF.</li>
+<li>
+<tt>PPDecodeFilterLinear</tt> -- canonical-link linear CIF (faster).</li>
+<li>
+<tt>PPDecode_predict</tt> -- time-update step.</li>
+<li>
+<tt>PPDecode_update</tt> -- measurement-update step.</li>
+<li>
+<tt>PPDecode_updateIterated</tt> -- iterated-Laplace variant (Phase 4 Task 4.1).</li>
+</ul>
+</div>
+<p>
+<b>Worked example:</b> <tt>helpfiles/DecodingExample.m</tt>, <tt>examples/paper/example05_decoding_ppaf_pphf.m</tt>.</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.5 PPAF; sec. 4.C.2 PPAF as Newton step on the variational free energy.</p>
+<h2 id="6">Section D: PPHF -- joint discrete + continuous state</h2>
+<p>
+<b>Class:</b> <tt>nstat.decoding.PPHF</tt>.</p>
+<p>
+<b>One-line summary:</b> Markov-modeling extension of PPAF. Joint posterior over a discrete state (Markov chain) and a continuous state with state-conditional dynamics. Examples: phoneme + articulator kinematics, sleep stage + autonomic state, DBS "on/off" + symptom severity.</p>
+<p>
+<b>Methods:</b>
+</p>
+<div>
+<ul>
+<li>
+<tt>PPHybridFilter</tt> -- general CIF.</li>
+<li>
+<tt>PPHybridFilterLinear</tt> -- canonical-link linear CIF.</li>
+</ul>
+</div>
+<p>
+<b>Worked example:</b> <tt>helpfiles/HybridFilterExample.m</tt>, <tt>examples/paper/example05_decoding_ppaf_pphf.m</tt>.</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.8 PPHF (Srinivasan et al. 2007); sec. 4.C.3 PPHF derivation.</p>
+<h2 id="7">Section E: PPLFP -- multimodal spike + LFP sensor fusion</h2>
+<p>
+<b>Class:</b> <tt>nstat.decoding.PPLFP</tt> (renamed from the historical <tt>mPPCO_*</tt> family in Phase 3 Task 3.1; legacy names still work via deprecation shims).</p>
+<p>
+<b>One-line summary:</b> Joint posterior over a continuous state given BOTH Poisson spike observations AND Gaussian LFP-power observations. Additive innovations + shared posterior covariance. Classical antecedent of NDT2/NDT3/POYO+/POSSM joint multimodal tokenization.</p>
+<p>
+<b>Methods:</b>
+</p>
+<div>
+<ul>
+<li>
+<tt>PPLFP_DecodeLinear</tt> -- online filter.</li>
+<li>
+<tt>PPLFP_Decode_predict</tt>, <tt>PPLFP_Decode_update</tt> -- predict/update primitives.</li>
+<li>
+<tt>PPLFP_EM</tt>, <tt>PPLFP_EStep</tt>, <tt>PPLFP_MStep</tt> -- EM parameter learning.</li>
+</ul>
+</div>
+<p>
+<b>Worked example:</b> Adapt the example05 PPAF/PPHF skeleton with the LFP-observation arguments.</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.7 PPLFP (Cajigas 2013 unpublished; boxed equations sec. 4.B.7.3); sec. 4.B.7.5 foundation-model bridge.</p>
+<h2 id="8">Section F: foundation-model KS validation</h2>
+<p>
+<b>Class:</b> <tt>Analysis.computeKSStats</tt> + <tt>FitResult.KSPlot</tt>.</p>
+<p>
+<b>One-line summary:</b> Time-rescaling KS test (Brown et al. 2002, Haslinger-Pipa-Brown 2010 DT correction). Applies unchanged to ANY rate-emitting decoder -- classical PP-GLM, RNN, transformer.</p>
+<p>
+<b>Methods:</b>
+</p>
+<div>
+<ul>
+<li>
+<tt>Analysis.computeKSStats(nst, lambda, DTCorrection)</tt>
+</li>
+<li>
+<tt>FitResult.KSPlot</tt>
+</li>
+</ul>
+</div>
+<p>
+<b>Worked example:</b> <tt>helpfiles/FoundationModelKSValidation.m</tt> (Phase 2 Task 2.3).</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.B.3 KS test; sec. 4.B.10 Thesis 2 (foundation models ARE PP-GLMs); sec. 4.C.1 Cor. 2 (discrete-time validity bound).</p>
+<h2 id="9">Section G: simulating point processes</h2>
+<p>
+<b>Class:</b> <tt>CIF</tt>.</p>
+<p>
+<b>One-line summary:</b> Construct a symbolic conditional intensity function, simulate spike trains by thinning (Lewis-Shedler 1978) or time-rescaling (Brown 2002 inverse construction).</p>
+<p>
+<b>Methods:</b>
+</p>
+<div>
+<ul>
+<li>
+<tt>CIF.simulateCIF</tt>, <tt>CIF.simulateCIFByThinning</tt>.</li>
+</ul>
+</div>
+<p>
+<b>For pure-Poisson-from-rate simulation</b> the <tt>nspikeTrain.simulatePoissonFromRate</tt> helper (planned) or the inline pattern in <tt>helpfiles/HelloNstat.m</tt> is simpler. Use <tt>CIF</tt> only when you need a symbolic CIF with history coefficients.</p>
+<p>
+<b>Curriculum reference:</b> sec. 4.A.3 (worked example: simulating an inhomogeneous Poisson process).</p>
+<h2 id="10">Cross-class composability</h2>
+<p>These classes compose:</p>
+<div>
+<ul>
+<li>
+<tt>Trial</tt> aggregates <tt>nstColl + CovColl + Events + History</tt>.</li>
+<li>
+<tt>History</tt> can be constructed with <tt>History.raisedCosine(K, tMin, tMax)</tt> (Pillow 2008 log-spaced basis; Phase 3 Task 3.6).</li>
+<li>
+<tt>LinearCIF</tt> (Phase 3 Task 3.5) is a drop-in replacement for <tt>CIF</tt> in the canonical-link cases (5 eval methods agreeing to 1e-12), avoiding the Symbolic Math Toolbox dependency.</li>
+<li>
+<tt>Analysis.computeKSStats</tt> accepts any <tt>Covariate</tt> representing a predicted rate -- including outputs from non-nSTAT models.</li>
+</ul>
+</div>
+<h2 id="11">Defaults you might want to override</h2>
+<p>
+<tt>+nstat/Defaults.m</tt> centralizes EM tolerances, ring-buffer sizes, PPAF Newton iterations, KS regime bounds, etc. (Phase 3 Task 3.3). Override at the method's call site by passing a different value rather than editing Defaults.m globally.</p>
+<h2 id="12">Where the implementations live</h2>
+<p>After Phase 3 Task 3.2 (commit ed435f7 in master), all algorithmic code lives in <tt>+nstat/+decoding/</tt>. <tt>DecodingAlgorithms.m</tt> is a thin deprecation-shim facade. New code should call <tt>nstat.decoding.PPAF.*</tt> / <tt>nstat.decoding.PPHF.*</tt> etc. directly.</p>
+<p>Helper methods that don't belong to any single cluster (prepareEMResults, ComputeStimulusCIs, estimateInfoMat, computeSpikeRateCIs, computeSpikeRateDiffCIs) remain on <tt>DecodingAlgorithms</tt> until a future Phase 4 follow-up relocates them to <tt>nstat.decoding.internal</tt>.</p>
+<h2 id="13">References</h2>
+<div>
+<ul>
+<li>The 2012 toolbox paper: Cajigas, Malik, Brown. <i>J Neurosci Methods</i> 211:245-264.</li>
+<li>The textbook treatment: Cajigas Lab Curriculum, chapter-04 (full PP-GLM / PPAF / PPHF / PPLFP / SSGLM derivations).</li>
+<li>The 2026-05-19 review action plan: <tt>docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md</tt>.</li>
+</ul>
+</div>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% nSTAT decision tree: which class / method do I need?
+%
+% This page answers "I have X, I want to do Y REPLACE_WITH_DASH_DASH which nSTAT pieces?"
+% Use it after |HelloNstat.m| and before diving into individual
+% example pages.
+%
+% Cross-reference: this is the navigation page; each leaf below
+% points to a worked example.
+
+%% Decision 1: data shape
+%
+% * *You have spike times / spike trains:* continue with this guide.
+% * *You have continuous signals (LFP/EEG/ECoG):* use |SignalObj|.
+% * *You have both:* use both REPLACE_WITH_DASH_DASH see "multi-modal sensor fusion" below.
+
+%% Decision 2: what do you want to do?
+%
+% * Fit a *stationary* GLM to spike trains (no drift across trials):
+%   see Section A.
+% * Fit a *non-stationary* GLM where coefficients drift across trials:
+%   see Section B (SSGLM).
+% * *Decode* a continuous latent state (e.g., kinematics, cursor
+%   velocity) from spike trains: see Section C (PPAF).
+% * *Decode* a joint discrete + continuous state (e.g., reach class +
+%   trajectory): see Section D (PPHF).
+% * *Multi-modal* decoding from both spikes AND LFP: see Section E
+%   (PPLFP).
+% * Validate a *foundation-model* decoder's predicted intensity rates:
+%   see Section F (KS validation).
+% * *Simulate* a point process from a known intensity function: see
+%   Section G (CIF.simulateCIF).
+
+%% Section A: fitting a stationary PP-GLM
+%
+% *Classes:* nspikeTrain, nstColl, Covariate, CovColl, Trial,
+% TrialConfig, ConfigColl, Analysis, FitResult.
+%
+% *One-line summary:* Build |Trial(nstColl, CovColl, Events, History)|,
+% define a |TrialConfig| listing which covariates the GLM uses, call
+% |Analysis.RunAnalysisForNeuron|, inspect the returned |FitResult|.
+%
+% *For canonical-link cases (Poisson with log link or binomial with
+% logit link) you can avoid the Symbolic Math Toolbox by passing
+% |LinearCIF| instead of the symbolic |CIF|* (Phase 3 Task 3.5).
+%
+% *Worked example:* |helpfiles/HelloNstat.m| (the minimum case),
+% |helpfiles/AnalysisExamples.m| (deeper coverage).
+%
+% *Curriculum reference:* sec. 4.B.1 (PP-GLM with Poisson and binomial
+% parameterizations).
+
+%% Section B: SSGLM for trial-drifting coefficients
+%
+% *Class:* |nstat.decoding.SSGLM|.
+%
+% *One-line summary:* Random-walk evolution of GLM coefficients across
+% trials, fit by EM. Use when you suspect learning, plasticity, or
+% chronic-array drift.
+%
+% *Methods:* PPSS_EM (main loop), PPSS_EMFB (forward-backward variant),
+% PPSS_EStep, PPSS_MStep.
+%
+% *Worked example:* |helpfiles/nSTATPaperExamples.m| (PSTH + SSGLM
+% comparison, Section 2.3.3 of the 2012 paper).
+%
+% *Curriculum reference:* sec. 4.B.6 SSGLM (Czanner et al. 2008).
+
+%% Section C: PPAF REPLACE_WITH_DASH_DASH decoding continuous state from spikes
+%
+% *Class:* |nstat.decoding.PPAF|.
+%
+% *One-line summary:* The spike-train analog of the Kalman filter.
+% Linear-Gaussian state dynamics + Poisson spike observations, closed
+% by a Laplace approximation. Real-time, recursive.
+%
+% *Methods:*
+%
+% * |PPDecodeFilter|        REPLACE_WITH_DASH_DASH general (symbolic) CIF.
+% * |PPDecodeFilterLinear|  REPLACE_WITH_DASH_DASH canonical-link linear CIF (faster).
+% * |PPDecode_predict|      REPLACE_WITH_DASH_DASH time-update step.
+% * |PPDecode_update|       REPLACE_WITH_DASH_DASH measurement-update step.
+% * |PPDecode_updateIterated| REPLACE_WITH_DASH_DASH iterated-Laplace variant (Phase 4
+%   Task 4.1).
+%
+% *Worked example:* |helpfiles/DecodingExample.m|,
+% |examples/paper/example05_decoding_ppaf_pphf.m|.
+%
+% *Curriculum reference:* sec. 4.B.5 PPAF; sec. 4.C.2 PPAF as Newton
+% step on the variational free energy.
+
+%% Section D: PPHF REPLACE_WITH_DASH_DASH joint discrete + continuous state
+%
+% *Class:* |nstat.decoding.PPHF|.
+%
+% *One-line summary:* Markov-modeling extension of PPAF. Joint
+% posterior over a discrete state (Markov chain) and a continuous
+% state with state-conditional dynamics. Examples: phoneme +
+% articulator kinematics, sleep stage + autonomic state, DBS "on/off"
+% + symptom severity.
+%
+% *Methods:*
+%
+% * |PPHybridFilter|        REPLACE_WITH_DASH_DASH general CIF.
+% * |PPHybridFilterLinear|  REPLACE_WITH_DASH_DASH canonical-link linear CIF.
+%
+% *Worked example:* |helpfiles/HybridFilterExample.m|,
+% |examples/paper/example05_decoding_ppaf_pphf.m|.
+%
+% *Curriculum reference:* sec. 4.B.8 PPHF (Srinivasan et al. 2007);
+% sec. 4.C.3 PPHF derivation.
+
+%% Section E: PPLFP REPLACE_WITH_DASH_DASH multimodal spike + LFP sensor fusion
+%
+% *Class:* |nstat.decoding.PPLFP| (renamed from the historical
+% |mPPCO_*| family in Phase 3 Task 3.1; legacy names still work via
+% deprecation shims).
+%
+% *One-line summary:* Joint posterior over a continuous state given
+% BOTH Poisson spike observations AND Gaussian LFP-power observations.
+% Additive innovations + shared posterior covariance. Classical
+% antecedent of NDT2/NDT3/POYO+/POSSM joint multimodal tokenization.
+%
+% *Methods:*
+%
+% * |PPLFP_DecodeLinear|  REPLACE_WITH_DASH_DASH online filter.
+% * |PPLFP_Decode_predict|, |PPLFP_Decode_update|  REPLACE_WITH_DASH_DASH predict/update
+%   primitives.
+% * |PPLFP_EM|, |PPLFP_EStep|, |PPLFP_MStep|  REPLACE_WITH_DASH_DASH EM parameter learning.
+%
+% *Worked example:* Adapt the example05 PPAF/PPHF skeleton with the
+% LFP-observation arguments.
+%
+% *Curriculum reference:* sec. 4.B.7 PPLFP (Cajigas 2013 unpublished;
+% boxed equations sec. 4.B.7.3); sec. 4.B.7.5 foundation-model bridge.
+
+%% Section F: foundation-model KS validation
+%
+% *Class:* |Analysis.computeKSStats| + |FitResult.KSPlot|.
+%
+% *One-line summary:* Time-rescaling KS test (Brown et al. 2002,
+% Haslinger-Pipa-Brown 2010 DT correction). Applies unchanged to ANY
+% rate-emitting decoder REPLACE_WITH_DASH_DASH classical PP-GLM, RNN, transformer.
+%
+% *Methods:*
+%
+% * |Analysis.computeKSStats(nst, lambda, DTCorrection)|
+% * |FitResult.KSPlot|
+%
+% *Worked example:* |helpfiles/FoundationModelKSValidation.m| (Phase 2
+% Task 2.3).
+%
+% *Curriculum reference:* sec. 4.B.3 KS test; sec. 4.B.10 Thesis 2
+% (foundation models ARE PP-GLMs); sec. 4.C.1 Cor. 2 (discrete-time
+% validity bound).
+
+%% Section G: simulating point processes
+%
+% *Class:* |CIF|.
+%
+% *One-line summary:* Construct a symbolic conditional intensity
+% function, simulate spike trains by thinning (Lewis-Shedler 1978) or
+% time-rescaling (Brown 2002 inverse construction).
+%
+% *Methods:*
+%
+% * |CIF.simulateCIF|, |CIF.simulateCIFByThinning|.
+%
+% *For pure-Poisson-from-rate simulation* the
+% |nspikeTrain.simulatePoissonFromRate| helper (planned) or the inline
+% pattern in |helpfiles/HelloNstat.m| is simpler. Use |CIF| only when
+% you need a symbolic CIF with history coefficients.
+%
+% *Curriculum reference:* sec. 4.A.3 (worked example: simulating an
+% inhomogeneous Poisson process).
+
+%% Cross-class composability
+%
+% These classes compose:
+%
+% * |Trial| aggregates |nstColl + CovColl + Events + History|.
+% * |History| can be constructed with
+%   |History.raisedCosine(K, tMin, tMax)| (Pillow 2008 log-spaced
+%   basis; Phase 3 Task 3.6).
+% * |LinearCIF| (Phase 3 Task 3.5) is a drop-in replacement for |CIF|
+%   in the canonical-link cases (5 eval methods agreeing to 1e-12),
+%   avoiding the Symbolic Math Toolbox dependency.
+% * |Analysis.computeKSStats| accepts any |Covariate| representing a
+%   predicted rate REPLACE_WITH_DASH_DASH including outputs from non-nSTAT models.
+
+%% Defaults you might want to override
+%
+% |+nstat/Defaults.m| centralizes EM tolerances, ring-buffer sizes,
+% PPAF Newton iterations, KS regime bounds, etc. (Phase 3 Task 3.3).
+% Override at the method's call site by passing a different value
+% rather than editing Defaults.m globally.
+
+%% Where the implementations live
+%
+% After Phase 3 Task 3.2 (commit ed435f7 in master), all algorithmic
+% code lives in |+nstat/+decoding/|. |DecodingAlgorithms.m| is a thin
+% deprecation-shim facade. New code should call
+% |nstat.decoding.PPAF.*| / |nstat.decoding.PPHF.*| etc. directly.
+%
+% Helper methods that don't belong to any single cluster
+% (prepareEMResults, ComputeStimulusCIs, estimateInfoMat,
+% computeSpikeRateCIs, computeSpikeRateDiffCIs) remain on
+% |DecodingAlgorithms| until a future Phase 4 follow-up relocates them
+% to |nstat.decoding.internal|.
+
+%% References
+%
+% * The 2012 toolbox paper: Cajigas, Malik, Brown. _J Neurosci Methods_
+%   211:245-264.
+% * The textbook treatment: Cajigas Lab Curriculum, chapter-04 (full
+%   PP-GLM / PPAF / PPHF / PPLFP / SSGLM derivations).
+% * The 2026-05-19 review action plan:
+%   |docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md|.
+
+##### SOURCE END #####
+-->
+</body>
+</html>

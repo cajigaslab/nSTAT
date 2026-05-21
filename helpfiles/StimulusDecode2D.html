@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>StimulusDecode2D</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="StimulusDecode2D.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -188,14 +188,14 @@ Q=[vx 0;0 vy];
 Px0=.1*eye(2,2); A=1*eye(2,2);
 decode_method = <span class="string">'PPDecodeFilter'</span>;
 <span class="keyword">try</span>
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
 <span class="keyword">catch</span> ME_decode
     warning(<span class="string">'StimulusDecode2D:SymbolicDecodeFallback'</span>, <span class="keyword">...</span>
         [<span class="string">'PPDecodeFilter failed ('</span> ME_decode.identifier <span class="string">'). Falling back to PPDecodeFilterLinear.'</span>]);
     decode_method = <span class="string">'PPDecodeFilterLinear'</span>;
     mu_linear = coeffs(:,1);
     beta_linear = coeffs(:,2:3)';
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, <span class="string">'binomial'</span>, delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, <span class="string">'binomial'</span>, delta);
 <span class="keyword">end</span>
 nCommon = min(length(px),size(x_u,2));
 decode_rmse = sqrt(mean((x_u(1,1:nCommon)'-px(1:nCommon)).^2 + (x_u(2,1:nCommon)'-py(1:nCommon)).^2));
@@ -320,14 +320,14 @@ Q=[vx 0;0 vy];
 Px0=.1*eye(2,2); A=1*eye(2,2);
 decode_method = 'PPDecodeFilter';
 try
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilter(A, Q, Px0, dN',lambdaCIF,delta);
 catch ME_decode
     warning('StimulusDecode2D:SymbolicDecodeFallback', ...
         ['PPDecodeFilter failed (' ME_decode.identifier '). Falling back to PPDecodeFilterLinear.']);
     decode_method = 'PPDecodeFilterLinear';
     mu_linear = coeffs(:,1);
     beta_linear = coeffs(:,2:3)';
-    [x_p, Pe_p, x_u, Pe_u] = DecodingAlgorithms.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, 'binomial', delta);
+    [x_p, Pe_p, x_u, Pe_u] = nstat.decoding.PPAF.PPDecodeFilterLinear(A, Q, dN', mu_linear, beta_linear, 'binomial', delta);
 end
 nCommon = min(length(px),size(x_u,2));
 decode_rmse = sqrt(mean((x_u(1,1:nCommon)'-px(1:nCommon)).^2 + (x_u(2,1:nCommon)'-py(1:nCommon)).^2));

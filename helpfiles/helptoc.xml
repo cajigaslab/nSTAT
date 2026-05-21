@@ -7,9 +7,14 @@
 
     <tocitem target="ClassDefinitions.html" image="HelpIcon.FUNCTION" id="nstat_class_definitions">Class Definitions</tocitem>
     <tocitem target="SignalObj.html" image="HelpIcon.FUNCTION" id="nstat_signalobj_reference">SignalObj Reference</tocitem>
+    <tocitem target="Analysis.html" image="HelpIcon.FUNCTION" id="nstat_analysis_reference">Analysis Reference</tocitem>
     <tocitem target="FitResult.html" image="HelpIcon.FUNCTION" id="nstat_fitresult_reference">FitResult Reference</tocitem>
+    <tocitem target="FitResultReference.html" image="HelpIcon.FUNCTION" id="nstat_fitresult_extra_reference">FitResult Companion Reference</tocitem>
+    <tocitem target="ConfidenceIntervalOverview.html" image="HelpIcon.FUNCTION" id="nstat_ci_overview">Confidence Interval Overview</tocitem>
 
     <tocitem target="Examples.html" image="HelpIcon.EXAMPLES" id="nstat_examples">Examples
+      <tocitem target="HelloNstat.html" id="nstat_hello_nstat">HelloNstat — Canonical Onboarding Tutorial</tocitem>
+      <tocitem target="WhenToUseWhich.html" id="nstat_when_to_use_which">When to Use Which Algorithm (decision tree)</tocitem>
       <tocitem target="SignalObjExamples.html" id="nstat_signalobj_examples">Using the SignalObj Class</tocitem>
       <tocitem target="CovariateExamples.html" id="nstat_covariate_examples">Using the Covariate Class</tocitem>
       <tocitem target="CovCollExamples.html" id="nstat_covcoll_examples">Using the CovColl Class</tocitem>
@@ -21,6 +26,7 @@
       <tocitem target="TrialConfigExamples.html" id="nstat_trialconfig_examples">Using the TrialConfig Class</tocitem>
       <tocitem target="ConfigCollExamples.html" id="nstat_configcoll_examples">Using the ConfigColl Class</tocitem>
       <tocitem target="AnalysisExamples.html" id="nstat_analysis_examples">Using the Analysis Class</tocitem>
+      <tocitem target="AnalysisExamples2.html" id="nstat_analysis_examples2">Using the Analysis Class — Part 2</tocitem>
       <tocitem target="FitResultExamples.html" id="nstat_fitresult_examples">Using the FitResult Class</tocitem>
       <tocitem target="FitResSummaryExamples.html" id="nstat_fitressummary_examples">Using the FitResSummary Class</tocitem>
       <tocitem target="PPThinning.html" id="nstat_ppthinning_example">Point Process Simulation via Thinning</tocitem>
@@ -33,6 +39,8 @@
       <tocitem target="DecodingExample.html" id="nstat_decoding_example">Example Data Analysis - Decoding Univariate Simulated Stimuli (No History Effect)</tocitem>
       <tocitem target="DecodingExampleWithHist.html" id="nstat_decodinghist_example">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</tocitem>
       <tocitem target="StimulusDecode2D.html" id="nstat_stimulusdecode2d_example">Example Data Analysis - Decoding Bivariate Simulated Stimuli</tocitem>
+      <tocitem target="HybridFilterExample.html" id="nstat_hybridfilter_example">Example Data Analysis - Point-Process Hybrid Filter</tocitem>
+      <tocitem target="FoundationModelKSValidation.html" id="nstat_foundationmodel_ks">KS Validation Pipeline for Neural Foundation Models</tocitem>
       <tocitem target="NetworkTutorial.html" id="nstat_networktutorial_example">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</tocitem>
       <tocitem target="nSTATPaperExamples.html" id="nstat_paper_examples">nSTAT Paper Examples</tocitem>
     </tocitem>

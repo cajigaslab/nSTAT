@@ -1,5 +1,22 @@
 # nSTAT Toolbox Code Audit Report
 
+> **Status: HISTORICAL (as of 2026-05-20).** This document records the
+> original 2026-03-10 67-bug audit. The codebase has since received
+> additional waves of work — Phase 0–4 modernization (May 2026, v1.4) and
+> the May 20 comprehensive audit. For the *current* state of bug fixes,
+> see:
+>
+> - [docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md)
+>   — Phase 0–4 fixes (Bernoulli LL, KS U-clamp, DT-correction branch,
+>   PPAF/PPHF time-indexing, multi-result λ indexing)
+> - [docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)
+>   — May 20 four-phase audit (help-system integrity, cross-document drift,
+>   sibling-bug hunt, one-command deploy gate)
+> - [docs/verification/](docs/verification/) — empirical reports
+>
+> The `% FIX:` tag convention introduced here is still in use; this is a
+> generative document, not a snapshot.
+
 **Date**: 2026-03-10
 **Scope**: Full 5-phase audit of the nSTAT (Neural Spike Train Analysis Toolbox) MATLAB codebase
 **Reference**: Cajigas, Malik, Brown. J Neurosci Methods 211:245-264 (2012)

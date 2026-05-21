@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>Hello, nSTAT</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-05-20">
+<meta name="DC.source" content="HelloNstat.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Hello, nSTAT</h1>
+<!--introduction-->
+<p>This is the minimum workflow for fitting a point-process GLM to a spike train in nSTAT: 8 classes, one synthetic dataset, finishing with a time-rescaling KS goodness-of-fit plot. Total runtime ~3 seconds. Open it in the Live Editor or run cell-by-cell.</p>
+<p>
+<b>What you'll learn:</b>
+</p>
+<p>- The 8 nSTAT classes you need to know (in dependency order). - How they compose into a Trial. - How <tt>Analysis.RunAnalysisForNeuron</tt> fits a GLM and returns a <tt>FitResult</tt>. - How to read the KS plot for goodness-of-fit.</p>
+<p>
+<b>What you won't learn here:</b>
+</p>
+<p>- The math behind the model -- see Chapter 4 of <i>Decoding the Brain</i> (<tt>bci-curriculum/chapters/chapter-04-point-processes.md</tt>). - Decoding (PPAF / PPHF / PPLFP) -- see <tt>helpfiles/DecodingExample.m</tt>. - State-space GLM for trial-drifting coefficients -- see <tt>helpfiles/SSGLMExample.m</tt>. - Foundation-model KS validation -- see <tt>helpfiles/FoundationModelKSValidation.m</tt>.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Step 1 -- simulate a spike train</a>
+</li>
+<li>
+<a href="#2">Step 2 -- wrap as nspikeTrain</a>
+</li>
+<li>
+<a href="#3">Step 3 -- gather into nstColl</a>
+</li>
+<li>
+<a href="#4">Step 4 -- build covariates</a>
+</li>
+<li>
+<a href="#5">Step 5 -- assemble the Trial</a>
+</li>
+<li>
+<a href="#6">Step 6 -- define a model configuration</a>
+</li>
+<li>
+<a href="#7">Step 7 -- fit the GLM</a>
+</li>
+<li>
+<a href="#8">Step 8 -- KS plot for goodness-of-fit</a>
+</li>
+<li>
+<a href="#9">That's it</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Step 1 -- simulate a spike train</h2>
+<p>In real use, replace this with your loaded spike times. We simulate a homogeneous Poisson process at 12 Hz for 10 seconds (a reasonable cortical-neuron firing rate).</p>
+<pre class="codeinput">rng(0, <span class="string">'twister'</span>);                         <span class="comment">% reproducibility</span>
+T = 10.0;                                  <span class="comment">% seconds</span>
+sampleRate = 1000;                         <span class="comment">% Hz (1 ms bins)</span>
+delta = 1/sampleRate;
+trueRateHz = 12.0;
+t = (0:delta:T-delta)';                    <span class="comment">% nBins x 1 time vector</span>
+y = double(rand(numel(t),1) &lt; trueRateHz*delta);
+spikeTimes = t(y==1);
+fprintf(<span class="string">'Simulated %d spikes (target rate %.1f Hz)\n'</span>, <span class="keyword">...</span>
+    numel(spikeTimes), trueRateHz);
+</pre>
+<pre class="codeoutput">Simulated 124 spikes (target rate 12.0 Hz)
+</pre>
+<h2 id="2">Step 2 -- wrap as nspikeTrain</h2>
+<p>
+<tt>nspikeTrain(spikeTimes, name, binwidth, minTime, maxTime)</tt> is the basic point-process container. The <tt>binwidth</tt> discretizes the process for filter and likelihood evaluation; we use 1 ms.</p>
+<pre class="codeinput">nst = nspikeTrain(spikeTimes, <span class="string">'unit1'</span>, delta, 0, T);
+</pre>
+<h2 id="3">Step 3 -- gather into nstColl</h2>
+<p>
+<tt>nstColl</tt> holds a collection of spike trains (one or more). nSTAT's Analysis methods iterate over collections; even a single-neuron workflow uses this wrapper.</p>
+<pre class="codeinput">spikeColl = nstColl(nst);
+</pre>
+<h2 id="4">Step 4 -- build covariates</h2>
+<p>Covariates are time-aligned predictors. The intercept-only baseline is mandatory: nSTAT's GLM does NOT add an implicit intercept; you must provide one.</p>
+<pre class="codeinput">baseline = Covariate(t, ones(numel(t),1), <span class="string">'Baseline'</span>, <span class="keyword">...</span>
+    <span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">''</span>,{<span class="string">'const'</span>});
+covColl = CovColl({baseline});
+</pre>
+<h2 id="5">Step 5 -- assemble the Trial</h2>
+<p>A <tt>Trial</tt> is the central experimental container: one spike-train collection + one covariate collection + (optional) events + (optional) history basis. Here we leave events and history empty for the minimal example.</p>
+<pre class="codeinput">trial = Trial(spikeColl, covColl);
+</pre>
+<h2 id="6">Step 6 -- define a model configuration</h2>
+<p>A <tt>TrialConfig</tt> names which covariates the GLM uses. Multiple configurations can be wrapped in a <tt>ConfigColl</tt> for nested-model comparison via AIC/BIC; we use one here.</p>
+<pre class="codeinput">cfg = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'const'</span>}}, sampleRate, []);
+configColl = ConfigColl(cfg);
+</pre>
+<h2 id="7">Step 7 -- fit the GLM</h2>
+<p>
+<tt>Analysis.RunAnalysisForNeuron(trial, neuronNumber, configColl, makePlot, algorithm, DTCorrection)</tt> fits a point-process GLM with the chosen covariates and returns a <tt>FitResult</tt> with the fitted intensity, coefficients, deviance, AIC/BIC, and time-rescaled spike times for goodness-of-fit.</p>
+<pre class="codeinput">fitResults = Analysis.RunAnalysisForNeuron( <span class="keyword">...</span>
+    trial, 1, configColl, <span class="keyword">...</span>
+    0,        <span class="keyword">...</span><span class="comment"> % makePlot = 0 (we'll plot separately)</span>
+    <span class="string">'GLM'</span>,    <span class="keyword">...</span><span class="comment"> % algorithm</span>
+    1);           <span class="comment">% DTCorrection = 1 (Haslinger 2010)</span>
+
+fprintf(<span class="string">'\nFit complete:\n'</span>);
+fprintf(<span class="string">'  logLL = %.2f\n'</span>, fitResults.logLL);
+fprintf(<span class="string">'  AIC   = %.2f\n'</span>, fitResults.AIC);
+fprintf(<span class="string">'  BIC   = %.2f\n'</span>, fitResults.BIC);
+fprintf(<span class="string">'  Fitted intercept coefficient: %.4f (true: log(%.3f) = %.4f)\n'</span>, <span class="keyword">...</span>
+    fitResults.b{1}(1), trueRateHz*delta, log(trueRateHz*delta));
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+
+Fit complete:
+  logLL = -667.61
+  AIC   = 1090.76
+  BIC   = 1097.97
+  Fitted intercept coefficient: -4.3902 (true: log(0.012) = -4.4228)
+</pre>
+<h2 id="8">Step 8 -- KS plot for goodness-of-fit</h2>
+<p>The time-rescaling theorem (Brown et al. 2002) transforms the fitted intensity into a sequence of "rescaled" inter-spike intervals that should be Uniform(0,1) under the null hypothesis that the fitted intensity matches the true intensity. The KS plot compares the empirical CDF to the diagonal; deviations diagnose misspecification.</p>
+<p>For our true-rate baseline-only model, we expect the KS plot to sit comfortably inside the 95% confidence band (the constant rate model IS correctly specified for homogeneous Poisson data).</p>
+<pre class="codeinput">figure(<span class="string">'Position'</span>, [100 100 600 500]);
+fitResults.KSPlot;
+title(<span class="string">'Hello, nSTAT -- KS plot for baseline-only GLM'</span>);
+</pre>
+<img vspace="5" hspace="5" src="HelloNstat_01.png" alt=""> <h2 id="9">That's it</h2>
+<p>You now have:</p>
+<p>- A fitted point-process GLM (<tt>fitResults</tt>). - A goodness-of-fit plot (the KS curve inside the 95% band). - The infrastructure to extend to multi-covariate models (add covariates to <tt>CovColl</tt>, name them in <tt>TrialConfig</tt>), history models (<tt>hist = History(windowTimes)</tt>, pass to <tt>Trial</tt>), and multi-neuron ensemble fits (<tt>Analysis.RunAnalysisForAllNeurons</tt>).</p>
+<p>
+<b>Next reads:</b>
+</p>
+<p>- <tt>helpfiles/DecodingExample.m</tt> -- point-process adaptive filter (PPAF) decoding stimulus from spike trains. - <tt>helpfiles/PPSimExample.m</tt> -- simulating point processes with CIF. - <tt>helpfiles/FoundationModelKSValidation.m</tt> -- using the KS test to validate any rate-emitting decoder (transformers, RNNs, classical). - <tt>examples/paper/example01_mepsc_poisson.m</tt> -- full reproduction of the 2012 paper's first analysis.</p>
+<p>
+<b>References:</b>
+</p>
+<p>- Cajigas, Malik, Brown 2012. <i>J Neurosci Methods</i> 211:245-264 (the nSTAT toolbox paper). - Cajigas Lab Curriculum, chapter-04 sec 4.A.1 onwards (the textbook treatment of the math). - Brown, Barbieri, Ventura, Kass, Frank 2002. <i>Neural Comput</i> 14:325 (time-rescaling theorem).</p>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Hello, nSTAT
+%
+% This is the minimum workflow for fitting a point-process GLM to a
+% spike train in nSTAT: 8 classes, one synthetic dataset, finishing
+% with a time-rescaling KS goodness-of-fit plot. Total runtime ~3
+% seconds. Open it in the Live Editor or run cell-by-cell.
+%
+% *What you'll learn:*
+%
+% - The 8 nSTAT classes you need to know (in dependency order).
+% - How they compose into a Trial.
+% - How |Analysis.RunAnalysisForNeuron| fits a GLM and returns a
+%   |FitResult|.
+% - How to read the KS plot for goodness-of-fit.
+%
+% *What you won't learn here:*
+%
+% - The math behind the model REPLACE_WITH_DASH_DASH see Chapter 4 of _Decoding the Brain_
+%   (|bci-curriculum/chapters/chapter-04-point-processes.md|).
+% - Decoding (PPAF / PPHF / PPLFP) REPLACE_WITH_DASH_DASH see |helpfiles/DecodingExample.m|.
+% - State-space GLM for trial-drifting coefficients REPLACE_WITH_DASH_DASH see
+%   |helpfiles/SSGLMExample.m|.
+% - Foundation-model KS validation REPLACE_WITH_DASH_DASH see
+%   |helpfiles/FoundationModelKSValidation.m|.
+
+%% Step 1 REPLACE_WITH_DASH_DASH simulate a spike train
+%
+% In real use, replace this with your loaded spike times.
+% We simulate a homogeneous Poisson process at 12 Hz for 10 seconds
+% (a reasonable cortical-neuron firing rate).
+
+rng(0, 'twister');                         % reproducibility
+T = 10.0;                                  % seconds
+sampleRate = 1000;                         % Hz (1 ms bins)
+delta = 1/sampleRate;
+trueRateHz = 12.0;
+t = (0:delta:T-delta)';                    % nBins x 1 time vector
+y = double(rand(numel(t),1) < trueRateHz*delta);
+spikeTimes = t(y==1);
+fprintf('Simulated %d spikes (target rate %.1f Hz)\n', ...
+    numel(spikeTimes), trueRateHz);
+
+%% Step 2 REPLACE_WITH_DASH_DASH wrap as nspikeTrain
+%
+% |nspikeTrain(spikeTimes, name, binwidth, minTime, maxTime)| is the
+% basic point-process container. The |binwidth| discretizes the
+% process for filter and likelihood evaluation; we use 1 ms.
+
+nst = nspikeTrain(spikeTimes, 'unit1', delta, 0, T);
+
+%% Step 3 REPLACE_WITH_DASH_DASH gather into nstColl
+%
+% |nstColl| holds a collection of spike trains (one or more). nSTAT's
+% Analysis methods iterate over collections; even a single-neuron
+% workflow uses this wrapper.
+
+spikeColl = nstColl(nst);
+
+%% Step 4 REPLACE_WITH_DASH_DASH build covariates
+%
+% Covariates are time-aligned predictors. The intercept-only baseline
+% is mandatory: nSTAT's GLM does NOT add an implicit intercept; you
+% must provide one.
+
+baseline = Covariate(t, ones(numel(t),1), 'Baseline', ...
+    'time','s','',{'const'});
+covColl = CovColl({baseline});
+
+%% Step 5 REPLACE_WITH_DASH_DASH assemble the Trial
+%
+% A |Trial| is the central experimental container: one spike-train
+% collection + one covariate collection + (optional) events + (optional)
+% history basis. Here we leave events and history empty for the
+% minimal example.
+
+trial = Trial(spikeColl, covColl);
+
+%% Step 6 REPLACE_WITH_DASH_DASH define a model configuration
+%
+% A |TrialConfig| names which covariates the GLM uses. Multiple
+% configurations can be wrapped in a |ConfigColl| for nested-model
+% comparison via AIC/BIC; we use one here.
+
+cfg = TrialConfig({{'Baseline','const'}}, sampleRate, []);
+configColl = ConfigColl(cfg);
+
+%% Step 7 REPLACE_WITH_DASH_DASH fit the GLM
+%
+% |Analysis.RunAnalysisForNeuron(trial, neuronNumber, configColl, makePlot, algorithm, DTCorrection)|
+% fits a point-process GLM with the chosen covariates and returns a
+% |FitResult| with the fitted intensity, coefficients, deviance,
+% AIC/BIC, and time-rescaled spike times for goodness-of-fit.
+
+fitResults = Analysis.RunAnalysisForNeuron( ...
+    trial, 1, configColl, ...
+    0,        ... % makePlot = 0 (we'll plot separately)
+    'GLM',    ... % algorithm
+    1);           % DTCorrection = 1 (Haslinger 2010)
+
+fprintf('\nFit complete:\n');
+fprintf('  logLL = %.2f\n', fitResults.logLL);
+fprintf('  AIC   = %.2f\n', fitResults.AIC);
+fprintf('  BIC   = %.2f\n', fitResults.BIC);
+fprintf('  Fitted intercept coefficient: %.4f (true: log(%.3f) = %.4f)\n', ...
+    fitResults.b{1}(1), trueRateHz*delta, log(trueRateHz*delta));
+
+%% Step 8 REPLACE_WITH_DASH_DASH KS plot for goodness-of-fit
+%
+% The time-rescaling theorem (Brown et al. 2002) transforms the
+% fitted intensity into a sequence of "rescaled" inter-spike
+% intervals that should be Uniform(0,1) under the null hypothesis
+% that the fitted intensity matches the true intensity. The KS plot
+% compares the empirical CDF to the diagonal; deviations diagnose
+% misspecification.
+%
+% For our true-rate baseline-only model, we expect the KS plot to
+% sit comfortably inside the 95% confidence band (the constant rate
+% model IS correctly specified for homogeneous Poisson data).
+
+figure('Position', [100 100 600 500]);
+fitResults.KSPlot;
+title('Hello, nSTAT REPLACE_WITH_DASH_DASH KS plot for baseline-only GLM');
+
+%% That's it
+%
+% You now have:
+%
+% - A fitted point-process GLM (|fitResults|).
+% - A goodness-of-fit plot (the KS curve inside the 95% band).
+% - The infrastructure to extend to multi-covariate models (add
+%   covariates to |CovColl|, name them in |TrialConfig|), history
+%   models (|hist = History(windowTimes)|, pass to |Trial|),
+%   and multi-neuron ensemble fits (|Analysis.RunAnalysisForAllNeurons|).
+%
+% *Next reads:*
+%
+% - |helpfiles/DecodingExample.m| REPLACE_WITH_DASH_DASH point-process adaptive filter (PPAF)
+%   decoding stimulus from spike trains.
+% - |helpfiles/PPSimExample.m| REPLACE_WITH_DASH_DASH simulating point processes with CIF.
+% - |helpfiles/FoundationModelKSValidation.m| REPLACE_WITH_DASH_DASH using the KS test to
+%   validate any rate-emitting decoder (transformers, RNNs, classical).
+% - |examples/paper/example01_mepsc_poisson.m| REPLACE_WITH_DASH_DASH full reproduction of
+%   the 2012 paper's first analysis.
+%
+% *References:*
+%
+% - Cajigas, Malik, Brown 2012. _J Neurosci Methods_ 211:245-264 (the
+%   nSTAT toolbox paper).
+% - Cajigas Lab Curriculum, chapter-04 sec 4.A.1 onwards (the textbook
+%   treatment of the math).
+% - Brown, Barbieri, Ventura, Kass, Frank 2002. _Neural Comput_ 14:325
+%   (time-rescaling theorem).
+
+##### SOURCE END #####
+-->
+</body>
+</html>

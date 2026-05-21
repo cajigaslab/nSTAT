@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Analysis</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-03-11">
+<meta name="DC.date" content="2026-05-20">
 <meta name="DC.source" content="Analysis.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -337,7 +337,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     <span class="keyword">else</span>
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     <span class="keyword">end</span>
                                 <span class="keyword">end</span>
@@ -457,7 +457,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     <span class="keyword">else</span>
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     <span class="keyword">end</span>
                                 <span class="keyword">end</span>
@@ -737,7 +737,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 AIC = 2*length(b)+real(dev);
                 BIC = length(b)*log(length(y))+real(dev);
                 delta = 1/tObj.sampleRate;
-                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+                lambdaDelta = max(data*delta, eps); <span class="comment">% FIX (Task 0.1c): eps guard for log(0)</span>
+                oneMinusLambdaDelta = max(1 - data*delta, eps); <span class="comment">% FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)</span>
+                logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
 
         <span class="keyword">end</span>
         <span class="keyword">function</span> handle = plotInvGausTrans(fitResults,makePlot)
@@ -936,7 +938,14 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             nCopy.setMinTime(lambdaInput.minTime);
             nCopy.setMaxTime(lambdaInput.maxTime);
 
-            repBin = nCopy.isSigRepBin;
+            <span class="comment">% FIX: isSigRepBin cached flag is clobbered by the preceding</span>
+            <span class="comment">% setMinTime/setMaxTime calls (the cached value is computed at</span>
+            <span class="comment">% nspikeTrain construction time but the setters reset it via</span>
+            <span class="comment">% computeStatistics). Check the actual signal data directly.</span>
+            <span class="comment">% Phase 4 Task 4.2 follow-up -- Analysis.computeKSStats DT-branch</span>
+            <span class="comment">% was previously unreachable for typical user input.</span>
+            sigDataCheck = nCopy.getSigRep.data;
+            repBin = ~isempty(sigDataCheck) &amp;&amp; all(sigDataCheck(:) == 0 | sigDataCheck(:) == 1);
             <span class="keyword">if</span>(~repBin)
                lambdaInput=lambdaInput.resample(2*lambdaInput.sampleRate);
                nCopy.resample(lambdaInput.sampleRate);
@@ -954,7 +963,19 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 <span class="keyword">for</span> i=1:lambdaInput.dimension
-                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
+                    <span class="comment">% FIX: warn when lambda*delta exceeds the empirical validity bound</span>
+                    <span class="comment">% (Haslinger-Pipa-Brown 2010; bci-curriculum &sect;4.C.1 Cor. 2).</span>
+                    pkRaw = pk(:,i);
+                    fracHighRate = mean(pkRaw(~isnan(pkRaw)) &gt; 0.4);
+                    <span class="keyword">if</span> fracHighRate &gt; 0.01
+                        warning(<span class="string">'nSTAT:DTCorrectionRegime'</span>, <span class="keyword">...</span>
+                            [<span class="string">'%.1f%% of bins have lambda*delta &gt; 0.4; '</span> <span class="keyword">...</span>
+                             <span class="string">'discrete-time KS correction may be biased '</span> <span class="keyword">...</span>
+                             <span class="string">'toward acceptance. Use a smaller binwidth '</span> <span class="keyword">...</span>
+                             <span class="string">'or DTCorrection=0 (continuous-time form).'</span>], <span class="keyword">...</span>
+                            100*fracHighRate);
+                    <span class="keyword">end</span>
+                    pk(:,i) = nanmin(nanmax(pkRaw,0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,<span class="string">'spiketrain'</span>);
 <span class="comment">%                     length(temp)</span>
 <span class="comment">%                     length(intValues(:,i))</span>
@@ -1004,7 +1025,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             <span class="keyword">end</span>
             Z = intValues; <span class="comment">% rescales spike times - exponential rate 1</span>
             U = 1-exp(-Z); <span class="comment">% store the rescaled spike times - uniform(0,1)</span>
-
+            <span class="comment">% FIX (Phase 0 Task 0.4): do NOT clamp U here -- biases ks_stat</span>
+            <span class="comment">% at the tails by O(1/N), which matters when the 95% confidence</span>
+            <span class="comment">% band is 1.36/sqrt(N). The clamp belongs at the consumer that</span>
+            <span class="comment">% actually needs it (Analysis.computeInvGausTrans, which feeds</span>
+            <span class="comment">% norminv(U) and clamps U(&gt;=.999999) and U(&lt;=0) just before that</span>
+            <span class="comment">% call). The KS statistic must be computed on the raw rescaled</span>
+            <span class="comment">% times.</span>
 
             KSSorted = sort( U,<span class="string">'ascend'</span> );
             N = size(KSSorted,1);
@@ -1015,6 +1042,16 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 ks_stat=1;
                 xAxis=[];
             <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> varargout = ksdiscrete(pk, st, spikeflag)
+            <span class="comment">%KSDISCRETE Thin static wrapper around the file-local ksdiscrete()</span>
+            <span class="comment">% Exposed for unit testing. Production code calls the local</span>
+            <span class="comment">% function from computeKSStats; both routes share the same</span>
+            <span class="comment">% implementation.</span>
+            <span class="comment">%</span>
+            <span class="comment">% Refs: Haslinger, Pipa &amp; Brown 2010 (discrete-time time-</span>
+            <span class="comment">% rescaling); bci-curriculum &sect;4.C.1 Cor. 2.</span>
+            [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
         <span class="keyword">end</span>
         <span class="keyword">function</span> M=computeFitResidual(nspikeObj,lambda,windowSize)
             <span class="comment">% M=computeFitResidual(nspikeTrain,lambda,windowSize)</span>
@@ -1604,9 +1641,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     <span class="comment">% Now do the actual discrete time KS test</span>
     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
 
-    <span class="comment">% initialize random number generator</span>
-    rng(<span class="string">'shuffle'</span>,<span class="string">'twister'</span>);
-    <span class="comment">%rand('twister',sum(100*clock));</span>
+    <span class="comment">% FIX: removed `rng('shuffle','twister')` &mdash; was clobbering caller seed</span>
+    <span class="comment">% and making KS non-reproducible run-to-run. Caller controls RNG state.</span>
 
     <span class="comment">% make the qk's</span>
 
@@ -2136,7 +2172,7 @@ end
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     else
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     end
                                 end
@@ -2254,7 +2290,7 @@ end
                                         tempTime =tObj.covarColl.getCov(1).time;
                                     else
                                         tempX = [tempX; tObj.getDesignMatrix(tempIndices(n))];
-                                        offset = max(tempTime)+1/tObj.sampeRate;
+                                        offset = max(tempTime)+1/tObj.sampleRate;
                                         tempTime = [tempTime;(tObj.covarColl.getCov(1).time+offset)];
                                     end
                                 end
@@ -2531,7 +2567,9 @@ end
                 AIC = 2*length(b)+real(dev);
                 BIC = length(b)*log(length(y))+real(dev);
                 delta = 1/tObj.sampleRate;
-                logLL =sum(y.*log(data*delta)+(1-y).*(1-data*delta));
+                lambdaDelta = max(data*delta, eps); % FIX (Task 0.1c): eps guard for log(0)
+                oneMinusLambdaDelta = max(1 - data*delta, eps); % FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)
+                logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
                
         end        
         function handle = plotInvGausTrans(fitResults,makePlot)
@@ -2730,7 +2768,14 @@ end
             nCopy.setMinTime(lambdaInput.minTime);
             nCopy.setMaxTime(lambdaInput.maxTime);
             
-            repBin = nCopy.isSigRepBin; 
+            % FIX: isSigRepBin cached flag is clobbered by the preceding
+            % setMinTime/setMaxTime calls (the cached value is computed at
+            % nspikeTrain construction time but the setters reset it via
+            % computeStatistics). Check the actual signal data directly.
+            % Phase 4 Task 4.2 follow-up REPLACE_WITH_DASH_DASH Analysis.computeKSStats DT-branch
+            % was previously unreachable for typical user input.
+            sigDataCheck = nCopy.getSigRep.data;
+            repBin = ~isempty(sigDataCheck) && all(sigDataCheck(:) == 0 | sigDataCheck(:) == 1);
             if(~repBin)
                lambdaInput=lambdaInput.resample(2*lambdaInput.sampleRate);
                nCopy.resample(lambdaInput.sampleRate);
@@ -2748,7 +2793,19 @@ end
                 
                 intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
                 for i=1:lambdaInput.dimension
-                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
+                    % FIX: warn when lambda*delta exceeds the empirical validity bound
+                    % (Haslinger-Pipa-Brown 2010; bci-curriculum §4.C.1 Cor. 2).
+                    pkRaw = pk(:,i);
+                    fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
+                    if fracHighRate > 0.01
+                        warning('nSTAT:DTCorrectionRegime', ...
+                            ['%.1f%% of bins have lambda*delta > 0.4; ' ...
+                             'discrete-time KS correction may be biased ' ...
+                             'toward acceptance. Use a smaller binwidth ' ...
+                             'or DTCorrection=0 (continuous-time form).'], ...
+                            100*fracHighRate);
+                    end
+                    pk(:,i) = nanmin(nanmax(pkRaw,0),1);
                     temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 %                     length(temp)
 %                     length(intValues(:,i))
@@ -2798,17 +2855,33 @@ end
             end
             Z = intValues; % rescales spike times - exponential rate 1
             U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
-             
+            % FIX (Phase 0 Task 0.4): do NOT clamp U here REPLACE_WITH_DASH_DASH biases ks_stat
+            % at the tails by O(1/N), which matters when the 95% confidence
+            % band is 1.36/sqrt(N). The clamp belongs at the consumer that
+            % actually needs it (Analysis.computeInvGausTrans, which feeds
+            % norminv(U) and clamps U(>=.999999) and U(<=0) just before that
+            % call). The KS statistic must be computed on the raw rescaled
+            % times.
 
             KSSorted = sort( U,'ascend' );
             N = size(KSSorted,1);
             if(N~=0)
                 xAxis=(([1:N]-.5)/N)'*ones(1,lambdaInput.dimension);
-                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension))); 
+                ks_stat = max(abs(KSSorted - (([1:N]-.5)/N)'*ones(1,lambdaInput.dimension)));
             else
                 ks_stat=1;
                 xAxis=[];
             end
+        end
+        function varargout = ksdiscrete(pk, st, spikeflag)
+            %KSDISCRETE Thin static wrapper around the file-local ksdiscrete()
+            % Exposed for unit testing. Production code calls the local
+            % function from computeKSStats; both routes share the same
+            % implementation.
+            %
+            % Refs: Haslinger, Pipa & Brown 2010 (discrete-time time-
+            % rescaling); bci-curriculum §4.C.1 Cor. 2.
+            [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
         end
         function M=computeFitResidual(nspikeObj,lambda,windowSize)
             % M=computeFitResidual(nspikeTrain,lambda,windowSize)
@@ -3399,9 +3472,8 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
     % Now do the actual discrete time KS test
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
-    % initialize random number generator
-    rng('shuffle','twister');
-    %rand('twister',sum(100*clock));
+    % FIX: removed `rng('shuffle','twister')` — was clobbering caller seed
+    % and making KS non-reproducible run-to-run. Caller controls RNG state.
 
     % make the qk's
 

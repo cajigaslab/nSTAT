@@ -21,9 +21,9 @@ source_suffix = {
     ".md": "markdown",
     ".rst": "restructuredtext",
 }
-master_doc = "intro"
+master_doc = "index"   # generates index.html at the site root
 
-# MyST extensions used by intro.md
+# MyST extensions used by index.md
 myst_enable_extensions = [
     "colon_fence",    # ::: directives in Markdown
     "deflist",

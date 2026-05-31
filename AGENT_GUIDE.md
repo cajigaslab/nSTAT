@@ -41,13 +41,6 @@ boxed equations (§4.B.7.3) — see *Decoding the Brain*, Chapter 4 (Cajigas Lab
 Curriculum, `chapters/chapter-04-point-processes.md` in the `bci-curriculum`
 repository).
 
-**Why this toolbox in 2026.** Every modern neural-foundation-model decoder
-(LFADS, NDT, NDT2, NDT3, POYO, POYO+, POSSM) minimizes the same Poisson NLL
-as a classical PP-GLM — only the function class parameterizing `log λ` changes.
-nSTAT's KS test (`FitResult.KSPlot`) applies *unchanged* to any rate-emitting
-decoder. No published BCI transformer paper currently runs the KS validation
-on its predicted rates; nSTAT is the tool that closes that gap.
-
 **Status (2026):** maintenance mode. A 67-fix audit completed 2026-03-10
 (`AUDIT_REPORT.md`). Active development of the algorithms has moved to the
 Python port: `https://github.com/cajigaslab/nSTAT-python`. The MATLAB tree

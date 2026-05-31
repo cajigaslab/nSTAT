@@ -25,10 +25,8 @@
 %   trajectory): see Section D (PPHF).
 % * *Multi-modal* decoding from both spikes AND LFP: see Section E
 %   (PPLFP).
-% * Validate a *foundation-model* decoder's predicted intensity rates:
-%   see Section F (KS validation).
 % * *Simulate* a point process from a known intensity function: see
-%   Section G (CIF.simulateCIF).
+%   Section F (CIF.simulateCIF).
 
 %% Section A: fitting a stationary PP-GLM
 %
@@ -118,7 +116,7 @@
 % *One-line summary:* Joint posterior over a continuous state given
 % BOTH Poisson spike observations AND Gaussian LFP-power observations.
 % Additive innovations + shared posterior covariance. Classical
-% antecedent of NDT2/NDT3/POYO+/POSSM joint multimodal tokenization.
+% foundation for joint multimodal point-process inference.
 %
 % *Methods:*
 %
@@ -131,29 +129,9 @@
 % LFP-observation arguments.
 %
 % *Curriculum reference:* sec. 4.B.7 PPLFP (Cajigas 2013 unpublished;
-% boxed equations sec. 4.B.7.3); sec. 4.B.7.5 foundation-model bridge.
+% boxed equations sec. 4.B.7.3).
 
-%% Section F: foundation-model KS validation
-%
-% *Class:* |Analysis.computeKSStats| + |FitResult.KSPlot|.
-%
-% *One-line summary:* Time-rescaling KS test (Brown et al. 2002,
-% Haslinger-Pipa-Brown 2010 DT correction). Applies unchanged to ANY
-% rate-emitting decoder -- classical PP-GLM, RNN, transformer.
-%
-% *Methods:*
-%
-% * |Analysis.computeKSStats(nst, lambda, DTCorrection)|
-% * |FitResult.KSPlot|
-%
-% *Worked example:* |helpfiles/FoundationModelKSValidation.m| (Phase 2
-% Task 2.3).
-%
-% *Curriculum reference:* sec. 4.B.3 KS test; sec. 4.B.10 Thesis 2
-% (foundation models ARE PP-GLMs); sec. 4.C.1 Cor. 2 (discrete-time
-% validity bound).
-
-%% Section G: simulating point processes
+%% Section F: simulating point processes
 %
 % *Class:* |CIF|.
 %

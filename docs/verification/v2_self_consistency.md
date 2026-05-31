@@ -23,7 +23,6 @@ Both new tutorials are fully synthetic — they generate ground truth and then c
 
 ---
 
-### `FoundationModelKSValidation.m`
 
 **Prose claim:**
 1. Oracle (true rate as candidate intensity): PASSES KS at α=0.05.

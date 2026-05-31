@@ -27,9 +27,7 @@ classdef PPLFP
     %   PPLFP_MStep                      -- Joint M-step.
     %
     % Refs: Cajigas 2013, unpublished derivation source/PPLFPFilter_final.pdf;
-    %       bci-curriculum chapter-04 sec 4.B.7 PPLFP boxed equations;
-    %       bci-curriculum chapter-04 sec 4.B.7.5 multi-modal foundation-model
-    %       bridge.
+    %       bci-curriculum chapter-04 sec 4.B.7 PPLFP boxed equations.
 
     methods (Static)
         %% Point-Process + LFP Filter (PPLFP; historically Mixed Point Process and Continuous Observation, mPPCO)

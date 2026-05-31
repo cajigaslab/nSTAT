@@ -26,12 +26,12 @@
 | Audience | Reproducers of Cajigas 2012; legacy MATLAB users | iBCI labs building on the PP-GLM framework today |
 | Forward investment | Phases 0, 1 only | Phases 0, 1, 2, 3, 4 |
 | Python | nSTAT-python is primary | MATLAB and Python ports remain peers |
-| README banner | "Maintenance mode. New work happens in nSTAT-python." | "Reference MATLAB implementation; KS gatekeeper for foundation-model decoders." |
+| README banner | "Maintenance mode. New work happens in nSTAT-python." | "Reference MATLAB implementation; spike-train analysis toolbox." |
 | Effort | ~1 week (Phase 0 + 1) | ~6–10 weeks across all phases |
 
 **Recommendation: Path A unless one of the following is true:**
 1. You have a specific MATLAB user community (DBS/iBCI clinical collaborators) who will not move to Python.
-2. You intend to use nSTAT *yourself* as the classical baseline for the foundation-model KS-validation work described in `chapter-04 §4.B.10` and `Ch. 28 §28.C` open-problem A. (If yes, the toolbox needs Phase 3.)
+2. You intend to use nSTAT *yourself* as the classical baseline for the KS validation work described in `chapter-04 §4.B.10` and `Ch. 28 §28.C` open-problem A. (If yes, the toolbox needs Phase 3.)
 
 **Confidence: high** that this is the right framing; **moderate** on which path is correct — that's the author's call.
 
@@ -295,7 +295,7 @@ test fails after this fix, regenerate baselines with Seed=0 and commit."
 
 ### Task 0.3: Add λΔ regime warning to `computeKSStats`
 
-**Bug C** — [Analysis.m:858](../../Analysis.m#L858) silently clips `pk > 1` to 1. The discrete-time KS correction is only valid at `λΔ ≤ 0.4` per the curriculum's `reviews/ks-transformer-validation/` empirical bound (chapter §4.C.1 Cor. 2).
+**Bug C** — [Analysis.m:858](../../Analysis.m#L858) silently clips `pk > 1` to 1. The discrete-time KS correction is only valid at `λΔ ≤ 0.4` per the curriculum's `reviews/ks-validation/` empirical bound (chapter §4.C.1 Cor. 2).
 
 **Files:**
 - Modify: `Analysis.m:846-867`
@@ -384,7 +384,7 @@ git commit -m "feat(Analysis): warn when DT KS test is outside validity bound
 Emit nSTAT:DTCorrectionRegime when >1% of bins have lambda*delta > 0.4
 — beyond which the Haslinger-Pipa-Brown 2010 discrete-time correction
 is empirically biased toward acceptance per bci-curriculum §4.C.1 Cor. 2
-and reviews/ks-transformer-validation/ in the curriculum repo."
+and reviews/ks-validation/ in the curriculum repo."
 ```
 
 **Confidence:** high on the bug, high on the fix.
@@ -567,7 +567,7 @@ Ships regardless of §0 decision. Cleans up the repo and makes the maintenance s
 - [ ] Replace the lead paragraph with curriculum-aware framing (see review §"What the README should now say").
 - [ ] Add prominent banner near the top reflecting Path A/B.
 - [ ] Add link to `chapter-04-point-processes.md` (or its PDF/HTML mirror).
-- [ ] Commit: `docs(README): position nSTAT as KS gatekeeper for foundation-model decoders`.
+- [ ] Commit: `docs(README): position nSTAT as spike-train analysis toolbox`.
 
 ### Task 1.3: Delete obsolete README.txt
 
@@ -688,13 +688,12 @@ One `.mlx` per concept, ≤150 LOC + ≤500 words of prose each. Each cites the 
 
 ### Task 2.3: Foundation-model KS validation tutorial
 
-**File:** `helpfiles/FoundationModelKSValidation.mlx`
 
-The §4.B.10 use case the README now leads with: "load NDT/POYO/POSSM checkpoint, output rate, KS-test." Even if the actual checkpoint loading uses Python via `pyrunfile`, the KS step happens in nSTAT.
+The §4.B.10 use case the README now leads with: "load downstream rate predictors checkpoint, output rate, KS-test." Even if the actual checkpoint loading uses Python via `pyrunfile`, the KS step happens in nSTAT.
 
-- [ ] Demonstrate: simulate ground-truth Poisson spike train → fit a PP-GLM → also load a precomputed transformer rate (synthetic stand-in OK) → run `Analysis.computeKSStats` on both → compare.
-- [ ] Cross-reference `reviews/ks-transformer-validation/` in the curriculum repo.
-- [ ] Commit: `docs: add foundation-model KS validation tutorial`.
+- [ ] Demonstrate: simulate ground-truth Poisson spike train → fit a PP-GLM → also load a precomputed decoder rate (synthetic stand-in OK) → run `Analysis.computeKSStats` on both → compare.
+- [ ] Cross-reference `reviews/ks-validation/` in the curriculum repo.
+- [ ] Commit: `docs: add KS validation tutorial`.
 
 ### Task 2.4: Decision-tree page
 
@@ -706,7 +705,7 @@ A one-page flowchart: "I have binary spike times → use this class. I have cont
 
 - [ ] `HelloNstat.mlx` is the first hit in the demos browser.
 - [ ] 7 concept pages live in `helpfiles/`.
-- [ ] 1 foundation-model validation tutorial.
+- [ ] 1 validation tutorial.
 - [ ] 1 decision-tree page.
 - [ ] `helptoc.xml` has a "Concepts" section.
 - [ ] Each page is <150 LOC and cites a curriculum section.
@@ -932,11 +931,11 @@ Per chapter §4.C.2: "An iterated PPAF — a Newton-to-convergence variant — i
 - [ ] Unit test: assert K=1 gives the original extended-Kalman result; K>>1 converges to the true Laplace mode.
 - [ ] Commit: `feat(PPAF): expose NewtonIters option for iterated Laplace approximation`.
 
-### Task 4.2: Cross-validate against `reviews/ks-transformer-validation/`
+### Task 4.2: Cross-validate against `reviews/ks-validation/`
 
-The curriculum repo contains a 14-model zoo (4 PP-GLM tiers + 10 transformer/state-space variants) that empirically validates the discrete-time KS test.
+The curriculum repo contains a 14-model zoo (4 PP-GLM tiers + 10 decoder variants) that empirically validates the discrete-time KS test.
 
-- [ ] Locate `bci-curriculum/reviews/ks-transformer-validation/` fixtures and validation harness.
+- [ ] Locate `bci-curriculum/reviews/ks-validation/` fixtures and validation harness.
 - [ ] Port the relevant Python test data into MATLAB-loadable format.
 - [ ] Add `tests/integration/testKsAgainstCurriculumZoo.m`: run `Analysis.computeKSStats` on the curriculum's PP-GLM tier-1 simulated spike trains and assert oracle pass rate ≥ 0.94 across 100 simulated trials.
 - [ ] Commit: `test: validate Analysis.computeKSStats against bci-curriculum 14-model zoo`.
@@ -1010,7 +1009,6 @@ Every commit message ends with `Confidence: high|moderate|low`. Reviewers can pr
 - **Rewriting the Symbolic Math Toolbox dependency end-to-end.** Phase 3 Task 3.5 introduces `LinearCIF` as the default; the symbolic path remains for non-canonical links. A full rip-out is a bigger project that requires user feedback first.
 - **Touching the published nSTAT-python repo.** Out of scope.
 - **GUI/Simulink modernization.** Phase 1 archives the Simulink models; modernizing them to current Simulink idioms is not worth the effort given the strategic direction.
-- **Foundation-model integration code.** The `helpfiles/FoundationModelKSValidation.mlx` tutorial (Phase 2 Task 2.3) is a stand-in; a real integration with NDT/POYO/POSSM checkpoints is a research project, not a maintenance task.
 
 ---
 

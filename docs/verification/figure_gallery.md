@@ -175,15 +175,6 @@ Runs univariate and movement decoding examples with point-process adaptive and h
 
 ---
 
-## FoundationModelKSValidation
-*KS-test validation of foundation-model predicted rates (oracle / noisy / misspecified).*
-
-| # | Figure | Inspection |
-|---|---|---|
-| 1 | ![](../figures/verify_FoundationModelKSValidation/fig01.png) | ⬜ Title accurate? ⬜ Axes labeled? ⬜ Legend present? ⬜ Data series complete? |
-
----
-
 ## HelloNstat
 *Minimal onboarding workflow: spike times → fitted GLM → KS plot.*
 

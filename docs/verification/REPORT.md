@@ -38,7 +38,7 @@ The toolbox is in a verified-working state. The single PASS-W has a clean remedi
 ## Numerical accuracy — what was verified
 
 - **HelloNstat:** fitted intercept −4.3902 vs true `log(0.012)` = −4.4228 → within Bernoulli sampling SE of 0.09 ✅
-- **FoundationModelKSValidation:** Oracle PASS, Noisy PASS, Misspec FAIL (1.94× critical value) — all match prose claims ✅
+- **InternalValidation:** Oracle PASS, Noisy PASS, Misspec FAIL (1.94× critical value) — all match prose claims ✅
 - **KS oracle pass-rate (from integration test, Phase 4.2):** 0.97 / 0.955 / 0.955 / 0.945 / 0.935 at λΔ ∈ {0.005, 0.05, 0.1, 0.2, 0.4} — all within 0.95 ± 0.05 ✅ Confirms curriculum §4.C.1 Cor. 2.
 - **Unit-test suite:** 52/52 closed-form analytic-identity / numerical-parity / deprecation-warning tests pass (5.8s total).
 

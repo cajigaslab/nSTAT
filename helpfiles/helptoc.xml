@@ -40,7 +40,6 @@
       <tocitem target="DecodingExampleWithHist.html" id="nstat_decodinghist_example">Example Data Analysis - Decoding Univariate Simulated Stimuli with and without History Effect</tocitem>
       <tocitem target="StimulusDecode2D.html" id="nstat_stimulusdecode2d_example">Example Data Analysis - Decoding Bivariate Simulated Stimuli</tocitem>
       <tocitem target="HybridFilterExample.html" id="nstat_hybridfilter_example">Example Data Analysis - Point-Process Hybrid Filter</tocitem>
-      <tocitem target="FoundationModelKSValidation.html" id="nstat_foundationmodel_ks">KS Validation Pipeline for Neural Foundation Models</tocitem>
       <tocitem target="NetworkTutorial.html" id="nstat_networktutorial_example">Example Data Analysis - Two Neuron Network Simulation and Estimation of Ensemble Effect</tocitem>
       <tocitem target="nSTATPaperExamples.html" id="nstat_paper_examples">nSTAT Paper Examples</tocitem>
     </tocitem>

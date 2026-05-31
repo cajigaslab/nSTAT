@@ -50,11 +50,11 @@ nSTAT_Install('DownloadExampleData',true)
 
 | ID | Standalone source | Primary paper mapping | Figure gallery |
 |---|---|---|---|
-| `example01` | [examples/paper/example01_mepsc_poisson.m](../examples/paper/example01_mepsc_poisson.m) | Section 2.3.1; mEPSC analyses (related to Figs. 3 and 10) | [docs/figures/example01](./figures/example01/) |
-| `example02` | [examples/paper/example02_whisker_stimulus_thalamus.m](../examples/paper/example02_whisker_stimulus_thalamus.m) | Section 2.3.2; explicit stimulus + history effects (related to Figs. 4 and 11) | [docs/figures/example02](./figures/example02/) |
-| `example03` | [examples/paper/example03_psth_and_ssglm.m](../examples/paper/example03_psth_and_ssglm.m) | Sections 2.3.3-2.3.4; PSTH and SSGLM (related to Figs. 5, 6, and 12) | [docs/figures/example03](./figures/example03/) |
-| `example04` | [examples/paper/example04_place_cells_continuous_stimulus.m](../examples/paper/example04_place_cells_continuous_stimulus.m) | Section 2.3.5; place-cell receptive fields (related to Figs. 7 and 13) | [docs/figures/example04](./figures/example04/) |
-| `example05` | [examples/paper/example05_decoding_ppaf_pphf.m](../examples/paper/example05_decoding_ppaf_pphf.m) | Sections 2.3.6-2.3.7; decoding with PPAF/PPHF (related to Figs. 8, 9, 14, plus canonical hybrid extension) | [docs/figures/example05](./figures/example05/) |
+| `example01` | [examples/paper/example01_mepsc_poisson.m](https://github.com/cajigaslab/nSTAT/blob/master/examples/paper/example01_mepsc_poisson.m) | Section 2.3.1; mEPSC analyses (related to Figs. 3 and 10) | [docs/figures/example01](https://github.com/cajigaslab/nSTAT/tree/master/docs/figures/example01) |
+| `example02` | [examples/paper/example02_whisker_stimulus_thalamus.m](https://github.com/cajigaslab/nSTAT/blob/master/examples/paper/example02_whisker_stimulus_thalamus.m) | Section 2.3.2; explicit stimulus + history effects (related to Figs. 4 and 11) | [docs/figures/example02](https://github.com/cajigaslab/nSTAT/tree/master/docs/figures/example02) |
+| `example03` | [examples/paper/example03_psth_and_ssglm.m](https://github.com/cajigaslab/nSTAT/blob/master/examples/paper/example03_psth_and_ssglm.m) | Sections 2.3.3-2.3.4; PSTH and SSGLM (related to Figs. 5, 6, and 12) | [docs/figures/example03](https://github.com/cajigaslab/nSTAT/tree/master/docs/figures/example03) |
+| `example04` | [examples/paper/example04_place_cells_continuous_stimulus.m](https://github.com/cajigaslab/nSTAT/blob/master/examples/paper/example04_place_cells_continuous_stimulus.m) | Section 2.3.5; place-cell receptive fields (related to Figs. 7 and 13) | [docs/figures/example04](https://github.com/cajigaslab/nSTAT/tree/master/docs/figures/example04) |
+| `example05` | [examples/paper/example05_decoding_ppaf_pphf.m](https://github.com/cajigaslab/nSTAT/blob/master/examples/paper/example05_decoding_ppaf_pphf.m) | Sections 2.3.6-2.3.7; decoding with PPAF/PPHF (related to Figs. 8, 9, 14, plus canonical hybrid extension) | [docs/figures/example05](https://github.com/cajigaslab/nSTAT/tree/master/docs/figures/example05) |
 
 ## Gallery
 

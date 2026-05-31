@@ -3,6 +3,8 @@ nSTAT
 
 Neural Spike Train Analysis Toolbox for Matlab
 
+> 📖 **Start here:** [**5-minute introduction page**](https://cajigaslab.github.io/nSTAT/) — hero, install, six runnable snippets covering simulation → fitting → KS goodness-of-fit → decoding → SSGLM → foundation-model validation, plus a paper-example thumbnail gallery and v1.4.0 release highlights.
+
 **nSTAT** is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis: PP-GLM fitting (Poisson and binomial), time-rescaling KS goodness-of-fit, PPAF (point-process adaptive filter — the spike-train analog of the Kalman filter), PPHF (hybrid discrete + continuous-state filter), SSGLM (state-space GLM for trial-drifting coefficients), and PPLFP (multi-modal spike + LFP sensor-fusion filter).
 
 For the canonical textbook treatment of the math — including full derivations of the time-rescaling theorem, the PPAF as one Newton step on the variational free energy, and the PPLFP additive innovation — see *Decoding the Brain*, Chapter 4 (Cajigas Lab Curriculum).

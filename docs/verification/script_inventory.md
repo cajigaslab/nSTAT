@@ -21,7 +21,6 @@
 | Script | Purpose | Tier |
 |---|---|---|
 | `helpfiles/HelloNstat.m` | Minimal onboarding workflow | A (already verified) |
-| `helpfiles/FoundationModelKSValidation.m` | KS validation pipeline demo | A (already verified) |
 | `helpfiles/WhenToUseWhich.m` | Documentation-only decision tree | docs-only (no exec) |
 
 ### Category 3 — Class-specific demonstration scripts (15 scripts; Tier B)

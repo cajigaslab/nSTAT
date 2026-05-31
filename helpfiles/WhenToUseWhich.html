@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>nSTAT decision tree: which class / method do I need?</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-05-31">
 <meta name="DC.source" content="WhenToUseWhich.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -106,22 +106,19 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <a href="#7">Section E: PPLFP -- multimodal spike + LFP sensor fusion</a>
 </li>
 <li>
-<a href="#8">Section F: foundation-model KS validation</a>
+<a href="#8">Section F: simulating point processes</a>
 </li>
 <li>
-<a href="#9">Section G: simulating point processes</a>
+<a href="#9">Cross-class composability</a>
 </li>
 <li>
-<a href="#10">Cross-class composability</a>
+<a href="#10">Defaults you might want to override</a>
 </li>
 <li>
-<a href="#11">Defaults you might want to override</a>
+<a href="#11">Where the implementations live</a>
 </li>
 <li>
-<a href="#12">Where the implementations live</a>
-</li>
-<li>
-<a href="#13">References</a>
+<a href="#12">References</a>
 </li>
 </ul>
 </div>
@@ -147,9 +144,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <b>Decode</b> a joint discrete + continuous state (e.g., reach class + trajectory): see Section D (PPHF).</li>
 <li>
 <b>Multi-modal</b> decoding from both spikes AND LFP: see Section E (PPLFP).</li>
-<li>Validate a <b>foundation-model</b> decoder's predicted intensity rates: see Section F (KS validation).</li>
 <li>
-<b>Simulate</b> a point process from a known intensity function: see Section G (CIF.simulateCIF).</li>
+<b>Simulate</b> a point process from a known intensity function: see Section F (CIF.simulateCIF).</li>
 </ul>
 </div>
 <h2 id="3">Section A: fitting a stationary PP-GLM</h2>
@@ -224,7 +220,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <p>
 <b>Class:</b> <tt>nstat.decoding.PPLFP</tt> (renamed from the historical <tt>mPPCO_*</tt> family in Phase 3 Task 3.1; legacy names still work via deprecation shims).</p>
 <p>
-<b>One-line summary:</b> Joint posterior over a continuous state given BOTH Poisson spike observations AND Gaussian LFP-power observations. Additive innovations + shared posterior covariance. Classical antecedent of NDT2/NDT3/POYO+/POSSM joint multimodal tokenization.</p>
+<b>One-line summary:</b> Joint posterior over a continuous state given BOTH Poisson spike observations AND Gaussian LFP-power observations. Additive innovations + shared posterior covariance. Classical foundation for joint multimodal point-process inference.</p>
 <p>
 <b>Methods:</b>
 </p>
@@ -241,30 +237,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <p>
 <b>Worked example:</b> Adapt the example05 PPAF/PPHF skeleton with the LFP-observation arguments.</p>
 <p>
-<b>Curriculum reference:</b> sec. 4.B.7 PPLFP (Cajigas 2013 unpublished; boxed equations sec. 4.B.7.3); sec. 4.B.7.5 foundation-model bridge.</p>
-<h2 id="8">Section F: foundation-model KS validation</h2>
-<p>
-<b>Class:</b> <tt>Analysis.computeKSStats</tt> + <tt>FitResult.KSPlot</tt>.</p>
-<p>
-<b>One-line summary:</b> Time-rescaling KS test (Brown et al. 2002, Haslinger-Pipa-Brown 2010 DT correction). Applies unchanged to ANY rate-emitting decoder -- classical PP-GLM, RNN, transformer.</p>
-<p>
-<b>Methods:</b>
-</p>
-<div>
-<ul>
-<li>
-<tt>Analysis.computeKSStats(nst, lambda, DTCorrection)</tt>
-</li>
-<li>
-<tt>FitResult.KSPlot</tt>
-</li>
-</ul>
-</div>
-<p>
-<b>Worked example:</b> <tt>helpfiles/FoundationModelKSValidation.m</tt> (Phase 2 Task 2.3).</p>
-<p>
-<b>Curriculum reference:</b> sec. 4.B.3 KS test; sec. 4.B.10 Thesis 2 (foundation models ARE PP-GLMs); sec. 4.C.1 Cor. 2 (discrete-time validity bound).</p>
-<h2 id="9">Section G: simulating point processes</h2>
+<b>Curriculum reference:</b> sec. 4.B.7 PPLFP (Cajigas 2013 unpublished; boxed equations sec. 4.B.7.3).</p>
+<h2 id="8">Section F: simulating point processes</h2>
 <p>
 <b>Class:</b> <tt>CIF</tt>.</p>
 <p>
@@ -282,7 +256,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <b>For pure-Poisson-from-rate simulation</b> the <tt>nspikeTrain.simulatePoissonFromRate</tt> helper (planned) or the inline pattern in <tt>helpfiles/HelloNstat.m</tt> is simpler. Use <tt>CIF</tt> only when you need a symbolic CIF with history coefficients.</p>
 <p>
 <b>Curriculum reference:</b> sec. 4.A.3 (worked example: simulating an inhomogeneous Poisson process).</p>
-<h2 id="10">Cross-class composability</h2>
+<h2 id="9">Cross-class composability</h2>
 <p>These classes compose:</p>
 <div>
 <ul>
@@ -296,13 +270,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <tt>Analysis.computeKSStats</tt> accepts any <tt>Covariate</tt> representing a predicted rate -- including outputs from non-nSTAT models.</li>
 </ul>
 </div>
-<h2 id="11">Defaults you might want to override</h2>
+<h2 id="10">Defaults you might want to override</h2>
 <p>
 <tt>+nstat/Defaults.m</tt> centralizes EM tolerances, ring-buffer sizes, PPAF Newton iterations, KS regime bounds, etc. (Phase 3 Task 3.3). Override at the method's call site by passing a different value rather than editing Defaults.m globally.</p>
-<h2 id="12">Where the implementations live</h2>
+<h2 id="11">Where the implementations live</h2>
 <p>After Phase 3 Task 3.2 (commit ed435f7 in master), all algorithmic code lives in <tt>+nstat/+decoding/</tt>. <tt>DecodingAlgorithms.m</tt> is a thin deprecation-shim facade. New code should call <tt>nstat.decoding.PPAF.*</tt> / <tt>nstat.decoding.PPHF.*</tt> etc. directly.</p>
 <p>Helper methods that don't belong to any single cluster (prepareEMResults, ComputeStimulusCIs, estimateInfoMat, computeSpikeRateCIs, computeSpikeRateDiffCIs) remain on <tt>DecodingAlgorithms</tt> until a future Phase 4 follow-up relocates them to <tt>nstat.decoding.internal</tt>.</p>
-<h2 id="13">References</h2>
+<h2 id="12">References</h2>
 <div>
 <ul>
 <li>The 2012 toolbox paper: Cajigas, Malik, Brown. <i>J Neurosci Methods</i> 211:245-264.</li>
@@ -345,10 +319,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %   trajectory): see Section D (PPHF).
 % * *Multi-modal* decoding from both spikes AND LFP: see Section E
 %   (PPLFP).
-% * Validate a *foundation-model* decoder's predicted intensity rates:
-%   see Section F (KS validation).
 % * *Simulate* a point process from a known intensity function: see
-%   Section G (CIF.simulateCIF).
+%   Section F (CIF.simulateCIF).
 
 %% Section A: fitting a stationary PP-GLM
 %
@@ -438,7 +410,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 % *One-line summary:* Joint posterior over a continuous state given
 % BOTH Poisson spike observations AND Gaussian LFP-power observations.
 % Additive innovations + shared posterior covariance. Classical
-% antecedent of NDT2/NDT3/POYO+/POSSM joint multimodal tokenization.
+% foundation for joint multimodal point-process inference.
 %
 % *Methods:*
 %
@@ -451,29 +423,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 % LFP-observation arguments.
 %
 % *Curriculum reference:* sec. 4.B.7 PPLFP (Cajigas 2013 unpublished;
-% boxed equations sec. 4.B.7.3); sec. 4.B.7.5 foundation-model bridge.
+% boxed equations sec. 4.B.7.3).
 
-%% Section F: foundation-model KS validation
-%
-% *Class:* |Analysis.computeKSStats| + |FitResult.KSPlot|.
-%
-% *One-line summary:* Time-rescaling KS test (Brown et al. 2002,
-% Haslinger-Pipa-Brown 2010 DT correction). Applies unchanged to ANY
-% rate-emitting decoder REPLACE_WITH_DASH_DASH classical PP-GLM, RNN, transformer.
-%
-% *Methods:*
-%
-% * |Analysis.computeKSStats(nst, lambda, DTCorrection)|
-% * |FitResult.KSPlot|
-%
-% *Worked example:* |helpfiles/FoundationModelKSValidation.m| (Phase 2
-% Task 2.3).
-%
-% *Curriculum reference:* sec. 4.B.3 KS test; sec. 4.B.10 Thesis 2
-% (foundation models ARE PP-GLMs); sec. 4.C.1 Cor. 2 (discrete-time
-% validity bound).
-
-%% Section G: simulating point processes
+%% Section F: simulating point processes
 %
 % *Class:* |CIF|.
 %

@@ -21,7 +21,6 @@
       ]
     },
     {
-      "script": "FoundationModelKSValidation",
       "status": "PASS",
       "runtime_s": 0.87688116666666671,
       "warning_id": "",
@@ -30,7 +29,6 @@
       "error_msg": "",
       "figure_count": 1,
       "figure_paths": [
-        "/Users/iahncajigas/projects/nstat/docs/figures/verify_FoundationModelKSValidation/fig01.png"
       ]
     }
   ]

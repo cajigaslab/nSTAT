@@ -9,7 +9,6 @@
 
 **Counterargument (consider before agreeing with this plan).** nSTAT already publishes a help site at `https://cajigaslab.github.io/nSTAT/` via the MATLAB-native `publish()` workflow ([`helpfiles/publish_all_helpfiles.m`](../../../helpfiles/publish_all_helpfiles.m)). The PR #43 deploy gate verified that all 41 `.html` pages publish cleanly and `helptoc.xml` validates. Adding a *second* documentation system (Jupyter Book) duplicates the surface area, splits the source of truth, and introduces a Python toolchain to a MATLAB toolbox.
 
-**Refutation (why ship the plan anyway).** The existing site is the **in-MATLAB doc browser dressed up for the web**. Probe `https://cajigaslab.github.io/nSTAT/NeuralSpikeAnalysis_top.html`: austere, plain text, citation-focused, no hero, no install instructions, no figure thumbnails, no quickstart, no "where to start" guidance. Last regenerated 2026-02-27 — predates PR #42's gallery, predates PR #43's `HelloNstat.html` / `WhenToUseWhich.html` / `FoundationModelKSValidation.html`. A first-time visitor lands and bounces.
 
 The Python port solved this with `intro.html` — a hand-authored MyST page with a hero, install snippet, **5-minute tour** (6 progressive code snippets), `extras` overview cards, paper-example thumbnail gallery, and a "where to next" hub. Bounce rate on that page is presumably much lower (no instrumentation, but the structure is empirically much friendlier).
 
@@ -22,7 +21,6 @@ The Python port solved this with `intro.html` — a hand-authored MyST page with
 | GitHub README (the most-visited surface) | [`README.md`](../../../README.md) | Current; has figure-gallery table; PR #43 added Phase 0–4 section |
 | Canonical onboarding tutorial | [`helpfiles/HelloNstat.m`](../../../helpfiles/HelloNstat.m) | 5786 bytes; Phase 2 addition |
 | Algorithm-selection decision tree | [`helpfiles/WhenToUseWhich.m`](../../../helpfiles/WhenToUseWhich.m) | 8170 bytes; Phase 2 |
-| KS validation pipeline for foundation models | [`helpfiles/FoundationModelKSValidation.m`](../../../helpfiles/FoundationModelKSValidation.m) | 7162 bytes; Phase 2 |
 | Paper-aligned toolbox map | [`helpfiles/PaperOverview.m`](../../../helpfiles/PaperOverview.m) | 3263 bytes |
 | Class definitions index | [`helpfiles/ClassDefinitions.m`](../../../helpfiles/ClassDefinitions.m) | 845 bytes |
 | Published HTML for all 38 `.m` pages | `helpfiles/*.html` | 41 files; PR #43 regen |
@@ -133,13 +131,6 @@ figure; plot(results.stimulusGain);   % per-trial coefficient drift
 ```
 [→ deeper: `AnalysisExamples2.html`](https://cajigaslab.github.io/nSTAT/AnalysisExamples2.html) and the SSGLM section of `nSTATPaperExamples.html`
 
-**Tour 6 — KS validation for foundation-model rate predictions.**
-```matlab
-% Apply nSTAT's time-rescaling KS to any rate-emitting decoder (LFADS, NDT, POYO, …):
-[KS_stat, p_value, U] = Analysis.computeKSStats(lambda_predicted, spiketimes_true, dt);
-```
-[→ pipeline: `FoundationModelKSValidation.html`](https://cajigaslab.github.io/nSTAT/FoundationModelKSValidation.html)
-
 ### E2.4 — Paper-example thumbnail gallery
 
 Mirror the Python intro's gallery: 5 thumbnail rows with question, hero image, and run command. All thumbnails ALREADY EXIST in `docs/figures/example0N/fig01_*.png`:
@@ -162,7 +153,6 @@ Mirror the Python intro's gallery: 5 thumbnail rows with question, hero image, a
 - [Paper-aligned toolbox map](PaperOverview.html) — match 2012 paper sections to code
 - [Class definitions](ClassDefinitions.html) — SignalObj, Covariate, Trial, Analysis, FitResult, ...
 - [Algorithm decision tree](WhenToUseWhich.html) — which decoder for which problem?
-- [Foundation-model KS validation](FoundationModelKSValidation.html) — apply nSTAT to LFADS/NDT/POYO predictions
 - [Full helpfiles index](helpfiles/) — every published `.m` page
 - [Release notes](https://github.com/cajigaslab/nSTAT/blob/master/RELEASE_NOTES.md)
 - [Python port](https://github.com/cajigaslab/nSTAT-python) — same algorithms in Python

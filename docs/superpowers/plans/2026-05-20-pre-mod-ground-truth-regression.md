@@ -114,7 +114,7 @@ cd /tmp/nstat-pre-mod
 - Some Tier-B helpfiles may **fail differently** on pre-mod than on current master — e.g., `findGlobalPeak('minima')` crashed pre-audit due to the `sOBj` typo. The audit fixed those. Pre-audit failures should NOT be ground truth.
 - **`getPaperDataDirs` did exist at 3494801**, so figshare-dependent scripts should run.
 - **The Tier-A migrated helpfiles** (DecodingExample etc.) ran via `DecodingAlgorithms.*` directly at `3494801` — they SHOULD produce identical outputs to current master because the deprecation shims forward verbatim.
-- **Scripts that didn't exist** at `3494801` (HelloNstat, FoundationModelKSValidation, WhenToUseWhich — all added in PR #36) **must be skipped**; mark them "no baseline available."
+- **Scripts that didn't exist** at `3494801` (HelloNstat, InternalValidation, WhenToUseWhich — all added in PR #36) **must be skipped**; mark them "no baseline available."
 
 #### D1.3 Capture outputs
 

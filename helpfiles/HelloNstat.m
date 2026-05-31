@@ -20,8 +20,6 @@
 % - Decoding (PPAF / PPHF / PPLFP) -- see |helpfiles/DecodingExample.m|.
 % - State-space GLM for trial-drifting coefficients -- see
 %   |helpfiles/SSGLMExample.m|.
-% - Foundation-model KS validation -- see
-%   |helpfiles/FoundationModelKSValidation.m|.
 
 %% Step 1 -- simulate a spike train
 %
@@ -137,8 +135,6 @@ title('Hello, nSTAT -- KS plot for baseline-only GLM');
 % - |helpfiles/DecodingExample.m| -- point-process adaptive filter (PPAF)
 %   decoding stimulus from spike trains.
 % - |helpfiles/PPSimExample.m| -- simulating point processes with CIF.
-% - |helpfiles/FoundationModelKSValidation.m| -- using the KS test to
-%   validate any rate-emitting decoder (transformers, RNNs, classical).
 % - |examples/paper/example01_mepsc_poisson.m| -- full reproduction of
 %   the 2012 paper's first analysis.
 %

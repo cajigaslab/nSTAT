@@ -62,7 +62,7 @@ These may be intentionally-private helpers or example scripts not yet surfaced i
 - `EventsExamples_04.png`
 - `ExplicitStimulusWhiskerData.png`
 - `ExplicitStimulusWhiskerData_10.png`
-- `FoundationModelKSValidation.png`
+- `InternalValidation.png`
 - `HelloNstat.png`
 - `HippocampalPlaceCellExample.png`
 - `HippocampalPlaceCellExample_10.png`

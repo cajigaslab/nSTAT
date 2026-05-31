@@ -54,7 +54,7 @@ These are infrastructure additions that do not affect runtime behavior. They mak
 - **One-command deploy gate** (`tools/predeploy.sh`) — chains unit tests, integration tests, README figure parity, helpfile HTML republish, helpsearch rebuild, helptoc lint, and sibling-bug-pattern audit. ~30–45 minute wall clock; the canonical pre-tag check. See [`CONTRIBUTING.md`](CONTRIBUTING.md) "Release & regeneration".
 - **Release stamping** (`tools/stamp_release.m`) — updates `Contents.m` version stamp, manifest `generated_at`, and the next `RELEASE_NOTES.md` section template. Idempotent. Run after the deploy gate passes; before `git tag`.
 - **Bug-pattern audit** (`tools/check_bug_patterns.sh`) — `grep` over 11 known-bad patterns (Bernoulli LL wrap, `isa('nan')`, `eval()`, `histc`, `roundn`, `rng('shuffle')`, `symvar` reorder, `sampeRate` typo, `log(0)`, silent `catch`, `.^2`/`.^3` confusions). Informational; not a release blocker. Triage 2026-05-20: 0 actionable sibling defects.
-- **Help-system integrity** — [docs/verification/helpsystem_audit.md](docs/verification/helpsystem_audit.md) documents the `helptoc.xml` ↔ `.html` ↔ `.m` ↔ search-index audit. 9 previously-missing TOC entries added (including the canonical onboarding `HelloNstat`, the `WhenToUseWhich` decision tree, and the `FoundationModelKSValidation` pipeline page).
+- **Help-system integrity** — [docs/verification/helpsystem_audit.md](docs/verification/helpsystem_audit.md) documents the `helptoc.xml` ↔ `.html` ↔ `.m` ↔ search-index audit. 8 previously-missing TOC entries added (including the canonical onboarding `HelloNstat` and the `WhenToUseWhich` decision tree).
 
 ### Backward compatibility
 

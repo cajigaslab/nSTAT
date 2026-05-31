@@ -21,7 +21,7 @@
 :target: https://github.com/cajigaslab/nSTAT-python
 ```
 
-nSTAT is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis published in Cajigas, Malik & Brown (*J. Neurosci. Methods* 211:245–264, 2012; PMID 22981419). Every modern neural-foundation-model decoder (LFADS, NDT, POYO, …) minimizes the same Poisson NLL as a classical PP-GLM — only the function class parameterizing `log λ` changes. nSTAT's time-rescaling KS test applies *unchanged* to any rate-emitting decoder, and Tour 6 below shows how in three lines.
+nSTAT is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis published in Cajigas, Malik & Brown (*J. Neurosci. Methods* 211:245–264, 2012; PMID 22981419). Time-rescaling KS goodness-of-fit, PPAF / PPHF decoders, SSGLM for trial-drifting coefficients, and PPLFP for spike + LFP sensor fusion — all on a coherent class-based API.
 
 ---
 
@@ -39,7 +39,7 @@ Non-interactive: `nSTAT_Install('DownloadExampleData', true, 'RebuildDocSearch',
 
 ## 5-minute tour
 
-Six runnable snippets, progressive complexity. Each links to a deeper helpfile for the full treatment.
+Five runnable snippets, progressive complexity. Each links to a deeper helpfile for the full treatment.
 
 ### Tour 1 — Create a spike train
 
@@ -129,24 +129,6 @@ Useful for: learning curves, plasticity, task-state drift, anything where one
 fit-for-all-trials hides the dynamics.
 
 🔗 Deeper: [`AnalysisExamples2.html`](https://cajigaslab.github.io/nSTAT/AnalysisExamples2.html) and the SSGLM section of [`nSTATPaperExamples.html`](https://cajigaslab.github.io/nSTAT/nSTATPaperExamples.html)
-
-### Tour 6 — Validate a foundation-model decoder with the KS test
-
-The time-rescaling KS test does not care where `λ(t)` comes from — a 2012 PP-GLM or a 2025 transformer. Three lines:
-
-```matlab
-% lambda  : T-by-1 predicted rate from your decoder (LFADS, NDT, POYO, …)
-% nst     : nspikeTrain of the true spikes
-% DTCorrection=1 for λΔ > 0.4 regimes
-
-[Z, U, x_ks, KS_max, ks_stat] = Analysis.computeKSStats(nst, lambda, 1);
-
-% ks_stat < band95 → fit is consistent with the time-rescaling null.
-```
-
-No published BCI-transformer paper currently runs the KS validation on its predicted rates. nSTAT is the tool that closes that gap.
-
-🔗 Deeper: [`FoundationModelKSValidation.html`](https://cajigaslab.github.io/nSTAT/FoundationModelKSValidation.html) — full pipeline with 3 synthetic decoders ranked by KS
 
 ---
 
@@ -294,11 +276,6 @@ Match 2012 paper sections to current code.
 :::{grid-item-card} 🧭 Algorithm decision tree
 :link: WhenToUseWhich.html
 Which decoder/fitter for which problem?
-:::
-
-:::{grid-item-card} 🔬 KS for foundation models
-:link: FoundationModelKSValidation.html
-Apply nSTAT's KS to LFADS / NDT / POYO predictions.
 :::
 
 :::{grid-item-card} 🏛️ Class definitions

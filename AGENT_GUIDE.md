@@ -302,7 +302,7 @@ figure parity".
 
 - **Intro page at [cajigaslab.github.io/nSTAT](https://cajigaslab.github.io/nSTAT/)** —
   the public landing. Hero + install + 5-minute tour + paper-example gallery +
-  v1.4 highlights. Source: `docs/intro.md` (Sphinx + MyST + sphinx-rtd-theme).
+  v1.4 highlights. Source: `docs/index.md` (Sphinx + MyST + sphinx-rtd-theme).
   Auto-deploys on push to `master` via `.github/workflows/docs.yml`. Helpfiles
   HTML is served alongside (via `html_extra_path` in `docs/conf.py`).
 - **`Contents.m`** — `help nSTAT` entry point.

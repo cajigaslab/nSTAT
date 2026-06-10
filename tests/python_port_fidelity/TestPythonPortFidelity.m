@@ -8,6 +8,12 @@ classdef TestPythonPortFidelity < matlab.unittest.TestCase
 
     methods (TestClassSetup)
         function setup(tc)
+            % Cross-language fidelity is a parity test: honor the same
+            % NSTAT_SKIP_PARITY_TESTS flag TestParityAgainstBaseline uses, so
+            % run_tests('IncludeParity',false) skips (not errors) on a
+            % MATLAB-only machine without the Python port environment.
+            tc.assumeFalse(strcmp(getenv('NSTAT_SKIP_PARITY_TESTS'), '1'), ...
+                'Skipping Python-port parity tests via NSTAT_SKIP_PARITY_TESTS');
             tc.RootDir = fileparts(fileparts(fileparts(mfilename('fullpath'))));
             addpath(fullfile(tc.RootDir, 'tools', 'python'));
             addpath(fullfile(tc.RootDir, 'tests', 'python_port_fidelity'));

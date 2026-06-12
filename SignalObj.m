@@ -1349,6 +1349,18 @@ classdef SignalObj < handle
                 end
             else
                 sObjOut = sObj.copySignal;
+                % FIX (#54): if the time window has been mutated by
+                % setMinTime/setMaxTime since construction, the cached
+                % sampleRate may still match but the time vector no longer
+                % matches the implied grid. Force a resample-on-grid in
+                % that case so downstream makeCompatible/length-mismatch
+                % paths don't see stale data.
+                if ~isnan(newSampleRate) && size(sObjOut.data,1)>1
+                    expectedLen = round((sObjOut.maxTime - sObjOut.minTime) * newSampleRate) + 1;
+                    if length(sObjOut.time) ~= expectedLen
+                        sObjOut.resampleMe(newSampleRate);
+                    end
+                end
             end
         end
         function resampleMe(sObj, newSampleRate)
@@ -1478,7 +1490,9 @@ classdef SignalObj < handle
             sTemp = sObj.shift(deltaT,updateLabels);
             sObj.data=sTemp.data;
             sObj.time=sTemp.time;
-        end        
+            sObj.minTime=sTemp.minTime; % FIX (#14): keep minTime/maxTime in sync with time vector after shift
+            sObj.maxTime=sTemp.maxTime;
+        end
         function alignTime(sObj, timeMarker,newTime)
             if(sObj.minTime<=timeMarker && sObj.maxTime>=timeMarker)
                 deltaT=newTime-timeMarker;

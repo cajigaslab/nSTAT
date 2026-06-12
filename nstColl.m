@@ -170,12 +170,13 @@ classdef nstColl < handle
             % within the nstCollObj object. Empty values are skipped.
             cnt =1;
             fieldVal=[];
+            neuronNumbers=[];
             for i=1:nstCollObj.numSpikeTrains
-               currVal = nstCollObj.getNST(i).getFieldVal(fieldName); 
+               currVal = nstCollObj.getNST(i).getFieldVal(fieldName);
                if(~isempty(currVal))
                 fieldVal(cnt)=currVal;
+                neuronNumbers(cnt) = i; % FIX (#55): write neuronNumbers at SAME cnt as fieldVal (was post-increment, paired records were offset by one with a leading 0)
                 cnt = cnt+1;
-                neuronNumbers(cnt) = i;
                end
             end
         end
@@ -394,10 +395,11 @@ classdef nstColl < handle
         end
         
         function name = getNSTnameFromInd(nstCollObj,ind)
-           if(ind>0 && nstCollObj.numSpikeTrains)
+           if(ind>0 && ind<=nstCollObj.numSpikeTrains) % FIX (#56): was `ind>0 && nstCollObj.numSpikeTrains` -- truthy guard always passed for non-empty collections regardless of ind
                name = nstCollObj.neuronNames(ind);
            else
-               error('Index is out of bounds!');
+               error('nstColl:getNSTnameFromInd:OutOfBounds', ...
+                   'Index %d is out of bounds (numSpikeTrains = %d)', ind, nstCollObj.numSpikeTrains);
            end
            
         end
@@ -1474,10 +1476,8 @@ classdef nstColl < handle
             
             ind = nstCollObj.getIndFromMask;
             windowedSpikeTimes=cell(length(ind),1);
+            count = 1; % FIX (#21): hoist count init out of the if(i==1) branch; the mask may exclude neuron 1 entirely, in which case count was undefined when used below
             for i=ind
-                if(i==1)
-                    count=1;
-                end
                 currSpike = nstCollObj.getNST(i);
                 windowedSpikeTimes{count} = currSpike.getSpikeTimes;
                 count=count+1;

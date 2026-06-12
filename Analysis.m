@@ -1085,8 +1085,8 @@ end
                     
                     for j=1:length(neighbors)
                         ensCovMaskTemp = ensCovMask;
-                        ensCovMaskTemp(neighbors(j),neuronNum)=0;
-                    
+                        ensCovMaskTemp(neighbors(j),neuronNum(i))=0; % FIX (#15): was neuronNum (the full neuron-list), zeroed every neuron's column for this neighbor; only the specific neuron under test (index i) should be excluded
+
                         tc{2}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMaskTemp); tc{2}.setName([num2str(neighbors(j)) 'excluded from ' num2str(neuronNum(i))]);
                         tcc = ConfigColl(tc);             
             
@@ -1098,8 +1098,13 @@ end
                 for j=1:length(neighbors)
                     gammaMat(neighbors(j),neuronNum(i)) = fitResults{i}{j}.logLL(2)-fitResults{i}{j}.logLL(1);
                     [coeffMat, labels, SEMat] = fitResults{i}{j}.getCoeffs(1);
-                    coeffInd=strfind(labels,[num2str(neighbors(j)) ':[']);
-                    gammaVals =coeffMat(~isempty(coeffInd));
+                    % FIX (#51): coeffInd was a cellarray from strfind on a
+                    % cellarray of labels; ~isempty on a cellarray returns
+                    % a SCALAR (true if the cellarray itself is non-empty),
+                    % so coeffMat(~isempty(coeffInd)) indexed only the
+                    % first coefficient. Build a logical mask per-label.
+                    coeffMaskNeighbor = ~cellfun(@isempty, strfind(labels,[num2str(neighbors(j)) ':[']));
+                    gammaVals =coeffMat(coeffMaskNeighbor);
                     phiMat(neighbors(j),neuronNum(i)) = -sign(sum(gammaVals))*gammaMat(neighbors(j),neuronNum(i));
                     dimDiff(neighbors(j),neuronNum(i)) = abs(diff(fitResults{i}{j}.numCoeffs));
                     valConfInt(neighbors(j),neuronNum(i)) = chi2inv(confidenceInterval,dimDiff(neighbors(j),neuronNum(i)));

@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
     paths:
-      - 'docs/intro.md'
+      - 'docs/index.md'
       - 'docs/paper_examples.md'
       - 'docs/conf.py'
       - 'docs/figures/**'
@@ -20,6 +20,13 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: false
+
+# Opt into Node.js 24 ahead of GitHub Actions' 2026-06-16 default flip.
+# Avoids the "Node.js 20 actions are deprecated" warning on every deploy and
+# pre-emptively migrates actions/checkout, actions/setup-python,
+# actions/configure-pages, actions/upload-pages-artifact, actions/deploy-pages.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:

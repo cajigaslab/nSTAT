@@ -474,10 +474,14 @@ classdef DecodingAlgorithms
             Ic=zeros(J+R,J+R);
             Q=(diag(Q)); % Make sure Q is diagonal matrix
 
-
-            X=((SumXkTerms));
-            Ic(1:R,1:R) = K/2*eye(size(Q))/Q^2 +X'/Q^3;
-
+            % FIX (#57): the dead assignment
+            %     X = SumXkTerms;
+            %     Ic(1:R,1:R) = K/2*eye(size(Q))/Q^2 + X'/Q^3;
+            % previously lived here. It was unconditionally overwritten
+            % later in the same function by the canonical assignment
+            %     Ic(1:R,1:R) = K*eye(size(Q))/(2*Q^2) + (eye(size(Q))/Q^3)*SumXkTerms;
+            % Removed to drop a refactor leftover that misled readers
+            % into thinking two distinct branches existed.
 
             % Compute information of history terms
             minTime=0;

@@ -159,9 +159,15 @@ classdef TrialConfig <handle
         function tcObj = fromStructure(structure)
             % tcObj is a TrialConfig object that is reconstructed from the
             % structure
-            tcObj=TrialConfig(structure.covMask,structure.sampleRate, ...
-                              structure.history,structure.ensCovHist, ...
-                              structure.covLag,structure.name);
+            % FIX (#19, #58): pre-fix this call OMITTED ensCovMask AND was
+            % positionally shifted (covLag landed in the ensCovMask slot,
+            % name landed in the covLag slot). The constructor signature
+            % is TrialConfig(covMask, sampleRate, history, ensCovHist,
+            % ensCovMask, covLag, name) -- match it exactly.
+            tcObj = TrialConfig(structure.covMask, structure.sampleRate, ...
+                                structure.history, structure.ensCovHist, ...
+                                structure.ensCovMask, structure.covLag, ...
+                                structure.name);
         end
     end
     

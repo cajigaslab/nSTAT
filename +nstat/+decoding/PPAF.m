@@ -490,7 +490,7 @@ classdef PPAF
     %                 HkAll{c} = histObj.computeHistory(nst{c}).dataToMatrix;
                 end
                 if(size(gamma,2)==1 && C>1) % if more than 1 cell but only 1 gamma
-                    gammaNew(:,c) = gamma;
+                    gammaNew = repmat(gamma,1,C); % FIX (#20): was gammaNew(:,c)=gamma reusing post-loop c==C so only the last column was set
                 else
                     gammaNew=gamma;
                 end
@@ -665,12 +665,12 @@ classdef PPAF
 %                 HkAll{c} = histObj.computeHistory(nst{c}).dataToMatrix;
             end
             if(size(gamma,2)==1 && C>1) % if more than 1 cell but only 1 gamma
-                gammaNew(:,c) = gamma;
+                gammaNew = repmat(gamma,1,C); % FIX (#20): was gammaNew(:,c)=gamma reusing post-loop c==C so only the last column was set
             else
                 gammaNew=gamma;
             end
             gamma = gammaNew;
-                
+
         else
             for c=1:C
 %                 HkAll{c} = zeros(N,1);

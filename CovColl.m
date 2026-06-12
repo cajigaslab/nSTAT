@@ -371,13 +371,13 @@ classdef CovColl <handle
         function maxTime = findMaxTime(ccObj)
             % maxTime = findMaxTime(ccObj)
             % finds that maximum maxTime from all covariates.
-            
+
             maxTime=-inf;
             for i=1:ccObj.numCov
-                maxTime = max(ccObj.covArray{i}.maxTime+ccObj.covShift,maxTime);
-            end   
+                maxTime = max(ccObj.covArray{i}.maxTime,maxTime); % FIX (#18): drop in-loop +covShift; the +covShift on the return value below is the single canonical application (symmetric with findMinTime above)
+            end
             maxTime = maxTime+ccObj.covShift;
-        end    
+        end
 
         function addToColl(ccObj,cov)
             % addToColl(ccObj,cov)
@@ -427,7 +427,7 @@ classdef CovColl <handle
                 covar=ccObj.getCov(cov);
                 answer=ccObj.isCovPresent(covar);
             elseif(isa(cov,'double'))
-                if((cov>0)&&(cov<ccObj.numCov))
+                if((cov>0)&&(cov<=ccObj.numCov)) % FIX (#17): was cov<numCov (off-by-one excluded the last covariate)
                     answer=1;
                 else
                     answer=0;

@@ -370,7 +370,7 @@ classdef SSGLM
                     GradLogLD =basisMat.*(repmat(1-lambdaDelta,[1 R]));
                     JacobianLogLD = basisMat.*repmat(lambdaDelta.*(-1+lambdaDelta),[1 R]);
                     GradLD = basisMat.*(repmat(lambdaDelta.*(1-lambdaDelta),[1 R]));
-                    JacobianLD = basisMat.*(repmat(lambdaDelta.*(1-lambdaDelta).*(1-2*lambdaDelta.^2),[1 R]));
+                    JacobianLD = basisMat.*(repmat(lambdaDelta.*(1-lambdaDelta).*(1-2*lambdaDelta),[1 R])); % FIX (#59): was (1-2*lambdaDelta.^2); the canonical sigmoid 2nd derivative is sigma*(1-sigma)*(1-2*sigma) -- linear in sigma. All sibling call sites (DecodingAlgorithms.m:533, 603; SSGLM.m:458, 545) use the linear form; this was the lone outlier.
 
                     sumValVec = GradLogLD'*dN(k,:)' - diag(GradLD'*basisMat);
                     sumValMat = -diag(JacobianLogLD'*dN(k,:)')+ JacobianLD'*basisMat;

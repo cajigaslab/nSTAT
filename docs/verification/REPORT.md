@@ -71,7 +71,7 @@ None.
 
 ## Citation-ready snippet
 
-> The nSTAT toolbox (commit `4303305`, master HEAD 2026-05-20) was end-to-end verified on MATLAB R2025b. **All 34 user-facing executable scripts ran to completion with zero failures.** Of these, 33 (97.1%) emitted zero deprecation warnings; the single exception is a stale binary `.mlx` shadow that does not affect the migrated `.m` source. Tutorial-example outputs match analytic expectations within Bernoulli sampling SE. The KS oracle pass-rate matches the nominal 0.95 to within 0.005 across λΔ ∈ [0.005, 0.4], confirming `bci-curriculum` §4.C.1 Cor. 2. Full verification report at `docs/verification/REPORT.md`; figure gallery at `docs/verification/figure_gallery.md`. The unit-test suite (52 tests) passes via `tools/run_unit_tests.sh`.
+> The nSTAT toolbox (commit `4303305`, master HEAD 2026-05-20) was end-to-end verified on MATLAB R2025b. **All 34 user-facing executable scripts ran to completion with zero failures.** Of these, 33 (97.1%) emitted zero deprecation warnings; the single exception is a stale binary `.mlx` shadow that does not affect the migrated `.m` source. Tutorial-example outputs match analytic expectations within Bernoulli sampling SE. The KS oracle pass-rate matches the nominal 0.95 to within 0.005 across λΔ ∈ [0.005, 0.4], confirming `` §4.C.1 Cor. 2. Full verification report at `docs/verification/REPORT.md`; figure gallery at `docs/verification/figure_gallery.md`. The unit-test suite (52 tests) passes via `tools/run_unit_tests.sh`.
 
 ## Conclusion
 

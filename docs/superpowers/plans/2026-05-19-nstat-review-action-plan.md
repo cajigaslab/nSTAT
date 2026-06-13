@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Translate the 2026-05-19 critical review of nSTAT (informed by `bci-curriculum` Ch. 4) into a sequenced, prioritized execution plan. Phase 0 must ship regardless of strategic direction; Phases 1–4 depend on the strategic decision in §0.
+**Goal:** Translate the 2026-05-19 critical review of nSTAT (informed by `` Ch. 4) into a sequenced, prioritized execution plan. Phase 0 must ship regardless of strategic direction; Phases 1–4 depend on the strategic decision in §0.
 
 **Architecture:** Five phases ordered by **(leverage × certainty) ÷ cost**. Phase 0 is correctness fixes the 67-bug audit missed. Phase 1 is the strategic declaration (maintenance vs. invest) plus cheap housekeeping that ships either way. Phases 2–4 fan out depending on the §0 decision.
 
@@ -54,8 +54,8 @@ Four bugs found in [Analysis.computeKSStats](../../Analysis.m) and [FitResult.m]
 
 ```matlab
 fitObj.logLL = sum(y.*log(lambdaDelta) + (1-y).*(1 - newLambda.data*delta));
-                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                                                missing log() wrapper
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ missing log wrapper
 ```
 
 The `(1 - λΔ)` literal should be `log(1 - λΔ)` — Bernoulli log-likelihood for y=0 bins. Adds a constant `(N_bins - N_spikes)` to the reported `fitObj.logLL`. Doesn't propagate to AIC/BIC (those use glmfit deviance) so model comparison is unaffected, but the reported `logLL` is wrong.
@@ -69,50 +69,50 @@ The `(1 - λΔ)` literal should be `log(1 - λΔ)` — Bernoulli log-likelihood 
 ```matlab
 % tests/unit/testFitResultLogLikelihood.m
 classdef testFitResultLogLikelihood < matlab.unittest.TestCase
-    %TESTFITRESULTLOGLIKELIHOOD logLL should match analytic Bernoulli LL
-    % on a homogeneous Poisson spike train with known constant rate.
+ %TESTFITRESULTLOGLIKELIHOOD logLL should match analytic Bernoulli LL
+ % on a homogeneous Poisson spike train with known constant rate.
 
-    methods (Test)
-        function testHomogeneousPoissonLogLL(tc)
-            rng(0, 'twister');
-            T = 10.0;            % seconds
-            sampleRate = 1000;   % Hz
-            delta = 1/sampleRate;
-            lambdaHz = 5.0;
-            lambdaDelta = lambdaHz * delta;     % 0.005
+ methods (Test)
+ function testHomogeneousPoissonLogLL(tc)
+ rng(0, 'twister');
+ T = 10.0; % seconds
+ sampleRate = 1000; % Hz
+ delta = 1/sampleRate;
+ lambdaHz = 5.0;
+ lambdaDelta = lambdaHz * delta; % 0.005
 
-            % Simulate Bernoulli-per-bin spike train at known rate
-            nBins = round(T * sampleRate);
-            t = (0:nBins-1)' * delta;
-            y = double(rand(nBins,1) < lambdaDelta);
-            nSpikes = sum(y);
+ % Simulate Bernoulli-per-bin spike train at known rate
+ nBins = round(T * sampleRate);
+ t = (0:nBins-1)' * delta;
+ y = double(rand(nBins,1) < lambdaDelta);
+ nSpikes = sum(y);
 
-            % Build minimal nSTAT objects
-            spikeTimes = t(y==1)';
-            nst = nspikeTrain(spikeTimes, 'unit1', delta, 0, T);
-            spikeColl = nstColl(nst);
-            baseline = Covariate(t, ones(nBins,1), 'Baseline', 'time','s','',{'const'});
-            covColl = CovColl({baseline});
-            trial = Trial(spikeColl, covColl);
+ % Build minimal nSTAT objects
+ spikeTimes = t(y==1)';
+ nst = nspikeTrain(spikeTimes, 'unit1', delta, 0, T);
+ spikeColl = nstColl(nst);
+ baseline = Covariate(t, ones(nBins,1), 'Baseline', 'time','s','',{'const'});
+ covColl = CovColl({baseline});
+ trial = Trial(spikeColl, covColl);
 
-            % Construct a constant lambda Covariate at the true rate
-            lambda = Covariate(t, lambdaHz*ones(nBins,1), '\lambda(t)', ...
-                'time','s','Hz',{'\lambda_1'});
+ % Construct a constant lambda Covariate at the true rate
+ lambda = Covariate(t, lambdaHz*ones(nBins,1), '\lambda(t)',...
+ 'time','s','Hz',{'\lambda_1'});
 
-            % Build a FitResult manually with the constant lambda
-            fitObj = FitResult(nst, {{'Baseline'}}, {0}, {[]}, {[]}, ...
-                lambda, {log(lambdaHz*delta)}, 0, {struct()}, ...
-                NaN, NaN, NaN, ConfigColl(), {[]}, {[]}, {'normal'});
+ % Build a FitResult manually with the constant lambda
+ fitObj = FitResult(nst, {{'Baseline'}}, {0}, {[]}, {[]},...
+ lambda, {log(lambdaHz*delta)}, 0, {struct},...
+ NaN, NaN, NaN, ConfigColl, {[]}, {[]}, {'normal'});
 
-            % Analytic Bernoulli LL: N_spikes*log(p) + (N_bins-N_spikes)*log(1-p)
-            expectedLL = nSpikes*log(lambdaDelta) + ...
-                         (nBins - nSpikes)*log(1 - lambdaDelta);
+ % Analytic Bernoulli LL: N_spikes*log(p) + (N_bins-N_spikes)*log(1-p)
+ expectedLL = nSpikes*log(lambdaDelta) +...
+ (nBins - nSpikes)*log(1 - lambdaDelta);
 
-            tc.verifyEqual(fitObj.logLL(1), expectedLL, ...
-                'AbsTol', 1e-6, ...
-                'fitObj.logLL must match analytic Bernoulli log-likelihood');
-        end
-    end
+ tc.verifyEqual(fitObj.logLL(1), expectedLL,...
+ 'AbsTol', 1e-6,...
+ 'fitObj.logLL must match analytic Bernoulli log-likelihood');
+ end
+ end
 end
 ```
 
@@ -133,7 +133,7 @@ Edit `FitResult.m:355`:
 fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
 
 % NEW (fixed):
-oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log wrapper; eps guard for log(0)
 fitObj.logLL(fitObj.numResults+1) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
 ```
 
@@ -144,7 +144,7 @@ Edit `FitResult.m:375`:
 fitObj.logLL(fitObj.numResults+i)= sum(y.*log(lambdaDelta)+(1-y).*(1-newLambda.data*delta));
 
 % NEW:
-oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+oneMinusLambdaDelta = max(1 - newLambda.data*delta, eps); % FIX: missing log wrapper; eps guard for log(0)
 fitObj.logLL(fitObj.numResults+i) = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
 ```
 
@@ -155,7 +155,7 @@ Edit `FitResult.m:417`:
 logLL =sum(y.*log(lambdaDelta)+(1-y).*(1-lambda.data*delta));
 
 % NEW:
-oneMinusLambdaDelta = max(1 - lambda.data*delta, eps); % FIX: missing log() wrapper; eps guard for log(0)
+oneMinusLambdaDelta = max(1 - lambda.data*delta, eps); % FIX: missing log wrapper; eps guard for log(0)
 logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
 ```
 
@@ -171,9 +171,9 @@ Expected: PASS.
 
 ```bash
 git add tests/unit/testFitResultLogLikelihood.m FitResult.m
-git commit -m "fix(FitResult): wrap 1-λΔ in log() in Bernoulli log-likelihood
+git commit -m "fix(FitResult): wrap 1-λΔ in log in Bernoulli log-likelihood
 
-Pre-fix formula sum(y·log(λΔ) + (1-y)·(1-λΔ)) was missing log() on the
+Pre-fix formula sum(y·log(λΔ) + (1-y)·(1-λΔ)) was missing log on the
 y=0 contribution, adding constant (N_bins - N_spikes) to reported logLL.
 AIC/BIC unaffected (computed from glmfit deviance) but fitObj.logLL is
 now correct as an absolute number."
@@ -196,28 +196,28 @@ now correct as an absolute number."
 ```matlab
 % tests/unit/testKsdiscreteDeterminism.m
 classdef testKsdiscreteDeterminism < matlab.unittest.TestCase
-    %TESTKSDISCRETEDETERMINISM ksdiscrete must respect caller's RNG seed.
+ %TESTKSDISCRETEDETERMINISM ksdiscrete must respect caller's RNG seed.
 
-    methods (Test)
-        function testTwoCallsAtSameSeedAgree(tc)
-            n = 1000;
-            pk = 0.05 * ones(n, 1);          % 5% spike-per-bin probability
-            spikeIdx = sort(randperm(n, 50))';
-            spikeTrain = zeros(n,1);
-            spikeTrain(spikeIdx) = 1;
+ methods (Test)
+ function testTwoCallsAtSameSeedAgree(tc)
+ n = 1000;
+ pk = 0.05 * ones(n, 1); % 5% spike-per-bin probability
+ spikeIdx = sort(randperm(n, 50))';
+ spikeTrain = zeros(n,1);
+ spikeTrain(spikeIdx) = 1;
 
-            % Call A
-            rng(42, 'twister');
-            rstA = Analysis.ksdiscrete(pk, spikeTrain, 'spiketrain');
+ % Call A
+ rng(42, 'twister');
+ rstA = Analysis.ksdiscrete(pk, spikeTrain, 'spiketrain');
 
-            % Call B with identical seed
-            rng(42, 'twister');
-            rstB = Analysis.ksdiscrete(pk, spikeTrain, 'spiketrain');
+ % Call B with identical seed
+ rng(42, 'twister');
+ rstB = Analysis.ksdiscrete(pk, spikeTrain, 'spiketrain');
 
-            tc.verifyEqual(rstA, rstB, ...
-                'ksdiscrete with identical RNG state must be deterministic');
-        end
-    end
+ tc.verifyEqual(rstA, rstB,...
+ 'ksdiscrete with identical RNG state must be deterministic');
+ end
+ end
 end
 ```
 
@@ -229,9 +229,9 @@ In `Analysis.m`, inside the `methods (Static)` block, add:
 
 ```matlab
 function varargout = ksdiscrete(pk, st, spikeflag)
-    %KSDISCRETE Thin static wrapper around the file-local ksdiscrete()
-    % Exposed for unit testing; production code should call this method too.
-    [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
+ %KSDISCRETE Thin static wrapper around the file-local ksdiscrete
+ % Exposed for unit testing; production code should call this method too.
+ [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
 end
 ```
 
@@ -249,13 +249,13 @@ Edit `Analysis.m:1510-1512`:
 
 ```matlab
 % OLD:
-    % initialize random number generator
-    rng('shuffle','twister');
-    %rand('twister',sum(100*clock));
+ % initialize random number generator
+ rng('shuffle','twister');
+ %rand('twister',sum(100*clock));
 
 % NEW:
-    % FIX: removed `rng('shuffle','twister')` — was clobbering caller seed
-    % and making KS non-reproducible. Caller controls RNG state.
+ % FIX: removed `rng('shuffle','twister')` — was clobbering caller seed
+ % and making KS non-reproducible. Caller controls RNG state.
 ```
 
 - [ ] **Step 5: Re-run the test**
@@ -295,7 +295,7 @@ test fails after this fix, regenerate baselines with Seed=0 and commit."
 
 ### Task 0.3: Add λΔ regime warning to `computeKSStats`
 
-**Bug C** — [Analysis.m:858](../../Analysis.m#L858) silently clips `pk > 1` to 1. The discrete-time KS correction is only valid at `λΔ ≤ 0.4` per the curriculum's `reviews/ks-validation/` empirical bound (chapter §4.C.1 Cor. 2).
+**Bug C** — [Analysis.m:858](../../Analysis.m#L858) silently clips `pk > 1` to 1. The discrete-time KS correction is only valid at `λΔ ≤ 0.4` per the `reviews/ks-validation/` empirical bound (chapter §4.C.1 Cor. 2).
 
 **Files:**
 - Modify: `Analysis.m:846-867`
@@ -306,26 +306,26 @@ test fails after this fix, regenerate baselines with Seed=0 and commit."
 ```matlab
 % tests/unit/testDTRegimeWarning.m
 classdef testDTRegimeWarning < matlab.unittest.TestCase
-    %TESTDTREGIMEWARNING computeKSStats should warn when λΔ > 0.4 prevalent.
+ %TESTDTREGIMEWARNING computeKSStats should warn when λΔ > 0.4 prevalent.
 
-    methods (Test)
-        function testWarnsAtHighRate(tc)
-            % Construct a CIF with λΔ = 0.5 (above the 0.4 validity bound)
-            T = 1.0; sampleRate = 100;       % 10 ms bins
-            t = (0:1/sampleRate:T-1/sampleRate)';
-            lambdaHz = 50 * ones(size(t));   % λΔ = 0.5
-            lambda = Covariate(t, lambdaHz, '\lambda(t)', ...
-                'time','s','Hz',{'\lambda_1'});
+ methods (Test)
+ function testWarnsAtHighRate(tc)
+ % Construct a CIF with λΔ = 0.5 (above the 0.4 validity bound)
+ T = 1.0; sampleRate = 100; % 10 ms bins
+ t = (0:1/sampleRate:T-1/sampleRate)';
+ lambdaHz = 50 * ones(size(t)); % λΔ = 0.5
+ lambda = Covariate(t, lambdaHz, '\lambda(t)',...
+ 'time','s','Hz',{'\lambda_1'});
 
-            spikeTimes = 0.02:0.02:T;        % regular 50 Hz
-            nst = nspikeTrain(spikeTimes, 'unit1', 1/sampleRate, 0, T);
+ spikeTimes = 0.02:0.02:T; % regular 50 Hz
+ nst = nspikeTrain(spikeTimes, 'unit1', 1/sampleRate, 0, T);
 
-            tc.verifyWarning( ...
-                @() Analysis.computeKSStats(nst, lambda, 1), ...
-                'nSTAT:DTCorrectionRegime', ...
-                'computeKSStats must warn when λΔ > 0.4 in significant fraction of bins');
-        end
-    end
+ tc.verifyWarning(...
+ @ Analysis.computeKSStats(nst, lambda, 1),...
+ 'nSTAT:DTCorrectionRegime',...
+ 'computeKSStats must warn when λΔ > 0.4 in significant fraction of bins');
+ end
+ end
 end
 ```
 
@@ -342,29 +342,29 @@ Expected: FAIL — no warning is currently emitted.
 Edit `Analysis.m` around line 857–858, replace:
 
 ```matlab
-                for i=1:lambdaInput.dimension
-                    pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
-                    temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
+ for i=1:lambdaInput.dimension
+ pk(:,i) = nanmin(nanmax(pk(:,i),0),1);
+ temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 ```
 
 with:
 
 ```matlab
-                for i=1:lambdaInput.dimension
-                    % FIX: warn when λΔ exceeds the empirical validity bound
-                    % (Haslinger-Pipa-Brown 2010; curriculum §4.C.1 Cor. 2).
-                    pkRaw = pk(:,i);
-                    fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
-                    if fracHighRate > 0.01
-                        warning('nSTAT:DTCorrectionRegime', ...
-                            ['%.1f%% of bins have lambda*delta > 0.4; ' ...
-                             'discrete-time KS correction may be biased ' ...
-                             'toward acceptance. Use a smaller binwidth ' ...
-                             'or DTCorrection=0 (continuous-time form).'], ...
-                            100*fracHighRate);
-                    end
-                    pk(:,i) = nanmin(nanmax(pkRaw,0),1);
-                    temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
+ for i=1:lambdaInput.dimension
+ % FIX: warn when λΔ exceeds the empirical validity bound
+ % (Haslinger-Pipa-Brown 2010; curriculum §4.C.1 Cor. 2).
+ pkRaw = pk(:,i);
+ fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
+ if fracHighRate > 0.01
+ warning('nSTAT:DTCorrectionRegime',...
+ ['%.1f%% of bins have lambda*delta > 0.4; '...
+ 'discrete-time KS correction may be biased '...
+ 'toward acceptance. Use a smaller binwidth '...
+ 'or DTCorrection=0 (continuous-time form).'],...
+ 100*fracHighRate);
+ end
+ pk(:,i) = nanmin(nanmax(pkRaw,0),1);
+ temp = ksdiscrete(pk(:,i),spikeTrain,'spiketrain');
 ```
 
 - [ ] **Step 4: Re-run test**
@@ -383,7 +383,7 @@ git commit -m "feat(Analysis): warn when DT KS test is outside validity bound
 
 Emit nSTAT:DTCorrectionRegime when >1% of bins have lambda*delta > 0.4
 — beyond which the Haslinger-Pipa-Brown 2010 discrete-time correction
-is empirically biased toward acceptance per bci-curriculum §4.C.1 Cor. 2
+is empirically biased toward acceptance per §4.C.1 Cor. 2
 and reviews/ks-validation/ in the curriculum repo."
 ```
 
@@ -411,15 +411,15 @@ Confirm `plotInvGausTrans` (FitResult.m:1335) is the only consumer that needs U 
 ```matlab
 % Add to tests/unit/testKsStatUnclamped.m
 classdef testKsStatUnclamped < matlab.unittest.TestCase
-    methods (Test)
-        function testEdgeBinDoesNotShiftKS(tc)
-            % Construct a known-bad CIF that produces a U very close to 1
-            % in one bin. Pre-fix, the clamp at 0.999999 biases ks_stat.
-            % Post-fix, ks_stat is computed on raw U.
-            % Skip in autotest if it requires a heavyweight setup;
-            % characterize the change instead.
-        end
-    end
+ methods (Test)
+ function testEdgeBinDoesNotShiftKS(tc)
+ % Construct a known-bad CIF that produces a U very close to 1
+ % in one bin. Pre-fix, the clamp at 0.999999 biases ks_stat.
+ % Post-fix, ks_stat is computed on raw U.
+ % Skip in autotest if it requires a heavyweight setup;
+ % characterize the change instead.
+ end
+ end
 end
 ```
 
@@ -431,35 +431,35 @@ Edit `Analysis.m:906-911`:
 
 ```matlab
 % OLD:
-            Z = intValues;
-            U = 1-exp(-Z);
-            U(U>=.999999)=.999999; % FIX: clamp to prevent inf/-inf
-            U(U<=0)=.000001;
+ Z = intValues;
+ U = 1-exp(-Z);
+ U(U>=.999999)=.999999; % FIX: clamp to prevent inf/-inf
+ U(U<=0)=.000001;
 
-            KSSorted = sort( U,'ascend' );
+ KSSorted = sort( U,'ascend' );
 
 % NEW:
-            Z = intValues;
-            U = 1-exp(-Z);
-            % FIX: do NOT clamp U here — biases ks_stat for small N.
-            % Clamping moved to FitResult.plotInvGausTrans where it is
-            % actually needed (norminv → ±Inf at boundary).
-            KSSorted = sort(U, 'ascend');
+ Z = intValues;
+ U = 1-exp(-Z);
+ % FIX: do NOT clamp U here — biases ks_stat for small N.
+ % Clamping moved to FitResult.plotInvGausTrans where it is
+ % actually needed (norminv → ±Inf at boundary).
+ KSSorted = sort(U, 'ascend');
 ```
 
 Edit `FitResult.m:plotInvGausTrans` (around line 1335) — add at the top of the function:
 
 ```matlab
-        function handle = plotInvGausTrans(fitObj)
-            % Plots the Auto-correlation function of the X_j's where:
-            % Z_j: rescaled ISI from the Time Rescaling Theorem
-            U = fitObj.U;
-            % FIX: clamp U into (0,1) only here, where norminv would
-            % otherwise produce ±Inf. Do not clamp upstream in computeKSStats.
-            U(U >= 0.999999) = 0.999999;
-            U(U <= 0) = 0.000001;
-            X = norminv(U);
-            % ... rest unchanged, using local X
+ function handle = plotInvGausTrans(fitObj)
+ % Plots the Auto-correlation function of the X_j's where:
+ % Z_j: rescaled ISI from the Time Rescaling Theorem
+ U = fitObj.U;
+ % FIX: clamp U into (0,1) only here, where norminv would
+ % otherwise produce ±Inf. Do not clamp upstream in computeKSStats.
+ U(U >= 0.999999) = 0.999999;
+ U(U <= 0) = 0.000001;
+ X = norminv(U);
+ %... rest unchanged, using local X
 ```
 
 - [ ] **Step 4: Run parity tests**
@@ -511,14 +511,14 @@ with:
 ### 1.1 FitResult.m — `delta = sampleRate` (inverted bin width in logLL)
 - **Line 371**: `delta=sampleRate` should be `delta=1/sampleRate`
 - **Scope**: This `delta` is used ONLY in the log-likelihood computation at
-  FitResult.m:372-375 (and the validation branch at line 414-417). The
-  time-rescaling KS test in `Analysis.computeKSStats:849` derives its own
-  `pk = lambda * (1/sampleRate)` independently and was never affected by
-  this bug.
+ FitResult.m:372-375 (and the validation branch at line 414-417). The
+ time-rescaling KS test in `Analysis.computeKSStats:849` derives its own
+ `pk = lambda * (1/sampleRate)` independently and was never affected by
+ this bug.
 - **Impact**: Reported `fitObj.logLL` was off by `sampleRate^2`. AIC/BIC
-  unaffected (computed from glmfit deviance at FitResult.m:350-351 and
-  370-371). Time-rescaling KS results were always correct (modulo the
-  separate bugs in Phase 0 Tasks 0.1–0.4).
+ unaffected (computed from glmfit deviance at FitResult.m:350-351 and
+ 370-371). Time-rescaling KS results were always correct (modulo the
+ separate bugs in Phase 0 Tasks 0.1–0.4).
 - **Severity**: Medium — cosmetically wrong logLL only.
 ```
 
@@ -580,9 +580,9 @@ git commit -m "docs: remove obsolete README.txt (SVN-era; superseded by README.m
 
 ```bash
 git rm helpfiles/*.asv
-echo "*.asv" >> .gitignore
-git add .gitignore
-git commit -m "chore: delete .asv autosaves and ignore the pattern"
+echo "*.asv" >>.gitignore
+git add.gitignore
+git commit -m "chore: delete.asv autosaves and ignore the pattern"
 ```
 
 ### Task 1.5: Move Simulink models to legacy/
@@ -597,9 +597,9 @@ mkdir -p legacy/simulink
 git mv PointProcessSimulation.slx legacy/simulink/
 git mv PointProcessSimulationThinning.mdl legacy/simulink/
 git rm PointProcessSimulationCont.slx PointProcessSimulation.slx.r2013a \
-       PointProcessSimulation.mdl.r2010b PointProcessSimulation.mdl.r2011a \
-       PointProcessSimulation.mdl.r2011b PointProcessSimulation.mdl.r2013a \
-       PointProcessSimulationThinning.mdl.r2011a
+ PointProcessSimulation.mdl.r2010b PointProcessSimulation.mdl.r2011a \
+ PointProcessSimulation.mdl.r2011b PointProcessSimulation.mdl.r2013a \
+ PointProcessSimulationThinning.mdl.r2011a
 ```
 
 Then create `legacy/simulink/README.md`:
@@ -611,12 +611,12 @@ These models are kept for archival/pedagogical reference. For production
 simulation, use `CIF.simulateCIFByThinning` (pure MATLAB; no Simulink license).
 
 - `PointProcessSimulation.slx` — top-level GLM block diagram with
-  Poisson/Binomial CIF, self-history feedback (z⁻¹), and Bernoulli
-  thinning per bin. **Visual reference for the PP-GLM at a glance.**
+ Poisson/Binomial CIF, self-history feedback (z⁻¹), and Bernoulli
+ thinning per bin. **Visual reference for the PP-GLM at a glance.**
 - `PointProcessSimulationThinning.mdl` — Brown 2002 time-rescaling
-  simulation: compensator-axis homogeneous Poisson, mapped back to
-  wall-clock via Discrete-Time Integrator + Detect Change + Sample-and-Hold.
-  See bci-curriculum §4.A.3.
+ simulation: compensator-axis homogeneous Poisson, mapped back to
+ wall-clock via Discrete-Time Integrator + Detect Change + Sample-and-Hold.
+ See §4.A.3.
 
 Rendered subsystem images: `docs/figures/simulink/` (generated by
 `tools/inspect_simulink_models.m`).
@@ -655,7 +655,7 @@ git commit -m "docs: delete stub help pages (Path A: maintenance mode)"
 
 ## Phase 2 — Pedagogical infrastructure (Path B only; ~1 week)
 
-Only do this if §0 chose Path B (active development) or if the toolbox will be used to teach the Cajigas-lab curriculum's Ch. 4.
+Only do this if §0 chose Path B (active development) or if the toolbox will be used to teach the Cajigas-lab Ch. 4.
 
 ### Task 2.1: Create `HelloNstat.mlx`
 
@@ -687,7 +687,6 @@ One `.mlx` per concept, ≤150 LOC + ≤500 words of prose each. Each cites the 
 - [ ] Update `helptoc.xml` to add a new "Concepts" section.
 
 ### Task 2.3: Foundation-model KS validation tutorial
-
 
 The §4.B.10 use case the README now leads with: "load downstream rate predictors checkpoint, output rate, KS-test." Even if the actual checkpoint loading uses Python via `pyrunfile`, the KS step happens in nSTAT.
 
@@ -725,10 +724,10 @@ Only do this if §0 chose Path B AND you intend to extend the toolbox (add new a
 The `mPPCO` family IS the PPLFP filter from Cajigas 2013 (chapter §4.B.7). Rename to match the published math.
 
 - [ ] Identify all methods: `mPPCODecodeLinear`, `mPPCO_EM`, `mPPCO_EStep`, `mPPCO_MStep`, `mPPCO_EMCreateConstraints`, `mPPCO_ComputeParamStandardErrors`, `mPPCODecode_predict`, `mPPCODecode_update`.
-- [ ] For each: rename the method, search for callers (`grep -rn "mPPCO" .`), update all references.
+- [ ] For each: rename the method, search for callers (`grep -rn "mPPCO".`), update all references.
 - [ ] Add a deprecation shim: keep `mPPCO_*` as thin wrappers that emit a `nSTAT:deprecated` warning and call the new name.
 - [ ] Update help pages (`helpfiles/PaperOverview.m` mentions decoding workflow; check).
-- [ ] Add `% Algorithm: PPLFP additive innovation update. Refs: bci-curriculum §4.B.7.3 boxed eqs; Cajigas 2013 unpublished (PPLFPFilter_final.pdf).` header to the renamed `PPLFP_update`.
+- [ ] Add `% Algorithm: PPLFP additive innovation update. Refs: §4.B.7.3 boxed eqs; Cajigas 2013 unpublished (PPLFPFilter_final.pdf).` header to the renamed `PPLFP_update`.
 - [ ] Commit per method: `refactor(DecodingAlgorithms): rename mPPCO_X to PPLFP_X (matches §4.B.7 derivation)`.
 
 ### Task 3.2: Split `DecodingAlgorithms.m` into `+nstat/+decoding/`
@@ -738,18 +737,18 @@ The `mPPCO` family IS the PPLFP filter from Cajigas 2013 (chapter §4.B.7). Rena
 **Target layout:**
 ```
 +nstat/
-  +decoding/
-    PPAF.m              % static methods: PPDecodeFilter, PPDecodeFilterLinear, predict, update, updateLinear
-    PPHF.m              % PPHybridFilter, PPHybridFilterLinear
-    SSGLM.m             % PPSS_EM, PPSS_EStep, PPSS_MStep, PPSS_EMFB
-    KalmanFilter.m      % kalman_filter, kalman_smoother, kalman_smootherFromFiltered, kalman_fixedIntervalSmoother
-    KF_EM.m             % KF_EM, KF_EStep, KF_MStep, KF_ComputeParamStandardErrors, KF_EMCreateConstraints
-    PPLFP.m             % renamed mPPCO family (after Task 3.1)
-    PointProcessEM.m    % PP_EM, PP_EStep, PP_MStep
-    UKF.m               % ukf, ukf_ut, ukf_sigmas
-    +internal/
-      computeGainMatrix.m       % Woodbury formula extracted from PPDecode_update et al.
-      defaultTolerances.m       % returns struct of tolAbs/tolRel/llTol
+ +decoding/
+ PPAF.m % static methods: PPDecodeFilter, PPDecodeFilterLinear, predict, update, updateLinear
+ PPHF.m % PPHybridFilter, PPHybridFilterLinear
+ SSGLM.m % PPSS_EM, PPSS_EStep, PPSS_MStep, PPSS_EMFB
+ KalmanFilter.m % kalman_filter, kalman_smoother, kalman_smootherFromFiltered, kalman_fixedIntervalSmoother
+ KF_EM.m % KF_EM, KF_EStep, KF_MStep, KF_ComputeParamStandardErrors, KF_EMCreateConstraints
+ PPLFP.m % renamed mPPCO family (after Task 3.1)
+ PointProcessEM.m % PP_EM, PP_EStep, PP_MStep
+ UKF.m % ukf, ukf_ut, ukf_sigmas
+ +internal/
+ computeGainMatrix.m % Woodbury formula extracted from PPDecode_update et al.
+ defaultTolerances.m % returns struct of tolAbs/tolRel/llTol
 ```
 
 - [ ] **Strategy:** Move method bodies one file at a time. Keep `DecodingAlgorithms.m` as a thin compatibility class that calls into `+nstat.+decoding` so existing user code continues to work.
@@ -764,23 +763,23 @@ The `mPPCO` family IS the PPLFP filter from Cajigas 2013 (chapter §4.B.7). Rena
 
 ```matlab
 classdef Defaults
-    %DEFAULTS Central source of truth for tolerances and constants.
-    properties (Constant)
-        % EM convergence
-        EM_TolAbs       = 1e-3;
-        EM_TolRel       = 1e-3;
-        EM_LogLTol      = 1e-3;
-        EM_MaxIter      = 100;
-        EM_HistorySize  = 10;   % ring buffer in PPSS_EM
-        % Numerical
-        PiTRegularization = 1e-6;
-        EpsLog            = eps;
-        % DT KS test
-        DTRegimeBound   = 0.4;   % λΔ; bci-curriculum §4.C.1 Cor. 2
-        DTRegimeWarnFrac = 0.01;
-        % PPAF / iterated Laplace
-        PPAF_NewtonIters = 1;    % 1 = extended-Kalman; >1 = iterated Laplace
-    end
+ %DEFAULTS Central source of truth for tolerances and constants.
+ properties (Constant)
+ % EM convergence
+ EM_TolAbs = 1e-3;
+ EM_TolRel = 1e-3;
+ EM_LogLTol = 1e-3;
+ EM_MaxIter = 100;
+ EM_HistorySize = 10; % ring buffer in PPSS_EM
+ % Numerical
+ PiTRegularization = 1e-6;
+ EpsLog = eps;
+ % DT KS test
+ DTRegimeBound = 0.4; % λΔ.C.1 Cor. 2
+ DTRegimeWarnFrac = 0.01;
+ % PPAF / iterated Laplace
+ PPAF_NewtonIters = 1; % 1 = extended-Kalman; >1 = iterated Laplace
+ end
 end
 ```
 
@@ -795,17 +794,17 @@ Per the review: the Woodbury update appears verbatim in 4 places (`PPDecode_upda
 
 ```matlab
 function [W_u, x_u] = computeGainMatrix(W_p, x_p, sumValVec, sumValMat)
-    %COMPUTEGAINMATRIX  Woodbury-form posterior update for PPAF/PPLFP.
-    %
-    %  W_u  = W_p * (I - (I + sumValMat * W_p) \ (sumValMat * W_p))
-    %  W_u  = 0.5 * (W_u + W_u')   % symmetrize
-    %  x_u  = x_p + W_u * sumValVec
-    %
-    %  Refs: bci-curriculum §4.B.5 (PPAF); Eden et al. 2004 Eq. 2.6.
-    I = eye(size(W_p));
-    W_u = W_p * (I - (I + sumValMat * W_p) \ (sumValMat * W_p));
-    W_u = 0.5 * (W_u + W_u');
-    x_u = x_p + W_u * sumValVec;
+ %COMPUTEGAINMATRIX Woodbury-form posterior update for PPAF/PPLFP.
+ %
+ % W_u = W_p * (I - (I + sumValMat * W_p) \ (sumValMat * W_p))
+ % W_u = 0.5 * (W_u + W_u') % symmetrize
+ % x_u = x_p + W_u * sumValVec
+ %
+ % Refs: §4.B.5 (PPAF); Eden et al. 2004 Eq. 2.6.
+ I = eye(size(W_p));
+ W_u = W_p * (I - (I + sumValMat * W_p) \ (sumValMat * W_p));
+ W_u = 0.5 * (W_u + W_u');
+ x_u = x_p + W_u * sumValVec;
 end
 ```
 
@@ -821,24 +820,24 @@ Per chapter §4.B.7.4, the canonical-link Poisson and binomial cases have closed
 
 ```matlab
 classdef LinearCIF < CIF
-    %LINEARCIF Canonical-link Poisson or binomial CIF with closed-form
-    % derivatives. Avoids the Symbolic Math Toolbox dependency.
-    %
-    % For log link Poisson (fitType='poisson'):
-    %   λΔ            = exp(X β)
-    %   ∇log(λΔ)      = X      (constant w.r.t. state)
-    %   ∇²log(λΔ)     = 0
-    %   ∇(λΔ)         = λΔ · X
-    %   ∇²(λΔ)        = λΔ · X X'
-    %
-    % For logit link binomial (fitType='binomial'):
-    %   λΔ            = σ(X β),  σ(z) = 1/(1+e^{-z})
-    %   ∇log(λΔ)      = (1 - λΔ) · X
-    %   ∇²log(λΔ)     = -(1 - λΔ) · X X'      [scaled by λΔ in Fisher form]
-    %
-    % Refs: bci-curriculum §4.B.1, §4.B.7.4.
+ %LINEARCIF Canonical-link Poisson or binomial CIF with closed-form
+ % derivatives. Avoids the Symbolic Math Toolbox dependency.
+ %
+ % For log link Poisson (fitType='poisson'):
+ % λΔ = exp(X β)
+ % ∇log(λΔ) = X (constant w.r.t. state)
+ % ∇²log(λΔ) = 0
+ % ∇(λΔ) = λΔ · X
+ % ∇²(λΔ) = λΔ · X X'
+ %
+ % For logit link binomial (fitType='binomial'):
+ % λΔ = σ(X β), σ(z) = 1/(1+e^{-z})
+ % ∇log(λΔ) = (1 - λΔ) · X
+ % ∇²log(λΔ) = -(1 - λΔ) · X X' [scaled by λΔ in Fisher form]
+ %
+ % Refs: §4.B.1, §4.B.7.4.
 
-    % ... implementation ...
+ %... implementation...
 end
 ```
 
@@ -856,17 +855,17 @@ Per chapter §4.B.2: Pillow 2008 raised-cosine on log time is the recommended ba
 
 ```matlab
 methods (Static)
-    function h = raisedCosine(K, tMin, tMax)
-        %RAISEDCOSINE Pillow 2008 log-spaced raised-cosine basis.
-        %
-        %   h = History.raisedCosine(K, tMin, tMax) returns a History
-        %   object with K basis functions logarithmically spaced
-        %   between tMin and tMax (seconds).
-        %
-        %   Refs: Pillow et al. 2008 Nature; bci-curriculum §4.B.2, Fig. 4.3.
-        peakLags = logspace(log10(tMin), log10(tMax), K);
-        % ... construct basis matrix, then call constructor with windowTimes ...
-    end
+ function h = raisedCosine(K, tMin, tMax)
+ %RAISEDCOSINE Pillow 2008 log-spaced raised-cosine basis.
+ %
+ % h = History.raisedCosine(K, tMin, tMax) returns a History
+ % object with K basis functions logarithmically spaced
+ % between tMin and tMax (seconds).
+ %
+ % Refs: Pillow et al. 2008 Nature.B.2, Fig. 4.3.
+ peakLags = logspace(log10(tMin), log10(tMax), K);
+ %... construct basis matrix, then call constructor with windowTimes...
+ end
 end
 ```
 
@@ -935,17 +934,17 @@ Per chapter §4.C.2: "An iterated PPAF — a Newton-to-convergence variant — i
 
 The curriculum repo contains a 14-model zoo (4 PP-GLM tiers + 10 decoder variants) that empirically validates the discrete-time KS test.
 
-- [ ] Locate `bci-curriculum/reviews/ks-validation/` fixtures and validation harness.
+- [ ] Locate fixtures and validation harness.
 - [ ] Port the relevant Python test data into MATLAB-loadable format.
-- [ ] Add `tests/integration/testKsAgainstCurriculumZoo.m`: run `Analysis.computeKSStats` on the curriculum's PP-GLM tier-1 simulated spike trains and assert oracle pass rate ≥ 0.94 across 100 simulated trials.
-- [ ] Commit: `test: validate Analysis.computeKSStats against bci-curriculum 14-model zoo`.
+- [ ] Add `tests/integration/testKsAgainstReferenceZoo.m`: run `Analysis.computeKSStats` on the reference PP-GLM tier-1 simulated spike trains and assert oracle pass rate ≥ 0.94 across 100 simulated trials.
+- [ ] Commit: `test: validate Analysis.computeKSStats against 14-model zoo`.
 
 ### Task 4.3: Reconcile `glmppm` citation
 
-The chapter cites `glmppm()` as nSTAT's multivariate ensemble PP-GLM fitter (§4.B.2). Not found in MATLAB code.
+The chapter cites `glmppm` as nSTAT's multivariate ensemble PP-GLM fitter (§4.B.2). Not found in MATLAB code.
 
 - [ ] Confirmed (per author): chapter-side error.
-- [ ] Edit `chapter-04-point-processes.md` (in `bci-curriculum` repo) to remove the citation OR redirect to `Analysis.RunAnalysisForAllNeurons`.
+- [ ] Edit `chapter-04-point-processes.md` (in `` repo) to remove the citation OR redirect to `Analysis.RunAnalysisForAllNeurons`.
 - [ ] If feature is genuinely useful and absent: implement `Analysis.glmppm` as a thin wrapper over `RunAnalysisForAllNeurons` that returns the multi-neuron fit object with cross-history coefficients exposed.
 - [ ] Commit: `docs: reconcile glmppm citation with code reality`.
 
@@ -955,12 +954,12 @@ Chapter says "nSTAT's `PPDecodeFilterLinear` implements [PPHF] with discrete-sta
 
 - [ ] Edit `chapter-04-point-processes.md:603` and `chapter-04-point-processes.md:960` to correct the class name reference to `PPHybridFilter`/`PPHybridFilterLinear`.
 - [ ] No code change needed.
-- [ ] Commit in `bci-curriculum`: `docs(ch04): fix PPHF class-name reference (PPHybridFilter not PPDecodeFilterLinear)`.
+- [ ] Commit in ``: `docs(ch04): fix PPHF class-name reference (PPHybridFilter not PPDecodeFilterLinear)`.
 
 ### Phase 4 — Done criteria
 
 - [ ] Iterated PPAF option exposed.
-- [ ] KS validation cross-checked against curriculum's empirical zoo.
+- [ ] KS validation cross-checked against empirical zoo.
 - [ ] `glmppm` citation reconciled (chapter or code).
 - [ ] PPHF class-name in chapter corrected.
 
@@ -976,18 +975,18 @@ For every numerical method in `DecodingAlgorithms.m` (and successors), add a doc
 
 ```matlab
 function [...] = PPDecode_update(...)
-    %PPDECODE_UPDATE  PPAF update step (extended-Kalman Laplace).
-    %
-    % Algorithm:
-    %   x_u = x_{k|k-1} + W_{k|k} * sumValVec
-    %   W_u^{-1} = W_{k|k-1}^{-1} + Σ_c [λ_c Δ · ∇log λ_c · (∇log λ_c)' 
-    %                                    - ∇²log λ_c · (ΔN_c - λ_c Δ)]
-    %
-    % Refs:
-    %   bci-curriculum §4.B.5 (chapter-04-point-processes.md), Eq. (4.B.5)
-    %   Eden, Frank, Barbieri, Solo & Brown 2004, Neural Comp., Eq. 2.6
-    %
-    % Inputs / outputs / numerical notes ...
+ %PPDECODE_UPDATE PPAF update step (extended-Kalman Laplace).
+ %
+ % Algorithm:
+ % x_u = x_{k|k-1} + W_{k|k} * sumValVec
+ % W_u^{-1} = W_{k|k-1}^{-1} + Σ_c [λ_c Δ · ∇log λ_c · (∇log λ_c)' 
+ % - ∇²log λ_c · (ΔN_c - λ_c Δ)]
+ %
+ % Refs:
+ % §4.B.5 (chapter-04-point-processes.md), Eq. (4.B.5)
+ % Eden, Frank, Barbieri, Solo & Brown 2004, Neural Comp., Eq. 2.6
+ %
+ % Inputs / outputs / numerical notes...
 end
 ```
 
@@ -1039,7 +1038,7 @@ Cross-checked against the review session's recommendation list:
 - ✅ AUDIT_REPORT re-characterization → Task 0.5
 - ✅ README repositioning → Task 1.2
 - ✅ Delete README.txt → Task 1.3
-- ✅ .asv files → Task 1.4
+- ✅.asv files → Task 1.4
 - ✅ Simulink to legacy/ → Task 1.5
 - ✅ Stub help pages → Task 1.6
 - ✅ HelloNstat tutorial → Task 2.1

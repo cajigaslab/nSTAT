@@ -10,13 +10,13 @@
 % - The 8 nSTAT classes you need to know (in dependency order).
 % - How they compose into a Trial.
 % - How |Analysis.RunAnalysisForNeuron| fits a GLM and returns a
-%   |FitResult|.
+% |FitResult|.
 % - How to read the KS plot for goodness-of-fit.
 %
 % *What you won't learn here:*
 %
-% - The math behind the model -- see Chapter 4 of _Decoding the Brain_
-%   (|bci-curriculum/chapters/chapter-04-point-processes.md|).
+% - The math behind the model -- see the references at the bottom of
+%   this file and the 2012 nSTAT paper.
 % - Decoding (PPAF / PPHF / PPLFP) -- see |helpfiles/DecodingExample.m|.
 % - State-space GLM for trial-drifting coefficients -- see
 %   |helpfiles/SSGLMExample.m|.
@@ -27,16 +27,16 @@
 % We simulate a homogeneous Poisson process at 12 Hz for 10 seconds
 % (a reasonable cortical-neuron firing rate).
 
-rng(0, 'twister');                         % reproducibility
-T = 10.0;                                  % seconds
-sampleRate = 1000;                         % Hz (1 ms bins)
+rng(0, 'twister'); % reproducibility
+T = 10.0; % seconds
+sampleRate = 1000; % Hz (1 ms bins)
 delta = 1/sampleRate;
 trueRateHz = 12.0;
-t = (0:delta:T-delta)';                    % nBins x 1 time vector
+t = (0:delta:T-delta)'; % nBins x 1 time vector
 y = double(rand(numel(t),1) < trueRateHz*delta);
 spikeTimes = t(y==1);
-fprintf('Simulated %d spikes (target rate %.1f Hz)\n', ...
-    numel(spikeTimes), trueRateHz);
+fprintf('Simulated %d spikes (target rate %.1f Hz)\n',...
+ numel(spikeTimes), trueRateHz);
 
 %% Step 2 -- wrap as nspikeTrain
 %
@@ -60,8 +60,8 @@ spikeColl = nstColl(nst);
 % is mandatory: nSTAT's GLM does NOT add an implicit intercept; you
 % must provide one.
 
-baseline = Covariate(t, ones(numel(t),1), 'Baseline', ...
-    'time','s','',{'const'});
+baseline = Covariate(t, ones(numel(t),1), 'Baseline',...
+ 'time','s','',{'const'});
 covColl = CovColl({baseline});
 
 %% Step 5 -- assemble the Trial
@@ -89,18 +89,18 @@ configColl = ConfigColl(cfg);
 % |FitResult| with the fitted intensity, coefficients, deviance,
 % AIC/BIC, and time-rescaled spike times for goodness-of-fit.
 
-fitResults = Analysis.RunAnalysisForNeuron( ...
-    trial, 1, configColl, ...
-    0,        ... % makePlot = 0 (we'll plot separately)
-    'GLM',    ... % algorithm
-    1);           % DTCorrection = 1 (Haslinger 2010)
+fitResults = Analysis.RunAnalysisForNeuron(...
+ trial, 1, configColl,...
+ 0,... % makePlot = 0 (we'll plot separately)
+ 'GLM',... % algorithm
+ 1); % DTCorrection = 1 (Haslinger 2010)
 
 fprintf('\nFit complete:\n');
-fprintf('  logLL = %.2f\n', fitResults.logLL);
-fprintf('  AIC   = %.2f\n', fitResults.AIC);
-fprintf('  BIC   = %.2f\n', fitResults.BIC);
-fprintf('  Fitted intercept coefficient: %.4f (true: log(%.3f) = %.4f)\n', ...
-    fitResults.b{1}(1), trueRateHz*delta, log(trueRateHz*delta));
+fprintf(' logLL = %.2f\n', fitResults.logLL);
+fprintf(' AIC = %.2f\n', fitResults.AIC);
+fprintf(' BIC = %.2f\n', fitResults.BIC);
+fprintf(' Fitted intercept coefficient: %.4f (true: log(%.3f) = %.4f)\n',...
+ fitResults.b{1}(1), trueRateHz*delta, log(trueRateHz*delta));
 
 %% Step 8 -- KS plot for goodness-of-fit
 %
@@ -126,23 +126,21 @@ title('Hello, nSTAT -- KS plot for baseline-only GLM');
 % - A fitted point-process GLM (|fitResults|).
 % - A goodness-of-fit plot (the KS curve inside the 95% band).
 % - The infrastructure to extend to multi-covariate models (add
-%   covariates to |CovColl|, name them in |TrialConfig|), history
-%   models (|hist = History(windowTimes)|, pass to |Trial|),
-%   and multi-neuron ensemble fits (|Analysis.RunAnalysisForAllNeurons|).
+% covariates to |CovColl|, name them in |TrialConfig|), history
+% models (|hist = History(windowTimes)|, pass to |Trial|),
+% and multi-neuron ensemble fits (|Analysis.RunAnalysisForAllNeurons|).
 %
 % *Next reads:*
 %
 % - |helpfiles/DecodingExample.m| -- point-process adaptive filter (PPAF)
-%   decoding stimulus from spike trains.
+% decoding stimulus from spike trains.
 % - |helpfiles/PPSimExample.m| -- simulating point processes with CIF.
 % - |examples/paper/example01_mepsc_poisson.m| -- full reproduction of
-%   the 2012 paper's first analysis.
+% the 2012 paper's first analysis.
 %
 % *References:*
 %
 % - Cajigas, Malik, Brown 2012. _J Neurosci Methods_ 211:245-264 (the
 %   nSTAT toolbox paper).
-% - Cajigas Lab Curriculum, chapter-04 sec 4.A.1 onwards (the textbook
-%   treatment of the math).
 % - Brown, Barbieri, Ventura, Kass, Frank 2002. _Neural Comput_ 14:325
 %   (time-rescaling theorem).

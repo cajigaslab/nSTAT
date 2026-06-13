@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>nSTAT decision tree: which class / method do I need?</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-31">
+<meta name="DC.date" content="2026-06-12">
 <meta name="DC.source" content="WhenToUseWhich.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -280,7 +280,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <div>
 <ul>
 <li>The 2012 toolbox paper: Cajigas, Malik, Brown. <i>J Neurosci Methods</i> 211:245-264.</li>
-<li>The textbook treatment: Cajigas Lab Curriculum, chapter-04 (full PP-GLM / PPAF / PPHF / PPLFP / SSGLM derivations).</li>
+<li>Eden, Frank, Barbieri, Solo &amp; Brown 2004 (PPAF); Srinivasan, Eden, Mitter &amp; Brown 2007 (PPHF); Czanner et al. 2008 (SSGLM); Brown, Barbieri, Ventura, Kass &amp; Frank 2002 (time-rescaling).</li>
 <li>The 2026-05-19 review action plan: <tt>docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md</tt>.</li>
 </ul>
 </div>
@@ -310,17 +310,17 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %% Decision 2: what do you want to do?
 %
 % * Fit a *stationary* GLM to spike trains (no drift across trials):
-%   see Section A.
+% see Section A.
 % * Fit a *non-stationary* GLM where coefficients drift across trials:
-%   see Section B (SSGLM).
+% see Section B (SSGLM).
 % * *Decode* a continuous latent state (e.g., kinematics, cursor
-%   velocity) from spike trains: see Section C (PPAF).
+% velocity) from spike trains: see Section C (PPAF).
 % * *Decode* a joint discrete + continuous state (e.g., reach class +
-%   trajectory): see Section D (PPHF).
+% trajectory): see Section D (PPHF).
 % * *Multi-modal* decoding from both spikes AND LFP: see Section E
-%   (PPLFP).
+% (PPLFP).
 % * *Simulate* a point process from a known intensity function: see
-%   Section F (CIF.simulateCIF).
+% Section F (CIF.simulateCIF).
 
 %% Section A: fitting a stationary PP-GLM
 %
@@ -367,12 +367,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % *Methods:*
 %
-% * |PPDecodeFilter|        REPLACE_WITH_DASH_DASH general (symbolic) CIF.
-% * |PPDecodeFilterLinear|  REPLACE_WITH_DASH_DASH canonical-link linear CIF (faster).
-% * |PPDecode_predict|      REPLACE_WITH_DASH_DASH time-update step.
-% * |PPDecode_update|       REPLACE_WITH_DASH_DASH measurement-update step.
+% * |PPDecodeFilter| REPLACE_WITH_DASH_DASH general (symbolic) CIF.
+% * |PPDecodeFilterLinear| REPLACE_WITH_DASH_DASH canonical-link linear CIF (faster).
+% * |PPDecode_predict| REPLACE_WITH_DASH_DASH time-update step.
+% * |PPDecode_update| REPLACE_WITH_DASH_DASH measurement-update step.
 % * |PPDecode_updateIterated| REPLACE_WITH_DASH_DASH iterated-Laplace variant (Phase 4
-%   Task 4.1).
+% Task 4.1).
 %
 % *Worked example:* |helpfiles/DecodingExample.m|,
 % |examples/paper/example05_decoding_ppaf_pphf.m|.
@@ -392,8 +392,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % *Methods:*
 %
-% * |PPHybridFilter|        REPLACE_WITH_DASH_DASH general CIF.
-% * |PPHybridFilterLinear|  REPLACE_WITH_DASH_DASH canonical-link linear CIF.
+% * |PPHybridFilter| REPLACE_WITH_DASH_DASH general CIF.
+% * |PPHybridFilterLinear| REPLACE_WITH_DASH_DASH canonical-link linear CIF.
 %
 % *Worked example:* |helpfiles/HybridFilterExample.m|,
 % |examples/paper/example05_decoding_ppaf_pphf.m|.
@@ -414,10 +414,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % *Methods:*
 %
-% * |PPLFP_DecodeLinear|  REPLACE_WITH_DASH_DASH online filter.
-% * |PPLFP_Decode_predict|, |PPLFP_Decode_update|  REPLACE_WITH_DASH_DASH predict/update
-%   primitives.
-% * |PPLFP_EM|, |PPLFP_EStep|, |PPLFP_MStep|  REPLACE_WITH_DASH_DASH EM parameter learning.
+% * |PPLFP_DecodeLinear| REPLACE_WITH_DASH_DASH online filter.
+% * |PPLFP_Decode_predict|, |PPLFP_Decode_update| REPLACE_WITH_DASH_DASH predict/update
+% primitives.
+% * |PPLFP_EM|, |PPLFP_EStep|, |PPLFP_MStep| REPLACE_WITH_DASH_DASH EM parameter learning.
 %
 % *Worked example:* Adapt the example05 PPAF/PPHF skeleton with the
 % LFP-observation arguments.
@@ -451,13 +451,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % * |Trial| aggregates |nstColl + CovColl + Events + History|.
 % * |History| can be constructed with
-%   |History.raisedCosine(K, tMin, tMax)| (Pillow 2008 log-spaced
-%   basis; Phase 3 Task 3.6).
+% |History.raisedCosine(K, tMin, tMax)| (Pillow 2008 log-spaced
+% basis; Phase 3 Task 3.6).
 % * |LinearCIF| (Phase 3 Task 3.5) is a drop-in replacement for |CIF|
-%   in the canonical-link cases (5 eval methods agreeing to 1e-12),
-%   avoiding the Symbolic Math Toolbox dependency.
+% in the canonical-link cases (5 eval methods agreeing to 1e-12),
+% avoiding the Symbolic Math Toolbox dependency.
 % * |Analysis.computeKSStats| accepts any |Covariate| representing a
-%   predicted rate REPLACE_WITH_DASH_DASH including outputs from non-nSTAT models.
+% predicted rate REPLACE_WITH_DASH_DASH including outputs from non-nSTAT models.
 
 %% Defaults you might want to override
 %
@@ -483,8 +483,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % * The 2012 toolbox paper: Cajigas, Malik, Brown. _J Neurosci Methods_
 %   211:245-264.
-% * The textbook treatment: Cajigas Lab Curriculum, chapter-04 (full
-%   PP-GLM / PPAF / PPHF / PPLFP / SSGLM derivations).
+% * Eden, Frank, Barbieri, Solo & Brown 2004 (PPAF); Srinivasan, Eden,
+%   Mitter & Brown 2007 (PPHF); Czanner et al. 2008 (SSGLM); Brown,
+%   Barbieri, Ventura, Kass & Frank 2002 (time-rescaling).
 % * The 2026-05-19 review action plan:
 %   |docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md|.
 

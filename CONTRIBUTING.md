@@ -22,7 +22,7 @@ Consequences:
 - For a clean re-run, invoke the canonical `.m` directly via the V3.1 MVP harness pattern: copy `helpfiles/nSTATPaperExamples.m` to a temporary directory (so the `.mlx` does not shadow it on path) and `run` it there.
 - This exception applies to *only* this file. All other stale `.mlx` files should still be deleted per the policy above.
 
-The exception and its rationale are tracked as item **B1** in [`docs/verification/remediation_backlog.md`](docs/verification/remediation_backlog.md).
+The exception and its rationale are tracked in internal remediation notes.
 
 ## Local test gate
 
@@ -80,9 +80,9 @@ Interpreting the report:
 
 - `IDENTICAL` / `TINY` — proceed, no action needed.
 - `NONDETERMINISTIC` — informational, allowlisted (Example 03 SSGLM EM
-  iterations produce non-deterministic BLAS reduction order; see
-  [`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md)
-  for the full list and rationale). Treat as no action needed.
+  iterations produce non-deterministic BLAS reduction order; the
+  allowlist set lives in `tools/check_readme_figures.m`). Treat as no
+  action needed.
 - `SUBSTANTIVE` — triage:
   - **Correctness fix or cosmetic update**: regenerate `docs/figures/`
     via `build_paper_examples` and commit the new PNGs + updated
@@ -93,13 +93,10 @@ Interpreting the report:
 
 Do NOT bypass this for "doc-only" changes — the figures ARE docs.
 
-Background on the original 2026-03 → 2026-05 drift incident (figures
-were 2.5 months stale, encoding pre-Phase-4 bug outputs until
-regenerated 2026-05-20) and the empirical Phase A.5 finding that
-established the NONDETERMINISTIC allowlist:
-[`docs/superpowers/plans/2026-05-20-readme-figure-parity.md`](docs/superpowers/plans/2026-05-20-readme-figure-parity.md)
-and
-[`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md).
+Background: the figures were ~2.5 months stale at one point in 2026-05,
+encoding pre-Phase-4 bug outputs until regenerated. The empirical Phase
+A.5 finding that established the NONDETERMINISTIC allowlist is summarized
+in the inline comment block of `tools/check_readme_figures.m`.
 
 ### Why no MATLAB CI?
 
@@ -162,8 +159,8 @@ This chains every existing check in canonical order:
 4. `helpfiles/publish_all_helpfiles.m` — re-publishes every `.m` to `.html`,
    validates helptoc target resolution, rebuilds `helpsearch-v4_0/`.
 5. `tools/lint_helptoc.py` — independent helptoc.xml validation.
-6. `tools/check_bug_patterns.sh` — sibling-bug pattern audit
-   (`docs/verification/bug_pattern_audit.md`).
+6. `tools/check_bug_patterns.sh` — sibling-bug pattern audit (writes
+   an informational report; not a release blocker).
 
 Wall clock: ~30–45 minutes. The publish step is the slow one because it
 re-executes every example. Flags `--skip-publish` and `--skip-readme` exist
@@ -201,7 +198,6 @@ git push origin master --tags
 - `helpfiles/nSTATPaperExamples.mlx` — paper-reference exception (see "`.m` is canonical" above).
 - `AUDIT_REPORT.md` — historical record of the 2026-03-10 audit (banner says so).
 - `README.md` body prose (the figure table itself stays current because it embeds PNGs by relative path).
-- Markdown plan documents under `docs/superpowers/plans/`.
 
 ### Why no MATLAB CI revisited
 
@@ -212,4 +208,4 @@ gate is the local equivalent.
 
 ## Branch + PR conventions
 
-See the action plan at [`docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md`](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md) for the established commit-message style, deprecation-shim pattern, and audit-comment (`% FIX:`) convention. Phase 0 - Phase 4 of the 2026-05-19 review all follow this template.
+Established commit-message style and PR shape: short imperative subject (≤72 chars), body with rationale and "Closes #N" trailers where applicable. Code-side fixes use the inline `% FIX:` audit-comment convention; deprecation-shim renames preserve a forwarding shim with `nSTAT:deprecated:*` warnings. Each phase of the 2026-05-19 review action plan and the 2026-06-12 open-issues remediation followed this template; recent merged PRs are the working reference.

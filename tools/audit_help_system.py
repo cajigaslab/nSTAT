@@ -11,7 +11,7 @@ D0.3: Find:
       - .m files with no entry in helptoc.xml (un-indexed pages)
       - .png files referenced from no .html (disk-bloat candidates)
 
-Writes docs/verification/helpsystem_audit.md.
+Writes the audit report to the path passed on the command line.
 """
 
 from __future__ import annotations
@@ -108,7 +108,7 @@ def main() -> int:
     lines: list[str] = []
     lines.append("# Help-System Audit")
     lines.append("")
-    lines.append("> **Phases D0.1, D0.2, D0.3, D0.4** of [`docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md`](../superpowers/plans/2026-05-20-comprehensive-codebase-audit.md).")
+    lines.append("> Help-system audit (helptoc.xml ↔ .html ↔ .m ↔ search-index integrity).")
     lines.append("")
     lines.append("## Inventory")
     lines.append("")

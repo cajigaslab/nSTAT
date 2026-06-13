@@ -181,9 +181,9 @@ Phase 0–4 modernization (2026-05) and v1.4 release
 --------------------------------------------------
 
 A follow-up wave of work in May 2026 added correctness fixes,
-architectural cleanup, and CI-replacing local gates. See
-[docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md)
-for the action plan.
+architectural cleanup, and CI-replacing local gates. The headline
+items are summarized below; see `RELEASE_NOTES.md` for full per-PR
+detail.
 
 **Additional correctness fixes (Phase 0):**
 
@@ -229,15 +229,14 @@ The team's MathWorks license does not extend to GitHub-hosted runners,
 so the test gate is local. Run `tools/run_unit_tests.sh` (20 unit tests)
 and `tools/check_readme_figures.sh` (README figure parity) before
 pushing changes that touch core code. See [CONTRIBUTING.md](CONTRIBUTING.md)
-for the full developer workflow and [docs/superpowers/plans/](docs/superpowers/plans/)
-for plan documents.
+for the full developer workflow.
 
 **Comprehensive audit (2026-05-20):**
 
-See [docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)
-for the four-phase help-system + cross-document + bug-pattern + deploy-gate
-audit and [docs/verification/](docs/verification/) for the empirical
-reports it produced.
+A four-phase audit covered help-system integrity, cross-document drift,
+sibling-bug pattern coverage, and a one-command deploy gate. The audit
+also added `tools/predeploy.sh` (now superseded by `buildtool predeploy`)
+and `tools/stamp_release.m`.
 
 Python port
 -----------

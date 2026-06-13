@@ -2,17 +2,11 @@
 
 > **Status: HISTORICAL (as of 2026-05-20).** This document records the
 > original 2026-03-10 67-bug audit. The codebase has since received
-> additional waves of work — Phase 0–4 modernization (May 2026, v1.4) and
-> the May 20 comprehensive audit. For the *current* state of bug fixes,
-> see:
->
-> - [docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md)
->   — Phase 0–4 fixes (Bernoulli LL, KS U-clamp, DT-correction branch,
->   PPAF/PPHF time-indexing, multi-result λ indexing)
-> - [docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)
->   — May 20 four-phase audit (help-system integrity, cross-document drift,
->   sibling-bug hunt, one-command deploy gate)
-> - [docs/verification/](docs/verification/) — empirical reports
+> additional waves of work — Phase 0–4 modernization (May 2026, v1.4),
+> the comprehensive 2026-05-20 audit, the 2026-06-12 open-issues
+> remediation (v1.4.1), and the 2026-06-13 toolbox modernization (v1.5.0).
+> For the *current* state of bug fixes and the rationale behind each
+> release, see [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 >
 > The `% FIX:` tag convention introduced here is still in use; this is a
 > generative document, not a snapshot.

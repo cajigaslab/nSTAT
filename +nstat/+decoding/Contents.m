@@ -3,9 +3,8 @@
 % **Status (2026-05): SKELETON ONLY.** This package directory establishes
 % the target layout for the Phase 3 split of `DecodingAlgorithms.m` (a
 % 10860-LOC single classdef holding 48 static methods). The actual code
-% movement is staged across follow-up PRs per the action plan at
-% `docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md`
-% (Phase 3 Task 3.2).
+% movement is staged across follow-up PRs (Phase 3 Task 3.2 of the
+% 2026-05-19 review action plan).
 %
 % Today everything still lives in `DecodingAlgorithms.m` at the repo
 % root. This package is a placeholder — calling `nstat.decoding.PPAF`
@@ -90,6 +89,3 @@
 %
 % Cajigas I, Malik WQ, Brown EN. nSTAT: Open-source neural spike train
 % analysis toolbox for Matlab. J Neurosci Methods 211:245-264 (2012).
-%.md (the canonical math
-% derivations for everything in this package).
-% docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md Phase 3.

@@ -192,5 +192,4 @@
 % * Eden, Frank, Barbieri, Solo & Brown 2004 (PPAF); Srinivasan, Eden,
 %   Mitter & Brown 2007 (PPHF); Czanner et al. 2008 (SSGLM); Brown,
 %   Barbieri, Ventura, Kass & Frank 2002 (time-rescaling).
-% * The 2026-05-19 review action plan:
-%   |docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md|.
+% * |RELEASE_NOTES.md| for the v1.4 / v1.4.1 / v1.5 release notes.

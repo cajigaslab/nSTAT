@@ -21,7 +21,7 @@ function plan = buildfile
 %   tools/predeploy.sh                    ->  buildtool predeploy
 %   tools/build_paper_examples.m          ->  buildtool figuresRegen
 %
-% Reference: docs/superpowers/plans/2026-06-13-toolbox-modernization.md
+% Introduced in v1.5.0 as part of the toolbox modernization work.
 
 plan = buildplan(localfunctions);
 
@@ -73,7 +73,7 @@ end
 function patternsTask(~)
 %PATTERNSTASK Run the sibling-bug pattern audit (informational).
 % Wraps tools/check_bug_patterns.sh. Always exits 0; review the report
-% under docs/verification/bug_pattern_audit.md for the canonical triage.
+% written by the script for any new candidate findings.
 repoRoot = fileparts(mfilename("fullpath"));
 script = fullfile(repoRoot, "tools", "check_bug_patterns.sh");
 report = fullfile(repoRoot, "docs", "verification", "bug_pattern_audit_latest.md");
@@ -96,12 +96,7 @@ function packageTask(~)
 %PACKAGETASK Build .mltbx via packageToolbox().
 % Phase G2 lands toolboxOptions.m and packageToolbox.m; until then this
 % is a no-op stub so 'buildtool predeploy' completes without erroring.
-if exist("packageToolbox", "file") == 2
-    packageToolbox();
-else
-    fprintf("packageToolbox.m not present yet; Phase G2 will add it.\n");
-    fprintf("Plan: docs/superpowers/plans/2026-06-13-toolbox-modernization.md\n");
-end
+packageToolbox();
 end
 
 function predeployTask(~)

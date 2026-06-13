@@ -2,7 +2,7 @@
 #
 # tools/predeploy.sh — one-command release gate for nSTAT.
 #
-# Phase D3.1 of docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md.
+# Introduced for the 2026-05-20 comprehensive codebase audit (Phase D3.1).
 #
 # Chains every existing local check in canonical order:
 #   1. Unit tests             — tools/run_unit_tests.sh

@@ -3,6 +3,12 @@ nSTAT
 
 Neural Spike Train Analysis Toolbox for Matlab
 
+[![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=cajigaslab/nSTAT&file=helpfiles/HelloNstat.m)
+[![Release](https://img.shields.io/github/v/release/cajigaslab/nSTAT?label=release)](https://github.com/cajigaslab/nSTAT/releases/latest)
+[![Paper](https://img.shields.io/badge/paper-Cajigas%202012-green)](https://doi.org/10.1016/j.jneumeth.2012.08.009)
+[![PMID](https://img.shields.io/badge/PMID-22981419-purple)](https://pubmed.ncbi.nlm.nih.gov/22981419)
+[![Python port](https://img.shields.io/badge/Python%20port-nSTAT--python-orange)](https://github.com/cajigaslab/nSTAT-python)
+
 > 📖 **Start here:** [**5-minute introduction page**](https://cajigaslab.github.io/nSTAT/) — hero, install, five runnable snippets covering simulation → fitting → KS goodness-of-fit → decoding → SSGLM, plus a paper-example thumbnail gallery and v1.4.0 release highlights.
 
 **nSTAT** is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis: PP-GLM fitting (Poisson and binomial), time-rescaling KS goodness-of-fit, PPAF (point-process adaptive filter — the spike-train analog of the Kalman filter), PPHF (hybrid discrete + continuous-state filter), SSGLM (state-space GLM for trial-drifting coefficients), and PPLFP (multi-modal spike + LFP sensor-fusion filter).
@@ -20,6 +26,12 @@ Lab websites:
 
 How to install nSTAT
 --------------------
+
+### Option A — one-click install via `.mltbx` (recommended for new users)
+
+Download the latest `nSTAT-<version>.mltbx` from the [Releases page](https://github.com/cajigaslab/nSTAT/releases/latest) and double-click it in the MATLAB Desktop. MATLAB's Add-On Manager handles the path setup, the toolbox metadata, and update notifications. After install, run `nSTAT_Install('DownloadExampleData', true)` once to fetch the figshare paper-example dataset (separate from the code).
+
+### Option B — clone the repo (recommended for contributors)
 
 1. Clone this repository and open MATLAB.
 2. Change directory to the repository root (the folder containing `nSTAT_Install.m`).

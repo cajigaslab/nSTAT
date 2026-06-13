@@ -23,7 +23,7 @@ opts = matlab.addons.toolbox.ToolboxOptions(repoRoot, identifier);
 
 % --- Metadata ----------------------------------------------------------
 opts.ToolboxName     = "nSTAT";
-opts.ToolboxVersion  = "1.4.1";
+opts.ToolboxVersion  = "1.5.0";
 opts.Description     = "Neural Spike Train Analysis Toolbox for MATLAB. Point-process and state-space methods for spike-train analysis: PP-GLM fitting (Poisson and binomial), time-rescaling KS goodness-of-fit, PPAF (point-process adaptive filter), PPHF (hybrid discrete + continuous-state filter), SSGLM (state-space GLM), and PPLFP (multi-modal spike + LFP sensor-fusion filter).";
 opts.Summary         = "Point-process and state-space methods for spike-train analysis (Cajigas, Malik & Brown 2012).";
 

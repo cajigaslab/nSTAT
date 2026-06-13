@@ -1,5 +1,55 @@
 # nSTAT Release Notes
 
+## v1.4.1 — 2026-06-12
+
+Patch release closing all 19 open issues on the tracker as of 2026-06-12. Seven small PRs land in one day, each scoped to a single file or area, each with a unit test. **The headline change is the SSGLM binomial `JacobianLD` typo** (#59) — the only fix in this release that actually changes downstream math; everything else is correctness-tightening or dead-code cleanup.
+
+This is a **drop-in upgrade** from v1.4.0. No API changes, no deprecations. If you upgraded to v1.4.0 in May, run `git pull` and you're done.
+
+### Why upgrade
+
+If you use the binomial-link SSGLM EM step, **upgrade now** — pre-fix the Hessian estimate was corrupted by a `(1-2*λΔ²)` typo where the canonical sigmoid 2nd derivative is `(1-2*λΔ)` (linear, not squared). The error is non-antisymmetric around the inflection point λΔ = 0.5 and biases EM convergence. See [#59](https://github.com/cajigaslab/nSTAT/issues/59) for the full math and the Python-port-parity reference.
+
+For everyone else: 14 other quality-of-life fixes (correct bounds, correct array indexing, correct deprecation hygiene) — none user-visible in normal use, but each one was a latent bug that could surface in adjacent paths.
+
+### Correctness fixes (one section per PR; all merged 2026-06-12)
+
+- **#60 / SignalObj** — `shiftMe` now updates `minTime`/`maxTime` to match the shifted time vector (`#14`); `resample` at the same sample rate length-checks the implied grid so a `setMinTime`/`setMaxTime` between construction and resample doesn't silently leave a stale time vector (`#54`). Bonus: `times`/`rdivide` aliasing (`#53`) closed as stale-fixed — already addressed by prior `copySignal` patches.
+- **#61 / CovColl** — `isCovPresent` no longer off-by-one excludes the last covariate (`#17`); `findMaxTime` applies `covShift` exactly once (was twice) so it's symmetric with `findMinTime` (`#18`).
+- **#62 / nstColl** — `getSpikeTimes` initializes its counter outside the `if(i==1)` guard so a mask excluding neuron 1 no longer errors (`#21`); `getFieldVal` reorders the pre-increment so paired `fieldVal`/`neuronNumbers` records align (`#55`); `getNSTnameFromInd` does a real upper-bound check instead of a truthy guard, with a clear `nstColl:getNSTnameFromInd:OutOfBounds` identifier (`#56`).
+- **#63 / TrialConfig** — `fromStructure` now passes `ensCovMask` and uses the correct positional order, fixing both omitted-argument (`#19`) and positional-shift (`#58`) reports in one change. **Note**: the Python port (`nSTAT-python _trial_config_impl.py:190–197`) has the matching bug; coordinated fix recommended to preserve gold-fixture parity.
+- **#64 / Analysis Granger** — `ensCovMaskTemp` zeroes the column for only the neuron under test, not the full neuron list (`#15`); `phiMat` coefficient mask uses `~cellfun(@isempty, strfind(...))` instead of `~isempty(coeffInd)` so every history-basis coefficient contributes to the sign aggregation (was always just the first) (`#51`).
+- **#65 / Decoding** — `+nstat/+decoding/PPAF.m` (two sites) now broadcasts a shared single-cell `gamma` across all `C` cells via `repmat`; pre-fix only the last column was populated because `c` retained its post-for-loop value (`#20`). `DecodingAlgorithms.estimateInfoMat` removes a dead-code first-formula assignment that was always overwritten by the canonical second formula (`#57`).
+- **#66 / SSGLM** — **HEADLINE FIX**. `+nstat/+decoding/SSGLM.m:373` `JacobianLD` factor changes from `(1-2*λΔ.^2)` to `(1-2*λΔ)`. The four sibling call sites in the toolbox (`DecodingAlgorithms.m:533, 603`; `SSGLM.m:458, 545`) and the Python port (`nSTAT-python decoding_algorithms.py:2641`) all use the linear form. Line 373 was the lone outlier. Pre-fix the binomial-link SSGLM EM step produced biased Hessian estimates; post-fix the math matches the canonical sigmoid second derivative `σ(1-σ)(1-2σ)` (`#59`).
+
+### Stale-issue closures (no code change)
+
+Four 2026-03-10 issues were already addressed by Phase 0–4 modernization in v1.4.0 but the issues remained open. Closed with commit references on 2026-06-12: **#12** (`findPeaks` minima), **#13** (`findGlobalPeak` `sOBj` typo), **#16** (`sampeRate` typo), **#52** (`autocorrelation` `crosscor` typo).
+
+### Test additions
+
+Six new `matlab.unittest` test classes under `tests/unit/` covering each PR's regression surface:
+
+- `testSignalObjShiftMeBounds`, `testSignalObjResampleWindowMutated`
+- `testCovCollIsCovPresentBounds`, `testCovCollFindMaxTimeShift`
+- `testNstCollMaskedAccessors`
+- `testTrialConfigRoundTrip`
+- `testAnalysisGrangerCoeffMask`
+- `testPPAFGammaBroadcast`
+- `testSSGLMBinomialJacobianLD`
+
+Local gate: **72 of 72 unit tests pass** (was 54 at v1.4.0; +18 new tests).
+
+### Paper-example figure parity
+
+`tools/check_readme_figures.sh` detected three `SUBSTANTIVE` drifts attributable to PR #65's PPAF gamma broadcast fix (Example 02 fig02 AIC/BIC + Example 05 fig05/fig06 hybrid-decoder traces) plus six `SHAPE_DIFFER` rasterizer-pixel drifts. The tree was regenerated via `build_paper_examples` to reflect post-fix outputs; the Example 03 SSGLM-derived figures (`fig03_ssglm_simulation_summary`, `fig05_stimulus_effect_surfaces`, `fig06_learning_trial_comparison`) remain on the `NONDETERMINISTIC_BLAS` allowlist per the figure-parity policy from PR #42.
+
+### Driving plan
+
+[`docs/superpowers/plans/2026-06-12-open-issues-remediation.md`](docs/superpowers/plans/2026-06-12-open-issues-remediation.md) — per-issue triage, file-grouping rationale, seven-PR sequencing, and the figure-parity-gate strategy.
+
+---
+
 ## v1.4.0 — 2026-05-20
 
 The first substantive release since the 2012 paper. Roughly two months of work (Phase 0 through Phase 4 of the [2026-05-19 nSTAT review action plan](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md), the [2026-05-20 deep-dive verification](docs/superpowers/plans/2026-05-20-deep-dive-verification.md), the [2026-05-20 pre-mod ground-truth regression](docs/superpowers/plans/2026-05-20-pre-mod-ground-truth-regression.md), the [2026-05-20 README figure parity](docs/superpowers/plans/2026-05-20-readme-figure-parity.md), and the [2026-05-20 comprehensive codebase audit](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)) consolidated into a single release.

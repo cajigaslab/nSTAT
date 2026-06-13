@@ -1,5 +1,47 @@
 # nSTAT Release Notes
 
+## v1.5.0 — 2026-06-13
+
+Minor release. **No code changes**; the version bump reflects the addition of a new install path. Existing users upgrading from v1.4.1 by `git pull` see no behavior change.
+
+### Why upgrade
+
+If you discover MATLAB toolboxes through the Add-On Explorer or want one-click install for collaborators who don't use git, v1.5.0 gives you both. If you already clone the repo and run `nSTAT_Install`, you don't need to do anything — that path still works.
+
+### New install path — `.mltbx` via Add-On Manager
+
+Download `nSTAT-1.5.0.mltbx` from this release's assets and double-click in MATLAB. The Add-On Manager handles path setup, metadata, and update notifications. After install, run `nSTAT_Install('DownloadExampleData', true)` once to fetch the figshare paper-example dataset (which is too large to ship in the `.mltbx`).
+
+The README now documents two install options side by side:
+- **Option A** (new): `.mltbx` one-click via Add-On Manager — recommended for new users.
+- **Option B** (legacy): `git clone` + `nSTAT_Install` — recommended for contributors who want the editable source tree.
+
+### New discoverability — Open in MATLAB Online
+
+The README gained an [Open in MATLAB Online](https://matlab.mathworks.com/open/github/v1?repo=cajigaslab/nSTAT&file=helpfiles/HelloNstat.m) badge. Clicking it opens `helpfiles/HelloNstat.m` in a browser MATLAB session with the toolbox already on the path — no local install required. Anyone landing on the README from a search result can try the toolbox in the cloud before deciding to install locally.
+
+### Infrastructure additions (transparent to end users)
+
+Three new repo-root files implement the modern MATLAB toolbox packaging conventions per [`mathworks/toolboxdesign`](https://github.com/mathworks/toolboxdesign):
+
+- **`buildfile.m`** — `buildtool` task definitions. Consolidates the 8 `tools/*.{sh,m,py}` scripts into one IDE-aware entry point. Use `buildtool test`, `buildtool figures`, `buildtool predeploy`. The old `tools/*.sh` scripts are preserved for CI and shell users; nothing was removed.
+- **`toolboxOptions.m`** — declarative `.mltbx` packaging configuration (`matlab.addons.toolbox.ToolboxOptions`). Records toolbox name, version, author metadata, supported platforms, MATLAB-path additions, the GettingStarted guide, and the persistent toolbox identifier UUID (`435c3da4-5a9f-459f-bad5-74c72e9cae4a`, generated once, never changes — the Add-On Manager uses it to recognize updates vs fresh installs).
+- **`packageToolbox.m`** — thin wrapper that reads `toolboxOptions()` and invokes `matlab.addons.toolbox.packageToolbox`. Invoked from `buildtool package`.
+
+### What's NOT in v1.5.0
+
+- No File Exchange listing yet. Submission requires manually filling out the [MathWorks form](https://www.mathworks.com/matlabcentral/fileexchange/); planned for a follow-up.
+- No classdefs moved. Every existing path-based reference (`Analysis`, `CIF`, etc.) works exactly as before. The `toolbox/` subfolder layout described in [`mathworks/toolboxdesign`](https://github.com/mathworks/toolboxdesign) is deferred — applied at packaging time only if Phase G4 is approved, never in the repo tree.
+- No MATLAB CI added. License constraint stands per `CONTRIBUTING.md`; `buildtool` runs locally (same pattern as v1.4.1).
+
+### Driving plan
+
+[`docs/superpowers/plans/2026-06-13-toolbox-modernization.md`](docs/superpowers/plans/2026-06-13-toolbox-modernization.md) — phases G1 (buildfile), G2 (`.mltbx` packaging), G3 partial (Open-in-MATLAB-Online badge + dual-install-path README). Phases G4 (`toolbox/` materialization) and G5 (`.prj` MATLAB Project) deferred.
+
+PRs landed: #71 (G1), #72 (G2), #73 (G3 partial).
+
+---
+
 ## v1.4.1 — 2026-06-12
 
 Patch release closing all 19 open issues on the tracker as of 2026-06-12. Seven small PRs land in one day, each scoped to a single file or area, each with a unit test. **The headline change is the SSGLM binomial `JacobianLD` typo** (#59) — the only fix in this release that actually changes downstream math; everything else is correctness-tightening or dead-code cleanup.

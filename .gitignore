@@ -30,3 +30,7 @@ docs/verification/bug_pattern_audit_latest.md
 
 # Sphinx build output for the intro page (built by CI; not tracked).
 docs/_build/
+
+# .mltbx packaging output (built by 'buildtool package'; attached to GitHub
+# Releases, not committed). The release/ folder holds versioned artifacts.
+release/

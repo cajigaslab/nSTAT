@@ -12,7 +12,7 @@ Establishing the destination directory + the planned partition is a small commit
 
 1. **Reserves the namespace.** `nstat.decoding` is now a real MATLAB package. Future user code that imports from it (`import nstat.decoding.*`) will resolve once any class file is added.
 2. **Documents the partition decision.** The class-by-class mapping in `Contents.m` was derived from the structural analysis of `DecodingAlgorithms.m` in the 2026-05-19 review session. Locking that mapping here (vs. discovering it again at refactor time) means each future code-movement PR is a mechanical move rather than a design exercise.
-3. **Anchors curriculum cross-references.** [`bci-curriculum/reviews/nstat-toolbox-2026-05-19/README.md`](../../docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md) §C4.3 promises to update Ch. 4 §4.B.9's class-list table to point at `nstat.decoding.*`. With this skeleton in place, the chapter edit can land before the code movement without forward-reference rot.
+3. **Anchors curriculum cross-references.** [](../../docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md) §C4.3 promises to update Ch. 4 §4.B.9's class-list table to point at `nstat.decoding.*`. With this skeleton in place, the chapter edit can land before the code movement without forward-reference rot.
 
 ## What you can call today
 

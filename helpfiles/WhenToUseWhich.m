@@ -16,17 +16,17 @@
 %% Decision 2: what do you want to do?
 %
 % * Fit a *stationary* GLM to spike trains (no drift across trials):
-%   see Section A.
+% see Section A.
 % * Fit a *non-stationary* GLM where coefficients drift across trials:
-%   see Section B (SSGLM).
+% see Section B (SSGLM).
 % * *Decode* a continuous latent state (e.g., kinematics, cursor
-%   velocity) from spike trains: see Section C (PPAF).
+% velocity) from spike trains: see Section C (PPAF).
 % * *Decode* a joint discrete + continuous state (e.g., reach class +
-%   trajectory): see Section D (PPHF).
+% trajectory): see Section D (PPHF).
 % * *Multi-modal* decoding from both spikes AND LFP: see Section E
-%   (PPLFP).
+% (PPLFP).
 % * *Simulate* a point process from a known intensity function: see
-%   Section F (CIF.simulateCIF).
+% Section F (CIF.simulateCIF).
 
 %% Section A: fitting a stationary PP-GLM
 %
@@ -73,12 +73,12 @@
 %
 % *Methods:*
 %
-% * |PPDecodeFilter|        -- general (symbolic) CIF.
-% * |PPDecodeFilterLinear|  -- canonical-link linear CIF (faster).
-% * |PPDecode_predict|      -- time-update step.
-% * |PPDecode_update|       -- measurement-update step.
+% * |PPDecodeFilter| -- general (symbolic) CIF.
+% * |PPDecodeFilterLinear| -- canonical-link linear CIF (faster).
+% * |PPDecode_predict| -- time-update step.
+% * |PPDecode_update| -- measurement-update step.
 % * |PPDecode_updateIterated| -- iterated-Laplace variant (Phase 4
-%   Task 4.1).
+% Task 4.1).
 %
 % *Worked example:* |helpfiles/DecodingExample.m|,
 % |examples/paper/example05_decoding_ppaf_pphf.m|.
@@ -98,8 +98,8 @@
 %
 % *Methods:*
 %
-% * |PPHybridFilter|        -- general CIF.
-% * |PPHybridFilterLinear|  -- canonical-link linear CIF.
+% * |PPHybridFilter| -- general CIF.
+% * |PPHybridFilterLinear| -- canonical-link linear CIF.
 %
 % *Worked example:* |helpfiles/HybridFilterExample.m|,
 % |examples/paper/example05_decoding_ppaf_pphf.m|.
@@ -120,10 +120,10 @@
 %
 % *Methods:*
 %
-% * |PPLFP_DecodeLinear|  -- online filter.
-% * |PPLFP_Decode_predict|, |PPLFP_Decode_update|  -- predict/update
-%   primitives.
-% * |PPLFP_EM|, |PPLFP_EStep|, |PPLFP_MStep|  -- EM parameter learning.
+% * |PPLFP_DecodeLinear| -- online filter.
+% * |PPLFP_Decode_predict|, |PPLFP_Decode_update| -- predict/update
+% primitives.
+% * |PPLFP_EM|, |PPLFP_EStep|, |PPLFP_MStep| -- EM parameter learning.
 %
 % *Worked example:* Adapt the example05 PPAF/PPHF skeleton with the
 % LFP-observation arguments.
@@ -157,13 +157,13 @@
 %
 % * |Trial| aggregates |nstColl + CovColl + Events + History|.
 % * |History| can be constructed with
-%   |History.raisedCosine(K, tMin, tMax)| (Pillow 2008 log-spaced
-%   basis; Phase 3 Task 3.6).
+% |History.raisedCosine(K, tMin, tMax)| (Pillow 2008 log-spaced
+% basis; Phase 3 Task 3.6).
 % * |LinearCIF| (Phase 3 Task 3.5) is a drop-in replacement for |CIF|
-%   in the canonical-link cases (5 eval methods agreeing to 1e-12),
-%   avoiding the Symbolic Math Toolbox dependency.
+% in the canonical-link cases (5 eval methods agreeing to 1e-12),
+% avoiding the Symbolic Math Toolbox dependency.
 % * |Analysis.computeKSStats| accepts any |Covariate| representing a
-%   predicted rate -- including outputs from non-nSTAT models.
+% predicted rate -- including outputs from non-nSTAT models.
 
 %% Defaults you might want to override
 %
@@ -189,7 +189,8 @@
 %
 % * The 2012 toolbox paper: Cajigas, Malik, Brown. _J Neurosci Methods_
 %   211:245-264.
-% * The textbook treatment: Cajigas Lab Curriculum, chapter-04 (full
-%   PP-GLM / PPAF / PPHF / PPLFP / SSGLM derivations).
+% * Eden, Frank, Barbieri, Solo & Brown 2004 (PPAF); Srinivasan, Eden,
+%   Mitter & Brown 2007 (PPHF); Czanner et al. 2008 (SSGLM); Brown,
+%   Barbieri, Ventura, Kass & Frank 2002 (time-rescaling).
 % * The 2026-05-19 review action plan:
 %   |docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md|.

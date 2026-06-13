@@ -6,11 +6,11 @@ review action plan, the CI workflow (`.github/workflows/`) runs only
 `tests/unit/`. The tests in this directory:
 
 - Take longer than is reasonable for a per-PR gate (minutes, not seconds).
-- Exist to lock empirical numerical claims (e.g., curriculum chapter
-  references, Monte-Carlo bounds) against regressions.
+- Exist to lock empirical numerical claims (e.g., published reference's chapter
+ references, Monte-Carlo bounds) against regressions.
 - Should be re-run on-demand when the underlying numerical claim is
-  questioned, when the relevant production code path changes, or as a
-  pre-release quality check.
+ questioned, when the relevant production code path changes, or as a
+ pre-release quality check.
 
 ## Running
 
@@ -25,21 +25,21 @@ disp(results);
 Or run a single test:
 
 ```matlab
-runtests('tests/integration/testKsAgainstCurriculumZoo')
+runtests('tests/integration/testKsAgainstReferenceZoo')
 ```
 
 From the shell:
 
 ```bash
 /Applications/MATLAB_R2025b.app/bin/matlab -batch \
-  "addpath(genpath(pwd)); results = runtests('tests/integration'); disp(results); assert(~any([results.Failed]))"
+ "addpath(genpath(pwd)); results = runtests('tests/integration'); disp(results); assert(~any([results.Failed]))"
 ```
 
 ## Current tests
 
-### `testKsAgainstCurriculumZoo.m`
+### `testKsAgainstReferenceZoo.m`
 
-Locks the `bci-curriculum` chapter-04 §4.C.1 Cor. 2 numerical claim:
+Locks the `the published reference` chapter-04 §4.C.1 Cor. 2 numerical claim:
 
 > Oracle pass rate matches nominal 0.95 to within 0.5 percentage points at
 > lambda*delta <= 0.4 with up to 6.5% multi-spike bins.
@@ -55,12 +55,12 @@ The test calls the algorithm directly via `Analysis.ksdiscrete` rather than
 through `Analysis.computeKSStats(...)`. The static wrapper was added
 explicitly for unit/integration testing of the DT correction in isolation
 from the surrounding `nspikeTrain` / `Covariate` marshalling logic; this is
-what the curriculum's Cor. 2 numerical claim refers to algorithmically.
+what the discrete-time KS validity bound refers to algorithmically.
 
 If this test fails, either the Haslinger-Pipa-Brown 2010 DT correction in
-`Analysis.m`'s local `ksdiscrete` has regressed, or the curriculum's
+`Analysis.m`'s local `ksdiscrete` has regressed, or the 
 empirical claim does not hold and the chapter prose must be revisited.
 
-Reference: `reviews/ks-transformer-validation/` in the `bci-curriculum`
+Reference: `the Haslinger-Pipa-Brown 2010 DT-correction reference` in the `the published reference`
 repository (the original 14-model Python zoo); Haslinger, Pipa & Brown 2010
 (*Neural Comput.* 22:2477-2506).

@@ -34,7 +34,7 @@ Confidence: high on the strategic question. **Proceed only if there's a citation
 - Code refactoring (any required fixes are tracked as separate PRs).
 - Performance optimization (DecodingExampleWithHist takes 213s — noted, not fixed).
 - Python port verification (separate repo: `cajigaslab/nSTAT-python`).
-- The 14-model curriculum KS-validation zoo (already covered by `tests/integration/testKsAgainstCurriculumZoo`).
+- The 14-model curriculum KS-validation zoo (already covered by `tests/integration/testKsAgainstReferenceZoo`).
 - The `Analysis.m:609` empty-`b` defect (latent; separate PR).
 
 ### Acceptance criteria
@@ -73,10 +73,10 @@ Create `docs/verification/script_inventory.md` listing every in-scope script wit
 Create `tools/verify_all_examples.m` — a single MATLAB driver that:
 1. Reads the inventory.
 2. For each script:
-   - Runs it in a captured environment (`evalc` for stdout, `lastwarn` for warnings, `tic`/`toc` for timing).
-   - Captures any figures created via a `findobj`-based snapshot, saves to `docs/figures/<script_id>/`.
-   - Extracts numerical outputs (any `fprintf`'d numbers + assigned base-workspace variables matching a known schema).
-   - Records pass / fail / runtime / warnings / output-artifact paths.
+ - Runs it in a captured environment (`evalc` for stdout, `lastwarn` for warnings, `tic`/`toc` for timing).
+ - Captures any figures created via a `findobj`-based snapshot, saves to `docs/figures/<script_id>/`.
+ - Extracts numerical outputs (any `fprintf`'d numbers + assigned base-workspace variables matching a known schema).
+ - Records pass / fail / runtime / warnings / output-artifact paths.
 3. Emits a JSON report at `docs/verification/run_report_<timestamp>.json`.
 4. Emits a markdown summary at `docs/verification/REPORT.md` (gets overwritten each run).
 

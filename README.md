@@ -7,13 +7,13 @@ Neural Spike Train Analysis Toolbox for Matlab
 
 **nSTAT** is the reference MATLAB implementation of the point-process / state-space framework for spike-train analysis: PP-GLM fitting (Poisson and binomial), time-rescaling KS goodness-of-fit, PPAF (point-process adaptive filter — the spike-train analog of the Kalman filter), PPHF (hybrid discrete + continuous-state filter), SSGLM (state-space GLM for trial-drifting coefficients), and PPLFP (multi-modal spike + LFP sensor-fusion filter).
 
-For the canonical textbook treatment of the math — including full derivations of the time-rescaling theorem, the PPAF as one Newton step on the variational free energy, and the PPLFP additive innovation — see *Decoding the Brain*, Chapter 4 (Cajigas Lab Curriculum).
+For the foundational point-process and state-space algorithms implemented here, see the original sources: Brown, Barbieri, Ventura, Kass & Frank 2002 (time-rescaling theorem); Eden, Frank, Barbieri, Solo & Brown 2004 (PPAF); Srinivasan, Eden, Mitter & Brown 2007 (PPHF); Czanner et al. 2008 (SSGLM); and the 2012 nSTAT paper itself for the canonical toolbox treatment.
 
 nSTAT also provides tools for Gaussian signals (correlation analysis, Kalman filter / smoother) for continuous normally-distributed neural signals such as LFP / EEG / ECoG. Although created with neural signal processing in mind, the SignalObj / Covariate abstractions can be applied to any discrete and continuous signal types.
 
 For new work in Python, see [nSTAT-python](https://github.com/cajigaslab/nSTAT-python). This MATLAB repository remains the canonical site for reproducing Cajigas et al. 2012 and is the lab's MATLAB-side reference implementation.
 
-The current release version of nSTAT can be downloaded from https://github.com/cajigaslab/nSTAT/ .
+The current release version of nSTAT can be downloaded from https://github.com/cajigaslab/nSTAT/.
 Lab websites:
 - Neuroscience Statistics Research Laboratory: https://www.neurostat.mit.edu
 - RESToRe Lab: https://www.med.upenn.edu/cajigaslab/
@@ -116,7 +116,7 @@ the MATLAB help system includes a dedicated mapping page:
 This page ties major toolbox components to the paper's workflow categories:
 
 - Class hierarchy and object model (`SignalObj`, `Covariate`, `Trial`,
-  `Analysis`, `FitResult`, `DecodingAlgorithms`)
+ `Analysis`, `FitResult`, `DecodingAlgorithms`)
 - Fitting and assessment workflow (GLM fitting, diagnostics, summaries)
 - Simulation workflow (conditional intensity and thinning examples)
 - Decoding workflow (univariate/bivariate and history-aware decoding)
@@ -140,25 +140,25 @@ review. See [AUDIT_REPORT.md](AUDIT_REPORT.md) for full details.
 **Critical bugs fixed:**
 
 - **FitResult.m** — Time-rescaling KS test used `sampleRate` as bin width
-  instead of `1/sampleRate`, invalidating goodness-of-fit for any
-  sampleRate != 1
+ instead of `1/sampleRate`, invalidating goodness-of-fit for any
+ sampleRate != 1
 - **DecodingAlgorithms.m** — `isa(condNum,'nan')` always returned false,
-  so NaN condition numbers were never caught and singular matrices passed
-  unchecked through PPAF/PPHF decoding; `ExplambdaDeltaCubed` used `.^2`
-  instead of `.^3`, corrupting higher-order filter corrections
-- **CIF.m** — `symvar()` reordered variables alphabetically, but all
-  callers passed arguments in `varIn` order, causing silent argument
-  mismatch in `matlabFunction`-generated handles for non-alphabetical
-  variable names
+ so NaN condition numbers were never caught and singular matrices passed
+ unchecked through PPAF/PPHF decoding; `ExplambdaDeltaCubed` used `.^2`
+ instead of `.^3`, corrupting higher-order filter corrections
+- **CIF.m** — `symvar` reordered variables alphabetically, but all
+ callers passed arguments in `varIn` order, causing silent argument
+ mismatch in `matlabFunction`-generated handles for non-alphabetical
+ variable names
 - **SignalObj.m** — `findPeaks('minima')` silently returned maxima;
-  `findGlobalPeak('minima')` always crashed due to `sOBj` typo; handle
-  aliasing in `times`/`rdivide`/`ldivide` mutated input signals
+ `findGlobalPeak('minima')` always crashed due to `sOBj` typo; handle
+ aliasing in `times`/`rdivide`/`ldivide` mutated input signals
 - **nspikeTrain.m** — Burst detection had off-by-one index error and
-  wrong append order
+ wrong append order
 
 **Code quality improvements:**
 
-- 22 `eval()` → `feval()` conversions (SignalObj.m)
+- 22 `eval` → `feval` conversions (SignalObj.m)
 - 11 silent `catch` → named exception captures
 - 7 `roundn` → `round` replacements (removes Mapping Toolbox dependency)
 - 3 `log(0)` guards, division-by-zero guards, floating-point index fixes
@@ -175,41 +175,41 @@ for the action plan.
 
 **Additional correctness fixes (Phase 0):**
 
-- **FitResult.m / Analysis.m** — Bernoulli log-likelihood missing `log()`
-  wrap on `1−λΔ` (commits `acd57c7`, `d1e96cf`)
+- **FitResult.m / Analysis.m** — Bernoulli log-likelihood missing `log`
+ wrap on `1−λΔ` (commits `acd57c7`, `d1e96cf`)
 - **Analysis.m** — KS U-clamping before `ks_stat` computation inflated
-  KS statistics (`ef01a82`); DT-correction branch was unreachable for
-  typical inputs (`f460aa8`); `ksdiscrete` ignored caller-set RNG seed
-  (`f2307e9`)
+ KS statistics (`ef01a82`); DT-correction branch was unreachable for
+ typical inputs (`f460aa8`); `ksdiscrete` ignored caller-set RNG seed
+ (`f2307e9`)
 - **FitResult.m** — multi-result λ branch indexed result 1 for all
-  results (`1520034`); `plotSeqCorr` had no non-finite guard for U-transform
-  overflow (`f5b5734`)
+ results (`1520034`); `plotSeqCorr` had no non-finite guard for U-transform
+ overflow (`f5b5734`)
 - **DecodingAlgorithms.m** — PPAF goal-directed predict time-indexing
-  (`3ffebd5`); PPHF A/Q time-index + missing x0/Pi0 goal fusion
-  (`bc5f879`, `1bcb63e`, `ba7069a`)
+ (`3ffebd5`); PPHF A/Q time-index + missing x0/Pi0 goal fusion
+ (`bc5f879`, `1bcb63e`, `ba7069a`)
 
 **Architectural cleanup (Phase 3):**
 
 - `+nstat/+decoding/` package: 8 cluster classes (`PPAF`, `PPHF`, `PPLFP`,
-  `SSGLM`, `KalmanFilter`, `UKF`, `KF_EM`, `PointProcessEM`) extracted
-  from the 10860-line `DecodingAlgorithms.m`, which is now a 1189-line
-  facade with 47 deprecation shims.
+ `SSGLM`, `KalmanFilter`, `UKF`, `KF_EM`, `PointProcessEM`) extracted
+ from the 10860-line `DecodingAlgorithms.m`, which is now a 1189-line
+ facade with 47 deprecation shims.
 - `mPPCO_*` methods renamed to `PPLFP_*` (paper §4.B.7 alignment;
-  `mPPCO_*` retained as deprecation shims).
+ `mPPCO_*` retained as deprecation shims).
 - Woodbury matrix-inversion update step centralized in
-  `+nstat/+decoding/+internal/computeGainMatrix.m`.
+ `+nstat/+decoding/+internal/computeGainMatrix.m`.
 - `nstat.Defaults` class for centralized tolerances (`EM_TolAbs=1e-3`,
-  `EM_MaxIter=100`, `DTRegimeBound=0.4`, …).
+ `EM_MaxIter=100`, `DTRegimeBound=0.4`, …).
 
 **New capabilities (Phase 3.5 + 4):**
 
 - **`LinearCIF`** — canonical-link CIF with closed-form gradient and
-  Hessian; drop-in replacement for symbolic `CIF` when the Symbolic
-  Math Toolbox is undesirable (Poisson and binomial supported).
+ Hessian; drop-in replacement for symbolic `CIF` when the Symbolic
+ Math Toolbox is undesirable (Poisson and binomial supported).
 - **`History.raisedCosine(K, tMin, tMax)`** — Pillow 2008 log-spaced
-  raised-cosine basis.
+ raised-cosine basis.
 - **`PPAF.PPDecode_updateIterated` / `PPDecode_updateLinearIterated`** —
-  iterated-Laplace PPAF update with prior-gradient correction term.
+ iterated-Laplace PPAF update with prior-gradient correction term.
 
 **Local test gate (no MATLAB CI):**
 

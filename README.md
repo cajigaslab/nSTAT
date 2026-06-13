@@ -3,6 +3,7 @@ nSTAT
 
 Neural Spike Train Analysis Toolbox for Matlab
 
+[![View nSTAT on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/184065-nstat-neural-spike-train-analysis-toolbox)
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=cajigaslab/nSTAT&file=helpfiles/HelloNstat.m)
 [![Release](https://img.shields.io/github/v/release/cajigaslab/nSTAT?label=release)](https://github.com/cajigaslab/nSTAT/releases/latest)
 [![Paper](https://img.shields.io/badge/paper-Cajigas%202012-green)](https://doi.org/10.1016/j.jneumeth.2012.08.009)

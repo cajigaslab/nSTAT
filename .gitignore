@@ -34,3 +34,10 @@ docs/_build/
 # .mltbx packaging output (built by 'buildtool package'; attached to GitHub
 # Releases, not committed). The release/ folder holds versioned artifacts.
 release/
+
+# Lab-internal documents kept locally but not published. Plans, handoffs,
+# verification reports, and audit triage all live here. Historical commits
+# (incl. tagged releases v1.4.x and v1.5.0) still contain copies; this
+# policy applies going forward only.
+docs/superpowers/
+docs/verification/

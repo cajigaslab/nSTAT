@@ -391,8 +391,7 @@ Recent bug class fixes that you should not re-introduce:
  `fig05_stimulus_effect_surfaces.png`, `fig06_learning_trial_comparison.png`)
  by mean |Δ| ≈ 2–7 in [0,255] space. They are allowlisted in
  `tools/check_readme_figures.m` so the drift detector treats them as
- informational. Full empirical write-up:
- [`docs/verification/readme_figure_parity.md`](docs/verification/readme_figure_parity.md).
+ informational.
 
 ---
 

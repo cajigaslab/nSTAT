@@ -2,7 +2,7 @@
 #
 # tools/check_bug_patterns.sh — sibling-bug pattern audit.
 #
-# Phase D2.1 of docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md.
+# Introduced for the 2026-05-20 comprehensive codebase audit (Phase D2.1).
 #
 # Greps every .m file in the repo for known-bad patterns drawn from
 # previously-fixed bugs (the "bug families" of Phase 0–4 and the 2026-03-10
@@ -61,7 +61,7 @@ check_pattern() {
 {
   echo "# Bug-pattern audit — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo
-  echo "Phase D2.1 of [docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)."
+  echo "Sibling-bug pattern audit (introduced for the 2026-05-20 codebase audit, Phase D2.1)."
   echo
 
   # Bernoulli LL: (1-y).*(1-... should be (1-y).*log(1-...

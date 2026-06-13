@@ -10,7 +10,7 @@ classdef testKsUnclamped < matlab.unittest.TestCase
     % values OUTSIDE the [1e-6, 1-1e-6] interval -- i.e., the clamp
     % is no longer being applied upstream of the statistic.
     %
-    % Refs: Phase 0 Task 0.4 of docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md
+    % Refs: Phase 0 Task 0.4 of the 2026-05-19 review action plan.
 
     methods (Test)
         function testUContainsRawValuesAtBoundary(tc)

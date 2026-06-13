@@ -25,7 +25,7 @@ function stamp_release(version, varargin)
 %
 % See also: tools/predeploy.sh
 %
-% Phase D3.2 of docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md.
+% Introduced for the 2026-05-20 comprehensive codebase audit (Phase D3.2).
 
 parser = inputParser;
 parser.FunctionName = 'tools.stamp_release';
@@ -84,7 +84,7 @@ if exist(notesPath, 'file') == 2
     else
         % prepend a new section after any preamble
         preamble = sprintf('# nSTAT Release Notes\n\n');
-        newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\nSee plans in `docs/superpowers/plans/` and verification reports in `docs/verification/` for details.\n\n---\n\n', ...
+        newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\n---\n\n', ...
             sectionHeader);
         if startsWith(notesText, '# nSTAT Release Notes')
             % insert after the preamble

@@ -214,7 +214,7 @@ What landed in [v1.4.0](https://github.com/cajigaslab/nSTAT/releases/tag/v1.4.0)
 - Centralized Woodbury update.
 - `nstat.Defaults` for tolerances.
 
-[Comprehensive audit summary](https://github.com/cajigaslab/nSTAT/blob/master/docs/verification/comprehensive_audit_summary.md)
+[Release notes](https://github.com/cajigaslab/nSTAT/blob/master/RELEASE_NOTES.md)
 :::
 
 :::{grid-item-card} ✨ **New capabilities**

@@ -34,11 +34,11 @@ Three new repo-root files implement the modern MATLAB toolbox packaging conventi
 - No classdefs moved. Every existing path-based reference (`Analysis`, `CIF`, etc.) works exactly as before. The `toolbox/` subfolder layout described in [`mathworks/toolboxdesign`](https://github.com/mathworks/toolboxdesign) is deferred — applied at packaging time only if Phase G4 is approved, never in the repo tree.
 - No MATLAB CI added. License constraint stands per `CONTRIBUTING.md`; `buildtool` runs locally (same pattern as v1.4.1).
 
-### Driving plan
+### Driving work
 
-[`docs/superpowers/plans/2026-06-13-toolbox-modernization.md`](docs/superpowers/plans/2026-06-13-toolbox-modernization.md) — phases G1 (buildfile), G2 (`.mltbx` packaging), G3 partial (Open-in-MATLAB-Online badge + dual-install-path README). Phases G4 (`toolbox/` materialization) and G5 (`.prj` MATLAB Project) deferred.
+Three phases of a modernization plan: G1 (`buildfile.m` + `buildtool` task migration), G2 (`.mltbx` packaging), G3 partial (Open-in-MATLAB-Online badge + dual-install-path README). Phases G4 (`toolbox/` materialization at packaging time) and G5 (`.prj` MATLAB Project) deferred.
 
-PRs landed: #71 (G1), #72 (G2), #73 (G3 partial).
+PRs landed: #71 (G1), #72 (G2), #73 (G3 partial), #74 (this release).
 
 ---
 
@@ -88,19 +88,19 @@ Local gate: **72 of 72 unit tests pass** (was 54 at v1.4.0; +18 new tests).
 
 ### Driving plan
 
-[`docs/superpowers/plans/2026-06-12-open-issues-remediation.md`](docs/superpowers/plans/2026-06-12-open-issues-remediation.md) — per-issue triage, file-grouping rationale, seven-PR sequencing, and the figure-parity-gate strategy.
+The open-issues remediation plan that drove this release recorded per-issue triage, file-grouping rationale, seven-PR sequencing, and the figure-parity-gate strategy.
 
 ---
 
 ## v1.4.0 — 2026-05-20
 
-The first substantive release since the 2012 paper. Roughly two months of work (Phase 0 through Phase 4 of the [2026-05-19 nSTAT review action plan](docs/superpowers/plans/2026-05-19-nstat-review-action-plan.md), the [2026-05-20 deep-dive verification](docs/superpowers/plans/2026-05-20-deep-dive-verification.md), the [2026-05-20 pre-mod ground-truth regression](docs/superpowers/plans/2026-05-20-pre-mod-ground-truth-regression.md), the [2026-05-20 README figure parity](docs/superpowers/plans/2026-05-20-readme-figure-parity.md), and the [2026-05-20 comprehensive codebase audit](docs/superpowers/plans/2026-05-20-comprehensive-codebase-audit.md)) consolidated into a single release.
+The first substantive release since the 2012 paper. Roughly two months of work — Phase 0 through Phase 4 of the 2026-05-19 nSTAT review action plan, plus a 2026-05-20 deep-dive verification, a pre-modernization ground-truth regression, the README figure-parity sweep, and a comprehensive codebase audit — consolidated into a single release.
 
 This is a **drop-in upgrade** from v1.2/v1.3 — every public-API change ships with a deprecation shim that forwards to the new entry point and emits a one-time warning. No user code should break on the v1.4.0 upgrade.
 
 ### Why upgrade
 
-The headline 2012 outputs (every figure in the README gallery; every paper example in `examples/paper/`) **encoded multiple math bugs** that propagated through the time-rescaling KS test, the PPAF/PPHF decoders, and the SSGLM EM iterations. v1.4.0 fixes those bugs. If you have run nSTAT on real data and trusted the KS goodness-of-fit statistic or the decoder traces, you should re-run on v1.4.0 and compare. The [pre-modernization regression report](docs/verification/pre_mod_comparison.md) documents which outputs change and by how much.
+The headline 2012 outputs (every figure in the README gallery; every paper example in `examples/paper/`) **encoded multiple math bugs** that propagated through the time-rescaling KS test, the PPAF/PPHF decoders, and the SSGLM EM iterations. v1.4.0 fixes those bugs. If you have run nSTAT on real data and trusted the KS goodness-of-fit statistic or the decoder traces, you should re-run on v1.4.0 and compare; a pre-modernization regression analysis showed which outputs change and by how much.
 
 ---
 
@@ -118,7 +118,7 @@ These are the bugs whose fixes can change numerical output. If you have publishe
 - **`Analysis.ksdiscrete` clobbered caller-set RNG seed** (`f2307e9`). The bootstrap KS path called `rng('shuffle','twister')` internally, breaking reproducibility for any caller that had set a seed. **Effect:** `rng(0)`-based reproducibility now works end-to-end through KS-discrete code paths.
 - **`sampeRate` typo, `containsChars` logic, `logLL` undefined vars** (`6f6eb13`). Three latent defects in adjacent code paths surfaced and fixed.
 
-The full pre-modernization regression test ([docs/verification/pre_mod_comparison.md](docs/verification/pre_mod_comparison.md)) shows: **19 of 19 evaluated outputs IDENTICAL** to the pre-modernization baseline on the V3.1 MVP harness, with all numerical-output diffs attributable to the listed correctness fixes (visualized in the [README figure parity report](docs/verification/readme_figure_parity.md)).
+The full pre-modernization regression test showed: **19 of 19 evaluated outputs IDENTICAL** to the pre-modernization baseline on the V3.1 MVP harness, with all numerical-output diffs attributable to the listed correctness fixes.
 
 ### Architectural cleanup
 
@@ -132,7 +132,7 @@ These are refactors. They do not change algorithmic behavior; every legacy entry
 
 ### New capabilities
 
-- **`LinearCIF`** — canonical-link conditional intensity function with **closed-form gradient and Hessian** for the Poisson and binomial canonical links. A drop-in replacement for `CIF` where the Symbolic Math Toolbox dependency is undesirable: `LinearCIF`'s derivative computation is analytic and Symbolic-free at eval time. (Construction still uses `sym(...)` for variable-name compatibility with the existing `CIF` interface contract; see [symbolic dependency audit](docs/verification/symbolic_dependency_audit.md) for the full discussion and the future-work fix shape.)
+- **`LinearCIF`** — canonical-link conditional intensity function with **closed-form gradient and Hessian** for the Poisson and binomial canonical links. A drop-in replacement for `CIF` where the Symbolic Math Toolbox dependency is undesirable: `LinearCIF`'s derivative computation is analytic and Symbolic-free at eval time. (Construction still uses `sym(...)` for variable-name compatibility with the existing `CIF` interface contract; a follow-up could redefine `varIn`/`stimVars` as `cellstr` to eliminate the construction-time dependency.)
 - **`History.raisedCosine(K, tMin, tMax)`** — Pillow 2008 log-spaced raised-cosine basis. Static constructor for `History`. Default bounds `tMin=0.002`, `tMax=0.100` (seconds).
 - **Iterated-Laplace PPAF update** — `nstat.decoding.PPAF.PPDecode_updateIterated` and `PPDecode_updateLinearIterated` implement the iterated-Laplace step from Eden et al. 2004 (Algorithm 2), with the missing prior-gradient correction term that the original single-Newton update omits. Exposed but not yet wired into the top-level `PPDecodeFilter` — opt-in via direct call. See [PR #36](https://github.com/cajigaslab/nSTAT/pull/36) for the math derivation.
 - **KS oracle integration test** — `tests/integration/testKsAgainstReferenceZoo.m` runs the reference KS-validation pipeline against simulated point processes and asserts the empirical pass rate matches the analytic null distribution to within tolerance. Validates the entire fit → KS path end-to-end.
@@ -142,11 +142,11 @@ These are refactors. They do not change algorithmic behavior; every legacy entry
 These are infrastructure additions that do not affect runtime behavior. They make the toolbox testable and releasable.
 
 - **Local test gate** (`tools/run_unit_tests.sh`) — 20 unit tests + 1 integration test cover every bug-class fix. Replaces the failed-MATLAB-CI experiment ([PR #36](https://github.com/cajigaslab/nSTAT/pull/36) reverted in [PR #38](https://github.com/cajigaslab/nSTAT/pull/38)). CI no longer runs MATLAB; the local gate is canonical.
-- **README figure parity** (`tools/check_readme_figures.sh`) — regenerates the `docs/figures/` paper-example gallery and pixel-diffs against the committed PNGs. Three-bucket classification (`IDENTICAL` / `TINY` / `SUBSTANTIVE`) plus a `NONDETERMINISTIC` allowlist for three Example 03 figures whose drift is intrinsic to multi-threaded BLAS reduction order in SSGLM EM. See [PR #42](https://github.com/cajigaslab/nSTAT/pull/42) and [docs/verification/readme_figure_parity.md](docs/verification/readme_figure_parity.md).
+- **README figure parity** (`tools/check_readme_figures.sh`) — regenerates the `docs/figures/` paper-example gallery and pixel-diffs against the committed PNGs. Three-bucket classification (`IDENTICAL` / `TINY` / `SUBSTANTIVE`) plus a `NONDETERMINISTIC` allowlist for three Example 03 figures whose drift is intrinsic to multi-threaded BLAS reduction order in SSGLM EM. See [PR #42](https://github.com/cajigaslab/nSTAT/pull/42).
 - **One-command deploy gate** (`tools/predeploy.sh`) — chains unit tests, integration tests, README figure parity, helpfile HTML republish, helpsearch rebuild, helptoc lint, and sibling-bug-pattern audit. ~30–45 minute wall clock; the canonical pre-tag check. See [`CONTRIBUTING.md`](CONTRIBUTING.md) "Release & regeneration".
 - **Release stamping** (`tools/stamp_release.m`) — updates `Contents.m` version stamp, manifest `generated_at`, and the next `RELEASE_NOTES.md` section template. Idempotent. Run after the deploy gate passes; before `git tag`.
 - **Bug-pattern audit** (`tools/check_bug_patterns.sh`) — `grep` over 11 known-bad patterns (Bernoulli LL wrap, `isa('nan')`, `eval()`, `histc`, `roundn`, `rng('shuffle')`, `symvar` reorder, `sampeRate` typo, `log(0)`, silent `catch`, `.^2`/`.^3` confusions). Informational; not a release blocker. Triage 2026-05-20: 0 actionable sibling defects.
-- **Help-system integrity** — [docs/verification/helpsystem_audit.md](docs/verification/helpsystem_audit.md) documents the `helptoc.xml` ↔ `.html` ↔ `.m` ↔ search-index audit. 8 previously-missing TOC entries added (including the canonical onboarding `HelloNstat` and the `WhenToUseWhich` decision tree).
+- **Help-system integrity** — the v1.4 audit covered the `helptoc.xml` ↔ `.html` ↔ `.m` ↔ search-index relationship. 8 previously-missing TOC entries added (including the canonical onboarding `HelloNstat` and the `WhenToUseWhich` decision tree).
 
 ### Backward compatibility
 
@@ -185,12 +185,12 @@ For users who relied on the `helpfiles/*.mlx` Live Scripts: those that drifted f
 
 ### Known issues / non-blocking follow-ups
 
-These are tracked but not blocking the release. See [docs/verification/comprehensive_audit_summary.md](docs/verification/comprehensive_audit_summary.md) for the full list.
+These are tracked but not blocking the release.
 
 - **80 unreferenced `.png` files** in `helpfiles/`, mostly equation rasters from older `publish()` runs. Disk-bloat cleanup; not affecting users.
-- **1567 stylistic `checkcode` findings** (0 definite-error severity) across 29 core files. Opportunistic-cleanup backlog. See [docs/verification/checkcode_summary.md](docs/verification/checkcode_summary.md).
-- **`LinearCIF` Symbolic Math Toolbox dependency at construction time** (not eval time). Fix shape: redefine `varIn`/`stimVars` properties as `cellstr` instead of `sym`. ~6–8 hr refactor. See [docs/verification/symbolic_dependency_audit.md](docs/verification/symbolic_dependency_audit.md).
-- **`Analysis.m:609` empty-`b` defect** — `glmfit` returning an empty coefficient vector triggers a downstream `undefined data` reference. ~30 min surgical fix. Tracked as B3 in [docs/verification/remediation_backlog.md](docs/verification/remediation_backlog.md).
+- **1567 stylistic `checkcode` findings** (0 definite-error severity) across 29 core files. Opportunistic-cleanup backlog.
+- **`LinearCIF` Symbolic Math Toolbox dependency at construction time** (not eval time). Fix shape: redefine `varIn`/`stimVars` properties as `cellstr` instead of `sym`. ~6–8 hr refactor.
+- **`Analysis.m:609` empty-`b` defect** — `glmfit` returning an empty coefficient vector triggers a downstream `undefined data` reference. ~30 min surgical fix.
 - **Legacy `helpfiles/helpsearch/` and `helpsearch-v3/` directories** retained from pre-R2025b MATLAB versions. The current search index lives in `helpsearch-v4_en/`. Cleanup deferred.
 
 ### Recommended deploy procedure for future releases
@@ -214,7 +214,7 @@ If you use nSTAT in your work, please cite:
 > DOI: [10.1016/j.jneumeth.2012.08.009](https://doi.org/10.1016/j.jneumeth.2012.08.009)
 > PMID: 22981419
 
-The 2012 paper remains the canonical reference for the toolbox's design and the foundational point-process / state-space methods. Subsequent updates are documented in `RELEASE_NOTES.md` (this file), the `docs/superpowers/plans/` directory (action plans + verification protocols), and the `% FIX:` inline tags throughout the codebase.
+The 2012 paper remains the canonical reference for the toolbox's design and the foundational point-process / state-space methods. Subsequent updates are documented in `RELEASE_NOTES.md` (this file) and the `% FIX:` inline tags throughout the codebase.
 
 ---
 

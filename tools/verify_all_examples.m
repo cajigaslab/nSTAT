@@ -9,7 +9,7 @@ function results = verify_all_examples(varargin)
 % Runs each script in a captured environment (evalc for stdout, lastwarn
 % for warnings, tic/toc for timing) and emits:
 %   - results table (returned and printed)
-%   - docs/verification/run_report_<timestamp>.json
+%   - run_report_<timestamp>.json (path passed on the command line)
 %   - docs/figures/<script_id>/  (figures captured via findobj snapshot)
 %
 % Phase V0.2 of the 2026-05-20 deep-dive verification plan.

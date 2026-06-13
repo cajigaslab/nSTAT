@@ -11,7 +11,7 @@ function opts = toolboxOptions
 % Manager treats it as a different toolbox and will not recognize
 % updates as updates.
 %
-% Reference: docs/superpowers/plans/2026-06-13-toolbox-modernization.md
+% Introduced in v1.5.0 as part of the toolbox modernization work.
 
 repoRoot = fileparts(mfilename("fullpath"));
 

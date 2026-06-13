@@ -56,7 +56,7 @@ function report = check_readme_figures(varargin)
 %
 % See also: build_paper_examples
 %
-% Plan: docs/superpowers/plans/2026-05-20-readme-figure-parity.md
+% Introduced for the 2026-05-20 README figure-parity work.
 
 opts = parseOpts(varargin{:});
 nondetSet = normalizeAllowlist(opts.NondeterministicFiles);
@@ -163,7 +163,7 @@ function files = defaultNondetFiles()
 % Empirically determined 2026-05-20: Example 03 SSGLM EM iterations produce
 % non-deterministic floating-point accumulation order under multi-threaded
 % BLAS, so these three figures drift between same-code same-seed runs by
-% mean |Δ| ~2-7. See docs/verification/readme_figure_parity.md.
+% mean |Δ| ~2-7.
 files = { ...
     'example03/fig03_ssglm_simulation_summary.png', ...
     'example03/fig05_stimulus_effect_surfaces.png', ...

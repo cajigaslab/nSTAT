@@ -210,7 +210,8 @@ classdef PointProcessEM
  
  IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
  xkPerm = permute(xKDrawExp,[1 3 2]);
- pools = matlabpool('size'); %number of parallel workers 
+ % FIX (#99): matlabpool was removed in R2017a; same defect class as PPLFP.m.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pools = 0; else, pools = ppPool.NumWorkers; end
  if(strcmp(fitType,'poisson'))
  for c=1:numCells
  HessianTerm = zeros(size(xKFinal,1),size(xKFinal,1),K);
@@ -567,7 +568,8 @@ classdef PointProcessEM
 
  IMc = zeros(nTerms,nTerms,Mc);
  % Emperically estimate the covariance of the score
- pools = matlabpool('size'); %number of parallel workers 
+ % FIX (#99): matlabpool was removed in R2017a; same defect class as PPLFP.m.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pools = 0; else, pools = ppPool.NumWorkers; end
  if(pools==0) % parallel toolbox is not enabled;
  for c=1:Mc
  x_K=xKDraw(:,:,c);
@@ -2154,7 +2156,8 @@ classdef PointProcessEM
  end
  
  % Stimulus Coefficients
- pool = matlabpool('size');
+ % FIX (#99): matlabpool was removed in R2017a; same defect class as PPLFP.m.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pool = 0; else, pool = ppPool.NumWorkers; end
  if(pool==0)
  for c=1:numCells
  converged=0;

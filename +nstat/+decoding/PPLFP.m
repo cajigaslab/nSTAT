@@ -632,7 +632,9 @@ classdef PPLFP
  
  IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
  xkPerm = permute(xKDrawExp,[1 3 2]);
- pools = matlabpool('size'); %number of parallel workers
+ % FIX (#99): matlabpool was removed in R2017a. Modern equivalent is
+ % gcp('nocreate'), which returns the current pool or [] if none.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pools = 0; else, pools = ppPool.NumWorkers; end
  if(pools==0)
  if(strcmp(fitType,'poisson'))
  for c=1:numCells
@@ -1059,7 +1061,8 @@ classdef PPLFP
 
  IMc = zeros(nTerms,nTerms,Mc);
  % Emperically estimate the covariance of the score
- pools = matlabpool('size'); %number of parallel workers 
+ % FIX (#99): matlabpool was removed in R2017a; see note at line 635.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pools = 0; else, pools = ppPool.NumWorkers; end
  if(pools==0) % parallel toolbox is not enabled;
  for c=1:Mc
  x_K=xKDraw(:,:,c);
@@ -1596,10 +1599,17 @@ classdef PPLFP
  end
  
  if(nargin<13 || isempty(windowTimes))
- if(isempty(gamma))
+ % FIX (#98): a scalar gamma==0 should be treated the same as
+ % isempty(gamma) -- "no history". The previous guard only checked
+ % isempty(), so callers passing gamma=0 + windowTimes=[] tripped
+ % the else branch, which inferred 2 history windows from
+ % length(scalar)+1 and built HkAll with hist_cols=2. The scalar
+ % gamma was then broadcast to (1, numCells) in Decode_update and
+ % failed the matmul against a (numCells, 2) Histterm.
+ if(isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
- % numWindows =length(gamma0)+1; 
+ % numWindows =length(gamma0)+1;
  windowTimes = 0:delta:(length(gamma)+1)*delta;
  end
  end
@@ -1626,10 +1636,14 @@ classdef PPLFP
  HkAll(:,:,k) = histObj.computeHistory(nst{k}).dataToMatrix;
  end
  else
- for k=1:K
-% HkAll{k} = 0;
- HkAll(:,:,k) = 0;
- end
+ % FIX (#98): the original `HkAll(:,:,k) = 0` loop sized HkAll as
+ % (1, 1, K) where K=numCells. After PPLFP_DecodeLinear's
+ % `permute([2 3 1])` that collapses to a 2D (1, numCells) array,
+ % and Decode_update's `HkAll(:,:,time_index)` for time_index > 1
+ % goes out of bounds. Size HkAll to match the with-windowTimes
+ % shape: (K_time, 1, numCells). gamma=0 still kills the history
+ % contribution at line 369.
+ HkAll = zeros(size(dN, 2), 1, K);
  gamma=0;
  end
 
@@ -2369,7 +2383,8 @@ classdef PPLFP
  xKDrawExp(:,k,:)=repmat(x_K(:,k),[1 McExp])+(chol_m*z);
  end
  % Stimulus Coefficients
- pool = matlabpool('size');
+ % FIX (#99): matlabpool was removed in R2017a; see note at line 635.
+ ppPool = gcp('nocreate'); if isempty(ppPool), pool = 0; else, pool = ppPool.NumWorkers; end
  if(pool==0)
  xkPerm = permute(xKDrawExp,[1 3 2]);
  for c=1:numCells

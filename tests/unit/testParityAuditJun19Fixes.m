@@ -54,6 +54,16 @@ classdef testParityAuditJun19Fixes < matlab.unittest.TestCase
                 nstat.decoding.PPLFP.PPLFP_EStep(A, Q, C, R, y, alpha, ...
                     dN, mu, beta, 'poisson', delta, gamma, HkAll, x0, Px0), ...
                 'PPLFP_EStep poisson path must complete on non-square dN (#95)');
+
+            % Binomial branch was previously broken by an unrelated
+            % self-clobbering typo at PPLFP.m:2149
+            % (`HkPerm = HkPerm(:,:,k)` instead of `Hk = HkPerm(:,:,k)`).
+            % Fixed alongside the #95 revert -- now both branches must
+            % run end-to-end on the same input.
+            tc.verifyWarningFree( @() ...
+                nstat.decoding.PPLFP.PPLFP_EStep(A, Q, C, R, y, alpha, ...
+                    dN, mu, beta, 'binomial', delta, gamma, HkAll, x0, Px0), ...
+                'PPLFP_EStep binomial path must complete on non-square dN (typo at PPLFP.m:2149)');
         end
 
         function testPPHybridFilterSignatureNamesMU_u(tc)

@@ -54,6 +54,18 @@ matlab.internal.liveeditor.openAndSave( ...
 
 Commit the `.m` first, the regenerated `.mlx` second — they should diff as a paired update.
 
+### Verifying regenerated `.mlx` / `.html` / PNG artifacts before commit
+
+Regenerating the rendered helpfile docs (`.mlx`, `.html`, per-figure PNGs) is *not* a mechanical follow-up — the rendered artifacts can silently degrade vs the committed baseline, and the committed copies under `helpfiles/` are what GitHub serves to users. PR #88/#89/#103 → PR #105 (rollback) is a case where the regeneration looked successful at the function level but produced a measurably worse `.html` than the pre-edit baseline.
+
+Before committing any regenerated artifact, run these three checks:
+
+1. **Byte-size diff per file.** `git diff --stat HEAD -- helpfiles/` should show *plausible* size deltas: a `.mlx` jumping 50×, or PNGs landing at identical byte counts (signature of blank placeholders), are both red flags. If unsure, compare to the previous run: `git show HEAD:helpfiles/Foo_03.png | wc -c` vs `wc -c helpfiles/Foo_03.png`.
+2. **Open the rendered `.html` in a browser.** Confirm each figure block contains the expected plot — not an error placeholder, not a blank axes frame. A `publish` / `export` that errored mid-script will still emit valid-but-empty figures and a tiny HTML body; size and visual inspection both catch this.
+3. **Bisect on script position.** If the helpfile's full run errors (e.g., latent handle-sharing pollution that only surfaces deep in the script), bisect with `strjoin(lines(1:ep), newline)` snippets at section boundaries (after `end` of loops, after `;` of complete statements) to localize the failing site *before* asking `publish` or `export` to render anything. Bisecting catches the failure on the source side, not the artifact side.
+
+If any check fails, **`git restore helpfiles/*` and ship only the `.m` change.** A stale `.html` rendered against last week's pipeline is not a regression; a regenerated `.html` with fewer or blank figures *is*. PR #103 followed this rule (shipped `.m` only) and PR #105 reverted the *next* PR that didn't.
+
 ## Local test gate
 
 **CI does not run MATLAB.** The team's MathWorks license does not extend to GitHub-hosted runners, so there is no automated MATLAB-test gate on PRs. The local pass is the only test gate.

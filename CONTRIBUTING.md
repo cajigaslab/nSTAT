@@ -24,6 +24,36 @@ Consequences:
 
 The exception and its rationale are tracked in internal remediation notes.
 
+### Smoke-testing an edited helpfile `.m`
+
+A specific consequence of MATLAB's `.mlx`-over-`.m` resolution: if you edit a helpfile `.m` and then smoke-test it by name, MATLAB silently runs the stale `.mlx` against your assertions. The smoke test passes, the bug ships, and the next `publish()` / `export()` is the one that errors.
+
+This is exactly what bit PR #89 (the stimulus-lag scan added to `ExplicitStimulusWhiskerData`, closing issue #83). Its smoke test invoked `run('ExplicitStimulusWhiskerData')` inside an `evalin('base', ...)` wrapper and reported PASS. The runtime had executed the pre-edit `.mlx`. The `.m` contained `resRef{1}.AIC` — brace-indexing a `FitResult` object — which errored at the next render. Surfaced and fixed in PR #103 (issue #102).
+
+When you edit a helpfile `.m` and want a real end-to-end smoke check, use **one** of these patterns so MATLAB resolves to the `.m`:
+
+```matlab
+% Pattern A — force-resolve via `which`:
+run(which('helpfiles/ExplicitStimulusWhiskerData.m'));
+
+% Pattern B — temporarily shadow the .mlx:
+mlxPath  = fullfile('helpfiles', 'ExplicitStimulusWhiskerData.mlx');
+mlxStash = [mlxPath '.shadowed'];
+movefile(mlxPath, mlxStash);
+restore  = onCleanup(@() movefile(mlxStash, mlxPath));
+run('ExplicitStimulusWhiskerData');
+```
+
+After the smoke test passes, regenerate the `.mlx` from the now-validated `.m`:
+
+```matlab
+matlab.internal.liveeditor.openAndSave( ...
+    fullfile(pwd, 'helpfiles', 'ExplicitStimulusWhiskerData.m'), ...
+    fullfile(pwd, 'helpfiles', 'ExplicitStimulusWhiskerData.mlx'));
+```
+
+Commit the `.m` first, the regenerated `.mlx` second — they should diff as a paired update.
+
 ## Local test gate
 
 **CI does not run MATLAB.** The team's MathWorks license does not extend to GitHub-hosted runners, so there is no automated MATLAB-test gate on PRs. The local pass is the only test gate.

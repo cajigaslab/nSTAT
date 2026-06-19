@@ -94,7 +94,7 @@ for t=1:length(spikes_binned)
     lambdaInt = lambdaInt + lambdaEst(t,:)*timestep;
     if (spikes_binned(t))
         j = j + 1;
-        KS(j,:) = -expm1(-lambdaInt); % precision-preserving form of 1-exp(-lambdaInt) (#78)
+        KS(j,:) = 1-exp(-lambdaInt);
         lambdaInt = [0 0];
     end
 end

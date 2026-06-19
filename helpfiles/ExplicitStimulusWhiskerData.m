@@ -60,57 +60,6 @@ nspikeColl = nstColl(nst);
 cc = CovColl({stim,baseline});
 trial = Trial(nspikeColl,cc);
 
-%% Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)
-% Alternative to the xcov-peak heuristic above: scan candidate stimulus
-% lags and pick the one that minimizes the KS statistic / DeltaAIC /
-% DeltaBIC. Same pattern HistoryExamples uses for history-lag selection.
-% The xcov-chosen ShiftTime is overlaid as a black dashed reference.
-candidateLags = -0.05:0.01:0.20;   % seconds (-50ms past .. +200ms future)
-ks_scan   = nan(size(candidateLags));
-dAIC_scan = nan(size(candidateLags));
-dBIC_scan = nan(size(candidateLags));
-
-% Baseline-only reference fit for AIC/BIC deltas
-cRef = TrialConfig({{'Baseline','constant'}},sampleRate,[],[]);
-cRef.setName('BaselineRef');
-trialRef = Trial(nspikeColl, CovColl({baseline}));
-resRef   = Analysis.RunAnalysisForAllNeurons(trialRef, ConfigColl({cRef}), 0);
-% FIX (#102): RunAnalysisForAllNeurons returns a FitResult OBJECT for the
-% single-neuron / single-config case, not a cell. The {1} brace-indexing
-% added in #83's scan section errored at publish-time and left the
-% resulting figure blank in the rendered HTML.
-AICref = resRef.AIC;
-BICref = resRef.BIC;
-
-for j = 1:length(candidateLags)
-    stim_j  = Covariate(time, stimData, 'Stimulus','time','s','V',{'stim'});
-    stim_j  = stim_j.shift(candidateLags(j));
-    trial_j = Trial(nspikeColl, CovColl({stim_j, baseline}));
-    cSc = TrialConfig({{'Baseline','constant'},{'Stimulus','stim'}}, sampleRate, [], []);
-    cSc.setName(sprintf('lag=%.3gs', candidateLags(j)));
-    rj = Analysis.RunAnalysisForAllNeurons(trial_j, ConfigColl({cSc}), 0);
-    % FIX (#102): same brace-indexing bug as above (FitResult, not cell).
-    ks_scan(j)   = rj.KSStats.ks_stat;
-    dAIC_scan(j) = rj.AIC - AICref;
-    dBIC_scan(j) = rj.BIC - BICref;
-end
-
-[~, bestIdx] = min(ks_scan);
-figure;
-subplot(3,1,1); plot(candidateLags*1000, ks_scan, 'b.-'); hold on;
-plot(candidateLags(bestIdx)*1000, ks_scan(bestIdx), 'r*','MarkerSize',12);
-xline(ShiftTime*1000, 'k--');
-ylabel('KS statistic'); set(gca,'xtick',[]);
-title('Stimulus-lag selection: KS / \DeltaAIC / \DeltaBIC scan (xcov peak: black dashed)');
-subplot(3,1,2); plot(candidateLags*1000, dAIC_scan, 'b.-'); hold on;
-plot(candidateLags(bestIdx)*1000, dAIC_scan(bestIdx), 'r*','MarkerSize',12);
-xline(ShiftTime*1000, 'k--');
-ylabel('\Delta AIC'); set(gca,'xtick',[]);
-subplot(3,1,3); plot(candidateLags*1000, dBIC_scan, 'b.-'); hold on;
-plot(candidateLags(bestIdx)*1000, dBIC_scan(bestIdx), 'r*','MarkerSize',12);
-xline(ShiftTime*1000, 'k--');
-ylabel('\Delta BIC'); xlabel('stimulus lag (ms)');
-
 %% Compare constant rate model with model including stimulus effect
 % Addition of the stimulus improves the fits in terms of the KS plot and
 % the making the rescaled ISIs less correlated. The Point Process Residula
@@ -184,15 +133,11 @@ end
 
 figure;
 plot(x,dBIC,'.');
-ylabel('\Delta BIC'); xlabel('history window');
 xticks = 1:(length(histLabels));
 set(gca,'xtick',xticks,'xtickLabel',histLabels,'FontSize',6);
-% FIX (#102): xticklabel_rotate is a File Exchange helper that manipulates
-% the figure's Position/axes in a way that publish() renders as a near-blank
-% PNG. xtickangle is a built-in equivalent (R2014b+) that works cleanly
-% under publish().
-xtickangle(90);
-set(gca,'FontSize',8);
+if(max(xticks)>=1)
+    xticklabel_rotate([],90,[],'Fontsize',8);
+end
            
 
 %% Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus

@@ -28,3 +28,20 @@ nst.getSigRep.plot;
 % representation
 figure; nst.resample(1/nst.getMaxBinSizeBinary);
 nst.getSigRep.plot;
+
+%% Goodness-of-fit diagnostic suite (issue #82)
+% Five Poisson-quality diagnostics that nspikeTrain already exposes.
+% For a homogeneous Poisson process the ISI histogram is exponential, the
+% joint ISI plot is uncorrelated, the ISI spectrum is flat, the exponential
+% fit is linear in log-survival, and the prob-plot hugs the diagonal.
+% (Each method opens its own figure -- not subplotted because
+% plotISISpectrumFunction and plotJointISIHistogram call figure() internally.)
+spikeTimesLong = sort(rand(1,2000))*5;
+spikeTimesLong = unique(round(spikeTimesLong*10000)./10000);
+nstDiag = nspikeTrain(spikeTimesLong,'n1',.001,0,5);
+
+figure; nstDiag.plotISIHistogram;        title('ISI histogram');
+nstDiag.plotJointISIHistogram;           % opens own figure
+nstDiag.plotISISpectrumFunction;         % opens own figure
+figure; nstDiag.plotExponentialFit;      title('Exponential fit (log-survival)');
+figure; nstDiag.plotProbPlot;            title('Probability plot');

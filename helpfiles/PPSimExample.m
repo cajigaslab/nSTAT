@@ -62,10 +62,20 @@ stim=Covariate(t',u,'Stimulus','time','s','Voltage',{'sin'});
 ens =Covariate(t',e,'Ensemble','time','s','Spikes',{'n1'});
 numRealizations = 5;    %Number of sample paths to generate
 fitType = 'binomial';
-sC=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
+[sC, lambdaSim]=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
 figure;
 subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
+
+%% Realized conditional intensity \lambda(t) (issue #85)
+% Make the input -> intensity -> spikes pipeline explicit: peaks of \lambda
+% align with peaks of u_{stim}(t), and the self-history term injects
+% refractory dips visible in the raster above.
+figure;
+lambdaSim.plot;
+xlim([0 tMax/5]);
+title('Realized conditional intensity \lambda(t) (sample path 1)');
+xlabel('time [s]'); ylabel('\lambda(t) \cdot \Delta');
 
 %% GLM Model Fitting Setup
 % In this section, we create the appropriate structures to fit several GLM

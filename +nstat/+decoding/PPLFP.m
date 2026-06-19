@@ -325,11 +325,12 @@ classdef PPLFP
  gamma = zeros(size(mu))';
  end
  if(strcmp(fitType,'binomial'))
- % FIX (#90): every HkAll builder stores cells on the 3rd axis,
- % shape (K_time, hist_cols, numCells). Indexing HkAll(:,:,time_index)
- % treats the 3rd axis as time and throws when numCells != K_time.
- % Slice the correct axis instead.
- Histterm = squeeze(HkAll(time_index,:,:));
+ % NB (#95 — reverted #90 here): PPLFP_EStep pre-permutes HkAll via
+ % `Histtermperm = permute(HkAll, [2 3 1])` before passing it in, so
+ % the third axis of the tensor reaching this function is time, not
+ % cells. The original slice was correct; #90's "fix" was made at the
+ % wrong end of the call chain and is reverted.
+ Histterm = HkAll(:,:,time_index);
  if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
@@ -353,8 +354,8 @@ classdef PPLFP
 % tempVec((tempVec>1))=1;
  sumValMat = (repmat(tempVec,size(beta,1),1).*beta)*beta';
  elseif(strcmp(fitType,'poisson'))
- % FIX (#90): same axis-mismatch as the binomial branch above.
- Histterm = squeeze(HkAll(time_index,:,:));
+ % NB (#95 — reverted #90 here): see the binomial branch above.
+ Histterm = HkAll(:,:,time_index);
  if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end

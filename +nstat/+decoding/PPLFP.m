@@ -2145,8 +2145,12 @@ classdef PPLFP
  sumPPll=0;
  HkPerm = permute(HkAll,[2 3 1]);
  for k=1:K
-% Hk=squeeze(HkAll(k,:,:)); 
- HkPerm = HkPerm(:,:,k);
+% Hk=squeeze(HkAll(k,:,:));
+ % FIX: was `HkPerm = HkPerm(:,:,k)`, a self-clobbering typo that
+ % shrank HkPerm after the first iteration and then read an
+ % unassigned `Hk` on the next size check. The poisson branch
+ % above has the correct form.
+ Hk = HkPerm(:,:,k);
  if(size(Hk,1)==numCells)
  Hk = Hk';
  end

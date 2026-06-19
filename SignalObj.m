@@ -1055,26 +1055,30 @@ classdef SignalObj < handle
         end
         
         function s = autocorrelation(sObj)
+            % FIX (#93): crosscorr's positional NumLags arg was removed in
+            % recent Econometrics Toolbox releases; use name-value
+            % (R2019a+ compatible, works through current releases).
             if(sObj.dimension==1)
-                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,length(sObj.data)-1);
+                 nLags = length(sObj.data)-1;
+                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,'NumLags',nLags);
                  s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             else
                 %if more than one dimension then computes the
                 %autocorrelation of each dimension with itself
                 for i=1:sObj.dimension
-                    
-                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); % FIX: typo crosscor→crosscorr
-                    
+                    nLags = length(sObj.data(:,i))-1;
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),'NumLags',nLags);
                 end
                 s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             end
-           
+
         end
-        
+
         function s = crosscorrelation(sObj, s2)
+            % FIX (#93): same crosscorr name-value migration.
             if(and(sObj.dimension ==1, s2.dimension==1))
-                
-             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,length(sObj.data)-1);
+             nLags = length(sObj.data)-1;
+             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,'NumLags',nLags);
              s=SignalObj(lags/sObj.sampleRate, xcf,['XCORF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             else
                 error('Does not support multidimensional signals');

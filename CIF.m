@@ -148,10 +148,28 @@ classdef CIF < handle
                 XnamesTemp=cell(length(Xnames),1);
                 for i=1:length(beta)
                     XnamesTemp{i} = char(Xnames(i));
-                end    
+                end
                 Xnames=XnamesTemp;
             end
-            
+
+            % FIX (#92): every Xnames entry must be a valid MATLAB
+            % identifier because it gets passed to sym() to build varIn.
+            % sym('1') returns numeric 1, which breaks the matrix product
+            % downstream with an opaque "Variable names must be valid
+            % MATLAB variable names" error. Catch it here at construction
+            % time and point the caller at the 'one' convention.
+            if iscell(Xnames)
+                for ii = 1:numel(Xnames)
+                    if ~ischar(Xnames{ii}) || ~isvarname(Xnames{ii})
+                        error('CIF:InvalidXname', ...
+                            ['Xnames{%d}=''%s'' is not a valid MATLAB ' ...
+                             'identifier. Use a name like ''one'' (or ' ...
+                             '''intercept'') for the constant/intercept ' ...
+                             'term instead of ''1''.'], ii, char(Xnames{ii}));
+                    end
+                end
+            end
+
             % Define input variables as a vector;
             [r,c] = size(Xnames);
             if(r==1)

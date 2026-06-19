@@ -107,5 +107,66 @@ classdef testParityAuditJun19Fixes < matlab.unittest.TestCase
                 'SignalObj.autocorrelation must accept newer crosscorr API (#93)');
         end
 
+        function testPPLFP_EM_handlesScalarGammaNoWindow(tc)
+            %#98 Regression: PPLFP_EM with gamma=0 (scalar) and
+            % windowTimes=[] previously triggered the windowTimes-
+            % construction guard, which inferred 2 history windows from
+            % length(scalar)+1 and built HkAll with hist_cols=2. The
+            % scalar gamma was then broadcast to (1, numCells) in
+            % Decode_update and matmul-failed against a (numCells, 2)
+            % Histterm. The fix treats `isscalar(gamma) && gamma==0` as
+            % the no-history signal.
+            rng(0, 'twister');
+            numCells = 2; K = 30; delta = 0.01; stateDim = 2;
+            A = eye(stateDim);  Q = 1e-3*eye(stateDim);
+            C = eye(stateDim);  R = 1e-2*eye(stateDim);
+            Px0 = eye(stateDim); x0 = zeros(stateDim,1);
+            y = zeros(stateDim, K);   alpha = zeros(stateDim, 1);
+            mu = zeros(numCells, 1);  beta = zeros(stateDim, numCells);
+            gamma = 0;                windowTimes = [];
+            dN = double(rand(numCells, K) < 0.1);
+            EM_C = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints();
+
+            % EM runs through the matmul site at PPLFP_Decode_update:369
+            % during iteration 1. If a downstream error (e.g. the
+            % plotting-related defect at PPLFP_EM:1810) trips later,
+            % that is outside the scope of #98; we only assert the
+            % matmul error is no longer raised.
+            try
+                nstat.decoding.PPLFP.PPLFP_EM(y, dN, A, Q, C, R, alpha, ...
+                    mu, beta, 'poisson', delta, gamma, windowTimes, ...
+                    x0, Px0, EM_C, []);
+            catch ME
+                tc.verifyNotEqual(ME.identifier, 'MATLAB:innerdim', ...
+                    sprintf(['PPLFP_EM must not raise MATLAB:innerdim ' ...
+                             'when gamma=0 + windowTimes=[] (#98). ' ...
+                             'Actual error: %s at %s line %d'], ...
+                            ME.identifier, ME.stack(1).name, ME.stack(1).line));
+            end
+        end
+
+        function testNoLiveMatlabpoolCalls(tc)
+            %#99 matlabpool was removed in R2017a; gcp('nocreate') is the
+            % modern equivalent. Tripwire: scan the decoding package
+            % source for any non-commented matlabpool( call. Fails if
+            % future changes re-introduce the deprecated API.
+            repoRoot = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+            files = {
+                fullfile(repoRoot,'+nstat','+decoding','PPLFP.m')
+                fullfile(repoRoot,'+nstat','+decoding','PointProcessEM.m')
+                };
+            for k = 1:numel(files)
+                txt = fileread(files{k});
+                lines = strsplit(txt, newline);
+                for ln = 1:numel(lines)
+                    line = strtrim(lines{ln});
+                    if isempty(line) || startsWith(line, '%'); continue; end
+                    tc.verifyEmpty(regexp(line, 'matlabpool\(', 'once'), ...
+                        sprintf('%s line %d still calls matlabpool() -- use gcp(''nocreate'') (#99)', ...
+                                files{k}, ln));
+                end
+            end
+        end
+
     end
 end

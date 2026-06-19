@@ -92,9 +92,18 @@ classdef Events
 %                 end
                     % Create textbox
                 v=axis;
+                yLabel = v(4) + 0.03*(v(4)-v(3));  % 3% above current ylim top
                 for i=1:length(EObj.eventTimes)
-                    if( ((EObj.eventTimes(i)-v(1))/(v(2)-v(1))>=0) && (EObj.eventTimes(i)<=v(2)))
-                        text((EObj.eventTimes(i)-v(1))/(v(2)-v(1))-.02,1.03,EObj.eventLabels{i},'rotation',0,'FontSize',10,'Color',[0 0 0],'Units', 'normalized'); %write event labels
+                    if( (EObj.eventTimes(i)>=v(1)) && (EObj.eventTimes(i)<=v(2)))
+                        % Anchor label x to the event time in DATA coords so the label stays glued
+                        % to the event line under any subsequent xlim change (#80).
+                        % HorizontalAlignment='center' replaces the old axes-fraction -0.02 nudge,
+                        % which drifted at tight xlim (the axes-fraction → data mapping varies
+                        % with data width).
+                        text(EObj.eventTimes(i), yLabel, EObj.eventLabels{i}, ...
+                             'HorizontalAlignment','center', ...
+                             'VerticalAlignment','bottom', ...
+                             'rotation',0,'FontSize',10,'Color',[0 0 0]); %write event labels
                         %'Interpreter','latex'
                     end
                 end

@@ -85,6 +85,10 @@ classdef UKF
             % X2=X1-x1(:,ones(1,size(X1,2)));             %deviation of X1
             [z1,Z1,P2,Z2]=nstat.decoding.UKF.ukf_ut(hmeas,X1,Wm,Wc,m,R);       %unscented transformation of measurments
             P12=X2*diag(Wc)*Z2';                        %transformed cross-covariance
+            % Kalman gain via mrdivide: K = P12 / P2 is solved by LAPACK as
+            % K = P12 * P2^{-1} *without* explicitly forming P2^{-1}, which
+            % is numerically preferred over `K = P12 * inv(P2)`
+            % (Trefethen & Bau, Numerical Linear Algebra, Lec. 20). See #79.
             K=P12/(P2);
             x=x1+K*(z-z1);                              %state update
             P=P1-K*P12';                                %covariance update

@@ -506,7 +506,10 @@ classdef PPHF
  %the Target Reach Model of Srinivasan et al. Compute PiT
 
  end 
- function [S_est, X, W, MU_s, X_s, W_s,pNGivenS] = PPHybridFilter(A, Q, p_ij,Mu0,dN,lambdaCIFColl,binwidth,x0,Pi0, yT,PiT,estimateTarget,MinClassificationError)
+ function [S_est, X, W, MU_u, X_s, W_s,pNGivenS] = PPHybridFilter(A, Q, p_ij,Mu0,dN,lambdaCIFColl,binwidth,x0,Pi0, yT,PiT,estimateTarget,MinClassificationError)
+ % FIX (#91): renamed 4th output MU_s -> MU_u to match the body, which
+ % only ever assigns MU_u. Sister function PPHybridFilterLinear (line 25)
+ % uses the same MU_u name for its 4th output.
 
  % General-purpose filter design for neural prosthetic devices.
  % Srinivasan L, Eden UT, Mitter SK, Brown EN.

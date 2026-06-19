@@ -325,7 +325,11 @@ classdef PPLFP
  gamma = zeros(size(mu))';
  end
  if(strcmp(fitType,'binomial'))
- Histterm = HkAll(:,:,time_index);
+ % FIX (#90): every HkAll builder stores cells on the 3rd axis,
+ % shape (K_time, hist_cols, numCells). Indexing HkAll(:,:,time_index)
+ % treats the 3rd axis as time and throws when numCells != K_time.
+ % Slice the correct axis instead.
+ Histterm = squeeze(HkAll(time_index,:,:));
  if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
@@ -349,7 +353,8 @@ classdef PPLFP
 % tempVec((tempVec>1))=1;
  sumValMat = (repmat(tempVec,size(beta,1),1).*beta)*beta';
  elseif(strcmp(fitType,'poisson'))
- Histterm = HkAll(:,:,time_index);
+ % FIX (#90): same axis-mismatch as the binomial branch above.
+ Histterm = squeeze(HkAll(time_index,:,:));
  if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end

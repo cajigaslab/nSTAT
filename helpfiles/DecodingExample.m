@@ -42,7 +42,10 @@ c{2} = TrialConfig({{'Baseline','constant'},{'Stimulus','stim'}},...
 c{2}.setName('Baseline+Stimulus');
 cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
-figure;
+% NB: do not pre-create a figure here -- FitResult.plotResults opens its
+% own figure(...) internally. A bare `figure;` immediately before it
+% leaves a blank axes frame that publish() snapshots as a near-empty PNG
+% (was DecodingExample_03.png at ~3.5 KB vs the populated ~126 KB next).
 results{1}.plotResults;
 Summary = FitResSummary(results);
 

@@ -75,8 +75,12 @@ cRef = TrialConfig({{'Baseline','constant'}},sampleRate,[],[]);
 cRef.setName('BaselineRef');
 trialRef = Trial(nspikeColl, CovColl({baseline}));
 resRef   = Analysis.RunAnalysisForAllNeurons(trialRef, ConfigColl({cRef}), 0);
-AICref = resRef{1}.AIC;
-BICref = resRef{1}.BIC;
+% FIX (#102): RunAnalysisForAllNeurons returns a FitResult OBJECT for the
+% single-neuron / single-config case, not a cell. The {1} brace-indexing
+% added in #83's scan section errored at publish-time and left the
+% resulting figure blank in the rendered HTML.
+AICref = resRef.AIC;
+BICref = resRef.BIC;
 
 for j = 1:length(candidateLags)
     stim_j  = Covariate(time, stimData, 'Stimulus','time','s','V',{'stim'});
@@ -85,9 +89,10 @@ for j = 1:length(candidateLags)
     cSc = TrialConfig({{'Baseline','constant'},{'Stimulus','stim'}}, sampleRate, [], []);
     cSc.setName(sprintf('lag=%.3gs', candidateLags(j)));
     rj = Analysis.RunAnalysisForAllNeurons(trial_j, ConfigColl({cSc}), 0);
-    ks_scan(j)   = rj{1}.KSStats.ks_stat;
-    dAIC_scan(j) = rj{1}.AIC - AICref;
-    dBIC_scan(j) = rj{1}.BIC - BICref;
+    % FIX (#102): same brace-indexing bug as above (FitResult, not cell).
+    ks_scan(j)   = rj.KSStats.ks_stat;
+    dAIC_scan(j) = rj.AIC - AICref;
+    dBIC_scan(j) = rj.BIC - BICref;
 end
 
 [~, bestIdx] = min(ks_scan);
@@ -179,11 +184,15 @@ end
 
 figure;
 plot(x,dBIC,'.');
+ylabel('\Delta BIC'); xlabel('history window');
 xticks = 1:(length(histLabels));
 set(gca,'xtick',xticks,'xtickLabel',histLabels,'FontSize',6);
-if(max(xticks)>=1)
-    xticklabel_rotate([],90,[],'Fontsize',8);
-end
+% FIX (#102): xticklabel_rotate is a File Exchange helper that manipulates
+% the figure's Position/axes in a way that publish() renders as a near-blank
+% PNG. xtickangle is a built-in equivalent (R2014b+) that works cleanly
+% under publish().
+xtickangle(90);
+set(gca,'FontSize',8);
            
 
 %% Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus

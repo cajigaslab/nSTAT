@@ -751,7 +751,7 @@ end
  % for independence of the xj's. Independence of the xj's
  % suggests indepence of the uj's and zj's (a condition
  % necessary for the Time Rescaling Theorem).
- U=1-exp(-Z);
+ U=-expm1(-Z); % equivalent to 1-exp(-Z) but precision-preserving near small Z (#78)
  U(U>=.999999)=.999999; %Prevent any 1 values which lead to infinity in X
  U(U==0)=.000001;
  U(U<0)=.000001;
@@ -921,7 +921,7 @@ end
  
  end
  Z = intValues; % rescales spike times - exponential rate 1
- U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
+ U = -expm1(-Z); % store the rescaled spike times - uniform(0,1); expm1 keeps precision near small Z (#78)
  % FIX (Phase 0 Task 0.4): do NOT clamp U here -- biases ks_stat
  % at the tails by O(1/N), which matters when the 95% confidence
  % band is 1.36/sqrt(N). The clamp belongs at the consumer that

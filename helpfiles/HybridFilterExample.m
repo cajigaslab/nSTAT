@@ -410,62 +410,10 @@ end
     title('X Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
 
     % Mean Y-Velocity
-    subplot(4,3,12);
+    subplot(4,3,12); 
     h1=plot(time,100*X(4,:),'k','LineWidth',3); hold on;
     h2=plot(time,mXestAll(4,:),'b','LineWidth',3); hold on;
     h3=plot(time,mXestNTAll(4,:),'g','LineWidth',3); hold on;
     hy=ylabel('v_{y}(t) [cm/s]'); hx=xlabel('time [s]');
     set([hx, hy],'FontName', 'Arial','FontSize',10,'FontWeight','bold');
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
-
-%% Pedagogical summary - MC mean trajectory + RMSE bar (issue #84)
-% Collapse the n=size(X_estAll,3) spaghetti into a focused 2x2 panel so the
-% systematic advantage of the goal-target prior is visible at a glance.
-nMC = size(X_estAll, 3);
-mXestAllSum   = mean(X_estAll,  3);
-mXestNTAllSum = mean(X_estNTAll,3);
-mMUAll        = mean(squeeze(MU_estAll(2,:,:)),  2);
-mMUNTAll      = mean(squeeze(MU_estNTAll(2,:,:)),2);
-
-% Per-replicate RMSE [cm] for both filter variants. squeeze() drops the
-% singleton state-dim so we end up with a (nMC x 1) vector for each.
-truthX = reshape(X(1,:), 1, [], 1);
-truthY = reshape(X(2,:), 1, [], 1);
-xRMSE_PPAFGoal = squeeze(sqrt(mean( (100*(X_estAll(1,:,:)   - truthX)).^2 , 2)));
-yRMSE_PPAFGoal = squeeze(sqrt(mean( (100*(X_estAll(2,:,:)   - truthY)).^2 , 2)));
-xRMSE_PPAF     = squeeze(sqrt(mean( (100*(X_estNTAll(1,:,:) - truthX)).^2 , 2)));
-yRMSE_PPAF     = squeeze(sqrt(mean( (100*(X_estNTAll(2,:,:) - truthY)).^2 , 2)));
-
-figure;
-subplot(2,2,1);
-plot(time, 100*mXestAllSum(1,:),  'b', 'LineWidth', 2); hold on;
-plot(time, 100*mXestNTAllSum(1,:),'g', 'LineWidth', 2);
-plot(time, 100*X(1,:),'k--', 'LineWidth', 1.5);
-ylabel('x(t) [cm]'); xlabel('time [s]');
-legend('PPAF+Goal','PPAF','Actual','Location','best');
-title(sprintf('Mean x-position (n=%d)', nMC));
-
-subplot(2,2,2);
-plot(time, mMUAll,   'b', 'LineWidth', 2); hold on;
-plot(time, mMUNTAll, 'g', 'LineWidth', 2);
-axis([min(time) max(time) 0 1.1]);
-ylabel('P(s(t)=M | data)'); xlabel('time [s]');
-legend('PPAF+Goal','PPAF','Location','best');
-title(sprintf('Mean P(M | data) (n=%d)', nMC));
-
-subplot(2,2,3);
-plot(100*mXestAllSum(1,:),  100*mXestAllSum(2,:),  'b', 'LineWidth', 2); hold on;
-plot(100*mXestNTAllSum(1,:),100*mXestNTAllSum(2,:),'g', 'LineWidth', 2);
-plot(100*X(1,:),            100*X(2,:),            'k--','LineWidth', 1.5);
-axis equal;
-xlabel('x [cm]'); ylabel('y [cm]');
-legend('PPAF+Goal','PPAF','Actual','Location','best');
-title('Mean 2D reach path');
-
-subplot(2,2,4);
-bar([mean(xRMSE_PPAFGoal) mean(xRMSE_PPAF); ...
-     mean(yRMSE_PPAFGoal) mean(yRMSE_PPAF)]);
-set(gca,'XTickLabel',{'x RMSE','y RMSE'});
-ylabel('RMSE [cm]');
-legend('PPAF+Goal','PPAF','Location','best');
-title(sprintf('Mean per-replicate RMSE (n=%d)', nMC));

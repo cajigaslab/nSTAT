@@ -213,82 +213,11 @@ imagesc(network1ms,CLIM);
 set(gca,'XTick',index,'YTick',index);
 title('Estimated 1ms');
 
-%%
+%% 
 % Note: by default all neurons are considered to be potential neighbors. If
 % this is not the case, you can call trial.setNeighbors(neighborArray)
 % where neighborArray is a matrix that in the ith row has ones in the
 % columns of those neurons considered to be potential neighbors and zeros
 % otherwise. By default neighborArray has 0 only on the diagonal, so that
 % the ith neuron cannot be its own neighbor, and 1 ones elsewhere.
-
-%% Programmatic schematics + self-history kernel (issue #86)
-% The connectivity diagram, CIF block diagram, and self-history kernel below
-% are *generated from the workspace* (mu, H, S, E). Edit those variables
-% above and re-run -- the schematics update.
-
-% Extract numeric coefficients from the tf objects
-H_kernel = H{1}.Numerator{1};
-S1_gain  = S{1}.Numerator{1};
-S2_gain  = S{2}.Numerator{1};
-E1_gain  = E{1}.Numerator{1};
-E2_gain  = E{2}.Numerator{1};
-
-%% Self-history kernel
-% The only multi-tap filter in the model. Stem plot makes the refractory +
-% decay structure immediately legible vs the abstract TeX vector form.
-figure;
-stem(1:length(H_kernel), H_kernel, 'filled', 'LineWidth', 1.5);
-xlabel('lag (bins)'); ylabel('H_i');
-title(sprintf('Self-history kernel H = [%s]', sprintf('%g ', H_kernel)));
-grid on;
-
-%% Two-neuron connectivity diagram
-% Programmatic redraw. Carries baseline mu, stimulus weight S, and ensemble
-% weight E directly on the node labels and the inter-neuron arrows.
-figure;
-hold on; axis equal; axis([-2.2 2.2 -1.6 1.6]); axis off;
-theta = linspace(0, 2*pi, 60);
-plot(-1 + 0.28*cos(theta), 0 + 0.28*sin(theta), 'b','LineWidth',2);
-plot( 1 + 0.28*cos(theta), 0 + 0.28*sin(theta), 'r','LineWidth',2);
-text(-1, 0, 'N_1','HorizontalAlignment','center','FontWeight','bold','FontSize',14);
-text( 1, 0, 'N_2','HorizontalAlignment','center','FontWeight','bold','FontSize',14);
-text(-1, 0.6, sprintf('\\mu_1=%g', mu{1}),'HorizontalAlignment','center');
-text( 1, 0.6, sprintf('\\mu_2=%g', mu{2}),'HorizontalAlignment','center');
-text(-1,-0.6, sprintf('S_1=%+g', S1_gain),'HorizontalAlignment','center');
-text( 1,-0.6, sprintf('S_2=%+g', S2_gain),'HorizontalAlignment','center');
-text(-1, 1.05, sprintf('H=[%s]', sprintf('%g ',H_kernel)),'HorizontalAlignment','center','Color',[0.4 0.4 0.4]);
-text( 1, 1.05, sprintf('H=[%s]', sprintf('%g ',H_kernel)),'HorizontalAlignment','center','Color',[0.4 0.4 0.4]);
-% Ensemble arrows (curved-ish with quiver)
-quiver(-0.7, 0.12,  1.4, 0, 0, 'Color',[0 0.5 0],'LineWidth',1.5,'MaxHeadSize',0.25);
-text(0, 0.3, sprintf('E_{1\\leftarrow 2}=%+g', E1_gain),'HorizontalAlignment','center','Color',[0 0.5 0]);
-quiver( 0.7,-0.12, -1.4, 0, 0, 'Color',[0.6 0 0],'LineWidth',1.5,'MaxHeadSize',0.25);
-text(0, -0.3, sprintf('E_{2\\leftarrow 1}=%+g', E2_gain),'HorizontalAlignment','center','Color',[0.6 0 0]);
-title('Two-neuron connectivity (workspace-synced)');
-
-%% CIF block diagram + equation panel
-% Shows the four additive contributions feeding the logistic link, with
-% workspace values populating the labels.
-figure;
-hold on; axis([0 10 0 6]); axis off;
-boxes = {'Baseline \mu_i', 'History H_i', 'Stimulus S_i', 'Ensemble E_i'};
-for k = 1:4
-    rectangle('Position',[0.5 5-k*1.1 2.2 0.9],'Curvature',0.15,'LineWidth',1.3);
-    text(1.6, 5-k*1.1+0.45, boxes{k},'HorizontalAlignment','center','FontWeight','bold');
-end
-% Summation node
-rectangle('Position',[4.5 2.2 1 1],'Curvature',1,'LineWidth',1.3);
-text(5,2.7,'\Sigma','HorizontalAlignment','center','FontSize',16,'FontWeight','bold');
-% Logistic node
-rectangle('Position',[7 2.2 2 1],'Curvature',0.2,'LineWidth',1.3);
-text(8, 2.7, '\sigma(\cdot) = logistic','HorizontalAlignment','center','FontWeight','bold');
-% Arrows in
-for k = 1:4
-    quiver(2.8, 5-k*1.1+0.45, 1.7, 2.7-(5-k*1.1+0.45), 0, 'k','LineWidth',1.2,'MaxHeadSize',0.4);
-end
-quiver(5.6, 2.7, 1.35, 0, 0, 'k','LineWidth',1.5,'MaxHeadSize',0.4);
-text(8.0, 1.6, '\lambda_i\cdot\Delta', 'HorizontalAlignment','center');
-text(5, 5.7, sprintf(['Numeric values - N_1: \\mu=%g, S=%+g, E=%+g    ' ...
-    'N_2: \\mu=%g, S=%+g, E=%+g'], mu{1}, S1_gain, E1_gain, mu{2}, S2_gain, E2_gain), ...
-    'HorizontalAlignment','center','FontSize',9,'Color',[0.3 0.3 0.3]);
-title('CIF block diagram - \lambda_i\Delta = \sigma(\mu_i + H_i*\Delta N_i + S_i u_{stim} + E_i\Delta N_k)');
 

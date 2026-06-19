@@ -1,49 +1,59 @@
 classdef testParityAuditJun19Fixes < matlab.unittest.TestCase
-    %TESTPARITYAUDITJUN19FIXES regression tests for the four parity-audit
-    % bug reports filed 2026-06-19 (issues #90, #91, #92, #93).
+    %TESTPARITYAUDITJUN19FIXES regression tests for the parity-audit bugs
+    % filed 2026-06-19 (issues #91, #92, #93) plus an EStep-level
+    % integration test added 2026-06-19 in response to #95.
     %
-    % Each test asserts the failing-input case the issue described now
-    % succeeds (or fails with a clear error, for #92).
+    % #90 (PPLFP HkAll axis) is intentionally NOT covered by a unit test
+    % targeting PPLFP_Decode_update directly: the function expects its
+    % HkAll argument pre-permuted by PPLFP_EStep (time on dim 3); calling
+    % it with raw HkAll tests a calling convention nothing in the codebase
+    % actually uses. Instead, testPPLFP_EStep_endToEnd_nonSquareDN below
+    % exercises the EStep -> Decode_update handshake the way production
+    % code does. That is the test that would have caught PR #94's #95
+    % regression.
 
     methods (Test)
 
-        function testPPLFP_Decode_update_acceptsNonSquareDN(tc)
-            %#90 PPLFP_Decode_update: HkAll(:,:,time_index) used to throw
-            % when numCells != K_time. Build a minimal valid HkAll with
-            % numCells=2, K_time=5 and exercise the update step.
+        function testPPLFP_EStep_endToEnd_nonSquareDN(tc)
+            %#95 PPLFP_EStep -> PPLFP_Decode_update axis handshake.
+            % EStep pre-permutes HkAll so time is on dim 3 before passing
+            % to Decode_update; an axis "fix" at the consumer broke this
+            % handshake in PR #94. Reproduce the exact failing input from
+            % the issue (numCells=2, K=30, non-square) and assert the
+            % poisson chain completes without dimension-mismatch errors.
+            %
+            % HkAll is shaped the way PPLFP_EM builds it when windowTimes
+            % is empty: zeros(1,1,numCells), 3D so the downstream
+            % permute() and slice() flow.
+            %
+            % The binomial branch is NOT exercised here -- it has an
+            % unrelated self-clobbering typo at PPLFP.m:2147
+            % (`HkPerm = HkPerm(:,:,k)` instead of `Hk = HkPerm(:,:,k)`)
+            % that predates PR #94. Filed separately.
+            rng(0, 'twister');
             numCells = 2;
-            K_time   = 5;
-            hist_cols = 1;
-            HkAll = zeros(K_time, hist_cols, numCells);   % builder convention
-            % single spike per cell -- arbitrary values, the test is about
-            % whether sizes flow without index-out-of-bounds errors.
-            HkAll(3,1,1) = 1;
-            HkAll(2,1,2) = 1; HkAll(5,1,2) = 1;
-            dN  = [0 0 1 0 0; 0 1 0 0 1];   % (numCells x K_time)
-            stateDim = 1;
-            x_p = zeros(stateDim,1);
-            W_p = eye(stateDim);
-            C   = zeros(0,stateDim);
-            R   = zeros(0,0);
-            y   = zeros(0,K_time);
-            alpha = zeros(0,1);
-            mu    = zeros(numCells,1);
-            beta  = zeros(stateDim,numCells);
-            gamma = zeros(hist_cols,numCells);
+            K        = 30;
+            delta    = 0.01;
+            stateDim = 2;
 
-            % Run for the time index that previously exceeded the third axis.
-            time_index = 5;
-            tc.verifyWarningFree( @() ...
-                nstat.decoding.PPLFP.PPLFP_Decode_update(x_p, W_p, C, R, ...
-                    y, alpha, dN, mu, beta, 'binomial', gamma, HkAll, ...
-                    time_index, []), ...
-                'PPLFP_Decode_update should accept non-square dN after #90 fix');
+            A   = eye(stateDim);
+            Q   = 1e-3*eye(stateDim);
+            C   = eye(stateDim);
+            R   = 1e-2*eye(stateDim);
+            x0  = zeros(stateDim,1);
+            Px0 = eye(stateDim);
+            y      = zeros(stateDim, K);
+            alpha  = zeros(stateDim, 1);
+            mu     = zeros(numCells, 1);
+            beta   = zeros(stateDim, numCells);
+            gamma  = 0;
+            HkAll  = zeros(K, 1, numCells);   % matches EM's with-windowTimes shape
+            dN     = double(rand(numCells, K) < 0.1);
 
             tc.verifyWarningFree( @() ...
-                nstat.decoding.PPLFP.PPLFP_Decode_update(x_p, W_p, C, R, ...
-                    y, alpha, dN, mu, beta, 'poisson', gamma, HkAll, ...
-                    time_index, []), ...
-                'PPLFP_Decode_update poisson branch should also accept non-square dN');
+                nstat.decoding.PPLFP.PPLFP_EStep(A, Q, C, R, y, alpha, ...
+                    dN, mu, beta, 'poisson', delta, gamma, HkAll, x0, Px0), ...
+                'PPLFP_EStep poisson path must complete on non-square dN (#95)');
         end
 
         function testPPHybridFilterSignatureNamesMU_u(tc)

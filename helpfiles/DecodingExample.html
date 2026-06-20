@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>STIMULUS DECODING</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="DecodingExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -127,7 +127,10 @@ c{2} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string"
 c{2}.setName(<span class="string">'Baseline+Stimulus'</span>);
 cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
-figure;
+<span class="comment">% NB: do not pre-create a figure here -- FitResult.plotResults opens its</span>
+<span class="comment">% own figure(...) internally. A bare `figure;` immediately before it</span>
+<span class="comment">% leaves a blank axes frame that publish() snapshots as a near-empty PNG</span>
+<span class="comment">% (was DecodingExample_03.png at ~3.5 KB vs the populated ~126 KB next).</span>
 results{1}.plotResults;
 Summary = FitResSummary(results);
 
@@ -137,7 +140,7 @@ meanParams = mean(paramEst,2);
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1,2,3,4,5,6,7,8,9,10
 Analyzing Configuration #2: Neuron #1,2,3,4,5,6,7,8,9,10
 </pre>
-<img vspace="5" hspace="5" src="DecodingExample_02.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_03.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_04.png" alt=""> <p>So we now have a model for lambda lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta because exp(b_0 + b_1*x(t))&lt;&lt;1 we can approximate this lambda by just the numerator i.e. lambda = exp(b_0 + b_1*x(t))./delta</p>
+<img vspace="5" hspace="5" src="DecodingExample_02.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_03.png" alt=""> <p>So we now have a model for lambda lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta because exp(b_0 + b_1*x(t))&lt;&lt;1 we can approximate this lambda by just the numerator i.e. lambda = exp(b_0 + b_1*x(t))./delta</p>
 <p>Now suppose we wanted to decode x(t) based on only having observed lambda</p>
 <pre class="codeinput">clear <span class="string">lambdaCIF</span>;
 b0=paramEst(1,:);
@@ -167,7 +170,7 @@ legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
 </pre>
-<img vspace="5" hspace="5" src="DecodingExample_05.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="DecodingExample_04.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_05.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
 <br>
@@ -219,7 +222,10 @@ c{2} = TrialConfig({{'Baseline','constant'},{'Stimulus','stim'}},...
 c{2}.setName('Baseline+Stimulus');
 cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
-figure;
+% NB: do not pre-create a figure here REPLACE_WITH_DASH_DASH FitResult.plotResults opens its
+% own figure(...) internally. A bare `figure;` immediately before it
+% leaves a blank axes frame that publish() snapshots as a near-empty PNG
+% (was DecodingExample_03.png at ~3.5 KB vs the populated ~126 KB next).
 results{1}.plotResults;
 Summary = FitResSummary(results);
 

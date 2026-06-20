@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>SignalObj</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="SignalObj.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -1134,16 +1134,19 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> s = autocorrelation(sObj)
+            <span class="comment">% FIX (#93): crosscorr's positional NumLags arg was removed in</span>
+            <span class="comment">% recent Econometrics Toolbox releases; use name-value</span>
+            <span class="comment">% (R2019a+ compatible, works through current releases).</span>
             <span class="keyword">if</span>(sObj.dimension==1)
-                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,length(sObj.data)-1);
+                 nLags = length(sObj.data)-1;
+                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,<span class="string">'NumLags'</span>,nLags);
                  s=SignalObj(lags/sObj.sampleRate, ACF,[<span class="string">'ACF('</span> sObj.name, <span class="string">')'</span>], <span class="string">'Lag'</span>, sObj.xunits, [sObj.yunits <span class="string">'^2'</span>]);
             <span class="keyword">else</span>
                 <span class="comment">%if more than one dimension then computes the</span>
                 <span class="comment">%autocorrelation of each dimension with itself</span>
                 <span class="keyword">for</span> i=1:sObj.dimension
-
-                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); <span class="comment">% FIX: typo crosscor&rarr;crosscorr</span>
-
+                    nLags = length(sObj.data(:,i))-1;
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),<span class="string">'NumLags'</span>,nLags);
                 <span class="keyword">end</span>
                 s=SignalObj(lags/sObj.sampleRate, ACF,[<span class="string">'ACF('</span> sObj.name, <span class="string">')'</span>], <span class="string">'Lag'</span>, sObj.xunits, [sObj.yunits <span class="string">'^2'</span>]);
             <span class="keyword">end</span>
@@ -1151,9 +1154,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> s = crosscorrelation(sObj, s2)
+            <span class="comment">% FIX (#93): same crosscorr name-value migration.</span>
             <span class="keyword">if</span>(and(sObj.dimension ==1, s2.dimension==1))
-
-             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,length(sObj.data)-1);
+             nLags = length(sObj.data)-1;
+             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,<span class="string">'NumLags'</span>,nLags);
              s=SignalObj(lags/sObj.sampleRate, xcf,[<span class="string">'XCORF('</span> sObj.name, <span class="string">')'</span>], <span class="string">'Lag'</span>, sObj.xunits, [sObj.yunits <span class="string">'^2'</span>]);
             <span class="keyword">else</span>
                 error(<span class="string">'Does not support multidimensional signals'</span>);
@@ -1428,6 +1432,18 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
                 <span class="keyword">end</span>
             <span class="keyword">else</span>
                 sObjOut = sObj.copySignal;
+                <span class="comment">% FIX (#54): if the time window has been mutated by</span>
+                <span class="comment">% setMinTime/setMaxTime since construction, the cached</span>
+                <span class="comment">% sampleRate may still match but the time vector no longer</span>
+                <span class="comment">% matches the implied grid. Force a resample-on-grid in</span>
+                <span class="comment">% that case so downstream makeCompatible/length-mismatch</span>
+                <span class="comment">% paths don't see stale data.</span>
+                <span class="keyword">if</span> ~isnan(newSampleRate) &amp;&amp; size(sObjOut.data,1)&gt;1
+                    expectedLen = round((sObjOut.maxTime - sObjOut.minTime) * newSampleRate) + 1;
+                    <span class="keyword">if</span> length(sObjOut.time) ~= expectedLen
+                        sObjOut.resampleMe(newSampleRate);
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
         <span class="keyword">function</span> resampleMe(sObj, newSampleRate)
@@ -1557,6 +1573,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
             sTemp = sObj.shift(deltaT,updateLabels);
             sObj.data=sTemp.data;
             sObj.time=sTemp.time;
+            sObj.minTime=sTemp.minTime; <span class="comment">% FIX (#14): keep minTime/maxTime in sync with time vector after shift</span>
+            sObj.maxTime=sTemp.maxTime;
         <span class="keyword">end</span>
         <span class="keyword">function</span> alignTime(sObj, timeMarker,newTime)
             <span class="keyword">if</span>(sObj.minTime&lt;=timeMarker &amp;&amp; sObj.maxTime&gt;=timeMarker)
@@ -3524,26 +3542,30 @@ classdef SignalObj < handle
         end
         
         function s = autocorrelation(sObj)
+            % FIX (#93): crosscorr's positional NumLags arg was removed in
+            % recent Econometrics Toolbox releases; use name-value
+            % (R2019a+ compatible, works through current releases).
             if(sObj.dimension==1)
-                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,length(sObj.data)-1);
+                 nLags = length(sObj.data)-1;
+                 [ACF,lags,bounds] = crosscorr(sObj.data,sObj.data,'NumLags',nLags);
                  s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             else
                 %if more than one dimension then computes the
                 %autocorrelation of each dimension with itself
                 for i=1:sObj.dimension
-                    
-                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),length(sObj.data(:,i))-1); % FIX: typo crosscor→crosscorr
-                    
+                    nLags = length(sObj.data(:,i))-1;
+                    [ACF(:,i),lags,bounds] = crosscorr(sObj.data(:,i),sObj.data(:,i),'NumLags',nLags);
                 end
                 s=SignalObj(lags/sObj.sampleRate, ACF,['ACF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             end
-           
+
         end
-        
+
         function s = crosscorrelation(sObj, s2)
+            % FIX (#93): same crosscorr name-value migration.
             if(and(sObj.dimension ==1, s2.dimension==1))
-                
-             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,length(sObj.data)-1);
+             nLags = length(sObj.data)-1;
+             [xcf,lags,bounds] = crosscorr(sObj.data, s2.data,'NumLags',nLags);
              s=SignalObj(lags/sObj.sampleRate, xcf,['XCORF(' sObj.name, ')'], 'Lag', sObj.xunits, [sObj.yunits '^2']);
             else
                 error('Does not support multidimensional signals');
@@ -3818,6 +3840,18 @@ classdef SignalObj < handle
                 end
             else
                 sObjOut = sObj.copySignal;
+                % FIX (#54): if the time window has been mutated by
+                % setMinTime/setMaxTime since construction, the cached
+                % sampleRate may still match but the time vector no longer
+                % matches the implied grid. Force a resample-on-grid in
+                % that case so downstream makeCompatible/length-mismatch
+                % paths don't see stale data.
+                if ~isnan(newSampleRate) && size(sObjOut.data,1)>1
+                    expectedLen = round((sObjOut.maxTime - sObjOut.minTime) * newSampleRate) + 1;
+                    if length(sObjOut.time) ~= expectedLen
+                        sObjOut.resampleMe(newSampleRate);
+                    end
+                end
             end
         end
         function resampleMe(sObj, newSampleRate)
@@ -3947,7 +3981,9 @@ classdef SignalObj < handle
             sTemp = sObj.shift(deltaT,updateLabels);
             sObj.data=sTemp.data;
             sObj.time=sTemp.time;
-        end        
+            sObj.minTime=sTemp.minTime; % FIX (#14): keep minTime/maxTime in sync with time vector after shift
+            sObj.maxTime=sTemp.maxTime;
+        end
         function alignTime(sObj, timeMarker,newTime)
             if(sObj.minTime<=timeMarker && sObj.maxTime>=timeMarker)
                 deltaT=newTime-timeMarker;

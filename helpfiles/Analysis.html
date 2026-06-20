@@ -5,11 +5,11 @@
 <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
- -->
+      -->
 <title>Analysis</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="Analysis.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -72,7 +72,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
- </style>
+  </style>
 </head>
 <body>
 <div class="content">
@@ -294,7 +294,6 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  currSpikes=tObj.nspikeColl.getNST(neuronNames(j));
  <span class="keyword">end</span>
 
-
  <span class="keyword">for</span> n=1:length(currSpikes)
  <span class="keyword">if</span>(isa(currSpikes,<span class="string">'cell'</span>))
  currSpikes{n} = currSpikes{n}.nstCopy;
@@ -413,7 +412,6 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  <span class="keyword">else</span>
  currSpikes=tObj.nspikeColl.getNST(neuronNames(j));
  <span class="keyword">end</span>
-
 
  <span class="keyword">for</span> n=1:length(currSpikes)
  <span class="keyword">if</span>(isa(currSpikes,<span class="string">'cell'</span>))
@@ -738,7 +736,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  BIC = length(b)*log(length(y))+real(dev);
  delta = 1/tObj.sampleRate;
  lambdaDelta = max(data*delta, eps); <span class="comment">% FIX (Task 0.1c): eps guard for log(0)</span>
- oneMinusLambdaDelta = max(1 - data*delta, eps); <span class="comment">% FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)</span>
+ oneMinusLambdaDelta = max(1 - data*delta, eps); <span class="comment">% FIX (Task 0.1c): missing log wrapper; eps guard for log(0)</span>
  logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
 
  <span class="keyword">end</span>
@@ -854,7 +852,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  <span class="comment">% for independence of the xj's. Independence of the xj's</span>
  <span class="comment">% suggests indepence of the uj's and zj's (a condition</span>
  <span class="comment">% necessary for the Time Rescaling Theorem).</span>
- U=1-exp(-Z);
+ U=-expm1(-Z); <span class="comment">% equivalent to 1-exp(-Z) but precision-preserving near small Z (#78)</span>
  U(U&gt;=.999999)=.999999; <span class="comment">%Prevent any 1 values which lead to infinity in X</span>
  U(U==0)=.000001;
  U(U&lt;0)=.000001;
@@ -964,15 +962,15 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
  <span class="keyword">for</span> i=1:lambdaInput.dimension
  <span class="comment">% FIX: warn when lambda*delta exceeds the empirical validity bound</span>
- <span class="comment">% (Haslinger-Pipa-Brown 2010; Haslinger-Pipa-Brown 2010).</span>
+ <span class="comment">% (Haslinger-Pipa-Brown 2010.C.1 Cor. 2).</span>
  pkRaw = pk(:,i);
  fracHighRate = mean(pkRaw(~isnan(pkRaw)) &gt; 0.4);
  <span class="keyword">if</span> fracHighRate &gt; 0.01
- warning(<span class="string">'nSTAT:DTCorrectionRegime'</span>, <span class="keyword">...</span>
- [<span class="string">'%.1f%% of bins have lambda*delta &gt; 0.4; '</span> <span class="keyword">...</span>
- <span class="string">'discrete-time KS correction may be biased '</span> <span class="keyword">...</span>
- <span class="string">'toward acceptance. Use a smaller binwidth '</span> <span class="keyword">...</span>
- <span class="string">'or DTCorrection=0 (continuous-time form).'</span>], <span class="keyword">...</span>
+ warning(<span class="string">'nSTAT:DTCorrectionRegime'</span>,<span class="keyword">...</span>
+ [<span class="string">'%.1f%% of bins have lambda*delta &gt; 0.4; '</span><span class="keyword">...</span>
+ <span class="string">'discrete-time KS correction may be biased '</span><span class="keyword">...</span>
+ <span class="string">'toward acceptance. Use a smaller binwidth '</span><span class="keyword">...</span>
+ <span class="string">'or DTCorrection=0 (continuous-time form).'</span>],<span class="keyword">...</span>
  100*fracHighRate);
  <span class="keyword">end</span>
  pk(:,i) = nanmin(nanmax(pkRaw,0),1);
@@ -1024,7 +1022,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
  <span class="keyword">end</span>
  Z = intValues; <span class="comment">% rescales spike times - exponential rate 1</span>
- U = 1-exp(-Z); <span class="comment">% store the rescaled spike times - uniform(0,1)</span>
+ U = -expm1(-Z); <span class="comment">% store the rescaled spike times - uniform(0,1); expm1 keeps precision near small Z (#78)</span>
  <span class="comment">% FIX (Phase 0 Task 0.4): do NOT clamp U here -- biases ks_stat</span>
  <span class="comment">% at the tails by O(1/N), which matters when the 95% confidence</span>
  <span class="comment">% band is 1.36/sqrt(N). The clamp belongs at the consumer that</span>
@@ -1044,13 +1042,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  <span class="keyword">end</span>
  <span class="keyword">end</span>
  <span class="keyword">function</span> varargout = ksdiscrete(pk, st, spikeflag)
- <span class="comment">%KSDISCRETE Thin static wrapper around the file-local ksdiscrete()</span>
+ <span class="comment">%KSDISCRETE Thin static wrapper around the file-local ksdiscrete</span>
  <span class="comment">% Exposed for unit testing. Production code calls the local</span>
  <span class="comment">% function from computeKSStats; both routes share the same</span>
  <span class="comment">% implementation.</span>
  <span class="comment">%</span>
  <span class="comment">% Refs: Haslinger, Pipa &amp; Brown 2010 (discrete-time time-</span>
- <span class="comment">% rescaling); Haslinger-Pipa-Brown 2010.</span>
+ <span class="comment">% rescaling).C.1 Cor. 2.</span>
  [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
  <span class="keyword">end</span>
  <span class="keyword">function</span> M=computeFitResidual(nspikeObj,lambda,windowSize)
@@ -1102,7 +1100,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  dataLabels{i} = lambda.dataLabels{i};
  <span class="keyword">end</span>
 
- M=Covariate(windowTimes(1:end),[zeros(1,size(Mdata,2));Mdata],<span class="string">'M(t_k)'</span>,lambdaInt.xlabelval, <span class="keyword">...</span>
+ M=Covariate(windowTimes(1:end),[zeros(1,size(Mdata,2));Mdata],<span class="string">'M(t_k)'</span>,lambdaInt.xlabelval,<span class="keyword">...</span>
  lambdaInt.xunits,lambdaInt.yunits,dataLabels);
 
  <span class="keyword">end</span>
@@ -1184,7 +1182,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
  <span class="keyword">for</span> j=1:length(neighbors)
  ensCovMaskTemp = ensCovMask;
- ensCovMaskTemp(neighbors(j),neuronNum)=0;
+ ensCovMaskTemp(neighbors(j),neuronNum(i))=0; <span class="comment">% FIX (#15): was neuronNum (the full neuron-list), zeroed every neuron's column for this neighbor; only the specific neuron under test (index i) should be excluded</span>
 
  tc{2}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMaskTemp); tc{2}.setName([num2str(neighbors(j)) <span class="string">'excluded from '</span> num2str(neuronNum(i))]);
  tcc = ConfigColl(tc);
@@ -1197,8 +1195,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  <span class="keyword">for</span> j=1:length(neighbors)
  gammaMat(neighbors(j),neuronNum(i)) = fitResults{i}{j}.logLL(2)-fitResults{i}{j}.logLL(1);
  [coeffMat, labels, SEMat] = fitResults{i}{j}.getCoeffs(1);
- coeffInd=strfind(labels,[num2str(neighbors(j)) <span class="string">':['</span>]);
- gammaVals =coeffMat(~isempty(coeffInd));
+ <span class="comment">% FIX (#51): coeffInd was a cellarray from strfind on a</span>
+ <span class="comment">% cellarray of labels; ~isempty on a cellarray returns</span>
+ <span class="comment">% a SCALAR (true if the cellarray itself is non-empty),</span>
+ <span class="comment">% so coeffMat(~isempty(coeffInd)) indexed only the</span>
+ <span class="comment">% first coefficient. Build a logical mask per-label.</span>
+ coeffMaskNeighbor = ~cellfun(@isempty, strfind(labels,[num2str(neighbors(j)) <span class="string">':['</span>]));
+ gammaVals =coeffMat(coeffMaskNeighbor);
  phiMat(neighbors(j),neuronNum(i)) = -sign(sum(gammaVals))*gammaMat(neighbors(j),neuronNum(i));
  dimDiff(neighbors(j),neuronNum(i)) = abs(diff(fitResults{i}{j}.numCoeffs));
  valConfInt(neighbors(j),neuronNum(i)) = chi2inv(confidenceInterval,dimDiff(neighbors(j),neuronNum(i)));
@@ -1396,8 +1399,6 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <pre class="codeinput">
 <span class="keyword">end</span>
 
-
-
 <span class="keyword">function</span> [flatMask, maxIndex]=flatMaskCellToMat(flatMaskCell)
  <span class="comment">% [flatMask, maxIndex]=flatMaskCellToMat(flatMaskCell)</span>
  lMask =zeros(1,length(flatMaskCell));
@@ -1517,7 +1518,6 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  stats.residd = 0;
  stats.resida = 0;
 <span class="keyword">end</span>
-
 
 <span class="keyword">function</span> [rst,varargout] = ksdiscrete(pk,st,spikeflag)
 
@@ -1662,7 +1662,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
  total=total+sum(qk(ind1+1:ind2-1));
 
- delta=-(1/qk(ind2))*log(1-rand()*(1-exp(-qk(ind2))));
+ delta=-(1/qk(ind2))*log(1-rand*(1-exp(-qk(ind2))));
 
  <span class="keyword">if</span>(delta~=0)
  total=total+qk(ind2)*delta;
@@ -1691,8 +1691,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
  varargout{4}=sort(rstold);
 <span class="keyword">end</span>
 
-
-<span class="comment">% fdr_bh() - Executes the Benjamini &amp; Hochberg (1995) and the Benjamini &amp;</span>
+<span class="comment">% fdr_bh - Executes the Benjamini &amp; Hochberg (1995) and the Benjamini &amp;</span>
 <span class="comment">% Yekutieli (2001) procedure for controlling the false discovery</span>
 <span class="comment">% rate (FDR) of a family of hypothesis tests. FDR is the expected</span>
 <span class="comment">% proportion of rejected hypotheses that are mistakenly rejected</span>
@@ -1915,8 +1914,6 @@ max_id=find(rej,1,<span class="string">'last'</span>); <span class="comment">%fi
  <span class="keyword">end</span>
 <span class="keyword">end</span>
 
-
-
 <span class="keyword">end</span>
 </pre>
 <p class="footer">
@@ -1956,8 +1953,6 @@ classdef Analysis
 % You should have received a copy of the GNU General Public License 
 % along with this program; if not, write to the Free Software Foundation, 
 % Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-
-
 
 properties (Constant)
  colors = {'b','g','r','c','m','y','k'};
@@ -2129,7 +2124,6 @@ end
  currSpikes=tObj.nspikeColl.getNST(neuronNames(j)); 
  end
 
-
  for n=1:length(currSpikes)
  if(isa(currSpikes,'cell'))
  currSpikes{n} = currSpikes{n}.nstCopy;
@@ -2246,7 +2240,6 @@ end
  else
  currSpikes=tObj.nspikeColl.getNST(neuronNames(j)); 
  end
-
 
  for n=1:length(currSpikes)
  if(isa(currSpikes,'cell'))
@@ -2568,7 +2561,7 @@ end
  BIC = length(b)*log(length(y))+real(dev);
  delta = 1/tObj.sampleRate;
  lambdaDelta = max(data*delta, eps); % FIX (Task 0.1c): eps guard for log(0)
- oneMinusLambdaDelta = max(1 - data*delta, eps); % FIX (Task 0.1c): missing log() wrapper; eps guard for log(0)
+ oneMinusLambdaDelta = max(1 - data*delta, eps); % FIX (Task 0.1c): missing log wrapper; eps guard for log(0)
  logLL = sum(y.*log(lambdaDelta) + (1-y).*log(oneMinusLambdaDelta));
  
  end 
@@ -2684,7 +2677,7 @@ end
  % for independence of the xj's. Independence of the xj's
  % suggests indepence of the uj's and zj's (a condition
  % necessary for the Time Rescaling Theorem).
- U=1-exp(-Z);
+ U=-expm1(-Z); % equivalent to 1-exp(-Z) but precision-preserving near small Z (#78)
  U(U>=.999999)=.999999; %Prevent any 1 values which lead to infinity in X
  U(U==0)=.000001;
  U(U<0)=.000001;
@@ -2794,7 +2787,7 @@ end
  intValues=zeros(length(nCopy.getSpikeTimes)-1,lambdaInput.dimension);
  for i=1:lambdaInput.dimension
  % FIX: warn when lambda*delta exceeds the empirical validity bound
- % (Haslinger-Pipa-Brown 2010; Haslinger-Pipa-Brown 2010).
+ % (Haslinger-Pipa-Brown 2010.C.1 Cor. 2).
  pkRaw = pk(:,i);
  fracHighRate = mean(pkRaw(~isnan(pkRaw)) > 0.4);
  if fracHighRate > 0.01
@@ -2854,7 +2847,7 @@ end
  
  end
  Z = intValues; % rescales spike times - exponential rate 1
- U = 1-exp(-Z); % store the rescaled spike times - uniform(0,1)
+ U = -expm1(-Z); % store the rescaled spike times - uniform(0,1); expm1 keeps precision near small Z (#78)
  % FIX (Phase 0 Task 0.4): do NOT clamp U here REPLACE_WITH_DASH_DASH biases ks_stat
  % at the tails by O(1/N), which matters when the 95% confidence
  % band is 1.36/sqrt(N). The clamp belongs at the consumer that
@@ -2874,13 +2867,13 @@ end
  end
  end
  function varargout = ksdiscrete(pk, st, spikeflag)
- %KSDISCRETE Thin static wrapper around the file-local ksdiscrete()
+ %KSDISCRETE Thin static wrapper around the file-local ksdiscrete
  % Exposed for unit testing. Production code calls the local
  % function from computeKSStats; both routes share the same
  % implementation.
  %
  % Refs: Haslinger, Pipa & Brown 2010 (discrete-time time-
- % rescaling); Haslinger-Pipa-Brown 2010.
+ % rescaling).C.1 Cor. 2.
  [varargout{1:nargout}] = ksdiscrete(pk, st, spikeflag);
  end
  function M=computeFitResidual(nspikeObj,lambda,windowSize)
@@ -3014,8 +3007,8 @@ end
  
  for j=1:length(neighbors)
  ensCovMaskTemp = ensCovMask;
- ensCovMaskTemp(neighbors(j),neuronNum)=0;
- 
+ ensCovMaskTemp(neighbors(j),neuronNum(i))=0; % FIX (#15): was neuronNum (the full neuron-list), zeroed every neuron's column for this neighbor; only the specific neuron under test (index i) should be excluded
+
  tc{2}=TrialConfig(covMask, sampleRate, history, ensCovHist, ensCovMaskTemp); tc{2}.setName([num2str(neighbors(j)) 'excluded from ' num2str(neuronNum(i))]);
  tcc = ConfigColl(tc); 
  
@@ -3027,8 +3020,13 @@ end
  for j=1:length(neighbors)
  gammaMat(neighbors(j),neuronNum(i)) = fitResults{i}{j}.logLL(2)-fitResults{i}{j}.logLL(1);
  [coeffMat, labels, SEMat] = fitResults{i}{j}.getCoeffs(1);
- coeffInd=strfind(labels,[num2str(neighbors(j)) ':[']);
- gammaVals =coeffMat(~isempty(coeffInd));
+ % FIX (#51): coeffInd was a cellarray from strfind on a
+ % cellarray of labels; ~isempty on a cellarray returns
+ % a SCALAR (true if the cellarray itself is non-empty),
+ % so coeffMat(~isempty(coeffInd)) indexed only the
+ % first coefficient. Build a logical mask per-label.
+ coeffMaskNeighbor = ~cellfun(@isempty, strfind(labels,[num2str(neighbors(j)) ':[']));
+ gammaVals =coeffMat(coeffMaskNeighbor);
  phiMat(neighbors(j),neuronNum(i)) = -sign(sum(gammaVals))*gammaMat(neighbors(j),neuronNum(i));
  dimDiff(neighbors(j),neuronNum(i)) = abs(diff(fitResults{i}{j}.numCoeffs));
  valConfInt(neighbors(j),neuronNum(i)) = chi2inv(confidenceInterval,dimDiff(neighbors(j),neuronNum(i)));
@@ -3227,8 +3225,6 @@ end
  
 end
 
-
-
 function [flatMask, maxIndex]=flatMaskCellToMat(flatMaskCell)
  % [flatMask, maxIndex]=flatMaskCellToMat(flatMaskCell)
  lMask =zeros(1,length(flatMaskCell));
@@ -3348,7 +3344,6 @@ function [beta_new,devnew,stats] = bnlrCG(X,yframe,rrflag)
  stats.residd = 0;
  stats.resida = 0;
 end
-
 
 function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
 
@@ -3493,7 +3488,7 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
 
  total=total+sum(qk(ind1+1:ind2-1));
 
- delta=-(1/qk(ind2))*log(1-rand()*(1-exp(-qk(ind2))));
+ delta=-(1/qk(ind2))*log(1-rand*(1-exp(-qk(ind2))));
  
  if(delta~=0)
  total=total+qk(ind2)*delta;
@@ -3522,8 +3517,7 @@ function [rst,varargout] = ksdiscrete(pk,st,spikeflag)
  varargout{4}=sort(rstold);
 end
 
-
-% fdr_bh() - Executes the Benjamini & Hochberg (1995) and the Benjamini &
+% fdr_bh - Executes the Benjamini & Hochberg (1995) and the Benjamini &
 % Yekutieli (2001) procedure for controlling the false discovery 
 % rate (FDR) of a family of hypothesis tests. FDR is the expected
 % proportion of rejected hypotheses that are mistakenly rejected 
@@ -3745,8 +3739,6 @@ if strcmpi(report,'yes'),
  fprintf('FDR/FCR procedure used is guaranteed valid for independent or dependent tests.\n');
  end
 end
-
-
 
 end
 

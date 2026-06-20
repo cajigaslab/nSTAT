@@ -26,6 +26,15 @@ nSTAT_Install('RebuildDocSearch', false, 'CleanUserPathPrefs', false);
 addpath(stagingDir, '-begin');
 cd(stagingDir);
 
+% Force visible figures during publish. publish() in R2025b silently
+% snapshots zero figures from invisible windows, producing helpfile HTML
+% with 0–25% of the expected figures (smoke test 2026-06-19 showed
+% AnalysisExamples 4→0, HybridFilterExample 2→0, PPSimExample 4→1).
+% Save and restore so this does not leak to the caller.
+priorFigureVisibility = get(groot, 'defaultFigureVisible');
+set(groot, 'defaultFigureVisible', 'on');
+restoreVisibility = onCleanup(@() set(groot, 'defaultFigureVisible', priorFigureVisibility)); %#ok<NASGU>
+
 publishOptions = struct('outputDir', outputDir, 'format', 'html', 'evalCode', opts.EvalCode);
 referencePublishOptions = struct('outputDir', outputDir, 'format', 'html', 'evalCode', false);
 failures = {};
@@ -149,14 +158,24 @@ function validateNoBlankFigures(helpDir, thresholdBytes)
 % opens its own figure (e.g., FitResult.plotResults,
 % FitResSummary.plotSummary). DecodingExample_03.png landed at 3506 B by
 % this exact mechanism before the PR #106 fix; populated subfigures are
-% routinely >5 KB. The main thumbnail (no `_NN` suffix) is excluded
-% because it is intentionally small.
+% routinely >5 KB.
+%
+% Match ONLY real figure snapshots (`Foo_NN.png` with numeric suffix).
+% The main thumbnail (no `_NN` suffix) is excluded because it is
+% intentionally small. LaTeX-equation snapshots (`Foo_eq<hex>.png`,
+% produced by publish from `$...$` math) are also excluded because they
+% are correctly small (often 300 B - 5 KB) and not artifacts of the
+% orphan-`figure;` antipattern this validator targets.
 %
 % See CONTRIBUTING.md > "Verifying regenerated .mlx / .html / PNG
 % artifacts before commit" for the broader checklist.
-pngs = dir(fullfile(helpDir, '*_*.png'));
+pngs = dir(fullfile(helpDir, '*.png'));
 suspect = {};
 for k = 1:numel(pngs)
+    [~, baseNoExt, ~] = fileparts(pngs(k).name);
+    if isempty(regexp(baseNoExt, '_\d+$', 'once'))
+        continue;
+    end
     if pngs(k).bytes < thresholdBytes
         suspect{end+1} = sprintf('%s (%d B)', pngs(k).name, pngs(k).bytes); %#ok<AGROW>
     end

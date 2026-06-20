@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>FitResult</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="FitResult.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -1159,8 +1159,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
            <span class="keyword">if</span>(~isempty(plotProps))
                <span class="keyword">for</span> i=1:length(fitNum)
                     h(i)=errorbar(handle,1:length(subIndex),bAct(:,i),seAct(:,i),plotProps{i}); hold <span class="string">on</span>;
-                    set(h(i), <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>);<span class="comment">%,...</span>
-<span class="comment">%                         'Linewidth',1,'Marker','o','MarkerSize',6);</span>
+                    <span class="comment">% LineWidth/MarkerSize set explicitly: +1 pt over MATLAB</span>
+                    <span class="comment">% defaults (errorbar default LineWidth=0.5, default</span>
+                    <span class="comment">% MarkerSize for '.' marker=6) for readability of GLM</span>
+                    <span class="comment">% coefficient CIs in published helpfile HTML.</span>
+                    set(h(i), <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>, <span class="keyword">...</span>
+                              <span class="string">'LineWidth'</span>, 1.5, <span class="string">'MarkerSize'</span>, 7);
                     currColor = get(h(i),<span class="string">'Color'</span>);
                     set(h(i),<span class="string">'MarkerEdgeColor'</span>,currColor,<span class="string">'MarkerFaceColor'</span>,currColor);
 <span class="comment">%                     hE= get(h(i),'Children');</span>
@@ -1174,7 +1178,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
            <span class="keyword">else</span>
                Xaxis=repmat(1:length(bAct(:,1)),[length(bAct(1,:)) 1]);
                h=errorbar(handle,Xaxis',bAct,seAct,<span class="string">'.'</span>);<span class="comment">%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1}));</span>
-               set(h, <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>);<span class="comment">%,...</span>
+               <span class="comment">% LineWidth/MarkerSize set explicitly: +1 pt over MATLAB</span>
+               <span class="comment">% defaults (errorbar default LineWidth=0.5, default</span>
+               <span class="comment">% MarkerSize for '.' marker=6) for readability of GLM</span>
+               <span class="comment">% coefficient CIs in published helpfile HTML.</span>
+               set(h, <span class="string">'LineStyle'</span>, <span class="string">'none'</span>, <span class="string">'Marker'</span>, <span class="string">'.'</span>, <span class="keyword">...</span>
+                      <span class="string">'LineWidth'</span>, 1.5, <span class="string">'MarkerSize'</span>, 7);
 
                <span class="keyword">for</span> n=1:length(h)
                    currColor = get(h(n),<span class="string">'Color'</span>);
@@ -3008,10 +3017,14 @@ classdef FitResult < handle
            if(~isempty(plotProps))
                for i=1:length(fitNum)
                     h(i)=errorbar(handle,1:length(subIndex),bAct(:,i),seAct(:,i),plotProps{i}); hold on;
-                    set(h(i), 'LineStyle', 'none', 'Marker', '.');%,...
-%                         'Linewidth',1,'Marker','o','MarkerSize',6);
+                    % LineWidth/MarkerSize set explicitly: +1 pt over MATLAB
+                    % defaults (errorbar default LineWidth=0.5, default
+                    % MarkerSize for '.' marker=6) for readability of GLM
+                    % coefficient CIs in published helpfile HTML.
+                    set(h(i), 'LineStyle', 'none', 'Marker', '.', ...
+                              'LineWidth', 1.5, 'MarkerSize', 7);
                     currColor = get(h(i),'Color');
-                    set(h(i),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+                    set(h(i),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor);
 %                     hE= get(h(i),'Children');
 %                     errorbarXData = get(hE(2),'XData');
 %                     errorbarXData(4:9:end) = errorbarXData(1:9:end) - 0.2;
@@ -3022,12 +3035,17 @@ classdef FitResult < handle
                end
            else
                Xaxis=repmat(1:length(bAct(:,1)),[length(bAct(1,:)) 1]);
-               h=errorbar(handle,Xaxis',bAct,seAct,'.');%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1})); 
-               set(h, 'LineStyle', 'none', 'Marker', '.');%,...
-               
+               h=errorbar(handle,Xaxis',bAct,seAct,'.');%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1}));
+               % LineWidth/MarkerSize set explicitly: +1 pt over MATLAB
+               % defaults (errorbar default LineWidth=0.5, default
+               % MarkerSize for '.' marker=6) for readability of GLM
+               % coefficient CIs in published helpfile HTML.
+               set(h, 'LineStyle', 'none', 'Marker', '.', ...
+                      'LineWidth', 1.5, 'MarkerSize', 7);
+
                for n=1:length(h)
                    currColor = get(h(n),'Color');
-                   set(h(n),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+                   set(h(n),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor);
 
                end
             end

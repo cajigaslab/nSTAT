@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>General Point Process Simulation</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="PPSimExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -119,7 +119,7 @@ $E$ or $
 <img vspace="5" hspace="5" src="PPSimExample-BlockDiagram.png" alt=""> </p>
 <p>This block diagram specifies a conditional intensity function of the form</p>
 <p>
-<img src="PPSimExample_eq06096954086272423927.png" alt="$$\lambda_{i} \cdot \Delta = exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n])/(1+exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n]))$$"></p>
+<img src="PPSimExample_eq06096954086272423927.png" alt="$$\lambda_{i} \cdot \Delta = exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n])/(1+exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n]))$$" style="width:663px;height:14px;"></p>
 <pre class="codeinput">close <span class="string">all</span>;
 Ts=.001;            <span class="comment">%Sample Time</span>
 tMin=0; tMax=50;    <span class="comment">%Simulation duration</span>
@@ -129,17 +129,17 @@ mu=-3;              <span class="comment">%Baseline firing rate of the neurons b
 </pre>
 <h2 id="5">History Effect</h2>
 <p>
-<img src="PPSimExample_eq17733795504284027482.png" alt="$$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$"></p>
+<img src="PPSimExample_eq17733795504284027482.png" alt="$$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$" style="width:361px;height:13px;"></p>
 <pre class="codeinput">H=tf([-1 -2 -4],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="6">Stimulus Effect</h2>
 <p>
-<img src="PPSimExample_eq13375943156936646927.png" alt="$$1*s[n]=1*u_{stim}[n]$$"></p>
+<img src="PPSimExample_eq13375943156936646927.png" alt="$$1*s[n]=1*u_{stim}[n]$$" style="width:123px;height:13px;"></p>
 <pre class="codeinput">S=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="7">Ensemble Effect</h2>
 <p>
-<img src="PPSimExample_eq16379821955407226942.png" alt="$$1*e[n]=0*\Delta N_{k}[n]$$"></p>
+<img src="PPSimExample_eq16379821955407226942.png" alt="$$1*e[n]=0*\Delta N_{k}[n]$$" style="width:125px;height:13px;"></p>
 <pre class="codeinput">E=tf([0],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <pre class="codeinput">f=1;                    <span class="comment">%Stimulus frequency</span>

@@ -21,8 +21,16 @@
 #
 # Usage:
 #   tools/predeploy.sh
-#   tools/predeploy.sh --skip-publish    # skip the slow helpfile republish
 #   tools/predeploy.sh --skip-readme     # skip README figure parity
+#
+# The helpfile-republish step (step 4) is intentionally NOT skippable.
+# Skipping it allowed today's regressions (#102, the orphan figure;
+# fixed in PR #106, the artifact-quality issues that triggered PR #105's
+# revert) to land. The step runs `publish_all_helpfiles`, which now
+# also validates that no produced PNG is below the blank-figure
+# threshold. If you genuinely cannot pay the ~20 minutes, run the
+# individual non-publish gates by hand and accept that you have NOT
+# verified the release.
 #
 # Exit codes:
 #   0  every gate passed (release-ready)
@@ -35,14 +43,18 @@ MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
-SKIP_PUBLISH=0
 SKIP_README=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --skip-publish) SKIP_PUBLISH=1; shift ;;
+    --skip-publish)
+      echo "ERROR: --skip-publish was removed. The helpfile-publish step is" >&2
+      echo "       the only gate that catches blank-figure / partial-render" >&2
+      echo "       regressions in helpfiles/*.html (see PR #105, PR #106)." >&2
+      echo "       Run the other gates individually if you need to iterate." >&2
+      exit 2 ;;
     --skip-readme)  SKIP_README=1;  shift ;;
     -h|--help)
-      grep '^#' "$0" | head -30
+      grep '^#' "$0" | head -40
       exit 0 ;;
     *)
       echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -85,13 +97,8 @@ else
   echo "=== [skipped] README figure parity (--skip-readme) ==="
 fi
 
-if [[ $SKIP_PUBLISH -eq 0 ]]; then
-  run_gate "Helpfile HTML republish + search-index rebuild" \
-    "$MATLAB_BIN" -batch "addpath(genpath('$REPO_ROOT')); cd('$REPO_ROOT'); publish_all_helpfiles('EvalCode', true);"
-else
-  echo
-  echo "=== [skipped] Helpfile HTML republish (--skip-publish) ==="
-fi
+run_gate "Helpfile HTML republish + blank-figure validation + search-index rebuild" \
+  "$MATLAB_BIN" -batch "addpath(genpath('$REPO_ROOT')); cd('$REPO_ROOT'); publish_all_helpfiles('EvalCode', true);"
 
 run_gate "helptoc.xml lint" \
   python3 "$REPO_ROOT/tools/lint_helptoc.py"

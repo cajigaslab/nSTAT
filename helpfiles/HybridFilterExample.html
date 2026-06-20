@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Hybrid Point Process Filter Example</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="HybridFilterExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -99,7 +99,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p>
 <p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p>
 <p>
-<img src="HybridFilterExample_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p>
+<img src="HybridFilterExample_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$" style="width:136px;height:18px;"></p>
 <h2 id="3">Generated Simulated Arm Reach</h2>
 <pre class="codeinput">clear <span class="string">all</span>;
 close <span class="string">all</span>;

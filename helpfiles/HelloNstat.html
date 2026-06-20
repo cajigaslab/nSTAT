@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Hello, nSTAT</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-12">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="HelloNstat.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -133,6 +133,8 @@ spikeTimes = t(y==1);
 fprintf(<span class="string">'Simulated %d spikes (target rate %.1f Hz)\n'</span>,<span class="keyword">...</span>
  numel(spikeTimes), trueRateHz);
 </pre>
+<pre class="codeoutput">Simulated 124 spikes (target rate 12.0 Hz)
+</pre>
 <h2 id="2">Step 2 -- wrap as nspikeTrain</h2>
 <p>
 <tt>nspikeTrain(spikeTimes, name, binwidth, minTime, maxTime)</tt> is the basic point-process container. The <tt>binwidth</tt> discretizes the process for filter and likelihood evaluation; we use 1 ms.</p>
@@ -174,6 +176,14 @@ fprintf(<span class="string">' BIC = %.2f\n'</span>, fitResults.BIC);
 fprintf(<span class="string">' Fitted intercept coefficient: %.4f (true: log(%.3f) = %.4f)\n'</span>,<span class="keyword">...</span>
  fitResults.b{1}(1), trueRateHz*delta, log(trueRateHz*delta));
 </pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+
+Fit complete:
+ logLL = -667.61
+ AIC = 1090.76
+ BIC = 1097.97
+ Fitted intercept coefficient: -4.3902 (true: log(0.012) = -4.4228)
+</pre>
 <h2 id="8">Step 8 -- KS plot for goodness-of-fit</h2>
 <p>The time-rescaling theorem (Brown et al. 2002) transforms the fitted intensity into a sequence of "rescaled" inter-spike intervals that should be Uniform(0,1) under the null hypothesis that the fitted intensity matches the true intensity. The KS plot compares the empirical CDF to the diagonal; deviations diagnose misspecification.</p>
 <p>For our true-rate baseline-only model, we expect the KS plot to sit comfortably inside the 95% confidence band (the constant rate model IS correctly specified for homogeneous Poisson data).</p>
@@ -181,7 +191,7 @@ fprintf(<span class="string">' Fitted intercept coefficient: %.4f (true: log(%.3
 fitResults.KSPlot;
 title(<span class="string">'Hello, nSTAT -- KS plot for baseline-only GLM'</span>);
 </pre>
-<h2 id="9">That's it</h2>
+<img vspace="5" hspace="5" src="HelloNstat_01.png" alt=""> <h2 id="9">That's it</h2>
 <p>You now have:</p>
 <p>- A fitted point-process GLM (<tt>fitResults</tt>). - A goodness-of-fit plot (the KS curve inside the 95% band). - The infrastructure to extend to multi-covariate models (add covariates to <tt>CovColl</tt>, name them in <tt>TrialConfig</tt>), history models (<tt>hist = History(windowTimes)</tt>, pass to <tt>Trial</tt>), and multi-neuron ensemble fits (<tt>Analysis.RunAnalysisForAllNeurons</tt>).</p>
 <p>

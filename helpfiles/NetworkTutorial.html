@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>NetworkTutorial</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="NetworkTutorial.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -123,8 +123,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <img vspace="5" hspace="5" src="PPSimExample-BlockDiagram.png" alt=""> </p>
 <p>This block diagram specifies a conditional intensity function of the form</p>
 <p>
-<img src="NetworkTutorial_eq01980944866737042252.png" alt="$$lambda_{i} \cdot \Delta = logistic(\mu_{i} + H*\Delta N_{i}[n] +&#10;S*u_{stim}[n] + E*\Delta N_{k}[n]$$"></p>
-<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$">. Note that * is the convolution opertator.</p>
+<img src="NetworkTutorial_eq01980944866737042252.png" alt="$$lambda_{i} \cdot \Delta = logistic(\mu_{i} + H*\Delta N_{i}[n] +&#10;S*u_{stim}[n] + E*\Delta N_{k}[n]$$" style="width:391px;height:14px;"></p>
+<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$" style="width:91px;height:10px;">. Note that * is the convolution opertator.</p>
 <h2 id="8">2 Neuron Network</h2>
 <pre class="codeinput">clear <span class="string">all</span>;
 close <span class="string">all</span>;
@@ -140,16 +140,16 @@ mu{2}=-3;
 <h2 id="10">History Effect</h2>
 <p>Captures how the firing of a neuron at modulates its probability of firing. Captures effects such as the refractory period and bursting. We use the same firing history for both neurons in this example. Note that the firing activity at time n leads to strong inhibition at time n+1 (refractory period) and that this effect becomes smaller over the next two time periods.</p>
 <p>
-<img src="NetworkTutorial_eq03377344100068725995.png" alt="$$1*h[n]=-4*\Delta N[n-1]-2*\Delta N[n-2] -1*\Delta N[n-3]$$"></p>
+<img src="NetworkTutorial_eq03377344100068725995.png" alt="$$1*h[n]=-4*\Delta N[n-1]-2*\Delta N[n-2] -1*\Delta N[n-3]$$" style="width:361px;height:13px;"></p>
 <p>Note that the one sample delay in same cell firing is included in the simulink model.</p>
 <pre class="codeinput">H{1}=tf([-4 -2 -1],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 H{2}=tf([-4 -2 -1],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="12">Stimulus Effect</h2>
 <p>
-<img src="NetworkTutorial_eq00934746157675957628.png" alt="$$1*s_{1}[n]=1*u_{stim}[n]$$"></p>
+<img src="NetworkTutorial_eq00934746157675957628.png" alt="$$1*s_{1}[n]=1*u_{stim}[n]$$" style="width:129px;height:13px;"></p>
 <p>
-<img src="NetworkTutorial_eq12373433218180091647.png" alt="$$1*s_{2}[n]=-1*u_{stim}[n]$$"></p>
+<img src="NetworkTutorial_eq12373433218180091647.png" alt="$$1*s_{2}[n]=-1*u_{stim}[n]$$" style="width:139px;height:13px;"></p>
 <p>Neuron 1 is positively modulated by the stimulus</p>
 <pre class="codeinput">S{1}=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 <span class="comment">% Neuron 1 is negatively modulated by the stimulus</span>
@@ -158,9 +158,9 @@ S{2}=tf([-1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z
 <h2 id="15">Ensemble Effect</h2>
 <p>Captures the effect of how neighboring neuron firing modulates the firing of a given neuron.</p>
 <p>
-<img src="NetworkTutorial_eq13194312176468615019.png" alt="$$1*e_{1}[n]=1*\Delta N_{2}[n-1]$$"></p>
+<img src="NetworkTutorial_eq13194312176468615019.png" alt="$$1*e_{1}[n]=1*\Delta N_{2}[n-1]$$" style="width:155px;height:13px;"></p>
 <p>
-<img src="NetworkTutorial_eq03916883050122551270.png" alt="$$1*e_{2}[n]=-4*\Delta N_{1}[n-1]$$"></p>
+<img src="NetworkTutorial_eq03916883050122551270.png" alt="$$1*e_{2}[n]=-4*\Delta N_{1}[n-1]$$" style="width:165px;height:13px;"></p>
 <p>Note that the one sample delay in firing of the neighbor cell is included in the simulink model.</p>
 <pre class="codeinput">
 <span class="comment">%Neuron 2 firing positively modulates Neuron 1</span>
@@ -298,7 +298,7 @@ title(<span class="string">'Estimated 1ms'</span>);
 Analyzing Configuration #2: Neuron #1,2
 Analyzing Configuration #3: Neuron #1,2
 </pre>
-<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
+<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_05.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>

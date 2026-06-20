@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Neural Spike Train Analysis Toolbox (nSTAT)</title>
 <meta name="generator" content="MATLAB 25.2">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-05-20">
+<meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="NeuralSpikeAnalysis_top.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -80,11 +80,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <p>
 <img vspace="5" hspace="5" src="LogoSmall.png" alt=""> </p>
 <p>
+<b>New here?</b> Start with the 5-minute introduction at <a href="https://cajigaslab.github.io/nSTAT/">cajigaslab.github.io/nSTAT</a> -- hero, install, runnable snippets, paper-example gallery, v1.4 highlights. This page (the in-MATLAB doc browser) is the reference docs; the intro page is the welcome.</p>
+<p>
 <b>Author</b>: Iahn Cajigas (<a href="mailto:icajigas@upenn.edu">icajigas@upenn.edu</a> and <a href="mailto:iahn.cajigas@gmail.com">iahn.cajigas@gmail.com</a>)</p>
 <p>
 <b>Original Release Date</b>: 9/10/2009</p>
 <p>
-<b>Current Release Date</b>: 2/24/2026</p>
+<b>Current Release Date</b>: 5/31/2026 (v1.4.0)</p>
 <p>
 <b>Purpose:</b> The Neural Spike Analysis Toolbox consolidates point-process and GLM-based neural data analysis workflows into a coherent MATLAB toolbox.</p>
 <p>
@@ -125,11 +127,17 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 % <<LogoSmall.png>>
 %
+% *New here?* Start with the 5-minute introduction at
+% <https://cajigaslab.github.io/nSTAT/ cajigaslab.github.io/nSTAT> REPLACE_WITH_DASH_DASH hero,
+% install, runnable snippets, paper-example gallery, v1.4 highlights.
+% This page (the in-MATLAB doc browser) is the reference docs; the intro
+% page is the welcome.
+%
 % *Author*: Iahn Cajigas (icajigas@upenn.edu and iahn.cajigas@gmail.com)
 %
 % *Original Release Date*: 9/10/2009
 %
-% *Current Release Date*: 2/24/2026
+% *Current Release Date*: 5/31/2026 (v1.4.0)
 %
 % *Purpose:*
 % The Neural Spike Analysis Toolbox consolidates point-process and GLM-based

@@ -1080,10 +1080,14 @@ classdef FitResult < handle
            if(~isempty(plotProps))
                for i=1:length(fitNum)
                     h(i)=errorbar(handle,1:length(subIndex),bAct(:,i),seAct(:,i),plotProps{i}); hold on;
-                    set(h(i), 'LineStyle', 'none', 'Marker', '.');%,...
-%                         'Linewidth',1,'Marker','o','MarkerSize',6);
+                    % LineWidth/MarkerSize set explicitly: +1 pt over MATLAB
+                    % defaults (errorbar default LineWidth=0.5, default
+                    % MarkerSize for '.' marker=6) for readability of GLM
+                    % coefficient CIs in published helpfile HTML.
+                    set(h(i), 'LineStyle', 'none', 'Marker', '.', ...
+                              'LineWidth', 1.5, 'MarkerSize', 7);
                     currColor = get(h(i),'Color');
-                    set(h(i),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+                    set(h(i),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor);
 %                     hE= get(h(i),'Children');
 %                     errorbarXData = get(hE(2),'XData');
 %                     errorbarXData(4:9:end) = errorbarXData(1:9:end) - 0.2;
@@ -1094,12 +1098,17 @@ classdef FitResult < handle
                end
            else
                Xaxis=repmat(1:length(bAct(:,1)),[length(bAct(1,:)) 1]);
-               h=errorbar(handle,Xaxis',bAct,seAct,'.');%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1})); 
-               set(h, 'LineStyle', 'none', 'Marker', '.');%,...
-               
+               h=errorbar(handle,Xaxis',bAct,seAct,'.');%strcat('.',FitResult.colors{mod(i-1,length(FitResult.colors))+1}));
+               % LineWidth/MarkerSize set explicitly: +1 pt over MATLAB
+               % defaults (errorbar default LineWidth=0.5, default
+               % MarkerSize for '.' marker=6) for readability of GLM
+               % coefficient CIs in published helpfile HTML.
+               set(h, 'LineStyle', 'none', 'Marker', '.', ...
+                      'LineWidth', 1.5, 'MarkerSize', 7);
+
                for n=1:length(h)
                    currColor = get(h(n),'Color');
-                   set(h(n),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor); 
+                   set(h(n),'MarkerEdgeColor',currColor,'MarkerFaceColor',currColor);
 
                end
             end

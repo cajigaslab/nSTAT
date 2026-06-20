@@ -7,7 +7,7 @@ This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
       -->
 <title>NetworkTutorial</title>
-<meta name="generator" content="MATLAB 25.2">
+<meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
 <meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="NetworkTutorial.m">
@@ -124,7 +124,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <p>This block diagram specifies a conditional intensity function of the form</p>
 <p>
 <img src="NetworkTutorial_eq01980944866737042252.png" alt="$$lambda_{i} \cdot \Delta = logistic(\mu_{i} + H*\Delta N_{i}[n] +&#10;S*u_{stim}[n] + E*\Delta N_{k}[n]$$" style="width:391px;height:14px;"></p>
-<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$" style="width:91px;height:10px;">. Note that * is the convolution opertator.</p>
+<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$" style="width:83px;height:9px;">. Note that * is the convolution opertator.</p>
 <h2 id="8">2 Neuron Network</h2>
 <pre class="codeinput">clear <span class="string">all</span>;
 close <span class="string">all</span>;
@@ -298,10 +298,10 @@ title(<span class="string">'Estimated 1ms'</span>);
 Analyzing Configuration #2: Neuron #1,2
 Analyzing Configuration #3: Neuron #1,2
 </pre>
-<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_05.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
+<img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
 <p class="footer">
 <br>
-<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
 </p>
 </div>

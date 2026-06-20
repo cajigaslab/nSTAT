@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
+MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in

@@ -16,7 +16,7 @@ Paper reference:
 
 ## Run Everything
 
-From a fresh clone (MATLAB R2025b):
+From a fresh clone (MATLAB R2026a):
 
 ```matlab
 cd('/path/to/nSTAT')

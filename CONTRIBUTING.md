@@ -146,7 +146,7 @@ Adding `matlab-actions/setup-matlab@v2` to a GitHub Actions workflow requires a 
 
 ### Alternative MATLAB versions
 
-Default is `R2025b` at `/Applications/MATLAB_R2025b.app`. Override with either:
+Default is `R2026a` at `/Applications/MATLAB_R2026a.app`. Override with either:
 
 ```bash
 MATLAB_BIN=/Applications/MATLAB_R2024b.app/bin/matlab tools/run_unit_tests.sh

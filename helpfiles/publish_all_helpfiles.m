@@ -89,7 +89,7 @@ function opts = parseOptions(varargin)
 parser = inputParser;
 parser.FunctionName = 'publish_all_helpfiles';
 addParameter(parser, 'EvalCode', true, @(x)islogical(x) || isnumeric(x));
-addParameter(parser, 'ExpectedGenerator', 'MATLAB 25.2', @(x)ischar(x) || isstring(x));
+addParameter(parser, 'ExpectedGenerator', 'MATLAB 26.1', @(x)ischar(x) || isstring(x));
 addParameter(parser, 'BlankPngThresholdBytes', 5000, @(x)isnumeric(x) && isscalar(x) && x >= 0);
 parse(parser, varargin{:});
 

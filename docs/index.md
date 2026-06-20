@@ -28,7 +28,7 @@ nSTAT is the reference MATLAB implementation of the point-process / state-space 
 ## Install
 
 ```matlab
-% In MATLAB R2025b, from the repository root:
+% In MATLAB R2026a, from the repository root:
 cd('/path/to/nSTAT')
 nSTAT_Install('DownloadExampleData', true);   % auto-fetches the figshare dataset
 ```

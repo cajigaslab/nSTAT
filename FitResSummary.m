@@ -406,7 +406,8 @@ classdef FitResSummary < handle
            grid on;
            axis tight;
            if(frsObj.numCoeffs>1)
-                xticklabel_rotate([],90,[],'Fontsize',10);%rotateticklabel(gca,-90); 
+                % FIX: xticklabel_rotate -> xtickangle (see FitResult.m note).
+                xtickangle(90); set(gca, 'FontSize', 10);
            end
             
            if exist('nstat.applyPlotStyle', 'file') == 2
@@ -535,7 +536,8 @@ classdef FitResSummary < handle
 %            set(gca,'xticklabelmode','auto','xtickmode','auto');
            set(gca,'xtick',x,'xticklabel',frsObj.fitNames);
            if(length(x)>1)
-                xticklabel_rotate([],90,[],'Fontsize',8);%rotateticklabel(gca,-90); 
+                % FIX: xticklabel_rotate -> xtickangle (see FitResult.m note).
+                xtickangle(90); set(gca, 'FontSize', 8);
            end
            
         end
@@ -560,7 +562,8 @@ classdef FitResSummary < handle
 %            set(gca,'xticklabelmode','auto','xtickmode','auto');
            set(gca,'xtick',x,'xticklabel',frsObj.fitNames);
            if(length(x)>1)
-                xticklabel_rotate([],90,[],'Fontsize',8);%rotateticklabel(gca,-90); 
+                % FIX: xticklabel_rotate -> xtickangle (see FitResult.m note).
+                xtickangle(90); set(gca, 'FontSize', 8);
            end
         end
         
@@ -584,7 +587,8 @@ classdef FitResSummary < handle
 %            set(gca,'xticklabelmode','auto','xtickmode','auto');
            set(gca,'xtick',x,'xticklabel',frsObj.fitNames);
            if(length(x)>1)
-                xticklabel_rotate([],90,[],'Fontsize',8);%rotateticklabel(gca,-90); 
+                % FIX: xticklabel_rotate -> xtickangle (see FitResult.m note).
+                xtickangle(90); set(gca, 'FontSize', 8);
            end
         end
         

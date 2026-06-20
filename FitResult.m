@@ -1131,7 +1131,12 @@ classdef FitResult < handle
            set(handle,'xtick',xticks,'xtickLabel',xtickLabels,'FontSize',6);
 %            axis tight;
            if(max(fitObj.numCoeffs)>=1)
-            xticklabel_rotate([],90,[],'Fontsize',10);
+            % FIX: xticklabel_rotate is a File Exchange helper that
+            % manipulates the figure's Position/axes in a way publish()
+            % renders as overlapping vertical scribbles. xtickangle is the
+            % R2014b+ built-in equivalent and works cleanly under publish().
+            xtickangle(handle, 90);
+            set(handle, 'FontSize', 10);
            end
 %            hT=rotateticklabel(gca,-90);
            h_legend=legend(handle,fitObj.lambda.dataLabels(fitNum),'Location','NorthEast');

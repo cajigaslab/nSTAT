@@ -7,7 +7,7 @@ This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
       -->
 <title>Using the SignalObj Class</title>
-<meta name="generator" content="MATLAB 25.2">
+<meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
 <meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="SignalObjExamples.m">
@@ -105,7 +105,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </ul>
 </div>
 <h2 id="1">Example 1: Defining and Plotting Signals</h2>
-<p>Define a two dimensional SignalObj, <img src="SignalObjExamples_eq04799535687386240985.png" alt="$s$" style="width:5px;height:7px;">, representing two voltage signals that were <img src="SignalObjExamples_eq00266663809094582097.png" alt="$v1$" style="width:13px;height:11px;"> and <img src="SignalObjExamples_eq00878938188193217995.png" alt="$v2$" style="width:14px;height:11px;"> aquired simultaneously at 100Hz. Another SignalObj, <img src="SignalObjExamples_eq06517260773231504700.png" alt="$s1$" style="width:12px;height:11px;"> , is created from just <img src="SignalObjExamples_eq00266663809094582097.png" alt="$v1$" style="width:13px;height:11px;">. Both signals are plotted.</p>
+<p>Define a two dimensional SignalObj, <img src="SignalObjExamples_eq04799535687386240985.png" alt="$s$" style="width:6px;height:7px;">, representing two voltage signals that were <img src="SignalObjExamples_eq00266663809094582097.png" alt="$v1$" style="width:13px;height:11px;"> and <img src="SignalObjExamples_eq00878938188193217995.png" alt="$v2$" style="width:14px;height:11px;"> aquired simultaneously at 100Hz. Another SignalObj, <img src="SignalObjExamples_eq06517260773231504700.png" alt="$s1$" style="width:12px;height:11px;"> , is created from just <img src="SignalObjExamples_eq00266663809094582097.png" alt="$v1$" style="width:13px;height:11px;">. Both signals are plotted.</p>
 <pre class="codeinput">close <span class="string">all</span>;
 sampleRate=100; t=0:1/sampleRate:10; freq=2;
 v1=sin(2*pi*freq*t); v2=sin(v1.^2); v=[v1;v2];
@@ -115,7 +115,7 @@ subplot(2,1,1); s.plot;
 subplot(2,1,2); s1.plot;
 </pre>
 <img vspace="5" hspace="5" src="SignalObjExamples_01.png" alt=""> <p>Note how the legend show the appropriate labels. If the dataLabels had not been set, the legend would not appear.</p>
-<p>Instead of defining a new SignalObj, <img src="SignalObjExamples_eq06517260773231504700.png" alt="$s1$" style="width:12px;height:11px;">, the <img src="SignalObjExamples_eq00878938188193217995.png" alt="$v2$" style="width:14px;height:11px;"> data in <img src="SignalObjExamples_eq04799535687386240985.png" alt="$s$" style="width:5px;height:7px;"> can be masked away and then the plot will only show the data of interest. It is important to note that setMask is used to set which signals should remain visible. Also note that when a data is masked, converting the SignalObj to a Matrix only returns the visible data. A new SignalObj can be created from the orignal SignalObj which only contains the data of interest. Lastly, the all labeled components can be accessed independently via the vars subfield.</p>
+<p>Instead of defining a new SignalObj, <img src="SignalObjExamples_eq06517260773231504700.png" alt="$s1$" style="width:12px;height:11px;">, the <img src="SignalObjExamples_eq00878938188193217995.png" alt="$v2$" style="width:14px;height:11px;"> data in <img src="SignalObjExamples_eq04799535687386240985.png" alt="$s$" style="width:6px;height:7px;"> can be masked away and then the plot will only show the data of interest. It is important to note that setMask is used to set which signals should remain visible. Also note that when a data is masked, converting the SignalObj to a Matrix only returns the visible data. A new SignalObj can be created from the orignal SignalObj which only contains the data of interest. Lastly, the all labeled components can be accessed independently via the vars subfield.</p>
 <pre class="codeinput">subplot(2,1,1); s.setMask({<span class="string">'v1'</span>}); s.plot; s.resetMask;
 subplot(2,1,2); s.setMask({<span class="string">'v2'</span>}); s.plot; size(s.dataToMatrix)
 s.resetMask;
@@ -235,7 +235,7 @@ parity.sample_rate_hz = sampleRate;
 </pre>
 <img vspace="5" hspace="5" src="SignalObjExamples_17.png" alt=""> <p class="footer">
 <br>
-<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
 </p>
 </div>

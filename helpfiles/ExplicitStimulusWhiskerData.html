@@ -7,7 +7,7 @@ This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
       -->
 <title>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</title>
-<meta name="generator" content="MATLAB 25.2">
+<meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
 <meta name="DC.date" content="2026-06-19">
 <meta name="DC.source" content="ExplicitStimulusWhiskerData.m">
@@ -242,7 +242,7 @@ windowIndex =
      8
 
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <pre class="codeinput">figure;
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <pre class="codeinput">figure;
 x=1:length(windowTimes);
 subplot(3,1,1); plot(x,results{1}.KSStats.ks_stat,<span class="string">'.'</span>); axis <span class="string">tight</span>; hold <span class="string">on</span>;
 plot(x(windowIndex),results{1}.KSStats.ks_stat(windowIndex),<span class="string">'r*'</span>);
@@ -271,7 +271,7 @@ set(gca,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLa
     xticklabel_rotate([],90,[],<span class="string">'Fontsize'</span>,8);
 <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_09.png" alt=""> <h2 id="6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <h2 id="6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
 <p>Addition of the history effect yields a model that falls within the 95% CI of the KS plot.</p>
 <pre class="codeinput">c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
@@ -289,9 +289,9 @@ results.plotResults;
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_10.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <p class="footer">
 <br>
-<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
 </p>
 </div>

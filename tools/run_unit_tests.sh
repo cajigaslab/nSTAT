@@ -8,7 +8,7 @@
 # only test gate.
 #
 # Usage:
-#   tools/run_unit_tests.sh                  # run tests/unit/ with R2025b
+#   tools/run_unit_tests.sh                  # run tests/unit/ with R2026a
 #   tools/run_unit_tests.sh --integration    # also run tests/integration/
 #   tools/run_unit_tests.sh --matlab-path /Applications/MATLAB_R2024b.app
 #
@@ -22,7 +22,7 @@
 set -euo pipefail
 
 # Default MATLAB binary; override with --matlab-path or MATLAB_BIN env var
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2025b.app/bin/matlab}"
+MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
 INCLUDE_INTEGRATION=0
 
 while [[ $# -gt 0 ]]; do

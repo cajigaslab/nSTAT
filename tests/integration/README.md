@@ -31,7 +31,7 @@ runtests('tests/integration/testKsAgainstReferenceZoo')
 From the shell:
 
 ```bash
-/Applications/MATLAB_R2025b.app/bin/matlab -batch \
+/Applications/MATLAB_R2026a.app/bin/matlab -batch \
  "addpath(genpath(pwd)); results = runtests('tests/integration'); disp(results); assert(~any([results.Failed]))"
 ```
 

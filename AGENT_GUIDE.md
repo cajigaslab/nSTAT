@@ -51,7 +51,7 @@ remains authoritative for reproducing the 2012 paper examples.
 
 ## 2. Requirements
 
-- **MATLAB R2025b** (currently targeted by the install script and parity tests).
+- **MATLAB R2026a** (currently targeted by the install script and parity tests).
  Should run on R2020a+ but Simulink models predate that.
 - **No required toolboxes beyond core MATLAB and Statistics**, *but*:
  - `CIF` uses the **Symbolic Math Toolbox** to build derivative functions.

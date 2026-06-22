@@ -132,7 +132,7 @@ def main() -> int:
         for r in stale_rows:
             lines.append(f"| `{r['stem']}` | {r['m_ts']} | {r['html_ts']} |")
         lines.append("")
-        lines.append(f"**Total stale: {len(stale_rows)}.** Remediation: run `tools/publish_examples.m` to regenerate, commit the diffs.")
+        lines.append(f"**Total stale: {len(stale_rows)}.** Remediation: run `helpfiles/publish_all_helpfiles.m` to regenerate, commit the diffs.")
     else:
         lines.append("**PASS** — no `.html` files older than their `.m` masters.")
     lines.append("")

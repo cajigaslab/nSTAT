@@ -405,7 +405,6 @@ Recent bug class fixes that you should not re-introduce:
  optionally checks pixel diffs.
 - `generate_baseline_fixtures.m` — write new baselines (only when intentionally
  resetting parity).
-- `publish_examples.m` — publish `.m` examples to HTML.
 - `run_all_checks.m` — top-level orchestrator.
 - `+nstat/setPlotStyle.m` — plot style namespace (use `nstat.setPlotStyle`).
 - `matlab/`, `python/` — language-specific helpers (Python helpers exist for the

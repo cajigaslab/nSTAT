@@ -51,7 +51,7 @@ Parity Gate:
 ### PR3 — README/Docs + Paper Examples Integration
 Scope:
 - README overhaul (quickstart + workflows + paper mapping).
-- `tools/publish_examples.m` for generated docs figures.
+- `tools/build_paper_examples.m` for generated docs figures.
 - Citation metadata (`CITATION.cff` or BibTeX).
 
 Policy:

@@ -25,6 +25,7 @@
 % where,
 % $\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$. Note that * is the convolution opertator. 
 %% 2 Neuron Network
+close all;
 
 clear all;
 close all;
@@ -34,10 +35,12 @@ t=tMin:Ts:tMax;
 numNeurons=2;
 
 %% Baseline firing rate of the neurons being modeled
+close all;
 mu{1}=-3;              
 mu{2}=-3; 
 
 %% History Effect 
+close all;
 % Captures how the firing of a neuron at modulates its probability of
 % firing. Captures effects such as the refractory period and bursting. We
 % use the same firing history for both neurons in this example. Note that
@@ -53,6 +56,7 @@ H{1}=tf([-4 -2 -1],[1],Ts,'Variable','z^-1');
 H{2}=tf([-4 -2 -1],[1],Ts,'Variable','z^-1');
 
 %% Stimulus Effect
+close all;
 
 %% 
 % $$1*s_{1}[n]=1*u_{stim}[n]$$
@@ -67,6 +71,7 @@ S{2}=tf([-1],1,Ts,'Variable','z^-1');
 
 
 %% Ensemble Effect 
+close all;
 % Captures the effect of how neighboring neuron firing modulates the firing
 % of a given neuron. 
 %% 
@@ -83,6 +88,7 @@ E{1}=tf([1],1,Ts,'Variable','z^-1');
 E{2}=tf([-4],1,Ts,'Variable','z^-1'); 
 
 %% Stimulus
+close all;
 % We use a simple sine wave here but we may want to explore other types of
 % inputs to see if they affect the recovery of the network parameters.
 
@@ -103,6 +109,7 @@ assignin('base','mu2',mu{2});
 % FIX: replaced simget with [] (default options); simget deprecated R2016a
 
 %% Simulate the Network
+close all;
 % Uses a binomial model for the conditional intensity function
 % nSTAT supports poisson model too but this simulink model simulates the
 % firing using a binomial model
@@ -133,6 +140,7 @@ subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
 
 %% GLM Model Fitting Setup
+close all;
 % In this section, we create the appropriate structures to fit several GLM
 % models to the data generated above.
 
@@ -146,6 +154,7 @@ trial = Trial(spikeColl,cc); sampleRate = 1/Ts; %Create trial
 % trial.setTrialPartition([0 tMax/2 tMax]);
 
 %% GLM Model Fitting and Results
+close all;
 clear c;
 % We know the history effect goes back 3 lag orders 
 selfHist = [0:1:3]*Ts;
@@ -222,6 +231,7 @@ title('Estimated 1ms');
 % the ith neuron cannot be its own neighbor, and 1 ones elsewhere.
 
 %% Programmatic schematics + self-history kernel (issue #86)
+close all;
 % The connectivity diagram, CIF block diagram, and self-history kernel below
 % are *generated from the workspace* (mu, H, S, E). Edit those variables
 % above and re-run -- the schematics update.
@@ -234,6 +244,7 @@ E1_gain  = E{1}.Numerator{1};
 E2_gain  = E{2}.Numerator{1};
 
 %% Self-history kernel
+close all;
 % The only multi-tap filter in the model. Stem plot makes the refractory +
 % decay structure immediately legible vs the abstract TeX vector form.
 figure;
@@ -243,6 +254,7 @@ title(sprintf('Self-history kernel H = [%s]', sprintf('%g ', H_kernel)));
 grid on;
 
 %% Two-neuron connectivity diagram
+close all;
 % Programmatic redraw. Carries baseline mu, stimulus weight S, and ensemble
 % weight E directly on the node labels and the inter-neuron arrows.
 figure;
@@ -266,6 +278,7 @@ text(0, -0.3, sprintf('E_{2\\leftarrow 1}=%+g', E2_gain),'HorizontalAlignment','
 title('Two-neuron connectivity (workspace-synced)');
 
 %% CIF block diagram + equation panel
+close all;
 % Shows the four additive contributions feeding the logistic link, with
 % workspace values populating the labels.
 figure;

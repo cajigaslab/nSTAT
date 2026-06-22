@@ -6,6 +6,7 @@
 
 %% Load the data
 close all;
+close all;
 [~,~,explicitStimulusDir] = getPaperDataDirs();
 
 Direction=3; Neuron=1; Stim=2;
@@ -35,6 +36,7 @@ subplot(2,1,2);
 stim.getSigInTimeWindow(0,21).plot;
 
 %% Fit a constant baseline and Find Stimulus Lag
+close all;
 % We fit a constant rate (Poisson) model to the data and use the fit
 % residual to determine the appropriate lag for the stimulus.
 clear c;
@@ -61,6 +63,7 @@ cc = CovColl({stim,baseline});
 trial = Trial(nspikeColl,cc);
 
 %% Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)
+close all;
 % Alternative to the xcov-peak heuristic above: scan candidate stimulus
 % lags and pick the one that minimizes the KS statistic / DeltaAIC /
 % DeltaBIC. Same pattern HistoryExamples uses for history-lag selection.
@@ -120,6 +123,7 @@ xline(ShiftTime*1000, 'k--');
 ylabel('\Delta BIC'); xlabel('stimulus lag (ms)');
 
 %% Compare constant rate model with model including stimulus effect
+close all;
 % Addition of the stimulus improves the fits in terms of the KS plot and
 % the making the rescaled ISIs less correlated. The Point Process Residula
 % also looks more "white"
@@ -136,6 +140,7 @@ results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
 results.plotResults;
 
 %% History Effect
+close all;
 % Determine the best history effect model using AIC, BIC, and KS statistic
 sampleRate=1000;
 delta=1/sampleRate*1; 
@@ -203,6 +208,7 @@ set(gca,'FontSize',8);
            
 
 %% Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus
+close all;
 % Addition of the history effect yields a model that falls within the 95%
 % CI of the KS plot.
 

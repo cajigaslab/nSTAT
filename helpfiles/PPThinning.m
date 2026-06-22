@@ -4,6 +4,7 @@
 
 %% Basic Example
 close all;
+close all;
 delta = 0.001;
 Tmax = 100;
 time = 0:delta:Tmax;
@@ -31,6 +32,7 @@ u2 = rand(length(lambdaRatio),1);
 tSpikesThin  = tSpikes(lambdaRatio>=u2);
 
 %% Compare Constant rate process vs. thinned process
+close all;
 figure(1);
 n1 = nspikeTrain(tSpikes);
 n2 = nspikeTrain(tSpikesThin);
@@ -49,6 +51,7 @@ v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
 
 %% Simulate multiple realizations of a point process via thinning
+close all;
 % The CIF class can generated realizations of a point process given 
 % a conditional intensity function (defined as a Covariate or SignalObj)
 

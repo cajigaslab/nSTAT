@@ -109,7 +109,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     subplot(2,1,2); lambda.plot;
 </pre>
 <img vspace="5" hspace="5" src="DecodingExample_01.png" alt=""> <h2 id="2">Fit a model to the spikedata to obtain a model CIF</h2>
-<pre class="codeinput">stim = Covariate(time,sin(2*pi*f*time),<span class="string">'Stimulus'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'stim'</span>});
+<p>close prior section's figures so publish() snapshots them only once</p>
+<pre class="codeinput">close <span class="string">all</span>;
+
+stim = Covariate(time,sin(2*pi*f*time),<span class="string">'Stimulus'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'stim'</span>});
 baseline = Covariate(time,ones(length(time),1),<span class="string">'Baseline'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">''</span>,<span class="keyword">...</span>
                     {<span class="string">'constant'</span>});
 figure;
@@ -142,7 +145,9 @@ Analyzing Configuration #2: Neuron #1,2,3,4,5,6,7,8,9,10
 </pre>
 <img vspace="5" hspace="5" src="DecodingExample_02.png" alt=""> <img vspace="5" hspace="5" src="DecodingExample_03.png" alt=""> <p>So we now have a model for lambda lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta because exp(b_0 + b_1*x(t))&lt;&lt;1 we can approximate this lambda by just the numerator i.e. lambda = exp(b_0 + b_1*x(t))./delta</p>
 <p>Now suppose we wanted to decode x(t) based on only having observed lambda</p>
-<pre class="codeinput">clear <span class="string">lambdaCIF</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+
+clear <span class="string">lambdaCIF</span>;
 b0=paramEst(1,:);
 b1=paramEst(2,:);
 <span class="keyword">for</span> i=1:numRealizations
@@ -169,6 +174,8 @@ legend <span class="string">off</span>;
 legend([hEst(1) hEst(2) hEst(3) hStim],<span class="string">'x_{k|k}(t)'</span>,strcat(<span class="string">'x_{k|k}(t)-'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="keyword">...</span>
         strcat(<span class="string">'x_{k|k}(t)+'</span>,num2str(zVal),<span class="string">'\sigma_{k|k}'</span>),<span class="string">'x_{k|k}(t)'</span>,<span class="string">'x(t)'</span>);
 title([<span class="string">'Decoded Stimulus +/- 99% confidence intervals using '</span> num2str(numRealizations) <span class="string">' cells'</span>]);
+</pre>
+<pre class="codeoutput">Warning: Ignoring extra legend entries. 
 </pre>
 <img vspace="5" hspace="5" src="DecodingExample_04.png" alt=""> <p class="footer">
 <br>
@@ -203,6 +210,8 @@ title([<span class="string">'Decoded Stimulus +/- 99% confidence intervals using
     subplot(2,1,2); lambda.plot;
 
 %% Fit a model to the spikedata to obtain a model CIF
+% close prior section's figures so publish() snapshots them only once
+close all;
 
 stim = Covariate(time,sin(2*pi*f*time),'Stimulus','time','s','V',{'stim'});
 baseline = Covariate(time,ones(length(time),1),'Baseline','time','s','',...
@@ -232,7 +241,7 @@ Summary = FitResSummary(results);
 paramEst = squeeze(Summary.bAct(:,2,:));
 meanParams = mean(paramEst,2);
 
-%% 
+%%
 % So we now have a model for lambda
 % lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta
 % because exp(b_0 + b_1*x(t))<<1 we can approximate this lambda by
@@ -243,7 +252,8 @@ meanParams = mean(paramEst,2);
 % Now suppose we wanted to decode x(t) based on only having observed lambda
 %
 %
-% 
+%
+close all;
 
 clear lambdaCIF;
 b0=paramEst(1,:);

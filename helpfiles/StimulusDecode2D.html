@@ -177,6 +177,9 @@ fact=factor(numRealizations);
 
 <span class="keyword">end</span>
 </pre>
+<pre class="codeoutput">Warning: CIF symbolic setup failed (CIF:InvalidXname). Decoder will use linear
+fallback. 
+</pre>
 <img vspace="5" hspace="5" src="StimulusDecode2D_02.png" alt=""> <img vspace="5" hspace="5" src="StimulusDecode2D_03.png" alt=""> <h2 id="3">Decode the x-y trajectory</h2>
 <pre class="codeinput"> spikeColl = nstColl(n);
  spikeColl.resample(1/delta);
@@ -208,6 +211,9 @@ legend(<span class="string">'predicted path'</span>,<span class="string">'actual
 parity = struct();
 parity.num_cells = num_cells;
 parity.decode_rmse = decode_rmse;
+</pre>
+<pre class="codeoutput">Warning: PPDecodeFilter failed (MATLAB:structRefFromNonStruct). Falling back to
+PPDecodeFilterLinear. 
 </pre>
 <img vspace="5" hspace="5" src="StimulusDecode2D_04.png" alt=""> <p class="footer">
 <br>

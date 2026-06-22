@@ -3,6 +3,7 @@
 
 
 %% Example 1: A simple data set
+close all;
 close all; clear all;
 lengthTrial=1;
 
@@ -49,6 +50,7 @@ figure; trial1.plot;
 
 trial1.getHistForNeurons([1:2]);
 %% Example 2: Analyzing Trial Data
+close all;
 % Examples of neural spike analysis using the 
 % <AnalysisExamples2.html Neural Spike Analysis Toolbox>
 % or using standard methods

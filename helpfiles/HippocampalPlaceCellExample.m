@@ -14,6 +14,7 @@ close all
 [~,~,~,~,placeCellDataDir] = getPaperDataDirs();
     
 %% Example Data
+close all;
 % The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. 
 % The x and y coordinates at the time when a spike was observed are marked
 % in red. The position coordinates have been normalized to be between -1
@@ -95,6 +96,7 @@ for n=1:numAnimals
 end
 
 %% View Summary Statistics
+close all;
 % Note the Zernike Polynomials yield better fits in terms of decreased KS
 % Statistics (less deviation from the 45 degree line), reduced AIC and
 % reduced BIC across the majority of cells and for both animals
@@ -106,6 +108,7 @@ for n=1:numAnimals
 end    
 
 %% Visualize the results 
+close all;
 
 % Define a grid 
 [x_new,y_new]=meshgrid(-1:.01:1); %define new x and y

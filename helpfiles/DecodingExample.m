@@ -23,6 +23,8 @@
     subplot(2,1,2); lambda.plot;
 
 %% Fit a model to the spikedata to obtain a model CIF
+% close prior section's figures so publish() snapshots them only once
+close all;
 
 stim = Covariate(time,sin(2*pi*f*time),'Stimulus','time','s','V',{'stim'});
 baseline = Covariate(time,ones(length(time),1),'Baseline','time','s','',...
@@ -52,7 +54,7 @@ Summary = FitResSummary(results);
 paramEst = squeeze(Summary.bAct(:,2,:));
 meanParams = mean(paramEst,2);
 
-%% 
+%%
 % So we now have a model for lambda
 % lambda = exp(b_0 + b_1*x(t))./(1+exp(b_0 + b_1*x(t)) * 1/delta
 % because exp(b_0 + b_1*x(t))<<1 we can approximate this lambda by
@@ -63,7 +65,8 @@ meanParams = mean(paramEst,2);
 % Now suppose we wanted to decode x(t) based on only having observed lambda
 %
 %
-% 
+%
+close all;
 
 clear lambdaCIF;
 b0=paramEst(1,:);

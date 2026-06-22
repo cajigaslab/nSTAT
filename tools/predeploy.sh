@@ -98,7 +98,7 @@ else
 fi
 
 run_gate "Helpfile HTML republish + blank-figure validation + search-index rebuild" \
-  "$MATLAB_BIN" -batch "addpath(genpath('$REPO_ROOT')); cd('$REPO_ROOT'); publish_all_helpfiles('EvalCode', true);"
+  "$MATLAB_BIN" -batch "addpath(genpath('$REPO_ROOT')); cd('$REPO_ROOT'); publish_all_helpfiles('EvalCode', true, 'Force', true);"
 
 run_gate "helptoc.xml lint" \
   python3 "$REPO_ROOT/tools/lint_helptoc.py"

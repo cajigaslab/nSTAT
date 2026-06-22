@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>NetworkTutorial</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="NetworkTutorial.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -109,6 +109,18 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <li>
 <a href="#21">GLM Model Fitting and Results</a>
 </li>
+<li>
+<a href="#23">Programmatic schematics + self-history kernel (issue #86)</a>
+</li>
+<li>
+<a href="#24">Self-history kernel</a>
+</li>
+<li>
+<a href="#25">Two-neuron connectivity diagram</a>
+</li>
+<li>
+<a href="#26">CIF block diagram + equation panel</a>
+</li>
 </ul>
 </div>
 <pre class="codeinput">
@@ -123,8 +135,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <img vspace="5" hspace="5" src="PPSimExample-BlockDiagram.png" alt=""> </p>
 <p>This block diagram specifies a conditional intensity function of the form</p>
 <p>
-<img src="NetworkTutorial_eq01980944866737042252.png" alt="$$lambda_{i} \cdot \Delta = logistic(\mu_{i} + H*\Delta N_{i}[n] +&#10;S*u_{stim}[n] + E*\Delta N_{k}[n]$$" style="width:391px;height:14px;"></p>
-<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$" style="width:83px;height:9px;">. Note that * is the convolution opertator.</p>
+<img src="NetworkTutorial_eq01980944866737042252.png" alt="$$lambda_{i} \cdot \Delta = logistic(\mu_{i} + H*\Delta N_{i}[n] +&#10;S*u_{stim}[n] + E*\Delta N_{k}[n]$$"></p>
+<p>where, <img src="NetworkTutorial_eq09130146389578799533.png" alt="$\hbox{\fontsize{14}{16}\selectfont\(logistic(x)=e^{x}/{1+e^{x}}\)}$">. Note that * is the convolution opertator.</p>
 <h2 id="8">2 Neuron Network</h2>
 <pre class="codeinput">clear <span class="string">all</span>;
 close <span class="string">all</span>;
@@ -140,16 +152,16 @@ mu{2}=-3;
 <h2 id="10">History Effect</h2>
 <p>Captures how the firing of a neuron at modulates its probability of firing. Captures effects such as the refractory period and bursting. We use the same firing history for both neurons in this example. Note that the firing activity at time n leads to strong inhibition at time n+1 (refractory period) and that this effect becomes smaller over the next two time periods.</p>
 <p>
-<img src="NetworkTutorial_eq03377344100068725995.png" alt="$$1*h[n]=-4*\Delta N[n-1]-2*\Delta N[n-2] -1*\Delta N[n-3]$$" style="width:361px;height:13px;"></p>
+<img src="NetworkTutorial_eq03377344100068725995.png" alt="$$1*h[n]=-4*\Delta N[n-1]-2*\Delta N[n-2] -1*\Delta N[n-3]$$"></p>
 <p>Note that the one sample delay in same cell firing is included in the simulink model.</p>
 <pre class="codeinput">H{1}=tf([-4 -2 -1],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 H{2}=tf([-4 -2 -1],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="12">Stimulus Effect</h2>
 <p>
-<img src="NetworkTutorial_eq00934746157675957628.png" alt="$$1*s_{1}[n]=1*u_{stim}[n]$$" style="width:129px;height:13px;"></p>
+<img src="NetworkTutorial_eq00934746157675957628.png" alt="$$1*s_{1}[n]=1*u_{stim}[n]$$"></p>
 <p>
-<img src="NetworkTutorial_eq12373433218180091647.png" alt="$$1*s_{2}[n]=-1*u_{stim}[n]$$" style="width:139px;height:13px;"></p>
+<img src="NetworkTutorial_eq12373433218180091647.png" alt="$$1*s_{2}[n]=-1*u_{stim}[n]$$"></p>
 <p>Neuron 1 is positively modulated by the stimulus</p>
 <pre class="codeinput">S{1}=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 <span class="comment">% Neuron 1 is negatively modulated by the stimulus</span>
@@ -158,9 +170,9 @@ S{2}=tf([-1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z
 <h2 id="15">Ensemble Effect</h2>
 <p>Captures the effect of how neighboring neuron firing modulates the firing of a given neuron.</p>
 <p>
-<img src="NetworkTutorial_eq13194312176468615019.png" alt="$$1*e_{1}[n]=1*\Delta N_{2}[n-1]$$" style="width:155px;height:13px;"></p>
+<img src="NetworkTutorial_eq13194312176468615019.png" alt="$$1*e_{1}[n]=1*\Delta N_{2}[n-1]$$"></p>
 <p>
-<img src="NetworkTutorial_eq03916883050122551270.png" alt="$$1*e_{2}[n]=-4*\Delta N_{1}[n-1]$$" style="width:165px;height:13px;"></p>
+<img src="NetworkTutorial_eq03916883050122551270.png" alt="$$1*e_{2}[n]=-4*\Delta N_{1}[n-1]$$"></p>
 <p>Note that the one sample delay in firing of the neighbor cell is included in the simulink model.</p>
 <pre class="codeinput">
 <span class="comment">%Neuron 2 firing positively modulates Neuron 1</span>
@@ -299,7 +311,73 @@ Analyzing Configuration #2: Neuron #1,2
 Analyzing Configuration #3: Neuron #1,2
 </pre>
 <img vspace="5" hspace="5" src="NetworkTutorial_02.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_03.png" alt=""> <img vspace="5" hspace="5" src="NetworkTutorial_04.png" alt=""> <p>Note: by default all neurons are considered to be potential neighbors. If this is not the case, you can call trial.setNeighbors(neighborArray) where neighborArray is a matrix that in the ith row has ones in the columns of those neurons considered to be potential neighbors and zeros otherwise. By default neighborArray has 0 only on the diagonal, so that the ith neuron cannot be its own neighbor, and 1 ones elsewhere.</p>
-<p class="footer">
+<h2 id="23">Programmatic schematics + self-history kernel (issue #86)</h2>
+<p>The connectivity diagram, CIF block diagram, and self-history kernel below are <b>generated from the workspace</b> (mu, H, S, E). Edit those variables above and re-run -- the schematics update.</p>
+<pre class="codeinput">
+<span class="comment">% Extract numeric coefficients from the tf objects</span>
+H_kernel = H{1}.Numerator{1};
+S1_gain  = S{1}.Numerator{1};
+S2_gain  = S{2}.Numerator{1};
+E1_gain  = E{1}.Numerator{1};
+E2_gain  = E{2}.Numerator{1};
+</pre>
+<h2 id="24">Self-history kernel</h2>
+<p>The only multi-tap filter in the model. Stem plot makes the refractory + decay structure immediately legible vs the abstract TeX vector form.</p>
+<pre class="codeinput">figure;
+stem(1:length(H_kernel), H_kernel, <span class="string">'filled'</span>, <span class="string">'LineWidth'</span>, 1.5);
+xlabel(<span class="string">'lag (bins)'</span>); ylabel(<span class="string">'H_i'</span>);
+title(sprintf(<span class="string">'Self-history kernel H = [%s]'</span>, sprintf(<span class="string">'%g '</span>, H_kernel)));
+grid <span class="string">on</span>;
+</pre>
+<img vspace="5" hspace="5" src="NetworkTutorial_05.png" alt=""> <h2 id="25">Two-neuron connectivity diagram</h2>
+<p>Programmatic redraw. Carries baseline mu, stimulus weight S, and ensemble weight E directly on the node labels and the inter-neuron arrows.</p>
+<pre class="codeinput">figure;
+hold <span class="string">on</span>; axis <span class="string">equal</span>; axis([-2.2 2.2 -1.6 1.6]); axis <span class="string">off</span>;
+theta = linspace(0, 2*pi, 60);
+plot(-1 + 0.28*cos(theta), 0 + 0.28*sin(theta), <span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2);
+plot( 1 + 0.28*cos(theta), 0 + 0.28*sin(theta), <span class="string">'r'</span>,<span class="string">'LineWidth'</span>,2);
+text(-1, 0, <span class="string">'N_1'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'FontSize'</span>,14);
+text( 1, 0, <span class="string">'N_2'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'FontSize'</span>,14);
+text(-1, 0.6, sprintf(<span class="string">'\\mu_1=%g'</span>, mu{1}),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>);
+text( 1, 0.6, sprintf(<span class="string">'\\mu_2=%g'</span>, mu{2}),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>);
+text(-1,-0.6, sprintf(<span class="string">'S_1=%+g'</span>, S1_gain),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>);
+text( 1,-0.6, sprintf(<span class="string">'S_2=%+g'</span>, S2_gain),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>);
+text(-1, 1.05, sprintf(<span class="string">'H=[%s]'</span>, sprintf(<span class="string">'%g '</span>,H_kernel)),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'Color'</span>,[0.4 0.4 0.4]);
+text( 1, 1.05, sprintf(<span class="string">'H=[%s]'</span>, sprintf(<span class="string">'%g '</span>,H_kernel)),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'Color'</span>,[0.4 0.4 0.4]);
+<span class="comment">% Ensemble arrows (curved-ish with quiver)</span>
+quiver(-0.7, 0.12,  1.4, 0, 0, <span class="string">'Color'</span>,[0 0.5 0],<span class="string">'LineWidth'</span>,1.5,<span class="string">'MaxHeadSize'</span>,0.25);
+text(0, 0.3, sprintf(<span class="string">'E_{1\\leftarrow 2}=%+g'</span>, E1_gain),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'Color'</span>,[0 0.5 0]);
+quiver( 0.7,-0.12, -1.4, 0, 0, <span class="string">'Color'</span>,[0.6 0 0],<span class="string">'LineWidth'</span>,1.5,<span class="string">'MaxHeadSize'</span>,0.25);
+text(0, -0.3, sprintf(<span class="string">'E_{2\\leftarrow 1}=%+g'</span>, E2_gain),<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'Color'</span>,[0.6 0 0]);
+title(<span class="string">'Two-neuron connectivity (workspace-synced)'</span>);
+</pre>
+<img vspace="5" hspace="5" src="NetworkTutorial_06.png" alt=""> <h2 id="26">CIF block diagram + equation panel</h2>
+<p>Shows the four additive contributions feeding the logistic link, with workspace values populating the labels.</p>
+<pre class="codeinput">figure;
+hold <span class="string">on</span>; axis([0 10 0 6]); axis <span class="string">off</span>;
+boxes = {<span class="string">'Baseline \mu_i'</span>, <span class="string">'History H_i'</span>, <span class="string">'Stimulus S_i'</span>, <span class="string">'Ensemble E_i'</span>};
+<span class="keyword">for</span> k = 1:4
+    rectangle(<span class="string">'Position'</span>,[0.5 5-k*1.1 2.2 0.9],<span class="string">'Curvature'</span>,0.15,<span class="string">'LineWidth'</span>,1.3);
+    text(1.6, 5-k*1.1+0.45, boxes{k},<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+<span class="keyword">end</span>
+<span class="comment">% Summation node</span>
+rectangle(<span class="string">'Position'</span>,[4.5 2.2 1 1],<span class="string">'Curvature'</span>,1,<span class="string">'LineWidth'</span>,1.3);
+text(5,2.7,<span class="string">'\Sigma'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,16,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+<span class="comment">% Logistic node</span>
+rectangle(<span class="string">'Position'</span>,[7 2.2 2 1],<span class="string">'Curvature'</span>,0.2,<span class="string">'LineWidth'</span>,1.3);
+text(8, 2.7, <span class="string">'\sigma(\cdot) = logistic'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+<span class="comment">% Arrows in</span>
+<span class="keyword">for</span> k = 1:4
+    quiver(2.8, 5-k*1.1+0.45, 1.7, 2.7-(5-k*1.1+0.45), 0, <span class="string">'k'</span>,<span class="string">'LineWidth'</span>,1.2,<span class="string">'MaxHeadSize'</span>,0.4);
+<span class="keyword">end</span>
+quiver(5.6, 2.7, 1.35, 0, 0, <span class="string">'k'</span>,<span class="string">'LineWidth'</span>,1.5,<span class="string">'MaxHeadSize'</span>,0.4);
+text(8.0, 1.6, <span class="string">'\lambda_i\cdot\Delta'</span>, <span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>);
+text(5, 5.7, sprintf([<span class="string">'Numeric values - N_1: \\mu=%g, S=%+g, E=%+g    '</span> <span class="keyword">...</span>
+    <span class="string">'N_2: \\mu=%g, S=%+g, E=%+g'</span>], mu{1}, S1_gain, E1_gain, mu{2}, S2_gain, E2_gain), <span class="keyword">...</span>
+    <span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,9,<span class="string">'Color'</span>,[0.3 0.3 0.3]);
+title(<span class="string">'CIF block diagram - \lambda_i\Delta = \sigma(\mu_i + H_i*\Delta N_i + S_i u_{stim} + E_i\Delta N_k)'</span>);
+</pre>
+<img vspace="5" hspace="5" src="NetworkTutorial_07.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -522,13 +600,84 @@ imagesc(network1ms,CLIM);
 set(gca,'XTick',index,'YTick',index);
 title('Estimated 1ms');
 
-%% 
+%%
 % Note: by default all neurons are considered to be potential neighbors. If
 % this is not the case, you can call trial.setNeighbors(neighborArray)
 % where neighborArray is a matrix that in the ith row has ones in the
 % columns of those neurons considered to be potential neighbors and zeros
 % otherwise. By default neighborArray has 0 only on the diagonal, so that
 % the ith neuron cannot be its own neighbor, and 1 ones elsewhere.
+
+%% Programmatic schematics + self-history kernel (issue #86)
+% The connectivity diagram, CIF block diagram, and self-history kernel below
+% are *generated from the workspace* (mu, H, S, E). Edit those variables
+% above and re-run REPLACE_WITH_DASH_DASH the schematics update.
+
+% Extract numeric coefficients from the tf objects
+H_kernel = H{1}.Numerator{1};
+S1_gain  = S{1}.Numerator{1};
+S2_gain  = S{2}.Numerator{1};
+E1_gain  = E{1}.Numerator{1};
+E2_gain  = E{2}.Numerator{1};
+
+%% Self-history kernel
+% The only multi-tap filter in the model. Stem plot makes the refractory +
+% decay structure immediately legible vs the abstract TeX vector form.
+figure;
+stem(1:length(H_kernel), H_kernel, 'filled', 'LineWidth', 1.5);
+xlabel('lag (bins)'); ylabel('H_i');
+title(sprintf('Self-history kernel H = [%s]', sprintf('%g ', H_kernel)));
+grid on;
+
+%% Two-neuron connectivity diagram
+% Programmatic redraw. Carries baseline mu, stimulus weight S, and ensemble
+% weight E directly on the node labels and the inter-neuron arrows.
+figure;
+hold on; axis equal; axis([-2.2 2.2 -1.6 1.6]); axis off;
+theta = linspace(0, 2*pi, 60);
+plot(-1 + 0.28*cos(theta), 0 + 0.28*sin(theta), 'b','LineWidth',2);
+plot( 1 + 0.28*cos(theta), 0 + 0.28*sin(theta), 'r','LineWidth',2);
+text(-1, 0, 'N_1','HorizontalAlignment','center','FontWeight','bold','FontSize',14);
+text( 1, 0, 'N_2','HorizontalAlignment','center','FontWeight','bold','FontSize',14);
+text(-1, 0.6, sprintf('\\mu_1=%g', mu{1}),'HorizontalAlignment','center');
+text( 1, 0.6, sprintf('\\mu_2=%g', mu{2}),'HorizontalAlignment','center');
+text(-1,-0.6, sprintf('S_1=%+g', S1_gain),'HorizontalAlignment','center');
+text( 1,-0.6, sprintf('S_2=%+g', S2_gain),'HorizontalAlignment','center');
+text(-1, 1.05, sprintf('H=[%s]', sprintf('%g ',H_kernel)),'HorizontalAlignment','center','Color',[0.4 0.4 0.4]);
+text( 1, 1.05, sprintf('H=[%s]', sprintf('%g ',H_kernel)),'HorizontalAlignment','center','Color',[0.4 0.4 0.4]);
+% Ensemble arrows (curved-ish with quiver)
+quiver(-0.7, 0.12,  1.4, 0, 0, 'Color',[0 0.5 0],'LineWidth',1.5,'MaxHeadSize',0.25);
+text(0, 0.3, sprintf('E_{1\\leftarrow 2}=%+g', E1_gain),'HorizontalAlignment','center','Color',[0 0.5 0]);
+quiver( 0.7,-0.12, -1.4, 0, 0, 'Color',[0.6 0 0],'LineWidth',1.5,'MaxHeadSize',0.25);
+text(0, -0.3, sprintf('E_{2\\leftarrow 1}=%+g', E2_gain),'HorizontalAlignment','center','Color',[0.6 0 0]);
+title('Two-neuron connectivity (workspace-synced)');
+
+%% CIF block diagram + equation panel
+% Shows the four additive contributions feeding the logistic link, with
+% workspace values populating the labels.
+figure;
+hold on; axis([0 10 0 6]); axis off;
+boxes = {'Baseline \mu_i', 'History H_i', 'Stimulus S_i', 'Ensemble E_i'};
+for k = 1:4
+    rectangle('Position',[0.5 5-k*1.1 2.2 0.9],'Curvature',0.15,'LineWidth',1.3);
+    text(1.6, 5-k*1.1+0.45, boxes{k},'HorizontalAlignment','center','FontWeight','bold');
+end
+% Summation node
+rectangle('Position',[4.5 2.2 1 1],'Curvature',1,'LineWidth',1.3);
+text(5,2.7,'\Sigma','HorizontalAlignment','center','FontSize',16,'FontWeight','bold');
+% Logistic node
+rectangle('Position',[7 2.2 2 1],'Curvature',0.2,'LineWidth',1.3);
+text(8, 2.7, '\sigma(\cdot) = logistic','HorizontalAlignment','center','FontWeight','bold');
+% Arrows in
+for k = 1:4
+    quiver(2.8, 5-k*1.1+0.45, 1.7, 2.7-(5-k*1.1+0.45), 0, 'k','LineWidth',1.2,'MaxHeadSize',0.4);
+end
+quiver(5.6, 2.7, 1.35, 0, 0, 'k','LineWidth',1.5,'MaxHeadSize',0.4);
+text(8.0, 1.6, '\lambda_i\cdot\Delta', 'HorizontalAlignment','center');
+text(5, 5.7, sprintf(['Numeric values - N_1: \\mu=%g, S=%+g, E=%+g    ' ...
+    'N_2: \\mu=%g, S=%+g, E=%+g'], mu{1}, S1_gain, E1_gain, mu{2}, S2_gain, E2_gain), ...
+    'HorizontalAlignment','center','FontSize',9,'Color',[0.3 0.3 0.3]);
+title('CIF block diagram - \lambda_i\Delta = \sigma(\mu_i + H_i*\Delta N_i + S_i u_{stim} + E_i\Delta N_k)');
 
 
 ##### SOURCE END #####

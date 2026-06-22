@@ -44,13 +44,63 @@ keepMask = ~strcmpi({stageFiles.name}, 'publish_all_helpfiles.m');
 stageFiles = stageFiles(keepMask);
 nFiles = numel(stageFiles);
 
-% Phase C parallelism: each helpfile publish is independent (each reads
-% its own .m from a shared read-only staging dir; each writes
-% baseName.html + baseName_NN.png to outputDir with non-overlapping
-% names). Use parfor over the 36+ helpfiles when PCT is licensed.
-% Sequential fallback if no pool is available. PCT-licensed users see
-% ~75-80% wall-clock reduction (19 min -> 3-5 min on 8-core).
-useParallel = opts.UseParallel && license('test', 'Distrib_Computing_Toolbox') == 1;
+% Phase D: incremental publish via per-file cache. Skip helpfiles whose
+% source .m AND toolbox class sources AND MATLAB version are unchanged
+% since the last successful publish. Cache lives at
+% helpfiles/.publish-cache.json (gitignored). predeploy.sh passes
+% Force=true so a release run never trusts the cache.
+%
+% Skip logic: a file is skipped IFF
+%   1. globalHash (toolbox .m hashes + MATLAB version + publish opts) matches
+%   2. fileHash (staged .m source) matches
+%   3. every cached output file still exists in helpDir
+% Cached outputs are pre-seeded into outputDir so the existing
+% "copyfile outputDir -> helpDir" round-trips them through unchanged.
+matlabVersionStr = sprintf('%s', version);
+globalHash = computeGlobalHash(rootDir, helpDir, matlabVersionStr, opts);
+[cacheData, cacheValid] = loadCache(opts.CacheFile, globalHash, opts.Force);
+
+dirtyMask = true(nFiles, 1);
+fileHashes = cell(nFiles, 1);
+skippedNames = {};
+skippedOutputs = {};
+for iFile = 1:nFiles
+    sName = stageFiles(iFile).name;
+    fileHashes{iFile} = sha256File(fullfile(stagingDir, sName));
+    if ~cacheValid
+        continue
+    end
+    if ~isfield(cacheData.files, matlab.lang.makeValidName(sName))
+        continue
+    end
+    entry = cacheData.files.(matlab.lang.makeValidName(sName));
+    if ~strcmp(entry.fileHash, fileHashes{iFile})
+        continue
+    end
+    if ~allOutputsPresent(helpDir, entry.outputs)
+        continue
+    end
+    dirtyMask(iFile) = false;
+    skippedNames{end+1} = sName; %#ok<AGROW>
+    skippedOutputs{end+1} = entry.outputs; %#ok<AGROW>
+    % Pre-seed outputDir so the final round-trip preserves these files.
+    for kOut = 1:numel(entry.outputs)
+        src = fullfile(helpDir, entry.outputs{kOut});
+        dst = fullfile(outputDir, entry.outputs{kOut});
+        copyfile(src, dst, 'f');
+    end
+end
+nSkipped = sum(~dirtyMask);
+nDirty   = sum(dirtyMask);
+fprintf('publish_all_helpfiles: cache %s. %d/%d helpfile(s) cached, %d to publish.\n', ...
+    ternary(cacheValid, 'HIT', 'MISS (rebuild all)'), nSkipped, nFiles, nDirty);
+
+stageFilesAll = stageFiles;
+fileHashesAll = fileHashes;
+stageFiles    = stageFilesAll(dirtyMask);
+nFiles        = numel(stageFiles);
+
+useParallel = opts.UseParallel && nFiles > 1 && license('test', 'Distrib_Computing_Toolbox') == 1;
 if useParallel
     poolObj = gcp('nocreate');
     if isempty(poolObj)
@@ -87,8 +137,17 @@ for iFile = 1:numel(rootReferenceFiles)
         outputDir, referencePublishOptions);
 end
 
+% Synthesize timings for cache-skipped files (wallSec=0, kind='cached')
+skippedTimingsCell = cell(numel(skippedNames), 1);
+for k = 1:numel(skippedNames)
+    skippedTimingsCell{k} = struct('name', skippedNames{k}, ...
+        'wallSec', 0, 'figCount', countFigOutputs(skippedOutputs{k}), ...
+        'sectionCount', 0, 'kind', 'cached', 'error', '', ...
+        'outputs', {skippedOutputs{k}});
+end
+
 % Collect failures and timings
-allTimings = [timingsCell; refTimings];
+allTimings = [skippedTimingsCell; timingsCell; refTimings];
 allTimings = allTimings(~cellfun(@isempty, allTimings));
 allTimings = vertcat(allTimings{:});
 failures = {};
@@ -108,7 +167,15 @@ end
 
 copyfile(fullfile(outputDir, '*'), helpDir, 'f');
 
-builddocsearchdb(helpDir);
+% Skip the doc-search-index rebuild on a full cache HIT: every helpfile's
+% HTML is byte-identical to the prior run (cache HIT implies content-hash
+% match), so the existing helpsearch-v4_en/ index is still current. Saves
+% ~10-15s on warm runs. Class references re-publish deterministically
+% from the same source so they don't drift either.
+fullCacheHit = cacheValid && sum(dirtyMask) == 0;
+if ~fullCacheHit
+    builddocsearchdb(helpDir);
+end
 rehash toolboxcache;
 
 validateHelpTargets(helpDir);
@@ -119,6 +186,14 @@ validateNoBlankFigures(helpDir, opts.BlankPngThresholdBytes);
 % docs/verification/publish_timing_latest.md so PR reviewers can see
 % if a change disproportionately slowed one helpfile.
 writeTimingReport(allTimings, rootDir);
+
+% Phase D: persist cache only after a fully-successful run (validators
+% passed). Cache entries include every helpfile that has good outputs on
+% disk -- skipped (reuse cached entry) and newly-published (use fresh
+% hash + outputs). Class references are NOT cached because they are
+% serial, fast, and would require their own hash machinery.
+writeCache(opts.CacheFile, globalHash, matlabVersionStr, opts, ...
+    stageFilesAll, fileHashesAll, dirtyMask, skippedOutputs, allTimings);
 
 fprintf('nSTAT help publication completed successfully.\n');
 clear cleanupObj;
@@ -131,12 +206,20 @@ addParameter(parser, 'EvalCode', true, @(x)islogical(x) || isnumeric(x));
 addParameter(parser, 'ExpectedGenerator', 'MATLAB 26.1', @(x)ischar(x) || isstring(x));
 addParameter(parser, 'BlankPngThresholdBytes', 5000, @(x)isnumeric(x) && isscalar(x) && x >= 0);
 addParameter(parser, 'UseParallel', true, @(x)islogical(x) || (isnumeric(x) && isscalar(x)));
+addParameter(parser, 'Force', false, @(x)islogical(x) || (isnumeric(x) && isscalar(x)));
+addParameter(parser, 'CacheFile', '', @(x)ischar(x) || isstring(x));
 parse(parser, varargin{:});
 
 opts.EvalCode = logical(parser.Results.EvalCode);
 opts.ExpectedGenerator = char(parser.Results.ExpectedGenerator);
 opts.BlankPngThresholdBytes = double(parser.Results.BlankPngThresholdBytes);
 opts.UseParallel = logical(parser.Results.UseParallel);
+opts.Force = logical(parser.Results.Force);
+opts.CacheFile = char(parser.Results.CacheFile);
+if isempty(opts.CacheFile)
+    helpDir = fileparts(mfilename('fullpath'));
+    opts.CacheFile = fullfile(helpDir, '.publish-cache.json');
+end
 end
 
 function timing = publishOneStaged(stageFile, stagingDir, outputDir, rootDir, publishOptions)
@@ -150,11 +233,16 @@ set(groot, 'defaultFigureVisible', 'on');
 [~, baseName] = fileparts(stageFile.name);
 tStart = tic;
 timing = struct('name', stageFile.name, 'wallSec', 0, 'figCount', 0, ...
-    'sectionCount', 0, 'kind', 'helpfile', 'error', '');
+    'sectionCount', 0, 'kind', 'helpfile', 'error', '', 'outputs', {{}});
 try
     publish(baseName, publishOptions);
     timing.wallSec = toc(tStart);
-    figs = dir(fullfile(outputDir, [baseName '_*.png']));
+    % Discover outputs by pattern. The literal '_' in baseName_*.png and
+    % '.' in baseName.html prevents prefix collisions (e.g., baseName
+    % 'DecodingExample' will not match 'DecodingExampleWithHist_01.png').
+    htmls = dir(fullfile(outputDir, [baseName '.html']));
+    figs  = dir(fullfile(outputDir, [baseName '_*.png']));
+    timing.outputs = [{htmls.name}, {figs.name}];
     timing.figCount = sum(~contains({figs.name}, '_eq'));
     src = fileread(fullfile(stagingDir, stageFile.name));
     timing.sectionCount = numel(regexp(src, '^%%', 'lineanchors'));
@@ -171,11 +259,13 @@ sourceFile = fullfile(rootDir, refName);
 [~, baseName] = fileparts(refName);
 tStart = tic;
 timing = struct('name', refName, 'wallSec', 0, 'figCount', 0, ...
-    'sectionCount', 0, 'kind', 'reference', 'error', '');
+    'sectionCount', 0, 'kind', 'reference', 'error', '', 'outputs', {{}});
 try
     publish(sourceFile, refOpts);
     timing.wallSec = toc(tStart);
-    figs = dir(fullfile(outputDir, [baseName '_*.png']));
+    htmls = dir(fullfile(outputDir, [baseName '.html']));
+    figs  = dir(fullfile(outputDir, [baseName '_*.png']));
+    timing.outputs = [{htmls.name}, {figs.name}];
     timing.figCount = sum(~contains({figs.name}, '_eq'));
     fprintf('Published class reference: %s (%.1fs)\n', refName, timing.wallSec);
 catch ME
@@ -315,6 +405,188 @@ if ~isempty(suspect)
          'FitResSummary.plotSummary). See CONTRIBUTING.md \"Verifying ' ...
          'regenerated .mlx / .html / PNG artifacts before commit\".'], ...
         numel(suspect), thresholdBytes);
+end
+end
+
+function out = ternary(cond, a, b)
+if cond, out = a; else, out = b; end
+end
+
+function n = countFigOutputs(outputs)
+% Count real figure snapshots (exclude main thumbnail + equation PNGs).
+n = 0;
+for i = 1:numel(outputs)
+    [~, base, ext] = fileparts(outputs{i});
+    if ~strcmpi(ext, '.png'), continue; end
+    if isempty(regexp(base, '_\d+$', 'once')), continue; end  % thumbnail
+    if contains(base, '_eq'), continue; end                   % equation
+    n = n + 1;
+end
+end
+
+function h = sha256File(filePath)
+fid = fopen(filePath, 'r');
+if fid < 0
+    h = '';
+    return
+end
+bytes = fread(fid, inf, '*uint8');
+fclose(fid);
+md = java.security.MessageDigest.getInstance('SHA-256');
+md.update(bytes);
+digest = typecast(md.digest, 'uint8');
+h = lower(reshape(dec2hex(digest, 2).', 1, []));
+end
+
+function h = sha256String(s)
+md = java.security.MessageDigest.getInstance('SHA-256');
+md.update(uint8(s));
+digest = typecast(md.digest, 'uint8');
+h = lower(reshape(dec2hex(digest, 2).', 1, []));
+end
+
+function h = computeGlobalHash(rootDir, helpDir, matlabVersionStr, opts)
+% Hash all toolbox sources whose change could affect helpfile output:
+%   - every .m at the repo root (toolbox classes)
+%   - every .m under +nstat/** recursively (package code)
+%   - every .mat under helpfiles/ (input data referenced by helpfiles)
+%   - the publish orchestrator itself
+%   - MATLAB version
+%   - publish options that affect output (EvalCode, ExpectedGenerator)
+parts = {};
+parts{end+1} = ['MATLAB:' matlabVersionStr];
+parts{end+1} = sprintf('evalCode:%d', opts.EvalCode);
+parts{end+1} = ['generator:' opts.ExpectedGenerator];
+
+rootMs = dir(fullfile(rootDir, '*.m'));
+for i = 1:numel(rootMs)
+    parts{end+1} = [rootMs(i).name ':' sha256File(fullfile(rootDir, rootMs(i).name))]; %#ok<AGROW>
+end
+
+nstatDir = fullfile(rootDir, '+nstat');
+if isfolder(nstatDir)
+    pkgMs = dir(fullfile(nstatDir, '**', '*.m'));
+    for i = 1:numel(pkgMs)
+        relPath = strrep(fullfile(pkgMs(i).folder, pkgMs(i).name), [rootDir filesep], '');
+        parts{end+1} = [relPath ':' sha256File(fullfile(pkgMs(i).folder, pkgMs(i).name))]; %#ok<AGROW>
+    end
+end
+
+mats = dir(fullfile(helpDir, '*.mat'));
+for i = 1:numel(mats)
+    parts{end+1} = ['helpfiles/' mats(i).name ':' sha256File(fullfile(helpDir, mats(i).name))]; %#ok<AGROW>
+end
+
+parts{end+1} = ['publish_all_helpfiles.m:' sha256File(fullfile(helpDir, 'publish_all_helpfiles.m'))];
+
+parts = sort(parts);
+h = sha256String(strjoin(parts, char(10)));
+end
+
+function [cacheData, cacheValid] = loadCache(cacheFile, globalHash, force)
+cacheData = struct('files', struct());
+cacheValid = false;
+if force
+    fprintf('publish_all_helpfiles: Force=true, ignoring cache.\n');
+    return
+end
+if ~isfile(cacheFile)
+    return
+end
+try
+    raw = fileread(cacheFile);
+    decoded = jsondecode(raw);
+catch
+    return  % corrupt/unreadable cache -> treat as miss
+end
+if ~isfield(decoded, 'globalHash') || ~strcmp(decoded.globalHash, globalHash)
+    return  % toolbox sources / MATLAB ver / opts changed -> invalidate all
+end
+if ~isfield(decoded, 'files') || ~isstruct(decoded.files)
+    return
+end
+% Normalize outputs to cellstr -- jsondecode collapses single-element
+% arrays to char scalars, which would break numel/iteration logic.
+fnames = fieldnames(decoded.files);
+for fi = 1:numel(fnames)
+    e = decoded.files.(fnames{fi});
+    if ~isfield(e, 'outputs')
+        continue
+    end
+    if ischar(e.outputs)
+        e.outputs = {e.outputs};
+    elseif isstring(e.outputs)
+        e.outputs = cellstr(e.outputs);
+    end
+    decoded.files.(fnames{fi}) = e;
+end
+cacheData = decoded;
+cacheValid = true;
+end
+
+function tf = allOutputsPresent(helpDir, outputs)
+tf = true;
+for i = 1:numel(outputs)
+    if ~isfile(fullfile(helpDir, outputs{i}))
+        tf = false;
+        return
+    end
+end
+end
+
+function writeCache(cacheFile, globalHash, matlabVersionStr, opts, ...
+        stageFilesAll, fileHashesAll, dirtyMask, skippedOutputs, allTimings)
+% Build a fresh cache from this run's outcome. Skipped files reuse their
+% fileHash + outputs (still valid by definition); published files use
+% the hash captured pre-publish and the output list discovered in
+% publishOneStaged.
+cacheData = struct( ...
+    'version', 1, ...
+    'globalHash', globalHash, ...
+    'matlabVersion', matlabVersionStr, ...
+    'evalCode', opts.EvalCode, ...
+    'expectedGenerator', opts.ExpectedGenerator, ...
+    'files', struct());
+
+% Index published timings by name for quick lookup
+publishedByName = containers.Map('KeyType', 'char', 'ValueType', 'any');
+for k = 1:numel(allTimings)
+    t = allTimings(k);
+    if strcmp(t.kind, 'helpfile') && isempty(t.error) && ~isempty(t.outputs)
+        publishedByName(t.name) = t.outputs;
+    end
+end
+
+skippedIdx = 0;
+for iFile = 1:numel(stageFilesAll)
+    sName = stageFilesAll(iFile).name;
+    key = matlab.lang.makeValidName(sName);
+    if dirtyMask(iFile)
+        if ~isKey(publishedByName, sName)
+            continue  % publish failed for this file -> exclude from cache
+        end
+        outs = publishedByName(sName);
+    else
+        skippedIdx = skippedIdx + 1;
+        outs = skippedOutputs{skippedIdx};
+    end
+    cacheData.files.(key) = struct( ...
+        'name', sName, ...
+        'fileHash', fileHashesAll{iFile}, ...
+        'outputs', {outs});
+end
+
+try
+    fid = fopen(cacheFile, 'w');
+    if fid < 0
+        warning('nSTAT:CacheWriteFailed', 'Could not open cache file for write: %s', cacheFile);
+        return
+    end
+    fprintf(fid, '%s\n', jsonencode(cacheData, 'PrettyPrint', true));
+    fclose(fid);
+    fprintf('Wrote publish cache: %s (%d entries)\n', cacheFile, numel(fieldnames(cacheData.files)));
+catch ME
+    warning('nSTAT:CacheWriteFailed', 'Cache write failed: %s', ME.message);
 end
 end
 

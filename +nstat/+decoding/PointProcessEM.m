@@ -265,7 +265,13 @@ classdef PointProcessEM
  ExplambdaDeltaXkXk=1/McExp*(repmat(ld,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaSqXkXkT=1/McExp*(repmat(ld.^2,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
- HessianTerm(:,:,k)+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: missing `=`. The previous code computed a value and silently
+ % discarded it, leaving HessianTerm(:,:,k) at its initial 0. The
+ % binomial-branch parameter standard errors (IBetaComp) were
+ % effectively all-zero. Parallel structure to the poisson branch a
+ % few lines above which does `HessianTerm(:,:,k) = -1/McExp*(...)`.
+ % Surfaced by checkcode VUNUS finding 2026-06-22.
+ HessianTerm(:,:,k) = ExplambdaDeltaXkXk + ExplambdaDeltaSqXkXkT - 2*ExplambdaDeltaCubeXkXkT;
  
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;
@@ -1108,7 +1114,17 @@ classdef PointProcessEM
  
  spikeColl = nstColl(nstNew); % Create a neural spike train collection
  else
- time;
+ % FIX: the with-history branch of Ikeda acceleration was never
+ % implemented. The previous code had a bare `time;` here which
+ % evaluated `time` and silently discarded the result, leaving
+ % `spikeColl` either undefined (error on line below) or stale
+ % from outside this block. Better to fail loud than silently
+ % decode against the wrong data. Surfaced by checkcode VUNUS
+ % finding 2026-06-22.
+ error('nstat:decoding:PointProcessEM:IkedaHistNotImplemented', ...
+     ['Ikeda acceleration with non-zero history coefficients is ' ...
+      'not implemented (gammahat ~= 0 branch). Either disable ' ...
+      'IkedaAcc or restructure to handle history.']);
  end
  
  dNNew=spikeColl.dataToMatrix';

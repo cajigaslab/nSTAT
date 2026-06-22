@@ -105,6 +105,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </div>
 <h2 id="1">Load the data</h2>
 <pre class="codeinput">close <span class="string">all</span>;
+close <span class="string">all</span>;
 [~,~,explicitStimulusDir] = getPaperDataDirs();
 
 Direction=3; Neuron=1; Stim=2;
@@ -134,8 +135,10 @@ subplot(2,1,2);
 stim.getSigInTimeWindow(0,21).plot;
 </pre>
 <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_01.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_02.png" alt=""> <h2 id="2">Fit a constant baseline and Find Stimulus Lag</h2>
-<p>We fit a constant rate (Poisson) model to the data and use the fit residual to determine the appropriate lag for the stimulus.</p>
-<pre class="codeinput">clear <span class="string">c</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% We fit a constant rate (Poisson) model to the data and use the fit</span>
+<span class="comment">% residual to determine the appropriate lag for the stimulus.</span>
+clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
 c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,selfHist,NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
@@ -161,8 +164,12 @@ trial = Trial(nspikeColl,cc);
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 </pre>
 <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2 id="3">Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)</h2>
-<p>Alternative to the xcov-peak heuristic above: scan candidate stimulus lags and pick the one that minimizes the KS statistic / DeltaAIC / DeltaBIC. Same pattern HistoryExamples uses for history-lag selection. The xcov-chosen ShiftTime is overlaid as a black dashed reference.</p>
-<pre class="codeinput">candidateLags = -0.05:0.01:0.20;   <span class="comment">% seconds (-50ms past .. +200ms future)</span>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Alternative to the xcov-peak heuristic above: scan candidate stimulus</span>
+<span class="comment">% lags and pick the one that minimizes the KS statistic / DeltaAIC /</span>
+<span class="comment">% DeltaBIC. Same pattern HistoryExamples uses for history-lag selection.</span>
+<span class="comment">% The xcov-chosen ShiftTime is overlaid as a black dashed reference.</span>
+candidateLags = -0.05:0.01:0.20;   <span class="comment">% seconds (-50ms past .. +200ms future)</span>
 ks_scan   = nan(size(candidateLags));
 dAIC_scan = nan(size(candidateLags));
 dBIC_scan = nan(size(candidateLags));
@@ -245,8 +252,11 @@ Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #1: Neuron #1
 </pre>
 <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="4">Compare constant rate model with model including stimulus effect</h2>
-<p>Addition of the stimulus improves the fits in terms of the KS plot and the making the rescaled ISIs less correlated. The Point Process Residula also looks more "white"</p>
-<pre class="codeinput">clear <span class="string">c</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Addition of the stimulus improves the fits in terms of the KS plot and</span>
+<span class="comment">% the making the rescaled ISIs less correlated. The Point Process Residula</span>
+<span class="comment">% also looks more "white"</span>
+clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
 c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,selfHist,<span class="keyword">...</span>
     NeighborHist);
@@ -262,8 +272,9 @@ results.plotResults;
 Analyzing Configuration #2: Neuron #1
 </pre>
 <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <h2 id="5">History Effect</h2>
-<p>Determine the best history effect model using AIC, BIC, and KS statistic</p>
-<pre class="codeinput">sampleRate=1000;
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Determine the best history effect model using AIC, BIC, and KS statistic</span>
+sampleRate=1000;
 delta=1/sampleRate*1;
 maxWindow=1; numWindows=30;
 windowTimes =unique(round([0 logspace(log10(delta),<span class="keyword">...</span>
@@ -361,9 +372,12 @@ set(gca,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLa
 xtickangle(90);
 set(gca,<span class="string">'FontSize'</span>,8);
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <h2 id="7">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
-<p>Addition of the history effect yields a model that falls within the 95% CI of the KS plot.</p>
-<pre class="codeinput">c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_09.png" alt=""> <h2 id="7">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Addition of the history effect yields a model that falls within the 95%</span>
+<span class="comment">% CI of the KS plot.</span>
+
+c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
 c{2} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>},{<span class="string">'Stimulus'</span>,<span class="string">'stim'</span>}},<span class="keyword">...</span>
                     sampleRate,[],[]);
@@ -379,7 +393,7 @@ results.plotResults;
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_09.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_10.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -394,6 +408,7 @@ Analyzing Configuration #3: Neuron #1
 % Data from Demba Ba (demba@mit.edu)
 
 %% Load the data
+close all;
 close all;
 [~,~,explicitStimulusDir] = getPaperDataDirs();
 
@@ -424,6 +439,7 @@ subplot(2,1,2);
 stim.getSigInTimeWindow(0,21).plot;
 
 %% Fit a constant baseline and Find Stimulus Lag
+close all;
 % We fit a constant rate (Poisson) model to the data and use the fit
 % residual to determine the appropriate lag for the stimulus.
 clear c;
@@ -450,6 +466,7 @@ cc = CovColl({stim,baseline});
 trial = Trial(nspikeColl,cc);
 
 %% Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)
+close all;
 % Alternative to the xcov-peak heuristic above: scan candidate stimulus
 % lags and pick the one that minimizes the KS statistic / DeltaAIC /
 % DeltaBIC. Same pattern HistoryExamples uses for history-lag selection.
@@ -509,6 +526,7 @@ xline(ShiftTime*1000, 'kREPLACE_WITH_DASH_DASH');
 ylabel('\Delta BIC'); xlabel('stimulus lag (ms)');
 
 %% Compare constant rate model with model including stimulus effect
+close all;
 % Addition of the stimulus improves the fits in terms of the KS plot and
 % the making the rescaled ISIs less correlated. The Point Process Residula
 % also looks more "white"
@@ -525,6 +543,7 @@ results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0);
 results.plotResults;
 
 %% History Effect
+close all;
 % Determine the best history effect model using AIC, BIC, and KS statistic
 sampleRate=1000;
 delta=1/sampleRate*1; 
@@ -592,6 +611,7 @@ set(gca,'FontSize',8);
            
 
 %% Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus
+close all;
 % Addition of the history effect yields a model that falls within the 95%
 % CI of the KS plot.
 

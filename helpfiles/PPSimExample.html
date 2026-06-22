@@ -166,7 +166,7 @@ xlim([0 tMax/5]);
 title(<span class="string">'Realized conditional intensity \lambda(t) (sample path 1)'</span>);
 xlabel(<span class="string">'time [s]'</span>); ylabel(<span class="string">'\lambda(t) \cdot \Delta'</span>);
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="10">GLM Model Fitting Setup</h2>
+<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="10">GLM Model Fitting Setup</h2>
 <p>In this section, we create the appropriate structures to fit several GLM models to the data generated above.</p>
 <pre class="codeinput">
 <span class="comment">% Create a constant covariate representing the mean firing rate $$\mu_{i}$</span>
@@ -212,11 +212,11 @@ Analyzing Configuration #3: Neuron #1,2,3,4,5
 <h2 id="16">Results for sample neuron</h2>
 <pre class="codeinput">results{1}.plotResults;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="17">Results for across all sample paths</h2>
+<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <h2 id="17">Results for across all sample paths</h2>
 <pre class="codeinput">Summary = FitResSummary(results);
 Summary.plotSummary;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="PPSimExample_05.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>

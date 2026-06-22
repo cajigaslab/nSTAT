@@ -174,12 +174,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
     nst = nspikeTrain([spikeTimes1; spikeTimes2]);
     time = 260:(1/sampleRate):nst.maxTime;
 </pre>
-<h2 id="4">Data Visualization</h2>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_02.png" alt=""> <h2 id="4">Data Visualization</h2>
 <p>Visual inspection of the spike train is used to pick three regions where the firing rate appears to be different. Here we do not estimate where these transitions happen but pick times in an ad-hoc manner.</p>
 <pre class="codeinput">    figure;
     nst.plot;
 </pre>
-<img vspace="5" hspace="5" src="mEPSCAnalysis_02.png" alt=""> <h2 id="5">Define Covariates for the analysis</h2>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_03.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_04.png" alt=""> <h2 id="5">Define Covariates for the analysis</h2>
 <pre class="codeinput">    timeInd1 =find(time&lt;495,1,<span class="string">'last'</span>); <span class="comment">%0-495sec first constant rate</span>
     timeInd2 =find(time&lt;765,1,<span class="string">'last'</span>); <span class="comment">%495-765 second constant rate epoch</span>
                                        <span class="comment">%765 onwards third constant rate</span>
@@ -220,7 +220,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="mEPSCAnalysis_03.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_04.png" alt=""> <h2 id="8">Decode Rate using Point Process Filter</h2>
+<img vspace="5" hspace="5" src="mEPSCAnalysis_05.png" alt=""> <img vspace="5" hspace="5" src="mEPSCAnalysis_06.png" alt=""> <h2 id="8">Decode Rate using Point Process Filter</h2>
 <pre class="codeinput">
 <span class="comment">%     clear lambdaCIF;</span>
 <span class="comment">%     delta = .001;</span>

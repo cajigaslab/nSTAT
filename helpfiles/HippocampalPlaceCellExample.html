@@ -105,8 +105,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 [~,~,~,~,placeCellDataDir] = getPaperDataDirs();
 </pre>
 <h2 id="2">Example Data</h2>
-<p>The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. The x and y coordinates at the time when a spike was observed are marked in red. The position coordinates have been normalized to be between -1 and 1 to allow to simplify the analysis.</p>
-<pre class="codeinput">    load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue.</span>
+<span class="comment">% The x and y coordinates at the time when a spike was observed are marked</span>
+<span class="comment">% in red. The position coordinates have been normalized to be between -1</span>
+<span class="comment">% and 1 to allow to simplify the analysis.</span>
+    load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
     exampleCell = 25;
     figure(1);
     plot(x,y,<span class="string">'b'</span>,neuron{exampleCell}.xN,neuron{exampleCell}.yN,<span class="string">'r.'</span>);
@@ -183,8 +187,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="keyword">end</span>
 </pre>
 <h2 id="4">View Summary Statistics</h2>
-<p>Note the Zernike Polynomials yield better fits in terms of decreased KS Statistics (less deviation from the 45 degree line), reduced AIC and reduced BIC across the majority of cells and for both animals</p>
-<pre class="codeinput">
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Note the Zernike Polynomials yield better fits in terms of decreased KS</span>
+<span class="comment">% Statistics (less deviation from the 45 degree line), reduced AIC and</span>
+<span class="comment">% reduced BIC across the majority of cells and for both animals</span>
 <span class="keyword">for</span> n=1:numAnimals
     resData=load(fullfile(fileparts(placeCellDataDir),[<span class="string">'PlaceCellAnimal'</span> num2str(n) <span class="string">'Results.mat'</span>]));
     results = FitResult.fromStructure(resData.resStruct);
@@ -193,7 +199,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="keyword">end</span>
 </pre>
 <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_02.png" alt=""> <img vspace="5" hspace="5" src="HippocampalPlaceCellExample_03.png" alt=""> <h2 id="5">Visualize the results</h2>
-<pre class="codeinput">
+<pre class="codeinput">close <span class="string">all</span>;
+
 <span class="comment">% Define a grid</span>
 [x_new,y_new]=meshgrid(-1:.01:1); <span class="comment">%define new x and y</span>
 y_new = flipud(y_new); x_new = fliplr(x_new);
@@ -362,6 +369,7 @@ close all
 [~,~,~,~,placeCellDataDir] = getPaperDataDirs();
     
 %% Example Data
+close all;
 % The x and y coordinates of a freely foraging rat in a circular environment (70cm in diameter and 30cm high walls) and a fixed visual cue. 
 % The x and y coordinates at the time when a spike was observed are marked
 % in red. The position coordinates have been normalized to be between -1
@@ -443,6 +451,7 @@ for n=1:numAnimals
 end
 
 %% View Summary Statistics
+close all;
 % Note the Zernike Polynomials yield better fits in terms of decreased KS
 % Statistics (less deviation from the 45 degree line), reduced AIC and
 % reduced BIC across the majority of cells and for both animals
@@ -454,6 +463,7 @@ for n=1:numAnimals
 end    
 
 %% Visualize the results 
+close all;
 
 % Define a grid 
 [x_new,y_new]=meshgrid(-1:.01:1); %define new x and y

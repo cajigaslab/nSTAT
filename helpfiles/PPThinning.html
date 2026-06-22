@@ -96,6 +96,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </div>
 <h2 id="1">Basic Example</h2>
 <pre class="codeinput">close <span class="string">all</span>;
+close <span class="string">all</span>;
 delta = 0.001;
 Tmax = 100;
 time = 0:delta:Tmax;
@@ -123,7 +124,8 @@ u2 = rand(length(lambdaRatio),1);
 tSpikesThin  = tSpikes(lambdaRatio&gt;=u2);
 </pre>
 <h2 id="2">Compare Constant rate process vs. thinned process</h2>
-<pre class="codeinput">figure(1);
+<pre class="codeinput">close <span class="string">all</span>;
+figure(1);
 n1 = nspikeTrain(tSpikes);
 n2 = nspikeTrain(tSpikesThin);
 subplot(2,2,1); n1.plot; plot(tSpikes,ones(size(tSpikes)),<span class="string">'.'</span>);
@@ -141,8 +143,11 @@ v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
 </pre>
 <img vspace="5" hspace="5" src="PPThinning_01.png" alt=""> <img vspace="5" hspace="5" src="PPThinning_02.png" alt=""> <h2 id="3">Simulate multiple realizations of a point process via thinning</h2>
-<p>The CIF class can generated realizations of a point process given a conditional intensity function (defined as a Covariate or SignalObj)</p>
-<pre class="codeinput">numRealizations = 20;
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% The CIF class can generated realizations of a point process given</span>
+<span class="comment">% a conditional intensity function (defined as a Covariate or SignalObj)</span>
+
+numRealizations = 20;
 spikeColl = CIF.simulateCIFByThinningFromLambda(lambda,numRealizations);
 figure(3);
 spikeColl.plot;
@@ -167,6 +172,7 @@ parity.num_realizations = numRealizations;
 % consistent with this CIF.
 
 %% Basic Example
+close all;
 close all;
 delta = 0.001;
 Tmax = 100;
@@ -195,6 +201,7 @@ u2 = rand(length(lambdaRatio),1);
 tSpikesThin  = tSpikes(lambdaRatio>=u2);
 
 %% Compare Constant rate process vs. thinned process
+close all;
 figure(1);
 n1 = nspikeTrain(tSpikes);
 n2 = nspikeTrain(tSpikesThin);
@@ -213,6 +220,7 @@ v=axis;
 axis([0 Tmax/4 v(3) v(4)]);
 
 %% Simulate multiple realizations of a point process via thinning
+close all;
 % The CIF class can generated realizations of a point process given 
 % a conditional intensity function (defined as a Covariate or SignalObj)
 

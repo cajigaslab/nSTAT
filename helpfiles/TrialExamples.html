@@ -91,7 +91,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </ul>
 </div>
 <h2 id="1">Example 1: A simple data set</h2>
-<pre class="codeinput">close <span class="string">all</span>; clear <span class="string">all</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+close <span class="string">all</span>; clear <span class="string">all</span>;
 lengthTrial=1;
 </pre>
 <p>Create History windows of interest</p>
@@ -111,7 +112,7 @@ eLabels={<span class="string">'E_1'</span>,<span class="string">'E_2'</span>};
 e=Events(eTimes,eLabels); <span class="comment">%use default eventColor 'r'</span>
 figure; e.plot;
 </pre>
-<img vspace="5" hspace="5" src="TrialExamples_03.png" alt=""> <p>Create neural Spike Train Data</p>
+<img vspace="5" hspace="5" src="TrialExamples_03.png" alt=""> <img vspace="5" hspace="5" src="TrialExamples_04.png" alt=""> <p>Create neural Spike Train Data</p>
 <pre class="codeinput">clear <span class="string">nst</span>;
 <span class="keyword">for</span> i=1:4
     spikeTimes = sort(rand(1,100))*lengthTrial;
@@ -120,19 +121,23 @@ figure; e.plot;
 spikeColl=nstColl(nst); <span class="comment">%create a nstColl</span>
 figure; spikeColl.plot;
 </pre>
-<img vspace="5" hspace="5" src="TrialExamples_04.png" alt=""> <p>Finally we have everything we need to create a Trial object.</p>
+<img vspace="5" hspace="5" src="TrialExamples_05.png" alt=""> <p>Finally we have everything we need to create a Trial object.</p>
 <pre class="codeinput">trial1=Trial(spikeColl, cc, e, h);
 figure; trial1.plot; <span class="comment">% plot all the data;</span>
 </pre>
-<img vspace="5" hspace="5" src="TrialExamples_05.png" alt=""> <p>Mask out some of the data and plot the trial once again</p>
+<img vspace="5" hspace="5" src="TrialExamples_06.png" alt=""> <p>Mask out some of the data and plot the trial once again</p>
 <pre class="codeinput">trial1.setCovMask({{<span class="string">'Position'</span>,<span class="string">'x'</span>},{<span class="string">'Force'</span>,<span class="string">'f_x'</span>}})
 figure; trial1.plot;
 
 trial1.getHistForNeurons([1:2]);
 </pre>
-<img vspace="5" hspace="5" src="TrialExamples_06.png" alt=""> <h2 id="8">Example 2: Analyzing Trial Data</h2>
-<p>Examples of neural spike analysis using the <a href="AnalysisExamples2.html">Neural Spike Analysis Toolbox</a> or using standard methods <a href="AnalysisExamples.html">standard methods</a>
-</p>
+<img vspace="5" hspace="5" src="TrialExamples_07.png" alt=""> <h2 id="8">Example 2: Analyzing Trial Data</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Examples of neural spike analysis using the</span>
+<span class="comment">% &lt;AnalysisExamples2.html Neural Spike Analysis Toolbox&gt;</span>
+<span class="comment">% or using standard methods</span>
+<span class="comment">% &lt;AnalysisExamples.html standard methods&gt;</span>
+</pre>
 <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
@@ -146,6 +151,7 @@ trial1.getHistForNeurons([1:2]);
 
 
 %% Example 1: A simple data set
+close all;
 close all; clear all;
 lengthTrial=1;
 
@@ -192,6 +198,7 @@ figure; trial1.plot;
 
 trial1.getHistForNeurons([1:2]);
 %% Example 2: Analyzing Trial Data
+close all;
 % Examples of neural spike analysis using the 
 % <AnalysisExamples2.html Neural Spike Analysis Toolbox>
 % or using standard methods

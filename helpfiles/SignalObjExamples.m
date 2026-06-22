@@ -5,6 +5,7 @@
 
 
 %% Example 1: Defining and Plotting Signals
+close all;
 % Define a two dimensional SignalObj, $s$, representing two voltage signals that were
 % $v1$ and $v2$ aquired simultaneously at 100Hz. Another SignalObj, $s1$ ,
 % is created from just $v1$. Both signals are plotted.
@@ -45,6 +46,7 @@ figure
 s.getSubSignal({'v1'}).plot;
 
 %% Example 2: Changing Signal Properties
+close all;
 figure
 s=SignalObj(t,v,'Voltage','time','s','V',{'v1','v2'});
 subplot(2,1,1); s.plot;
@@ -82,6 +84,7 @@ subplot(2,1,1); s.plot({'v1','v2'});
 subplot(2,1,2); s.plot({'v1','v2'},{{' ''k'' '},{' ''-.g'' '}});
 
 %% Example 3:  Resampling and Windowing SignalObjs
+close all;
 figure
 s=SignalObj(t,v,'Voltage','time','s','V',{'v1','v2'});
 s1=s.resample(.1*sampleRate);
@@ -93,6 +96,7 @@ figure
 subplot(2,1,1); s.getSigInTimeWindow(-2,3).plot; 
 subplot(2,1,2); s.plot;
 %% Example 4: SignalObj Mathematical Operations
+close all;
 s=SignalObj(t,v,'Voltage','time','s','V',{'v1','v2'});
 figure
 s2=mean(s); %mean of each dimension;
@@ -119,6 +123,7 @@ s6=s.integral.derivative-s; %should equal zero;
 s6.plot;
 
 %% Example 5: Spectra
+close all;
 s=SignalObj(t,v,'Voltage','time','s','V',{'v1','v2'});
 figure;
 s.MTMspectrum;
@@ -127,6 +132,7 @@ figure
 s.periodogram;
 
 %% Example 6: View signal variability
+close all;
 % We can look at the variability of signals with regards to their labels or
 % or irrespective of their labels. Lets create a SignalObj that has several
 % components, and some noise. We mislabel two signals to add alot of

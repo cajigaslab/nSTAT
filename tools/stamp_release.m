@@ -56,7 +56,13 @@ repoRoot = fileparts(fileparts(mfilename('fullpath')));
 contentsPath = fullfile(repoRoot, 'Contents.m');
 contentsText = fileread(contentsPath);
 newContentsLine = sprintf('%% Version %s %s', contentsVersion, dateStr);
-contentsNew = regexprep(contentsText, '^% Version[^\n]*', newContentsLine, 'once');
+% FIX: MATLAB's regexprep `^` anchors to start-of-STRING by default; the
+% `% Version` line is line 2 of Contents.m, not line 1. The `(?m)` inline
+% modifier enables multi-line mode so `^` matches start-of-line, which
+% is what was intended. Without this the substitution silently no-ops
+% and the warning below never fires either (the regex doesn't fail; it
+% just doesn't match anything to replace).
+contentsNew = regexprep(contentsText, '(?m)^% Version[^\n]*', newContentsLine, 'once');
 if strcmp(contentsText, contentsNew)
     warning('nstat:stamp_release:ContentsUnchanged', ...
         'Contents.m line 2 did not match expected pattern; skipped.');

@@ -1,8 +1,6 @@
-%% MATLAB 2025b Help Integration for nSTAT
+%% MATLAB Help Integration for nSTAT
 % This page documents the help-file structure used by nSTAT so it appears as
 % supplemental software documentation in MATLAB.
-%
-% The configuration in this release is aligned with MATLAB R2025b.
 %
 %% Required Files
 % nSTAT uses the standard external toolbox documentation layout:
@@ -23,8 +21,8 @@
 %   builddocsearchdb(helpDir);
 %   rehash toolboxcache;
 %
-%% MATLAB 2025b Behavior
-% Starting in R2024b, toolbox documentation is shown in the system browser.
+%% Where the docs appear in MATLAB
+% Since R2024b, toolbox documentation is shown in the system browser.
 % External toolbox documentation appears in MATLAB documentation under
 % Supplemental Software.
 %

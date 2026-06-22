@@ -24,7 +24,7 @@
 % * <ClassDefinitions.html Class Definitions>
 % * <Examples.html Example Index>
 % * <nSTATPaperExamples.html nSTAT Paper Examples>
-% * <DocumentationSetup2025b.html MATLAB 2025b Help Integration Guide>
+% * <DocumentationSetup.html MATLAB Help Integration Guide>
 %
 % *Citation*
 %

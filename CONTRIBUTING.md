@@ -30,13 +30,22 @@ A specific consequence of MATLAB's `.mlx`-over-`.m` resolution: if you edit a he
 
 This is exactly what bit PR #89 (the stimulus-lag scan added to `ExplicitStimulusWhiskerData`, closing issue #83). Its smoke test invoked `run('ExplicitStimulusWhiskerData')` inside an `evalin('base', ...)` wrapper and reported PASS. The runtime had executed the pre-edit `.mlx`. The `.m` contained `resRef{1}.AIC` — brace-indexing a `FitResult` object — which errored at the next render. Surfaced and fixed in PR #103 (issue #102).
 
-When you edit a helpfile `.m` and want a real end-to-end smoke check, use **one** of these patterns so MATLAB resolves to the `.m`:
+When you edit a helpfile `.m` and want a real end-to-end smoke check, the simplest path is the tracked harness:
 
 ```matlab
-% Pattern A — force-resolve via `which`:
+% Pattern A (recommended) — tools/smoke_helpfile.m runs publish() in a
+% staged sandbox (strips any .mlx that would shadow), reports figure
+% count + sizes + blank suspects + delta vs HEAD baseline.
+addpath('tools'); smoke_helpfile('ExplicitStimulusWhiskerData');
+```
+
+For ad-hoc cases or when you want to use `run()` directly, force the `.m` resolution explicitly:
+
+```matlab
+% Pattern B — force-resolve via `which`:
 run(which('helpfiles/ExplicitStimulusWhiskerData.m'));
 
-% Pattern B — temporarily shadow the .mlx:
+% Pattern C — temporarily shadow the .mlx:
 mlxPath  = fullfile('helpfiles', 'ExplicitStimulusWhiskerData.mlx');
 mlxStash = [mlxPath '.shadowed'];
 movefile(mlxPath, mlxStash);
@@ -57,6 +66,19 @@ Commit the `.m` first, the regenerated `.mlx` second — they should diff as a p
 ### Verifying regenerated `.mlx` / `.html` / PNG artifacts before commit
 
 Regenerating the rendered helpfile docs (`.mlx`, `.html`, per-figure PNGs) is *not* a mechanical follow-up — the rendered artifacts can silently degrade vs the committed baseline, and the committed copies under `helpfiles/` are what GitHub serves to users. PR #88/#89/#103 → PR #105 (rollback) is a case where the regeneration looked successful at the function level but produced a measurably worse `.html` than the pre-edit baseline.
+
+The tracked harness for the per-PNG diff is [`tools/check_helpfile_drift.m`](tools/check_helpfile_drift.m). Default comparison is against HEAD-committed PNGs (auto-staged to a temp dir):
+
+```matlab
+% Default: compare current helpfiles/ against HEAD's committed PNGs.
+addpath('tools'); report = check_helpfile_drift;
+
+% Compare against an older worktree that you've already published into
+% (use this when investigating drift vs a historical commit).
+report = check_helpfile_drift('Other', '/tmp/nstat-2017/helpfiles');
+```
+
+Verdict classes mirror `tools/check_readme_figures.m`: `IDENTICAL` / `TINY` / `SUBSTANTIVE` / `DIM_DIFF` / `ONLY_NOW` / `ONLY_OTHER`. The tool also produces a per-helpfile rollup showing where new figures appeared (`NEW`) or 2017-vintage figures disappeared (`LOST`).
 
 Before committing any regenerated artifact, run these three checks:
 

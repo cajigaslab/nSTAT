@@ -63,6 +63,18 @@ matlab.internal.liveeditor.openAndSave( ...
 
 Commit the `.m` first, the regenerated `.mlx` second — they should diff as a paired update.
 
+### Helpfile authoring: `close all;` between `%%` sections
+
+`publish()` snapshots **every open figure handle** at every `%%` section boundary — not just the figures opened in the section that just ended. A helpfile that opens a figure in section 1 and never closes it will see that same figure re-captured at the end of every subsequent section, producing many near-duplicate PNGs and inflating publish time linearly with section count.
+
+The convention (PR #116):
+
+- Start every titled `%% Title` section after the first with `close all;` on its own line.
+- Bare `%%` separators (no title) are publish-output dividers, not new visual scopes — leave them alone.
+- The first section may legitimately omit `close all;` (nothing is open yet).
+
+The PR-#116 close-all sweep across 7 helpfiles eliminated 13 duplicate-figure captures and was the dominant cause of the historical 18.8-min publish time. If you add a new helpfile, follow the same pattern; if you edit one and notice the publish report's `snapshots/figure` ratio climbing well above 1.0 for that file, an open figure has leaked across sections.
+
 ### Verifying regenerated `.mlx` / `.html` / PNG artifacts before commit
 
 Regenerating the rendered helpfile docs (`.mlx`, `.html`, per-figure PNGs) is *not* a mechanical follow-up — the rendered artifacts can silently degrade vs the committed baseline, and the committed copies under `helpfiles/` are what GitHub serves to users. PR #88/#89/#103 → PR #105 (rollback) is a case where the regeneration looked successful at the function level but produced a measurably worse `.html` than the pre-edit baseline.
@@ -262,6 +274,39 @@ git push origin master --tags
 - `helpfiles/nSTATPaperExamples.mlx` — paper-reference exception (see "`.m` is canonical" above).
 - `AUDIT_REPORT.md` — historical record of the 2026-03-10 audit (banner says so).
 - `README.md` body prose (the figure table itself stays current because it embeds PNGs by relative path).
+
+### How the publish pipeline is optimized
+
+`publish_all_helpfiles.m` is the slow step in `predeploy.sh` (~8.2 min on a cold run with figure execution, down from the original ~18.8 min). The optimization landed across four phases (PR #116, PR #117). A contributor touching this file should understand each layer before changing it.
+
+1. **Per-file timing report** (Phase A). Every run writes `docs/verification/publish_timing_latest.md` ranking each helpfile by wall-clock with figure count, section count, and a `snapshots/figure` ratio. The ratio is the early-warning that a helpfile has a leaked figure (see "Helpfile authoring" above). The report path is gitignored — regenerated each run, surfaced for PR reviewers.
+
+2. **`close all;` between `%%` sections** (Phase B). The authoring convention documented above. Net effect: every figure is captured exactly once.
+
+3. **Parallel publish via `parfor`** (Phase C). The 36 helpfile `publish()` calls are independent — each reads its `.m` from a shared read-only staging dir and writes `baseName.html` + `baseName_NN.png` to a per-run output tempdir with non-overlapping names. The worker-setup pattern in `publishOneStaged` (idempotent `addpath` + `cd` + `set(groot, 'defaultFigureVisible', 'on')`) is parfor-safe. Class references (`Analysis.m`, `SignalObj.m`, `FitResult.m`) publish serially — not worth a pool round-trip for ~3 s of work. Falls back to serial if `UseParallel=false` or no PCT license.
+
+4. **Incremental cache** (Phase D). After a successful run, the file `helpfiles/.publish-cache.json` (gitignored) stores `{globalHash, matlabVersion, files: {name: {fileHash, outputs}}}`. On the next run, a helpfile is **skipped** iff:
+   - `globalHash` matches **and**
+   - that helpfile's `fileHash` matches **and**
+   - every cached output file is still on disk in `helpfiles/`.
+
+   Cached outputs are pre-seeded into the publish output tempdir so the final `copyfile outputDir -> helpDir` round-trip preserves them byte-exact. On a full cache HIT, `builddocsearchdb` is **also** skipped (every HTML is byte-identical to the prior run; the existing index is still current). Warm-run wall-clock with full HIT is ~30–40 s, dominated by MATLAB startup and validators.
+
+**The globalHash dependency set is a contract.** It hashes:
+- Every `.m` at the repo root (toolbox classes).
+- Every `.m` under `+nstat/**` recursively (package code).
+- Every `.mat` under `helpfiles/` (input data).
+- `publish_all_helpfiles.m` itself.
+- The MATLAB version string.
+- The publish opts that affect output (`EvalCode`, `ExpectedGenerator`).
+
+If you add a new code location that helpfiles depend on (a new `+pkg/`, a new data file under `helpfiles/`, a new tool the orchestrator invokes), you **must** extend `computeGlobalHash` to include it. Otherwise the cache will produce stale HTMLs that the validators may still accept — a silent correctness bug. When unsure, hash too much, not too little: a false-MISS costs a republish; a false-HIT ships stale documentation.
+
+**Release runs bypass the cache.** `predeploy.sh` calls `publish_all_helpfiles('EvalCode', true, 'Force', true)`. Release builds must always exercise every publish path end-to-end; trusting the cache for a tagged release would mean a content-equivalent toolbox change that the hash set doesn't cover could ship invisibly. Do not remove the `Force` flag from `predeploy.sh`.
+
+**The cache file is never committed.** `helpfiles/.publish-cache.json` is in `.gitignore`. It is per-machine, per-MATLAB-version state — the `globalHash` includes the full MATLAB version string, so a cache primed on R2025b on one machine is correctly invalidated on first run under a different MATLAB on another machine.
+
+Phases not yet implemented: **Phase E** (`figureSnapMethod` tuning) — further speed-up of figure rendering on cold / `Force` runs. Open the next perf PR against `perf/publish-phase-E` if/when picked up.
 
 ### Why no MATLAB CI revisited
 

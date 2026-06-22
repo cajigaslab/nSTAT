@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>Test the nspikeTrain Class</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="nSpikeTrainExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -85,6 +85,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <li>
 <a href="#1">Example 1: Using the nspikeTrain Class</a>
 </li>
+<li>
+<a href="#5">Goodness-of-fit diagnostic suite (issue #82)</a>
+</li>
 </ul>
 </div>
 <h2 id="1">Example 1: Using the nspikeTrain Class</h2>
@@ -107,7 +110,31 @@ nst.getSigRep.plot;
 <pre class="codeinput">figure; nst.resample(1/nst.getMaxBinSizeBinary);
 nst.getSigRep.plot;
 </pre>
-<img vspace="5" hspace="5" src="nSpikeTrainExamples_04.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_04.png" alt=""> <h2 id="5">Goodness-of-fit diagnostic suite (issue #82)</h2>
+<p>Five Poisson-quality diagnostics that nspikeTrain already exposes. For a homogeneous Poisson process the ISI histogram is exponential, the joint ISI plot is uncorrelated, the ISI spectrum is flat, the exponential fit is linear in log-survival, and the prob-plot hugs the diagonal. (Each method opens its own figure -- not subplotted because plotISISpectrumFunction and plotJointISIHistogram call figure() internally.)</p>
+<pre class="codeinput">spikeTimesLong = sort(rand(1,2000))*5;
+spikeTimesLong = unique(round(spikeTimesLong*10000)./10000);
+nstDiag = nspikeTrain(spikeTimesLong,<span class="string">'n1'</span>,.001,0,5);
+
+figure; nstDiag.plotISIHistogram;        title(<span class="string">'ISI histogram'</span>);
+nstDiag.plotJointISIHistogram;           <span class="comment">% opens own figure</span>
+nstDiag.plotISISpectrumFunction;         <span class="comment">% opens own figure</span>
+figure; nstDiag.plotExponentialFit;      title(<span class="string">'Exponential fit (log-survival)'</span>);
+figure; nstDiag.plotProbPlot;            title(<span class="string">'Probability plot'</span>);
+</pre>
+<pre class="codeoutput">
+ans =
+
+  Columns 1 through 13
+
+   633   436   276   190   156    88    63    36    40    16     6    11     4
+
+  Columns 14 through 22
+
+     3     5     0     0     1     0     0     0     0
+
+</pre>
+<img vspace="5" hspace="5" src="nSpikeTrainExamples_05.png" alt=""> <img vspace="5" hspace="5" src="nSpikeTrainExamples_06.png" alt=""> <img vspace="5" hspace="5" src="nSpikeTrainExamples_07.png" alt=""> <img vspace="5" hspace="5" src="nSpikeTrainExamples_08.png" alt=""> <img vspace="5" hspace="5" src="nSpikeTrainExamples_09.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -145,6 +172,23 @@ nst.getSigRep.plot;
 % representation
 figure; nst.resample(1/nst.getMaxBinSizeBinary);
 nst.getSigRep.plot;
+
+%% Goodness-of-fit diagnostic suite (issue #82)
+% Five Poisson-quality diagnostics that nspikeTrain already exposes.
+% For a homogeneous Poisson process the ISI histogram is exponential, the
+% joint ISI plot is uncorrelated, the ISI spectrum is flat, the exponential
+% fit is linear in log-survival, and the prob-plot hugs the diagonal.
+% (Each method opens its own figure REPLACE_WITH_DASH_DASH not subplotted because
+% plotISISpectrumFunction and plotJointISIHistogram call figure() internally.)
+spikeTimesLong = sort(rand(1,2000))*5;
+spikeTimesLong = unique(round(spikeTimesLong*10000)./10000);
+nstDiag = nspikeTrain(spikeTimesLong,'n1',.001,0,5);
+
+figure; nstDiag.plotISIHistogram;        title('ISI histogram');
+nstDiag.plotJointISIHistogram;           % opens own figure
+nstDiag.plotISISpectrumFunction;         % opens own figure
+figure; nstDiag.plotExponentialFit;      title('Exponential fit (log-survival)');
+figure; nstDiag.plotProbPlot;            title('Probability plot');
 ##### SOURCE END #####
 -->
 </body>

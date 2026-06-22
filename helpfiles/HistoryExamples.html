@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>HistoryExamples</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="HistoryExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -97,14 +97,14 @@ nst        = nspikeTrain(spikeTimes,<span class="string">'n1'</span>,.001);
 windowTimes = [.001 .002 .004];
 h=History(windowTimes);
 </pre>
-<h2 id="2">/</h2>
+<img vspace="5" hspace="5" src="HistoryExamples_01.png" alt=""> <h2 id="2">/</h2>
 <p>The firing activity within each window is computed by calling the computeHistory method on a nspikeTrain, nstColl, or a cell array of nspikeTrains</p>
 <pre class="codeinput">histn1=h.computeHistory(nst);
 figure; subplot(3,1,1); h.plot; ylabel(<span class="string">'History Windows'</span>);
 subplot(3,1,2); histn1.plot;    ylabel(<span class="string">'History Covariate for nst'</span>);
 figure; nst.plot;               ylabel(<span class="string">'Neural Spike Train'</span>);
 </pre>
-<img vspace="5" hspace="5" src="HistoryExamples_01.png" alt=""> <img vspace="5" hspace="5" src="HistoryExamples_02.png" alt=""> <h2 id="3">Example 2: History covariates for a collection of Neural Spikes (nstColl)</h2>
+<img vspace="5" hspace="5" src="HistoryExamples_02.png" alt=""> <img vspace="5" hspace="5" src="HistoryExamples_03.png" alt=""> <h2 id="3">Example 2: History covariates for a collection of Neural Spikes (nstColl)</h2>
 <p>It is possible to compute history covariates for all the nspikeTrains in a nstColl simultaneously.</p>
 <p>Generate data and create a nstColl</p>
 <pre class="codeinput">clear <span class="string">nst</span>;
@@ -122,7 +122,7 @@ h=History(windowTimes);
 <pre class="codeinput">histColl = h.computeHistory(spikeColl);
 figure; histColl.plot;
 </pre>
-<img vspace="5" hspace="5" src="HistoryExamples_03.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="HistoryExamples_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>

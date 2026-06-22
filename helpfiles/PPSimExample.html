@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>General Point Process Simulation</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="PPSimExample.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -96,16 +96,19 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <a href="#7">Ensemble Effect</a>
 </li>
 <li>
-<a href="#9">GLM Model Fitting Setup</a>
+<a href="#9">Realized conditional intensity \lambda(t) (issue #85)</a>
 </li>
 <li>
-<a href="#10">GLM Model Fitting and Results</a>
+<a href="#10">GLM Model Fitting Setup</a>
 </li>
 <li>
-<a href="#15">Results for sample neuron</a>
+<a href="#11">GLM Model Fitting and Results</a>
 </li>
 <li>
-<a href="#16">Results for across all sample paths</a>
+<a href="#16">Results for sample neuron</a>
+</li>
+<li>
+<a href="#17">Results for across all sample paths</a>
 </li>
 </ul>
 </div>
@@ -119,7 +122,7 @@ $E$ or $
 <img vspace="5" hspace="5" src="PPSimExample-BlockDiagram.png" alt=""> </p>
 <p>This block diagram specifies a conditional intensity function of the form</p>
 <p>
-<img src="PPSimExample_eq06096954086272423927.png" alt="$$\lambda_{i} \cdot \Delta = exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n])/(1+exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n]))$$" style="width:663px;height:14px;"></p>
+<img src="PPSimExample_eq06096954086272423927.png" alt="$$\lambda_{i} \cdot \Delta = exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n])/(1+exp(\mu_{i} + H*\Delta N_{i}[n] + S*u_{stim}[n] + E*\Delta N_{k}[n]))$$"></p>
 <pre class="codeinput">close <span class="string">all</span>;
 Ts=.001;            <span class="comment">%Sample Time</span>
 tMin=0; tMax=50;    <span class="comment">%Simulation duration</span>
@@ -129,17 +132,17 @@ mu=-3;              <span class="comment">%Baseline firing rate of the neurons b
 </pre>
 <h2 id="5">History Effect</h2>
 <p>
-<img src="PPSimExample_eq17733795504284027482.png" alt="$$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$" style="width:361px;height:13px;"></p>
+<img src="PPSimExample_eq17733795504284027482.png" alt="$$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$"></p>
 <pre class="codeinput">H=tf([-1 -2 -4],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="6">Stimulus Effect</h2>
 <p>
-<img src="PPSimExample_eq13375943156936646927.png" alt="$$1*s[n]=1*u_{stim}[n]$$" style="width:123px;height:13px;"></p>
+<img src="PPSimExample_eq13375943156936646927.png" alt="$$1*s[n]=1*u_{stim}[n]$$"></p>
 <pre class="codeinput">S=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="7">Ensemble Effect</h2>
 <p>
-<img src="PPSimExample_eq16379821955407226942.png" alt="$$1*e[n]=0*\Delta N_{k}[n]$$" style="width:125px;height:13px;"></p>
+<img src="PPSimExample_eq16379821955407226942.png" alt="$$1*e[n]=0*\Delta N_{k}[n]$$"></p>
 <pre class="codeinput">E=tf([0],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <pre class="codeinput">f=1;                    <span class="comment">%Stimulus frequency</span>
@@ -150,12 +153,20 @@ stim=Covariate(t',u,<span class="string">'Stimulus'</span>,<span class="string">
 ens =Covariate(t',e,<span class="string">'Ensemble'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'Spikes'</span>,{<span class="string">'n1'</span>});
 numRealizations = 5;    <span class="comment">%Number of sample paths to generate</span>
 fitType = <span class="string">'binomial'</span>;
-sC=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
+[sC, lambdaSim]=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
 figure;
 subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_01.png" alt=""> <h2 id="9">GLM Model Fitting Setup</h2>
+<img vspace="5" hspace="5" src="PPSimExample_01.png" alt=""> <h2 id="9">Realized conditional intensity \lambda(t) (issue #85)</h2>
+<p>Make the input -&gt; intensity -&gt; spikes pipeline explicit: peaks of \lambda align with peaks of u_{stim}(t), and the self-history term injects refractory dips visible in the raster above.</p>
+<pre class="codeinput">figure;
+lambdaSim.plot;
+xlim([0 tMax/5]);
+title(<span class="string">'Realized conditional intensity \lambda(t) (sample path 1)'</span>);
+xlabel(<span class="string">'time [s]'</span>); ylabel(<span class="string">'\lambda(t) \cdot \Delta'</span>);
+</pre>
+<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="10">GLM Model Fitting Setup</h2>
 <p>In this section, we create the appropriate structures to fit several GLM models to the data generated above.</p>
 <pre class="codeinput">
 <span class="comment">% Create a constant covariate representing the mean firing rate $$\mu_{i}$</span>
@@ -166,7 +177,7 @@ spikeColl = sC;               <span class="comment">%Use the generated data as o
 cc=CovColl({stim,baseline});  <span class="comment">%Use stimulation and baseline as possible covariates</span>
 trial = Trial(spikeColl,cc); sampleRate = 1/Ts; <span class="comment">%Create trial</span>
 </pre>
-<h2 id="10">GLM Model Fitting and Results</h2>
+<h2 id="11">GLM Model Fitting and Results</h2>
 <pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [0:0.001:0.003]; <span class="comment">%We know the history effect goes back 3 lag orders</span>
 </pre>
@@ -198,14 +209,14 @@ results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,Algorithm);
 Analyzing Configuration #2: Neuron #1,2,3,4,5
 Analyzing Configuration #3: Neuron #1,2,3,4,5
 </pre>
-<h2 id="15">Results for sample neuron</h2>
+<h2 id="16">Results for sample neuron</h2>
 <pre class="codeinput">results{1}.plotResults;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="16">Results for across all sample paths</h2>
+<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="17">Results for across all sample paths</h2>
 <pre class="codeinput">Summary = FitResSummary(results);
 Summary.plotSummary;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -277,10 +288,20 @@ stim=Covariate(t',u,'Stimulus','time','s','Voltage',{'sin'});
 ens =Covariate(t',e,'Ensemble','time','s','Spikes',{'n1'});
 numRealizations = 5;    %Number of sample paths to generate
 fitType = 'binomial';
-sC=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
+[sC, lambdaSim]=CIF.simulateCIF(mu,H,S,E,stim,ens,numRealizations,fitType);
 figure;
 subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
+
+%% Realized conditional intensity \lambda(t) (issue #85)
+% Make the input -> intensity -> spikes pipeline explicit: peaks of \lambda
+% align with peaks of u_{stim}(t), and the self-history term injects
+% refractory dips visible in the raster above.
+figure;
+lambdaSim.plot;
+xlim([0 tMax/5]);
+title('Realized conditional intensity \lambda(t) (sample path 1)');
+xlabel('time [s]'); ylabel('\lambda(t) \cdot \Delta');
 
 %% GLM Model Fitting Setup
 % In this section, we create the appropriate structures to fit several GLM

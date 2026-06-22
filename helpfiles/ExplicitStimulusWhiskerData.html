@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>EXPLICIT STIMULUS EXAMPLE - WHISKER STIMULATION/THALAMIC NEURON</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="ExplicitStimulusWhiskerData.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -90,13 +90,16 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <a href="#2">Fit a constant baseline and Find Stimulus Lag</a>
 </li>
 <li>
-<a href="#3">Compare constant rate model with model including stimulus effect</a>
+<a href="#3">Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)</a>
 </li>
 <li>
-<a href="#4">History Effect</a>
+<a href="#4">Compare constant rate model with model including stimulus effect</a>
 </li>
 <li>
-<a href="#6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</a>
+<a href="#5">History Effect</a>
+</li>
+<li>
+<a href="#7">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</a>
 </li>
 </ul>
 </div>
@@ -157,7 +160,91 @@ trial = Trial(nspikeColl,cc);
 </pre>
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2 id="3">Compare constant rate model with model including stimulus effect</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_03.png" alt=""> <h2 id="3">Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)</h2>
+<p>Alternative to the xcov-peak heuristic above: scan candidate stimulus lags and pick the one that minimizes the KS statistic / DeltaAIC / DeltaBIC. Same pattern HistoryExamples uses for history-lag selection. The xcov-chosen ShiftTime is overlaid as a black dashed reference.</p>
+<pre class="codeinput">candidateLags = -0.05:0.01:0.20;   <span class="comment">% seconds (-50ms past .. +200ms future)</span>
+ks_scan   = nan(size(candidateLags));
+dAIC_scan = nan(size(candidateLags));
+dBIC_scan = nan(size(candidateLags));
+
+<span class="comment">% FIX (#83 / PR #103): nstColl, nspikeTrain, and Trial are all handle</span>
+<span class="comment">% classes. The scan below mints fresh Trial objects per iteration but</span>
+<span class="comment">% must NOT reuse the outer `nspikeColl` -- Analysis.RunAnalysisForAllNeurons</span>
+<span class="comment">% calls setTrialTimesFor + setMaxTime/setMinTime which propagate through</span>
+<span class="comment">% the shared spike-collection handle, polluting the original `trial` and</span>
+<span class="comment">% breaking the downstream computeHistLagForAll concat at</span>
+<span class="comment">% Trial.getDesignMatrix:481. Mint isolated nspikeColls for the reference</span>
+<span class="comment">% and per-lag fits.</span>
+nspikeColl_scan = nstColl(nspikeTrain(spikeTimes));
+
+<span class="comment">% Baseline-only reference fit for AIC/BIC deltas</span>
+cRef = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],[]);
+cRef.setName(<span class="string">'BaselineRef'</span>);
+trialRef = Trial(nspikeColl_scan, CovColl({baseline}));
+resRef   = Analysis.RunAnalysisForAllNeurons(trialRef, ConfigColl({cRef}), 0);
+<span class="comment">% FIX (#102 / #103): RunAnalysisForAllNeurons returns a FitResult OBJECT</span>
+<span class="comment">% for the single-neuron / single-config case, not a cell.</span>
+AICref = resRef.AIC;
+BICref = resRef.BIC;
+
+<span class="keyword">for</span> j = 1:length(candidateLags)
+    nspikeColl_j = nstColl(nspikeTrain(spikeTimes));  <span class="comment">% fresh handle per iter</span>
+    stim_j  = Covariate(time, stimData, <span class="string">'Stimulus'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">'V'</span>,{<span class="string">'stim'</span>});
+    stim_j  = stim_j.shift(candidateLags(j));
+    trial_j = Trial(nspikeColl_j, CovColl({stim_j, baseline}));
+    cSc = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>},{<span class="string">'Stimulus'</span>,<span class="string">'stim'</span>}}, sampleRate, [], []);
+    cSc.setName(sprintf(<span class="string">'lag=%.3gs'</span>, candidateLags(j)));
+    rj = Analysis.RunAnalysisForAllNeurons(trial_j, ConfigColl({cSc}), 0);
+    ks_scan(j)   = rj.KSStats.ks_stat;
+    dAIC_scan(j) = rj.AIC - AICref;
+    dBIC_scan(j) = rj.BIC - BICref;
+<span class="keyword">end</span>
+
+[~, bestIdx] = min(ks_scan);
+figure;
+subplot(3,1,1); plot(candidateLags*1000, ks_scan, <span class="string">'b.-'</span>); hold <span class="string">on</span>;
+plot(candidateLags(bestIdx)*1000, ks_scan(bestIdx), <span class="string">'r*'</span>,<span class="string">'MarkerSize'</span>,12);
+xline(ShiftTime*1000, <span class="string">'k--'</span>);
+ylabel(<span class="string">'KS statistic'</span>); set(gca,<span class="string">'xtick'</span>,[]);
+title(<span class="string">'Stimulus-lag selection: KS / \DeltaAIC / \DeltaBIC scan (xcov peak: black dashed)'</span>);
+subplot(3,1,2); plot(candidateLags*1000, dAIC_scan, <span class="string">'b.-'</span>); hold <span class="string">on</span>;
+plot(candidateLags(bestIdx)*1000, dAIC_scan(bestIdx), <span class="string">'r*'</span>,<span class="string">'MarkerSize'</span>,12);
+xline(ShiftTime*1000, <span class="string">'k--'</span>);
+ylabel(<span class="string">'\Delta AIC'</span>); set(gca,<span class="string">'xtick'</span>,[]);
+subplot(3,1,3); plot(candidateLags*1000, dBIC_scan, <span class="string">'b.-'</span>); hold <span class="string">on</span>;
+plot(candidateLags(bestIdx)*1000, dBIC_scan(bestIdx), <span class="string">'r*'</span>,<span class="string">'MarkerSize'</span>,12);
+xline(ShiftTime*1000, <span class="string">'k--'</span>);
+ylabel(<span class="string">'\Delta BIC'</span>); xlabel(<span class="string">'stimulus lag (ms)'</span>);
+</pre>
+<pre class="codeoutput">Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+Analyzing Configuration #1: Neuron #1
+</pre>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="4">Compare constant rate model with model including stimulus effect</h2>
 <p>Addition of the stimulus improves the fits in terms of the KS plot and the making the rescaled ISIs less correlated. The Point Process Residula also looks more "white"</p>
 <pre class="codeinput">clear <span class="string">c</span>;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000;
@@ -174,7 +261,7 @@ results.plotResults;
 <pre class="codeoutput">Analyzing Configuration #1: Neuron #1
 Analyzing Configuration #2: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_04.png" alt=""> <h2 id="4">History Effect</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <h2 id="5">History Effect</h2>
 <p>Determine the best history effect model using AIC, BIC, and KS statistic</p>
 <pre class="codeinput">sampleRate=1000;
 delta=1/sampleRate*1;
@@ -242,7 +329,7 @@ windowIndex =
      8
 
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_05.png" alt=""> <pre class="codeinput">figure;
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <pre class="codeinput">figure;
 x=1:length(windowTimes);
 subplot(3,1,1); plot(x,results{1}.KSStats.ks_stat,<span class="string">'.'</span>); axis <span class="string">tight</span>; hold <span class="string">on</span>;
 plot(x(windowIndex),results{1}.KSStats.ks_stat(windowIndex),<span class="string">'r*'</span>);
@@ -265,13 +352,16 @@ plot(x(windowIndex),dBIC(windowIndex),<span class="string">'r*'</span>);
 
 figure;
 plot(x,dBIC,<span class="string">'.'</span>);
+ylabel(<span class="string">'\Delta BIC'</span>); xlabel(<span class="string">'history window'</span>);
 xticks = 1:(length(histLabels));
 set(gca,<span class="string">'xtick'</span>,xticks,<span class="string">'xtickLabel'</span>,histLabels,<span class="string">'FontSize'</span>,6);
-<span class="keyword">if</span>(max(xticks)&gt;=1)
-    xticklabel_rotate([],90,[],<span class="string">'Fontsize'</span>,8);
-<span class="keyword">end</span>
+<span class="comment">% FIX (#102): xticklabel_rotate is a File Exchange helper that</span>
+<span class="comment">% manipulates the figure's Position/axes in a way publish() renders as</span>
+<span class="comment">% near-blank. xtickangle is the R2014b+ built-in equivalent.</span>
+xtickangle(90);
+set(gca,<span class="string">'FontSize'</span>,8);
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_06.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <h2 id="6">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_07.png" alt=""> <img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <h2 id="7">Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus</h2>
 <p>Addition of the history effect yields a model that falls within the 95% CI of the KS plot.</p>
 <pre class="codeinput">c{1} = TrialConfig({{<span class="string">'Baseline'</span>,<span class="string">'constant'</span>}},sampleRate,[],NeighborHist);
 c{1}.setName(<span class="string">'Baseline'</span>);
@@ -289,7 +379,7 @@ results.plotResults;
 Analyzing Configuration #2: Neuron #1
 Analyzing Configuration #3: Neuron #1
 </pre>
-<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_08.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="ExplicitStimulusWhiskerData_09.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -358,6 +448,65 @@ nst = nspikeTrain(spikeTimes);
 nspikeColl = nstColl(nst);
 cc = CovColl({stim,baseline});
 trial = Trial(nspikeColl,cc);
+
+%% Stimulus-lag model-selection scan: KS / DeltaAIC / DeltaBIC (issue #83)
+% Alternative to the xcov-peak heuristic above: scan candidate stimulus
+% lags and pick the one that minimizes the KS statistic / DeltaAIC /
+% DeltaBIC. Same pattern HistoryExamples uses for history-lag selection.
+% The xcov-chosen ShiftTime is overlaid as a black dashed reference.
+candidateLags = -0.05:0.01:0.20;   % seconds (-50ms past .. +200ms future)
+ks_scan   = nan(size(candidateLags));
+dAIC_scan = nan(size(candidateLags));
+dBIC_scan = nan(size(candidateLags));
+
+% FIX (#83 / PR #103): nstColl, nspikeTrain, and Trial are all handle
+% classes. The scan below mints fresh Trial objects per iteration but
+% must NOT reuse the outer `nspikeColl` REPLACE_WITH_DASH_DASH Analysis.RunAnalysisForAllNeurons
+% calls setTrialTimesFor + setMaxTime/setMinTime which propagate through
+% the shared spike-collection handle, polluting the original `trial` and
+% breaking the downstream computeHistLagForAll concat at
+% Trial.getDesignMatrix:481. Mint isolated nspikeColls for the reference
+% and per-lag fits.
+nspikeColl_scan = nstColl(nspikeTrain(spikeTimes));
+
+% Baseline-only reference fit for AIC/BIC deltas
+cRef = TrialConfig({{'Baseline','constant'}},sampleRate,[],[]);
+cRef.setName('BaselineRef');
+trialRef = Trial(nspikeColl_scan, CovColl({baseline}));
+resRef   = Analysis.RunAnalysisForAllNeurons(trialRef, ConfigColl({cRef}), 0);
+% FIX (#102 / #103): RunAnalysisForAllNeurons returns a FitResult OBJECT
+% for the single-neuron / single-config case, not a cell.
+AICref = resRef.AIC;
+BICref = resRef.BIC;
+
+for j = 1:length(candidateLags)
+    nspikeColl_j = nstColl(nspikeTrain(spikeTimes));  % fresh handle per iter
+    stim_j  = Covariate(time, stimData, 'Stimulus','time','s','V',{'stim'});
+    stim_j  = stim_j.shift(candidateLags(j));
+    trial_j = Trial(nspikeColl_j, CovColl({stim_j, baseline}));
+    cSc = TrialConfig({{'Baseline','constant'},{'Stimulus','stim'}}, sampleRate, [], []);
+    cSc.setName(sprintf('lag=%.3gs', candidateLags(j)));
+    rj = Analysis.RunAnalysisForAllNeurons(trial_j, ConfigColl({cSc}), 0);
+    ks_scan(j)   = rj.KSStats.ks_stat;
+    dAIC_scan(j) = rj.AIC - AICref;
+    dBIC_scan(j) = rj.BIC - BICref;
+end
+
+[~, bestIdx] = min(ks_scan);
+figure;
+subplot(3,1,1); plot(candidateLags*1000, ks_scan, 'b.-'); hold on;
+plot(candidateLags(bestIdx)*1000, ks_scan(bestIdx), 'r*','MarkerSize',12);
+xline(ShiftTime*1000, 'kREPLACE_WITH_DASH_DASH');
+ylabel('KS statistic'); set(gca,'xtick',[]);
+title('Stimulus-lag selection: KS / \DeltaAIC / \DeltaBIC scan (xcov peak: black dashed)');
+subplot(3,1,2); plot(candidateLags*1000, dAIC_scan, 'b.-'); hold on;
+plot(candidateLags(bestIdx)*1000, dAIC_scan(bestIdx), 'r*','MarkerSize',12);
+xline(ShiftTime*1000, 'kREPLACE_WITH_DASH_DASH');
+ylabel('\Delta AIC'); set(gca,'xtick',[]);
+subplot(3,1,3); plot(candidateLags*1000, dBIC_scan, 'b.-'); hold on;
+plot(candidateLags(bestIdx)*1000, dBIC_scan(bestIdx), 'r*','MarkerSize',12);
+xline(ShiftTime*1000, 'kREPLACE_WITH_DASH_DASH');
+ylabel('\Delta BIC'); xlabel('stimulus lag (ms)');
 
 %% Compare constant rate model with model including stimulus effect
 % Addition of the stimulus improves the fits in terms of the KS plot and
@@ -432,11 +581,14 @@ end
 
 figure;
 plot(x,dBIC,'.');
+ylabel('\Delta BIC'); xlabel('history window');
 xticks = 1:(length(histLabels));
 set(gca,'xtick',xticks,'xtickLabel',histLabels,'FontSize',6);
-if(max(xticks)>=1)
-    xticklabel_rotate([],90,[],'Fontsize',8);
-end
+% FIX (#102): xticklabel_rotate is a File Exchange helper that
+% manipulates the figure's Position/axes in a way publish() renders as
+% near-blank. xtickangle is the R2014b+ built-in equivalent.
+xtickangle(90);
+set(gca,'FontSize',8);
            
 
 %% Compare Baseline, Baseline+Stimulus Model, Baseline+History+Stimulus

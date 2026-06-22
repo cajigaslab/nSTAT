@@ -9,7 +9,7 @@ To make changes, update the MATLAB code and republish this document.
 <title>nSTATPaperExamples</title>
 <meta name="generator" content="MATLAB 26.1">
 <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2026-06-19">
+<meta name="DC.date" content="2026-06-22">
 <meta name="DC.source" content="nSTATPaperExamples.m">
 <style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
@@ -1409,7 +1409,7 @@ set(h_legend, <span class="string">'position'</span>,[pos(1)+.03 pos(2)+.01 pos(
 
 %% Compare differences across trials 
 echo off;
-The learning trial (compared to the first trial) is trial #9
+The learning trial (compared to the first trial) is trial #15
 </pre>
 <img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <h2 id="25">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
 <p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p>
@@ -2126,7 +2126,7 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
 <p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p>
 <p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p>
 <p>
-<img src="nSTATPaperExamples_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$" style="width:136px;height:18px;"></p>
+<img src="nSTATPaperExamples_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p>
 <h2 id="41">Generated Simulated Arm Reach</h2>
 <pre class="codeinput">clear <span class="string">all</span>;
 [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = <span class="keyword">...</span>

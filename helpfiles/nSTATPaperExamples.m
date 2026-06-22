@@ -305,11 +305,14 @@ set(gca, ...
   'LineWidth'   , 1         );
 
 
-%%
-% Fit a constant baseline and Find Stimulus Lag
-% We fit a constant rate (Poisson) model to the data and use the look at the
-% cross-covariance function of between the stimulus and the fit
-% residual to determine the appropriate lag for the stimulus.
+%% Fit Stimulus Lag, Stimulus, and History Effect Models
+% We fit a constant rate (Poisson) model to the data and look at the
+% cross-covariance function between the stimulus and the fit residual to
+% determine the appropriate lag for the stimulus, then add the stimulus
+% term and a history term and compare via KS plot and coefficient table.
+% All panels render into a single composite figure -- consolidated into
+% one publish section so the figure is captured once, fully built,
+% instead of three times in partial states.
 clear c; close all;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000; 
 c{1} = TrialConfig({{'Baseline','constant'}},sampleRate,selfHist,NeighborHist); 
@@ -348,10 +351,10 @@ nspikeColl = nstColl(nst);
 cc = CovColl({stim,baseline});
 trial2 = Trial(nspikeColl,cc);
 
-%% Compare constant rate model with model including stimulus effect
+% Compare constant rate model with model including stimulus effect.
 % Addition of the stimulus improves the fits in terms of the KS plot and
-% the making the rescaled ISIs less correlated. The Point Process Residula
-% also looks more "white"
+% makes the rescaled ISIs less correlated. The Point Process Residual
+% also looks more "white".
 clear c;
 selfHist = [] ; NeighborHist = []; sampleRate = 1000; 
 c{1} = TrialConfig({{'Baseline','\mu'}},sampleRate,selfHist,...
@@ -364,8 +367,8 @@ cfgColl= ConfigColl(c);
 results = Analysis.RunAnalysisForAllNeurons(trial2,cfgColl,0);
 % results.plotResults;
 
-%% History Effect
-% Determine the best history effect model using AIC, BIC, and KS statistic
+% History Effect.
+% Determine the best history effect model using AIC, BIC, and KS statistic.
 sampleRate=1000;
 delta=1/sampleRate*1; 
 maxWindow=1; numWindows=32;

@@ -1,5 +1,5 @@
 % nSTAT - Neural Spike Train Analysis Toolbox
-% Version 1.5 13-Jun-2026
+% Version 1.5 22-Jun-2026
 %
 % nSTAT implements point process generalized linear models and related
 % algorithms for neural spike train data analysis. See README.md for

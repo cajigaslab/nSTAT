@@ -1,5 +1,55 @@
 # nSTAT Release Notes
 
+## v1.5.1 — 22-Jun-2026
+
+Patch release. Bug fixes from the 2026-06-19 parity-audit ledger, the helpfile-rendering pipeline rebuild, the MATLAB R2025b→R2026a switch, and a `checkcode`-surfaced sweep of `+nstat/+decoding/`. End users on v1.5.0 should upgrade; behavior change is limited to specific edge cases documented below.
+
+### Correctness fixes
+
+| PR | Class | Site | Effect |
+|---|---|---|---|
+| #87 | numerical | `Analysis.m` KS rescaling | `1 - exp(-Z)` → `-expm1(-Z)`. Catastrophic-cancellation fix for KS statistics at small `λ·dt` (sub-Hz firing with ms bins). Math-equivalent for the parity-baseline regime; tightens precision in the sub-Hz tail. |
+| #87 | plotting | `Events.m` label x-coord | Event labels now anchor to event time in data coordinates with `HorizontalAlignment='center'` instead of axes-fraction nudge that drifted on tight `xlim`. |
+| #94 | API | `CIF` constructor | `Xnames` entries must be valid MATLAB identifiers. `Xnames={'1',...}` now errors clearly at construction (`CIF:InvalidXname`) instead of failing opaquely in `sym()` downstream. Migrate intercepts to `'one'`. |
+| #94 | API | `SignalObj.autocorrelation` / `.crosscorrelation` | `crosscorr(x,y,n-1)` → `crosscorr(x,y,'NumLags',n-1)`. Required for R2023b+ Econometrics Toolbox. |
+| #97 | typo | `PPLFP_EStep` binomial branch | `HkPerm = HkPerm(:,:,k)` self-clobber → `Hk = HkPerm(:,:,k)`. Binomial-fitType log-likelihood accumulator was effectively dead code; now exercised correctly. |
+| #100 | API | 6 sites in `+nstat/+decoding/PPLFP.m` and `+nstat/+decoding/PointProcessEM.m` | `matlabpool('size')` → `gcp('nocreate')` idiom. Required for R2017a+ MATLAB. Tripwire test prevents reintroduction. |
+| #100 | logic | `PPLFP_EM` windowTimes guard | Scalar `gamma=0` no longer misinterpreted as "1-window history". Closed PPLFP_EM matmul-mismatch on the no-history fast path. |
+| #106 | doc | `helpfiles/DecodingExample.m` orphan `figure;` | Removed bare `figure;` before `results{1}.plotResults` that produced a blank `_03.png` snapshot. |
+| #109 | doc | `FitResult.plotCoeffs` + 3× `FitResSummary` | Replaced third-party `xticklabel_rotate` with the R2014b+ built-in `xtickangle`. GLM coefficient labels render cleanly under `publish()` instead of overlapping vertical scribbles. |
+| #112 | logic | `PointProcessEM.m:268` | Missing `=` in binomial Hessian update was discarding the computation. Standard-error estimates for binomial `PointProcessEM` fits are now correct (filter convergence and KS were always unaffected). |
+| #112 | guard | `PointProcessEM.m:1111` | Replaced bare `time;` in the Ikeda-acceleration `gammahat~=0` branch (which silently fell through to stale data) with a clear `IkedaHistNotImplemented` error. |
+
+### New capabilities
+
+- **`tools/smoke_helpfile.m`** — publishes one helpfile in a staged sandbox, reports figure count + sizes + blank suspects + delta vs HEAD baseline. Strips `.mlx` siblings to avoid the shadow-execution trap (CONTRIBUTING.md). Forces `defaultFigureVisible='on'` (the silent figure-capture-suppression bug we diagnosed in PR #107).
+- **`tools/check_helpfile_drift.m`** — pixel-diff two helpfile directories. Default compares current `helpfiles/` against HEAD-staged temp; pass `'Other'` to compare against an older worktree. Verdict classes mirror `check_readme_figures.m`.
+- **`helpfiles/publish_all_helpfiles.m`** — new `validateNoBlankFigures` step errors with `nSTAT:BlankFigureArtifact` when any `Foo_NN.png` figure snapshot drops below `BlankPngThresholdBytes` (default 5000 B). Catches the orphan-`figure;`-before-`plotResults` antipattern (PR #106).
+- **`tools/predeploy.sh`** — `--skip-publish` escape hatch removed. The publish step is the only gate that catches blank-figure / partial-render regressions; allowing skip is how earlier regressions landed.
+
+### MATLAB toolchain
+
+- **Default switched from R2025b to R2026a** (MATLAB 26.1). `tools/predeploy.sh`, `tools/run_unit_tests.sh`, `tools/check_readme_figures.sh`, `helpfiles/publish_all_helpfiles.m` (ExpectedGenerator), `info.xml`, and several doc pointers updated.
+
+### Documentation
+
+- **CONTRIBUTING.md** — two new subsections:
+  - **Smoke-testing an edited helpfile `.m`** documents the `.mlx`-shadows-`.m` trap (a smoke test using `run('Foo')` silently executes the stale `.mlx` against assertions, not the freshly-edited `.m`). Recommends `tools/smoke_helpfile.m` as the safe entry point with two ad-hoc fallback patterns.
+  - **Verifying regenerated `.mlx` / `.html` / PNG artifacts before commit** encodes the lesson from the PR #105 rollback: regenerated rendered docs can silently degrade vs the committed baseline. Three pre-commit checks documented.
+- **`tools/check_helpfile_drift.m`** integration with the verification workflow.
+
+### Breaking changes
+
+- **CIF intercept symbol must be `'one'`, not `'1'`** (PR #94). Helpfiles and tests already updated. External callers passing `Xnames={'1', ...}` will get a clear `CIF:InvalidXname` error at construction. Migrate to `Xnames={'one', ...}`.
+
+### Out of scope (deferred to v1.6 or later)
+
+- Re-attempting the pedagogical figure additions from PRs #88/#89 that were rolled back in PR #105. The pipeline is now stable enough to try again, but each requires careful artifact verification.
+- `checkcode` style/perf cleanup (275 `AGROW`, 124 `NASGU`, etc.). Not bug-class; out of scope for a patch release.
+- Closed without fix: issue #110 (PPAF+History decoded-peak drift). Bisect showed no numerical regression; the visual estimate was an artifact of headless rendering at 1278×770 vs 1882×1026.
+
+---
+
 ## v1.5.0 — 2026-06-13
 
 Minor release. **No code changes**; the version bump reflects the addition of a new install path. Existing users upgrading from v1.4.1 by `git pull` see no behavior change.

@@ -1027,7 +1027,7 @@ CompilingHelpFile=1;
     if(~CompilingHelpFile)
     end
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_10.png" alt=""> <pre class="codeinput">installPath = which(<span class="string">'nSTAT_Install'</span>);
+<pre class="codeinput">installPath = which(<span class="string">'nSTAT_Install'</span>);
 <span class="keyword">if</span> isempty(installPath)
     error(<span class="string">'nSTATPaperExamples:MissingInstallPath'</span>, <span class="keyword">...</span>
         <span class="string">'Could not locate nSTAT_Install.m on MATLAB path.'</span>);
@@ -1097,7 +1097,7 @@ dBIC =
 
 dKS =diff(S.KSStats); 
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_11.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_10.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 <span class="comment">% Generate the actual stimulus effect</span>
 minTime=0; maxTime = Tmax;
 stimData = stim.data*b1;
@@ -1311,7 +1311,7 @@ set(gca,'ytick',[],'ytickLabel',[]);
 set(gca, 'YDir','normal')
 view(gca,[90 -90]);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <h2 id="22">Compare differences across trials</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_11.png" alt=""> <h2 id="22">Compare differences across trials</h2>
 <pre class="codeinput">echo <span class="string">off</span>;
 close <span class="string">all</span>;
    minTime=0; maxTime = Tmax;
@@ -1407,9 +1407,9 @@ set(h_legend, <span class="string">'position'</span>,[pos(1)+.03 pos(2)+.01 pos(
 
 %% Compare differences across trials 
 echo off;
-The learning trial (compared to the first trial) is trial #6
+The learning trial (compared to the first trial) is trial #13
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_13.png" alt=""> <h2 id="23">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_12.png" alt=""> <h2 id="23">Example 4 - HIPPOCAMPAL PLACE CELL - RECEPTIVE FIELD ESTIMATION</h2>
 <p>Estimation of receptive fields of neurons is a very common data analysis problem in neuroscience. Here we use the nSTAT software to perform an estimation of the receptive fields of hippocampal place cells using a bivariate Gaussian model and Zernike polynomials. The number of zernike polynomials is based on "An Analysis of Hippocampal Spatio-Temporal Representations Using a Bayesian Algorithm for Neural Spike Train Decoding" Barbieri et. al 2005. The data used herein in was provided by Dr. Ricardo Barbieri on 2/28/2011.</p>
 <p>
 <b>Author</b>: Iahn Cajigas</p>
@@ -1444,7 +1444,7 @@ The learning trial (compared to the first trial) is trial #6
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_14.png" alt=""> <h2 id="26">Analyze All Cells</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_13.png" alt=""> <h2 id="26">Analyze All Cells</h2>
 <pre class="codeinput">numAnimals=2;
 CompilingHelpFile=1;
 <span class="keyword">if</span>(~CompilingHelpFile)
@@ -1560,7 +1560,7 @@ title(<span class="string">'\Delta BIC'</span>,<span class="string">'FontWeight'
 
 <span class="comment">%  close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_15.png" alt=""> <h2 id="29">Visualize the results</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_14.png" alt=""> <h2 id="29">Visualize the results</h2>
 <pre class="codeinput">close <span class="string">all</span>;
 <span class="comment">% Define a grid</span>
 [x_new,y_new]=meshgrid(-1:.01:1); <span class="comment">%define new x and y</span>
@@ -1680,7 +1680,7 @@ cnt=0;
 
 <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_16.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_17.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_18.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_19.png" alt=""> <pre class="codeinput">    clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_15.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_16.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_17.png" alt=""> <img vspace="5" hspace="5" src="nSTATPaperExamples_18.png" alt=""> <pre class="codeinput">    clear <span class="string">lambdaGaussian</span> <span class="string">lambdaZernike</span>;
     load(fullfile(placeCellDataDir,<span class="string">'PlaceCellDataAnimal1.mat'</span>));
     resData = load(fullfile(dataDir,<span class="string">'PlaceCellAnimal1Results.mat'</span>));
     results = FitResult.fromStructure(resData.resStruct);
@@ -1723,7 +1723,7 @@ cnt=0;
     hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
     set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,12,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_20.png" alt=""> <h2 id="31">Example 5 - STIMULUS DECODING</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_19.png" alt=""> <h2 id="31">Example 5 - STIMULUS DECODING</h2>
 <p>In this example we show how to decode a univariate and a bivariate stimulus based on a point process observations using nSTAT. Even though due to the simulated nature of the data, we know the exact condition intensity function, we estimate the parameters before moving on to the decoding stage.</p>
 <h2 id="32">Generate the conditional Intensity Function</h2>
 <pre class="codeinput">    close <span class="string">all</span>; clear <span class="string">all</span>;
@@ -1790,7 +1790,7 @@ baseline = Covariate(time,ones(length(time),1),<span class="string">'Baseline'</
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_21.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_20.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 
 clear <span class="string">lambdaCIF</span>;
 spikeColl.resample(1/delta);
@@ -1835,7 +1835,7 @@ ylabel(<span class="string">'Stimulus'</span>,<span class="string">'Interpreter'
 hx=get(gca,<span class="string">'XLabel'</span>);  hy=get(gca,<span class="string">'YLabel'</span>);
 set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial'</span>,<span class="string">'FontSize'</span>,22,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_22.png" alt=""> <h2 id="34">Example 5b - Arm reaching to target Simulation</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_21.png" alt=""> <h2 id="34">Example 5b - Arm reaching to target Simulation</h2>
 <p>See L. Srinivasan, U. T. Eden, A. S. Willsky, and E. N. Brown, "A state-space analysis for reconstruction of goal-directed movements using neural signals.," Neural computation, vol. 18, no. 10, pp. 2465?2494, Oct. 2006.</p>
 <pre class="codeinput">    close <span class="string">all</span>;
     clear <span class="string">all</span>;
@@ -1988,7 +1988,7 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_23.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
+<img vspace="5" hspace="5" src="nSTATPaperExamples_22.png" alt=""> <pre class="codeinput">close <span class="string">all</span>;
 numExamples=20;
 scrsz = get(0,<span class="string">'ScreenSize'</span>);
 fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1 <span class="keyword">...</span>
@@ -2117,19 +2117,44 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
 
 <span class="comment">%     close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_24.png" alt=""> <h2 id="36">Experiment 6 - Hybrid Point Process Filter Example</h2>
-<p>NOTE THIS EXAMPLE WAS NOT INCLUDED IN THE FINAL VERSION OF THE PAPER This example is based on an implementation of the Hybrid Point Process filter described in <i>General-purpose filter design for neural prosthetic devices</i> by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol. 2007 Oct, 98(4):2456-75.</p>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_23.png" alt=""> <h2 id="36">Experiment 6 - Hybrid Point Process Filter Example</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% NOTE THIS EXAMPLE WAS NOT INCLUDED IN THE FINAL VERSION OF THE PAPER</span>
+<span class="comment">% This example is based on an implementation of the Hybrid Point Process</span>
+<span class="comment">% filter described in _General-purpose filter design for neural prosthetic</span>
+<span class="comment">% devices_ by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol.</span>
+<span class="comment">% 2007 Oct, 98(4):2456-75.</span>
+<span class="comment">%</span>
+</pre>
 <h2 id="37">Problem Statement</h2>
-<p>Suppose that a process of interest can be modeled as consisting of several discrete states where the evolution of the system under each state can be modeled as a linear state space model. The observations of both the state and the continuous dynamics are not direct, but rather observed through how the continuous and discrete states affect the firing of a population of neurons. The goal of the hybrid filter is to estimate both the continuous dynamics and the underlying system state from only the neural population firing (point process observations).</p>
-<p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p>
-<p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Suppose that a process of interest can be modeled as consisting of</span>
+<span class="comment">% several discrete states where the evolution of the system under each</span>
+<span class="comment">% state can be modeled as a linear state space model. The observations of</span>
+<span class="comment">% both the state and the continuous dynamics are not direct, but rather</span>
+<span class="comment">% observed through how the continuous and discrete states affect the firing</span>
+<span class="comment">% of a population of neurons. The goal of the hybrid filter is to estimate</span>
+<span class="comment">% both the continuous dynamics and the underlying system state from only</span>
+<span class="comment">% the neural population firing (point process observations).</span>
+<span class="comment">%</span>
+<span class="comment">% To illustrate the use of this filter, we consider a reaching task. We</span>
+<span class="comment">% assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M.</span>
+<span class="comment">% Under the "Not Moving" the position of the arm remain constant,</span>
+<span class="comment">% whereas in the "Moving" state, the position and velocities evolved based</span>
+<span class="comment">% on the arm acceleration that is modeled as a gaussian white noise</span>
+<span class="comment">% process.</span>
+<span class="comment">%</span>
+<span class="comment">% Under both the "Moving" and "Not Moving" states, the arm evolution state</span>
+<span class="comment">% vector is</span>
+</pre>
 <p>
 <img src="nSTATPaperExamples_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p>
 <h2 id="39">Generated Simulated Arm Reach</h2>
-<pre class="codeinput">clear <span class="string">all</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+
+clear <span class="string">all</span>;
 [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = <span class="keyword">...</span>
     getPaperDataDirs();
-close <span class="string">all</span>;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;
@@ -2285,7 +2310,7 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
 
 <span class="comment">% close all;</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_25.png" alt=""> <h2 id="41">Simulate Neural Firing</h2>
+<img vspace="5" hspace="5" src="nSTATPaperExamples_24.png" alt=""> <h2 id="41">Simulate Neural Firing</h2>
 <p>We simulate a population of neurons that fire in response to the movement velocity (x and y coorinates)</p>
 <pre class="codeinput">
 <span class="comment">%Use the data to estimate the process noise for the moving case and</span>
@@ -2602,7 +2627,7 @@ thisDir = startDir;
 <span class="keyword">end</span>
 <span class="keyword">end</span>
 </pre>
-<img vspace="5" hspace="5" src="nSTATPaperExamples_26.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="nSTATPaperExamples_25.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -4399,15 +4424,17 @@ for k=1:numExamples
 end
 
 %     close all;
-%% Experiment 6 - Hybrid Point Process Filter Example 
+%% Experiment 6 - Hybrid Point Process Filter Example
+close all;
 % NOTE THIS EXAMPLE WAS NOT INCLUDED IN THE FINAL VERSION OF THE PAPER
 % This example is based on an implementation of the Hybrid Point Process
-% filter described in _General-purpose filter design for neural prosthetic 
+% filter described in _General-purpose filter design for neural prosthetic
 % devices_ by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol.
-% 2007 Oct, 98(4):2456-75. 
+% 2007 Oct, 98(4):2456-75.
 %
 
 %% Problem Statement
+close all;
 % Suppose that a process of interest can be modeled as consisting of
 % several discrete states where the evolution of the system under each
 % state can be modeled as a linear state space model. The observations of
@@ -4432,11 +4459,11 @@ end
 % 
 
 %% Generated Simulated Arm Reach
+close all;
 
 clear all;
 [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
     getPaperDataDirs();
-close all;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;

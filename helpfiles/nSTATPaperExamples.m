@@ -1787,15 +1787,17 @@ for k=1:numExamples
 end
 
 %     close all;
-%% Experiment 6 - Hybrid Point Process Filter Example 
+%% Experiment 6 - Hybrid Point Process Filter Example
+close all;
 % NOTE THIS EXAMPLE WAS NOT INCLUDED IN THE FINAL VERSION OF THE PAPER
 % This example is based on an implementation of the Hybrid Point Process
-% filter described in _General-purpose filter design for neural prosthetic 
+% filter described in _General-purpose filter design for neural prosthetic
 % devices_ by Srinivasan L, Eden UT, Mitter SK, Brown EN in J Neurophysiol.
-% 2007 Oct, 98(4):2456-75. 
+% 2007 Oct, 98(4):2456-75.
 %
 
 %% Problem Statement
+close all;
 % Suppose that a process of interest can be modeled as consisting of
 % several discrete states where the evolution of the system under each
 % state can be modeled as a linear state space model. The observations of
@@ -1820,11 +1822,11 @@ end
 % 
 
 %% Generated Simulated Arm Reach
+close all;
 
 clear all;
 [dataDir,mEPSCDir,explicitStimulusDir,psthDir,placeCellDataDir] = ...
     getPaperDataDirs();
-close all;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;

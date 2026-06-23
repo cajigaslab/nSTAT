@@ -91,7 +91,8 @@ plot(position.getSubSignal('x').dataToMatrix,position.getSubSignal('y').dataToMa
 axis tight square;
 xlabel('x position (m)'); ylabel('y position (m)');
 
-%% Toolbox vs. Standard GLM comparison 
+%% Toolbox vs. Standard GLM comparison
+close all;
 % Compare the results using our approach with the standard approach used in
 % the first example previous standard regression 
 [b,dev,stats] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,'poisson');
@@ -100,6 +101,7 @@ b-fitResults.b{2} % should be close to zero
 
 
 %% Compute the history effect
+close all;
 sampleRate=1000;  makePlot=1; neuronNum = 1;
 covLabels = {{'Baseline','mu'},{'Radial','x','y','x^2','y^2','x*y'}};
 Algorithm = 'GLM';

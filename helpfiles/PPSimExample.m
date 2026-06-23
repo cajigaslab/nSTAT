@@ -4,6 +4,7 @@
 % We then use the generated PP data to validate the outputs of the Neural
 % Spike Analysis Toolbox.
 %% Point Process Sample Path Generation
+close all;
 % That both the stimulus effect and ensemble effects can be made into
 % multi-input/multi-output transfer functions to account for more than 1
 % stimulus effect or multiple neighboring neuron effects. To do this,
@@ -34,23 +35,26 @@ t=tMin:Ts:tMax;
 mu=-3;              %Baseline firing rate of the neurons being modeled
 
 %% History Effect
-% 
+close all;
+%
 % $$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$
-% 
+%
 H=tf([-1 -2 -4],[1],Ts,'Variable','z^-1');
 
 
 %% Stimulus Effect
-% 
+close all;
+%
 % $$1*s[n]=1*u_{stim}[n]$$
-% 
+%
 S=tf([1],1,Ts,'Variable','z^-1');
 
 
 %% Ensemble Effect
-% 
+close all;
+%
 % $$1*e[n]=0*\Delta N_{k}[n]$$
-% 
+%
 E=tf([0],1,Ts,'Variable','z^-1');
 
 %%
@@ -68,6 +72,7 @@ subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
 
 %% Realized conditional intensity \lambda(t) (issue #85)
+close all;
 % Make the input -> intensity -> spikes pipeline explicit: peaks of \lambda
 % align with peaks of u_{stim}(t), and the self-history term injects
 % refractory dips visible in the raster above.
@@ -78,6 +83,7 @@ title('Realized conditional intensity \lambda(t) (sample path 1)');
 xlabel('time [s]'); ylabel('\lambda(t) \cdot \Delta');
 
 %% GLM Model Fitting Setup
+close all;
 % In this section, we create the appropriate structures to fit several GLM
 % models to the data generated above.
 
@@ -91,8 +97,9 @@ trial = Trial(spikeColl,cc); sampleRate = 1/Ts; %Create trial
 
 
 %% GLM Model Fitting and Results
+close all;
 clear c;
-selfHist = [0:0.001:0.003]; %We know the history effect goes back 3 lag orders 
+selfHist = [0:0.001:0.003]; %We know the history effect goes back 3 lag orders
 
 %% 
 % Fit only a mean firing rate
@@ -123,9 +130,11 @@ end
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,Algorithm);
 
 %% Results for sample neuron
+close all;
 results{1}.plotResults;
 
 %% Results for across all sample paths
+close all;
 
 Summary = FitResSummary(results);
 Summary.plotSummary;

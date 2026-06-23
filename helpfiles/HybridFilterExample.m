@@ -6,6 +6,7 @@
 %
 
 %% Problem Statement
+close all;
 % Suppose that a process of interest can be modeled as consisting of
 % several discrete states where the evolution of the system under each
 % state can be modeled as a linear state space model. The observations of
@@ -30,9 +31,9 @@
 % 
 
 %% Generated Simulated Arm Reach
+close all;
 
 clear all;
-close all;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;
@@ -188,8 +189,9 @@ set([hx, hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
 % close all;
  
 %% Simulate Neural Firing
+close all;
 % We simulate a population of neurons that fire in response to the movement
-% velocity (x and y coorinates) 
+% velocity (x and y coorinates)
 
 %Use the data to estimate the process noise for the moving case and
 %non-moving case
@@ -200,7 +202,7 @@ Q{2}=diag(var(diff(X(:,movingInd),[],2),[],2));
 Q{2}(1:4,1:4)=0;
 varNV=diag(var(diff(X(:,nonMovingInd),[],2),[],2));
 Q{1} = varNV(1:2,1:2);
-close all; clear S_est X_est MU_est S_estNT X_estNT MU_estNT;
+clear S_est X_est MU_est S_estNT X_estNT MU_estNT;
 numExamples = 20;
 numCells=40;
 scrsz = get(0,'ScreenSize');
@@ -419,6 +421,7 @@ end
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
 
 %% Pedagogical summary - MC mean trajectory + RMSE bar (issue #84)
+close all;
 % Collapse the n=size(X_estAll,3) spaghetti into a focused 2x2 panel so the
 % systematic advantage of the goal-target prior is visible at a glance.
 nMC = size(X_estAll, 3);

@@ -113,10 +113,13 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </ul>
 </div>
 <h2 id="1">Point Process Sample Path Generation</h2>
-<p>That both the stimulus effect and ensemble effects can be made into multi-input/multi-output transfer functions to account for more than 1 stimulus effect or multiple neighboring neuron effects. To do this, simply define $E$ or $S$ to be a row vector of LTI transfer functions. Make sure than the number of dimensions of the input matches the number of transfer functions specified in the row vector.</p>
-<pre class="error">Error in state of SceneNode.
-String scalar or character vector must have valid interpreter syntax: 
-$E$ or $
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% That both the stimulus effect and ensemble effects can be made into</span>
+<span class="comment">% multi-input/multi-output transfer functions to account for more than 1</span>
+<span class="comment">% stimulus effect or multiple neighboring neuron effects. To do this,</span>
+<span class="comment">% simply define $$E$ or $$S$ to be a row vector of LTI transfer functions.</span>
+<span class="comment">% Make sure than the number of dimensions of the input matches the number</span>
+<span class="comment">% of transfer functions specified in the row vector.</span>
 </pre>
 <p>
 <img vspace="5" hspace="5" src="PPSimExample-BlockDiagram.png" alt=""> </p>
@@ -131,19 +134,25 @@ t=tMin:Ts:tMax;
 mu=-3;              <span class="comment">%Baseline firing rate of the neurons being modeled</span>
 </pre>
 <h2 id="5">History Effect</h2>
-<p>
-<img src="PPSimExample_eq17733795504284027482.png" alt="$$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$"></p>
-<pre class="codeinput">H=tf([-1 -2 -4],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">%</span>
+<span class="comment">% $$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$</span>
+<span class="comment">%</span>
+H=tf([-1 -2 -4],[1],Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="6">Stimulus Effect</h2>
-<p>
-<img src="PPSimExample_eq13375943156936646927.png" alt="$$1*s[n]=1*u_{stim}[n]$$"></p>
-<pre class="codeinput">S=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">%</span>
+<span class="comment">% $$1*s[n]=1*u_{stim}[n]$$</span>
+<span class="comment">%</span>
+S=tf([1],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <h2 id="7">Ensemble Effect</h2>
-<p>
-<img src="PPSimExample_eq16379821955407226942.png" alt="$$1*e[n]=0*\Delta N_{k}[n]$$"></p>
-<pre class="codeinput">E=tf([0],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">%</span>
+<span class="comment">% $$1*e[n]=0*\Delta N_{k}[n]$$</span>
+<span class="comment">%</span>
+E=tf([0],1,Ts,<span class="string">'Variable'</span>,<span class="string">'z^-1'</span>);
 </pre>
 <pre class="codeinput">f=1;                    <span class="comment">%Stimulus frequency</span>
 u = sin(2*pi*f*t)';       <span class="comment">%Make this neuron modulated by a sine wave</span>
@@ -159,16 +168,21 @@ subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
 </pre>
 <img vspace="5" hspace="5" src="PPSimExample_01.png" alt=""> <h2 id="9">Realized conditional intensity \lambda(t) (issue #85)</h2>
-<p>Make the input -&gt; intensity -&gt; spikes pipeline explicit: peaks of \lambda align with peaks of u_{stim}(t), and the self-history term injects refractory dips visible in the raster above.</p>
-<pre class="codeinput">figure;
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Make the input -&gt; intensity -&gt; spikes pipeline explicit: peaks of \lambda</span>
+<span class="comment">% align with peaks of u_{stim}(t), and the self-history term injects</span>
+<span class="comment">% refractory dips visible in the raster above.</span>
+figure;
 lambdaSim.plot;
 xlim([0 tMax/5]);
 title(<span class="string">'Realized conditional intensity \lambda(t) (sample path 1)'</span>);
 xlabel(<span class="string">'time [s]'</span>); ylabel(<span class="string">'\lambda(t) \cdot \Delta'</span>);
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="10">GLM Model Fitting Setup</h2>
-<p>In this section, we create the appropriate structures to fit several GLM models to the data generated above.</p>
-<pre class="codeinput">
+<img vspace="5" hspace="5" src="PPSimExample_02.png" alt=""> <h2 id="10">GLM Model Fitting Setup</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% In this section, we create the appropriate structures to fit several GLM</span>
+<span class="comment">% models to the data generated above.</span>
+
 <span class="comment">% Create a constant covariate representing the mean firing rate $$\mu_{i}$</span>
 baseline=Covariate(t',ones(length(t),1),<span class="string">'Baseline'</span>,<span class="string">'time'</span>,<span class="string">'s'</span>,<span class="string">''</span>,{<span class="string">'mu'</span>});
 
@@ -178,7 +192,8 @@ cc=CovColl({stim,baseline});  <span class="comment">%Use stimulation and baselin
 trial = Trial(spikeColl,cc); sampleRate = 1/Ts; <span class="comment">%Create trial</span>
 </pre>
 <h2 id="11">GLM Model Fitting and Results</h2>
-<pre class="codeinput">clear <span class="string">c</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+clear <span class="string">c</span>;
 selfHist = [0:0.001:0.003]; <span class="comment">%We know the history effect goes back 3 lag orders</span>
 </pre>
 <p>Fit only a mean firing rate</p>
@@ -210,13 +225,16 @@ Analyzing Configuration #2: Neuron #1,2,3,4,5
 Analyzing Configuration #3: Neuron #1,2,3,4,5
 </pre>
 <h2 id="16">Results for sample neuron</h2>
-<pre class="codeinput">results{1}.plotResults;
+<pre class="codeinput">close <span class="string">all</span>;
+results{1}.plotResults;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <h2 id="17">Results for across all sample paths</h2>
-<pre class="codeinput">Summary = FitResSummary(results);
+<img vspace="5" hspace="5" src="PPSimExample_03.png" alt=""> <h2 id="17">Results for across all sample paths</h2>
+<pre class="codeinput">close <span class="string">all</span>;
+
+Summary = FitResSummary(results);
 Summary.plotSummary;
 </pre>
-<img vspace="5" hspace="5" src="PPSimExample_05.png" alt=""> <p class="footer">
+<img vspace="5" hspace="5" src="PPSimExample_04.png" alt=""> <p class="footer">
 <br>
 <a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
 <br>
@@ -230,6 +248,7 @@ Summary.plotSummary;
 % We then use the generated PP data to validate the outputs of the Neural
 % Spike Analysis Toolbox.
 %% Point Process Sample Path Generation
+close all;
 % That both the stimulus effect and ensemble effects can be made into
 % multi-input/multi-output transfer functions to account for more than 1
 % stimulus effect or multiple neighboring neuron effects. To do this,
@@ -260,23 +279,26 @@ t=tMin:Ts:tMax;
 mu=-3;              %Baseline firing rate of the neurons being modeled
 
 %% History Effect
-% 
+close all;
+%
 % $$1*h[n]=-1*\Delta N[n-1]-2*\Delta N[n-2] -4*\Delta N[n-3]$$
-% 
+%
 H=tf([-1 -2 -4],[1],Ts,'Variable','z^-1');
 
 
 %% Stimulus Effect
-% 
+close all;
+%
 % $$1*s[n]=1*u_{stim}[n]$$
-% 
+%
 S=tf([1],1,Ts,'Variable','z^-1');
 
 
 %% Ensemble Effect
-% 
+close all;
+%
 % $$1*e[n]=0*\Delta N_{k}[n]$$
-% 
+%
 E=tf([0],1,Ts,'Variable','z^-1');
 
 %%
@@ -294,6 +316,7 @@ subplot(2,1,1); sC.plot;    v=axis; axis([0 tMax/10 v(3) v(4)]);
 subplot(2,1,2); stim.plot;  v=axis; axis([0 tMax/10 v(3) v(4)]);
 
 %% Realized conditional intensity \lambda(t) (issue #85)
+close all;
 % Make the input -> intensity -> spikes pipeline explicit: peaks of \lambda
 % align with peaks of u_{stim}(t), and the self-history term injects
 % refractory dips visible in the raster above.
@@ -304,6 +327,7 @@ title('Realized conditional intensity \lambda(t) (sample path 1)');
 xlabel('time [s]'); ylabel('\lambda(t) \cdot \Delta');
 
 %% GLM Model Fitting Setup
+close all;
 % In this section, we create the appropriate structures to fit several GLM
 % models to the data generated above.
 
@@ -317,8 +341,9 @@ trial = Trial(spikeColl,cc); sampleRate = 1/Ts; %Create trial
 
 
 %% GLM Model Fitting and Results
+close all;
 clear c;
-selfHist = [0:0.001:0.003]; %We know the history effect goes back 3 lag orders 
+selfHist = [0:0.001:0.003]; %We know the history effect goes back 3 lag orders
 
 %% 
 % Fit only a mean firing rate
@@ -349,9 +374,11 @@ end
 results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,Algorithm);
 
 %% Results for sample neuron
+close all;
 results{1}.plotResults;
 
 %% Results for across all sample paths
+close all;
 
 Summary = FitResSummary(results);
 Summary.plotSummary;

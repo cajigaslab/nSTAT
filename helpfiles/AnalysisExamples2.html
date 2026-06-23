@@ -177,8 +177,10 @@ axis <span class="string">tight</span> <span class="string">square</span>;
 xlabel(<span class="string">'x position (m)'</span>); ylabel(<span class="string">'y position (m)'</span>);
 </pre>
 <img vspace="5" hspace="5" src="AnalysisExamples2_03.png" alt=""> <img vspace="5" hspace="5" src="AnalysisExamples2_04.png" alt=""> <h2 id="8">Toolbox vs. Standard GLM comparison</h2>
-<p>Compare the results using our approach with the standard approach used in the first example previous standard regression</p>
-<pre class="codeinput">[b,dev,stats] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,<span class="string">'poisson'</span>);
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Compare the results using our approach with the standard approach used in</span>
+<span class="comment">% the first example previous standard regression</span>
+[b,dev,stats] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,<span class="string">'poisson'</span>);
 b-fitResults.b{2} <span class="comment">% should be close to zero</span>
 </pre>
 <pre class="codeoutput">
@@ -193,7 +195,8 @@ ans =
 
 </pre>
 <h2 id="9">Compute the history effect</h2>
-<pre class="codeinput">sampleRate=1000;  makePlot=1; neuronNum = 1;
+<pre class="codeinput">close <span class="string">all</span>;
+sampleRate=1000;  makePlot=1; neuronNum = 1;
 covLabels = {{<span class="string">'Baseline'</span>,<span class="string">'mu'</span>},{<span class="string">'Radial'</span>,<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'x^2'</span>,<span class="string">'y^2'</span>,<span class="string">'x*y'</span>}};
 Algorithm = <span class="string">'GLM'</span>;
 batchMode=0;
@@ -314,7 +317,8 @@ plot(position.getSubSignal('x').dataToMatrix,position.getSubSignal('y').dataToMa
 axis tight square;
 xlabel('x position (m)'); ylabel('y position (m)');
 
-%% Toolbox vs. Standard GLM comparison 
+%% Toolbox vs. Standard GLM comparison
+close all;
 % Compare the results using our approach with the standard approach used in
 % the first example previous standard regression 
 [b,dev,stats] = glmfit([xN yN xN.^2 yN.^2 xN.*yN],spikes_binned,'poisson');
@@ -323,6 +327,7 @@ b-fitResults.b{2} % should be close to zero
 
 
 %% Compute the history effect
+close all;
 sampleRate=1000;  makePlot=1; neuronNum = 1;
 covLabels = {{'Baseline','mu'},{'Radial','x','y','x^2','y^2','x*y'}};
 Algorithm = 'GLM';

@@ -98,14 +98,32 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 </ul>
 </div>
 <h2 id="1">Problem Statement</h2>
-<p>Suppose that a process of interest can be modeled as consisting of several discrete states where the evolution of the system under each state can be modeled as a linear state space model. The observations of both the state and the continuous dynamics are not direct, but rather observed through how the continuous and discrete states affect the firing of a population of neurons. The goal of the hybrid filter is to estimate both the continuous dynamics and the underlying system state from only the neural population firing (point process observations).</p>
-<p>To illustrate the use of this filter, we consider a reaching task. We assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M. Under the "Not Moving" the position of the arm remain constant, whereas in the "Moving" state, the position and velocities evolved based on the arm acceleration that is modeled as a gaussian white noise process.</p>
-<p>Under both the "Moving" and "Not Moving" states, the arm evolution state vector is</p>
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Suppose that a process of interest can be modeled as consisting of</span>
+<span class="comment">% several discrete states where the evolution of the system under each</span>
+<span class="comment">% state can be modeled as a linear state space model. The observations of</span>
+<span class="comment">% both the state and the continuous dynamics are not direct, but rather</span>
+<span class="comment">% observed through how the continuous and discrete states affect the firing</span>
+<span class="comment">% of a population of neurons. The goal of the hybrid filter is to estimate</span>
+<span class="comment">% both the continuous dynamics and the underlying system state from only</span>
+<span class="comment">% the neural population firing (point process observations).</span>
+<span class="comment">%</span>
+<span class="comment">% To illustrate the use of this filter, we consider a reaching task. We</span>
+<span class="comment">% assume two underlying system states s=1="Not Moving"=NM and s=2="Moving"=M.</span>
+<span class="comment">% Under the "Not Moving" the position of the arm remain constant,</span>
+<span class="comment">% whereas in the "Moving" state, the position and velocities evolved based</span>
+<span class="comment">% on the arm acceleration that is modeled as a gaussian white noise</span>
+<span class="comment">% process.</span>
+<span class="comment">%</span>
+<span class="comment">% Under both the "Moving" and "Not Moving" states, the arm evolution state</span>
+<span class="comment">% vector is</span>
+</pre>
 <p>
 <img src="HybridFilterExample_eq12496553100641641814.png" alt="$${\bf{x}} = {[x,y,{v_x},{v_y},{a_x},{a_y}]^T}$$"></p>
 <h2 id="3">Generated Simulated Arm Reach</h2>
-<pre class="codeinput">clear <span class="string">all</span>;
-close <span class="string">all</span>;
+<pre class="codeinput">close <span class="string">all</span>;
+
+clear <span class="string">all</span>;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;
@@ -262,8 +280,10 @@ set([hx, hy],<span class="string">'FontName'</span>, <span class="string">'Arial
 <span class="comment">% close all;</span>
 </pre>
 <img vspace="5" hspace="5" src="HybridFilterExample_01.png" alt=""> <h2 id="5">Simulate Neural Firing</h2>
-<p>We simulate a population of neurons that fire in response to the movement velocity (x and y coorinates)</p>
-<pre class="codeinput">
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% We simulate a population of neurons that fire in response to the movement</span>
+<span class="comment">% velocity (x and y coorinates)</span>
+
 <span class="comment">%Use the data to estimate the process noise for the moving case and</span>
 <span class="comment">%non-moving case</span>
 
@@ -273,7 +293,7 @@ Q{2}=diag(var(diff(X(:,movingInd),[],2),[],2));
 Q{2}(1:4,1:4)=0;
 varNV=diag(var(diff(X(:,nonMovingInd),[],2),[],2));
 Q{1} = varNV(1:2,1:2);
-close <span class="string">all</span>; clear <span class="string">S_est</span> <span class="string">X_est</span> <span class="string">MU_est</span> <span class="string">S_estNT</span> <span class="string">X_estNT</span> <span class="string">MU_estNT</span>;
+clear <span class="string">S_est</span> <span class="string">X_est</span> <span class="string">MU_est</span> <span class="string">S_estNT</span> <span class="string">X_estNT</span> <span class="string">MU_estNT</span>;
 numExamples = 20;
 numCells=40;
 scrsz = get(0,<span class="string">'ScreenSize'</span>);
@@ -492,8 +512,10 @@ fig1=figure(<span class="string">'OuterPosition'</span>,[scrsz(3)*.1 scrsz(4)*.1
     title(<span class="string">'Y Velocity'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="string">'Fontsize'</span>,12,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
 </pre>
 <img vspace="5" hspace="5" src="HybridFilterExample_02.png" alt=""> <h2 id="6">Pedagogical summary - MC mean trajectory + RMSE bar (issue #84)</h2>
-<p>Collapse the n=size(X_estAll,3) spaghetti into a focused 2x2 panel so the systematic advantage of the goal-target prior is visible at a glance.</p>
-<pre class="codeinput">nMC = size(X_estAll, 3);
+<pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">% Collapse the n=size(X_estAll,3) spaghetti into a focused 2x2 panel so the</span>
+<span class="comment">% systematic advantage of the goal-target prior is visible at a glance.</span>
+nMC = size(X_estAll, 3);
 mXestAllSum   = mean(X_estAll,  3);
 mXestNTAllSum = mean(X_estNTAll,3);
 mMUAll        = mean(squeeze(MU_estAll(2,:,:)),  2);
@@ -558,6 +580,7 @@ title(sprintf(<span class="string">'Mean per-replicate RMSE (n=%d)'</span>, nMC)
 %
 
 %% Problem Statement
+close all;
 % Suppose that a process of interest can be modeled as consisting of
 % several discrete states where the evolution of the system under each
 % state can be modeled as a linear state space model. The observations of
@@ -582,9 +605,9 @@ title(sprintf(<span class="string">'Mean per-replicate RMSE (n=%d)'</span>, nMC)
 % 
 
 %% Generated Simulated Arm Reach
+close all;
 
 clear all;
-close all;
 delta=0.001;
 Tmax=2;
 time=0:delta:Tmax;
@@ -740,8 +763,9 @@ set([hx, hy],'FontName', 'Arial','FontSize',12,'FontWeight','bold');
 % close all;
  
 %% Simulate Neural Firing
+close all;
 % We simulate a population of neurons that fire in response to the movement
-% velocity (x and y coorinates) 
+% velocity (x and y coorinates)
 
 %Use the data to estimate the process noise for the moving case and
 %non-moving case
@@ -752,7 +776,7 @@ Q{2}=diag(var(diff(X(:,movingInd),[],2),[],2));
 Q{2}(1:4,1:4)=0;
 varNV=diag(var(diff(X(:,nonMovingInd),[],2),[],2));
 Q{1} = varNV(1:2,1:2);
-close all; clear S_est X_est MU_est S_estNT X_estNT MU_estNT;
+clear S_est X_est MU_est S_estNT X_estNT MU_estNT;
 numExamples = 20;
 numCells=40;
 scrsz = get(0,'ScreenSize');
@@ -971,6 +995,7 @@ end
     title('Y Velocity','FontWeight','bold','Fontsize',12,'FontName','Arial');
 
 %% Pedagogical summary - MC mean trajectory + RMSE bar (issue #84)
+close all;
 % Collapse the n=size(X_estAll,3) spaghetti into a focused 2x2 panel so the
 % systematic advantage of the goal-target prior is visible at a glance.
 nMC = size(X_estAll, 3);

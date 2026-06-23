@@ -1,5 +1,54 @@
 # nSTAT Release Notes
 
+## v1.5.2 — 22-Jun-2026
+
+Patch release focused on the publish pipeline (substantial performance work + two distinct orphan-figure fixes), a paper-example RNG-fragility fix that was breaking the README parity gate, restoration of the deferred pedagogical figures from v1.5.1, and docs-tree hygiene. No API changes; no breaking changes. End users on v1.5.1 should upgrade — the orphan-figure fixes silently improve every shipped helpfile HTML.
+
+### Correctness fixes
+
+| PR | Class | Site | Effect |
+|---|---|---|---|
+| #121 | doc | `helpfiles/nSTATPaperExamples.m` (Experiment 2 stim-lag + history) | Three `%%` sections at lines 308 / 351 / 367 were jointly building a single composite figure (xcorr + KS/AIC/BIC scan + KS plot + GLM coefficients). `publish()` snapshots open figures at every section boundary, so the composite was captured three times — twice in partial-build states (xcorr-panel-only orphans) and once when complete. Collapsed the three section markers into one so `publish()` snapshots the figure once, fully built. 28 → 26 figure PNGs in `nSTATPaperExamples.html`. |
+| #122 | numerical | `examples/paper/example05_decoding_ppaf_pphf.m` (hybrid filter blocks) | Function seeded RNG once at line 33 and let the seed propagate through three example blocks. When upstream `rand`/`randn` call counts shifted (e.g., from a numerical-tolerance change in `CIF.simulateCIF…`), the RNG state at the hybrid block diverged and `fig05_hybrid_setup.png` / `fig06_hybrid_decoding_summary.png` drifted (meanAbsDelta 0.6126 / 1.3377) — failing the predeploy README parity gate. Fix: re-seed `rng(opts.Seed, 'twister')` immediately before each fixture-producing block. Per-block RNG re-seed makes each figure reproducible regardless of upstream call-count changes. Rebaselined 22 `docs/figures/exampleNN/` PNGs to the deterministic R2026a Update 3 outputs. |
+| #123 | doc | `helpfiles/nSTATPaperExamples.m` (Experiment 6 hybrid filter) | Second instance of the orphan-figure antipattern in the same file, different shape: a composite figure at line 1665 leaked into the text-only `%% Experiment 6 …` / `%% Problem Statement` sections before the next `close all;`. `publish()` re-snapshotted the same handle at each text-only section boundary. Fix: add `close all;` at the start of each affected titled section per the Phase B convention. 26 → 25 figure PNGs. |
+
+### Performance — publish pipeline
+
+The four-phase rebuild of `helpfiles/publish_all_helpfiles.m` brings the canonical full-publish from **~18.8 min → 8.2 min** (parallel), and an iteration warm-cache run to **~30-40 s**.
+
+| PR | Phase | Change | Win |
+|---|---|---|---|
+| #116 | A | Per-file timing report at `docs/verification/publish_timing_latest.md` (gitignored, regenerated each run). Ranks every helpfile by wall-clock with figure count, section count, and a `snapshots/figure` ratio — the latter surfaces leaked open figures across `%%` boundaries. | Surfaces single-file regressions in PR diffs. |
+| #116 | B | `close all;` convention between `%%` sections, applied across 7 helpfiles (`DecodingExample`, `ExplicitStimulusWhiskerData`, `HippocampalPlaceCellExample`, `NetworkTutorial`, `PPThinning`, `SignalObjExamples`, `TrialExamples`). Eliminated 13 duplicate-figure captures from the historical corpus. | 35 close-all inserts; 0 analysis-code changes. |
+| #116 | C | `parfor` over the 36 helpfile publishes (independent per-file outputs into a shared output dir). Class references continue serially (~4 s of work each). | 18.8 min → 8.2 min wall-clock. |
+| #117 | D | Per-file content-hash cache at `helpfiles/.publish-cache.json` (gitignored). Skips a helpfile when its `globalHash` (toolbox `.m` + MATLAB version + publish opts) **and** its own `fileHash` are unchanged AND every cached output is still on disk. On a full cache HIT, `builddocsearchdb` is also skipped. `tools/predeploy.sh` forces a full rebuild via `Force=true`. | Warm iteration: 8.2 min → **30-40 s** (~12× speedup). Per-file invalidation: 30 s + the slowest single rebuild. |
+
+### New capabilities
+
+- **Pedagogical figure additions** (PR #115) — closes issues #81, #82, #83, #84, #85, #86, #102. Re-attempt of the figure work that was rolled back in PR #105 and explicitly deferred in v1.5.1's "Out of scope" section. Stable after the publish-pipeline hardening above.
+
+### Documentation
+
+- **CONTRIBUTING.md — publish pipeline architecture** (PR #118). New subsection under "Release & regeneration" walks through the four phases (A/B/C/D), documents the two contracts a future change must respect (the `globalHash` dependency-set contract and `predeploy.sh`'s `Force=true` requirement), and explains why the cache file is gitignored / per-machine / per-MATLAB.
+- **`helpfiles/DocumentationSetup2025b.{m,html}` → `DocumentationSetup.{m,html}`** (PR #120). Collapsed the version-suffixed file to evergreen. The page's content is 95% MATLAB-toolbox-documentation-layout boilerplate; only one line was genuinely version-specific. Removing the suffix and that one line eliminates the per-release rename treadmill. References updated in `helpfiles/helptoc.xml` (target/id/label) and `helpfiles/NeuralSpikeAnalysis_top.{m,html}`.
+
+### Repo hygiene
+
+- **`docs/figures/` prune** (PR #119). After two completed verification audits (2026-03 and 2026-05), their output snapshots were sitting in the docs tree but referenced by nothing — no README link, no release gate, no downstream tool. Removed 22 `docs/figures/verify_*/` directories (~6.4 MB) + the legacy/modern paper-example comparison artifacts (~7.5 MB) + the now-orphan producer tools `tools/verify_all_examples.m` and `tools/publish_examples.m`. Stale references in `tools/audit_help_system.py`, `AGENT_GUIDE.md`, and `docs/DEVPLAN.md` corrected as part of the clean break. Surviving `docs/figures/` contents are exactly the artifacts that `README.md` and `AGENT_GUIDE.md` reference: `example01–05/`, `manifest.json`, `simulink/`. Net: **22 MB → 9.2 MB**.
+
+### Breaking changes
+
+None.
+
+### Out of scope (deferred to v1.6 or later)
+
+- **Phase E** — `figureSnapMethod` tuning to further reduce cold-publish time. Lower marginal value now that the Phase D incremental cache makes warm iteration cheap; pick up if cold-publish time becomes a problem again.
+- **Defensive RNG pinning in `example01..04`** — example05 had the per-block re-seed pattern applied in #122, but the same fragility shape exists in the other four paper examples (single top-of-function seed, then long script). Worth a defensive sweep before the next non-trivial numerical change in `+nstat/+decoding/` ripples into a parity-gate failure.
+- **Cross-helpfile renderer noise** — every helpfile's PNGs show byte-level drift between runs on the same R2026a Update 3 machine. `tools/check_helpfile_drift.m` classifies the bulk as `TINY`/`NONDETERMINISTIC` and the helpfile gate already accepts it. The committed corpus rebaselines naturally on each predeploy run; not a blocker, but a long-term cleanup target.
+- **4 latent extra PNGs** in `AnalysisExamples2`, `HybridFilterExample`, `PPSimExample`, `SignalObjExamples`: the current publish produces figure numbers HEAD's HTMLs don't reference. Either the committed HTMLs are missing real figures the scripts now produce, or the publish is producing spurious orphans. Needs a 30-min investigation per file; deferred.
+
+---
+
 ## v1.5.1 — 22-Jun-2026
 
 Patch release. Bug fixes from the 2026-06-19 parity-audit ledger, the helpfile-rendering pipeline rebuild, the MATLAB R2025b→R2026a switch, and a `checkcode`-surfaced sweep of `+nstat/+decoding/`. End users on v1.5.0 should upgrade; behavior change is limited to specific edge cases documented below.

@@ -230,6 +230,19 @@ addpath(stagingDir, '-begin');
 cd(stagingDir);
 set(groot, 'defaultFigureVisible', 'on');
 
+% Close any figures left open by a prior parfor iteration on this
+% worker. publish() does not close figures it opened, and the
+% section-end snapshot in the NEXT iteration captures every open
+% figure -- so stale figures from the previous helpfile get re-
+% snapshotted into this helpfile's outputs, named with this helpfile's
+% baseName and re-numbered into its sequence. That's the mechanism
+% behind the 18-21 figure variance observed for SignalObjExamples
+% across runs of publish_all_helpfiles (smoke_helpfile, which is
+% sequential and starts in a clean MATLAB instance, produces 17
+% deterministically). Clearing here makes every parfor iteration
+% start from a clean visual state.
+close all force;
+
 [~, baseName] = fileparts(stageFile.name);
 tStart = tic;
 timing = struct('name', stageFile.name, 'wallSec', 0, 'figCount', 0, ...

@@ -75,6 +75,16 @@ The convention (PR #116):
 
 The PR-#116 close-all sweep across 7 helpfiles eliminated 13 duplicate-figure captures and was the dominant cause of the historical 18.8-min publish time. If you add a new helpfile, follow the same pattern; if you edit one and notice the publish report's `snapshots/figure` ratio climbing well above 1.0 for that file, an open figure has leaked across sections.
 
+#### Two orphan-figure antipattern shapes to watch for at PR review
+
+Both root-cause to the same `publish()` semantic, but they need **opposite** fixes — be deliberate about which one you're looking at.
+
+**Shape A — figure leaks into text-only sections** (PR #116, PR #123). A `figure(...)` is created in section X; sections Y, Z, … after it are pure text/markup with no plotting code; the figure isn't closed until late. `publish()` re-snapshots the same handle at the end of each text-only section. Each orphan looks **identical to its neighbor** in the HTML — that's the giveaway. *Fix:* `close all;` at the start of each affected titled `%%` section (the convention above).
+
+**Shape B — composite figure built across sections** (PR #121). A `figure(...)` is created in section X; sections Y, Z extend the **same handle** with more `subplot(...)` calls (typically `subplot(N,M,[a b c])` spanning indices). `publish()` snapshots the figure at the end of section X (incomplete), then again at end of section Y (more complete), then at end of section Z (fully built). Each orphan is a **partial-build** of the final composite — the final image is what was intended. *Fix:* the **opposite** of Shape A — collapse the building sections into one `%%` section so the figure is snapshotted once, fully built. Demote the inner `%% Heading` lines to `% Heading` comments. Adding `close all;` here would **destroy the intended composite**.
+
+Quick check: read the section headings between `figure(` and the next `close all;`. If those sections produce **no new plotting code**, you have Shape A → apply close-all. If they have spanning-index `subplot(...)` calls that extend the same figure handle, you have Shape B → consolidate.
+
 ### Verifying regenerated `.mlx` / `.html` / PNG artifacts before commit
 
 Regenerating the rendered helpfile docs (`.mlx`, `.html`, per-figure PNGs) is *not* a mechanical follow-up — the rendered artifacts can silently degrade vs the committed baseline, and the committed copies under `helpfiles/` are what GitHub serves to users. PR #88/#89/#103 → PR #105 (rollback) is a case where the regeneration looked successful at the function level but produced a measurably worse `.html` than the pre-edit baseline.

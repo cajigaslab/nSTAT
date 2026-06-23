@@ -307,6 +307,11 @@ px0 = hybridFixture.Px0;
 minCovVal = 1e-12;
 Qhy{1} = minCovVal * eye(2,2);
 
+% Reset RNG before this fixture-producing block so the figure is
+% reproducible even if an upstream block's rand/randn call count changes
+% (without this reset, fig05/fig06 drift was the SUBSTANTIVE flag in the
+% predeploy README parity check after R2026a updates).
+rng(opts.Seed, 'twister');
 numCells = 40;
 muCoeffs = log(10 * delta) + randn(numCells, 1);
 coeffs = [muCoeffs, zeros(numCells, 2), 10 * (rand(numCells, 2) - 0.5), zeros(numCells, 2)];
@@ -367,6 +372,9 @@ Qhy{2}(1:4,1:4) = 0;
 varNV = diag(var(diff(X(:,nonMovingInd), [], 2), [], 2));
 Qhy{1} = varNV(1:2,1:2);
 
+% Reset RNG before the hybrid-decoding summary (fig06) so the per-example
+% PPHF runs are reproducible independent of upstream call counts.
+rng(opts.Seed, 'twister');
 numExamples = 20;
 fig = figure('Position', [100 100 opts.WidthPx opts.HeightPx]);
 clear X_estAll X_estNTAll S_estAll S_estNTAll MU_estAll MU_estNTAll;

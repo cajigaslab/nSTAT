@@ -365,17 +365,27 @@ classdef SSGLM
 
 % invW_u = pinv(W_p(:,:,k))+ sumValMat;
 % W_u(:,:,k) = pinv(invW_u);% +100*diag(eps*rand(size(W_p,1),1));
-% 
- 
-
+%
+ % FIX (nstat-python#249): regularize the posterior covariance update.
+ % For high-rate or sparse bins, lambdaDelta = exp(stimK).*histEffect can
+ % reach e^30 ~ 1e13, making sumValMat (and hence invW_u) non-finite.
+ % The bare inv + eig flow then either errors with "Eigenvalues did not
+ % converge" or returns garbage. The Python port (PPSS_EStep) aborted EM
+ % entirely on this. nstat.decoding.SSGLM.robustPsdInverse mirrors the
+ % regularized update -- nan-scrub, symmetrize, ridge, inv with pinv
+ % fallback, eigenvalue floor at eps -- and returns the same PSD matrix
+ % the previous code did on well-conditioned input.
  invW_u = eye(size(W_p(:,:,k)))/W_p(:,:,k)+ sumValMat;
- W_u(:,:,k) = eye(size(invW_u))/invW_u;% +100*diag(eps*rand(size(W_p,1),1));
+ W_u(:,:,k) = nstat.decoding.SSGLM.robustPsdInverse(invW_u, size(W_p,1));
 
- % Maintain Positive Definiteness
- % Make sure eigenvalues are positive
- [vec,val]=eig(W_u(:,:,k) ); val(val<=0)=eps;
- W_u(:,:,k) =vec*val*vec';
- x_u(:,k) = x_p(:,k) + W_u(:,:,k)*(sumValVec);
+ % FIX (nstat-python#249): bound the log-rate state so a diverged step
+ % cannot poison the next iteration via x_p = A*x_u. Real states sit
+ % near log(rate*delta) ~ [-12, 5]; |x| <= 50 corresponds to rate in
+ % (e^-50, e^50)/delta -- far outside any physical neural firing rate.
+ SSGLM_STATE_BOUND = 50;
+ x_u(:,k) = max(-SSGLM_STATE_BOUND, ...
+                min(SSGLM_STATE_BOUND, ...
+                    x_p(:,k) + W_u(:,:,k)*(sumValVec)));
 
  end
 
@@ -571,6 +581,45 @@ classdef SSGLM
  end
 
  % pause;
+ end
+
+ function W = robustPsdInverse(invW, dim, ridge)
+ %ROBUSTPSDINVERSE invert a precision matrix and project to PSD, robust to
+ % non-finite entries from extreme observed-information conditioning.
+ %
+ % Mirrors the original `inv` + eigenvalue-floor flow used in PPSS_EStep,
+ % but is nan-safe and never aborts: scrub non-finite entries, symmetrize,
+ % add a tiny ridge, attempt `inv` and fall back to `pinv` if the result
+ % is non-finite, scrub again, run `eig`, floor non-positive eigenvalues
+ % to eps. On well-conditioned input it returns the same PSD matrix the
+ % previous code did (no behavioural change). On the extreme-conditioning
+ % path that previously crashed the EM, it returns a near-zero PSD matrix
+ % so the Kalman update degrades gracefully instead of poisoning the next
+ % iteration with NaN/Inf entries.
+ %
+ % Mirrors nstat-python's _robust_psd_inverse (cajigaslab/nSTAT-python#249).
+ if nargin < 3, ridge = 1e-12; end
+ invW(~isfinite(invW)) = 0;
+ invW = 0.5*(invW + invW.') + ridge*eye(dim);
+ warnState = warning('off','MATLAB:singularMatrix');
+ cleanupSing = onCleanup(@() warning(warnState)); %#ok<NASGU>
+ warnState2 = warning('off','MATLAB:nearlySingularMatrix');
+ cleanupNear = onCleanup(@() warning(warnState2)); %#ok<NASGU>
+ W = inv(invW);
+ if any(~isfinite(W(:)))
+ W = pinv(invW);
+ end
+ W = 0.5*(W + W.');
+ W(~isfinite(W)) = 0;
+ try
+ [vec, val] = eig(W);
+ catch
+ W = eye(dim) * max(ridge, eps);
+ return
+ end
+ val(val <= 0) = eps;
+ W = vec*val*vec.';
+ W = 0.5*(W + W.');  % final symmetrize against round-off
  end
  end
 end

@@ -1400,7 +1400,7 @@ classdef nstColl < handle
         function varEst = estimateVarianceAcrossTrials(nstCollObj,numBasis,windowTimes,numIter,fitType)
             %returns a estimate of the variance within each basis
             if(nargin<5 || isempty(fitType))
-               fitType = 'poisson'; 
+               fitType = 'poisson';
             end
             if(nargin<4 || isempty(numIter))
                 numIter=20;
@@ -1420,50 +1420,74 @@ classdef nstColl < handle
             delta = 1/nstCollObj.sampleRate;
             minTime = nstCollObj.minTime;
             maxTime = nstCollObj.maxTime;
-            
 
-            for i=1:min([numIter/2 sumNumber])
-
+            % FIX (nstat-python#249): use an explicit shared column counter
+            % across both forward and backward loops. The prior code used
+            % the realization index `i` as the column index in the
+            % backward loop, silently auto-expanding `coeffs` to
+            % (numBasis, numRealizations) and then trying to recover via a
+            % per-row "remove zero columns" pass. That recovery fails when
+            % any coefficient is exactly zero. The Python port surfaced
+            % the same bug as an IndexError; explicit counter is the
+            % portable fix.
+            halfIters = min([numIter/2 sumNumber]);
+            col = 1;
+            for i=1:halfIters
                 spikeCollTemp=nstColl(nstCollObj.getNST(i:i+sumNumber));
 
-
                 spikeCollTemp.resample(1/delta);
                 spikeCollTemp.setMaxTime(maxTime);
                 spikeCollTemp.setMinTime(minTime);
                 [~, ~, psthResultT] =spikeCollTemp.psthGLM(basisWidth,windowTimes,fitType);
-                coeffs(:,i)=psthResultT.getCoeffs;
+                coeffs(:,col)=psthResultT.getCoeffs;
+                col = col + 1;
             end
-            for i=numRealizations:-1:(numRealizations-min([numIter/2 sumNumber])+1)
+            for i=numRealizations:-1:(numRealizations-halfIters+1)
+                if col > numIter, break; end
                 spikeCollTemp=nstColl(nstCollObj.getNST(i:-1:i-sumNumber));
 
-
                 spikeCollTemp.resample(1/delta);
                 spikeCollTemp.setMaxTime(maxTime);
                 spikeCollTemp.setMinTime(minTime);
                 [~, ~, psthResultT] =spikeCollTemp.psthGLM(basisWidth,windowTimes,fitType);
-                coeffs(:,i)=psthResultT.getCoeffs;
-            end 
-            
-            %Remove zero columns
-            for i=1:size(coeffs,1)
-                CoeffsTemp(i,:) = coeffs(i,coeffs(i,:)~=0);
+                coeffs(:,col)=psthResultT.getCoeffs;
+                col = col + 1;
             end
-            
-            coeffs=CoeffsTemp;
-            NTerms=4;A=1; B=ones(1,NTerms)./NTerms;
-            coeffs(isnan(coeffs))=0;
-%             coeffs(exp(coeffs)/delta>10)=log(10*delta); %dont allow for really large coeffs
-            if(size(coeffs',1)>3*NTerms)
-                fcoeffs = filtfilt(B,A,coeffs')';
-            else
-                fcoeffs = coeffs;
+
+            % FIX (nstat-python#249, "Bug 3"): mask empty-bin sentinel
+            % coefficients before computing across-subset variance. A
+            % unit-impulse basis bin with no spikes in a subset is
+            % unidentified, and the inner GLM floors its coefficient at a
+            % large-negative numerical sentinel (~ -120 for log(0)). The
+            % previous code only filtered zeros, so the sentinels flowed
+            % into nanvar and inflated Q by 100-1000x ("Q median 4539 ->
+            % 4.5" in the Python port), which then blows up the SSGLM EM
+            % even on clean data. Symmetric bound: |log-rate| >= 30 means
+            % rate outside (3e-11/delta, 1e13/delta) Hz -- non-physical.
+            %
+            % Per-row valid-coefficient series (rows may differ in count
+            % after masking) replaces the previous CoeffsTemp reshape
+            % that assumed every row had the same number of nonzeros.
+            SENTINEL = 30;
+            coeffs = coeffs(:, 1:col-1);   % trim to actually-filled columns
+            nBasis = size(coeffs,1);
+            varEst = zeros(nBasis,1);
+            NTerms = 4; A = 1; B = ones(1,NTerms)./NTerms;
+            for r = 1:nBasis
+                rowR = coeffs(r,:);
+                valid = rowR(rowR ~= 0 & abs(rowR) < SENTINEL & ~isnan(rowR));
+                if numel(valid) > 3*NTerms
+                    smoothed = filtfilt(B, A, valid);
+                else
+                    smoothed = valid;
+                end
+                if numel(smoothed) >= 2
+                    varEst(r) = var(diff(smoothed), 'omitnan');
+                else
+                    varEst(r) = 0;
+                end
             end
-            
-            varEst=nanvar(diff(fcoeffs,[],2),[],2);
-
-%             varEst(varEst>.001)=0.0001; %avoid large estimates of the sample variance
-
-            varEst=diag(varEst);
+            varEst = diag(varEst);
             echo on;
         end
         function windowedSpikeTimes=getSpikeTimes(nstCollObj, minTime, maxTime)

@@ -8,7 +8,12 @@ Tmax = 1;
 time = 0:delta:Tmax;
 px = zeros(1,length(time));
 py = zeros(1,length(time));
-Q=.01;
+% Drive the velocity walk hard enough that the integrated position sweeps
+% most of the [-2,2] arena the place fields tile below.  The original 0.01
+% produced a ~+-0.12 path that never left the flat centre of every field,
+% so the ensemble carried almost no positional information and the decoded
+% path barely moved.  See cajigaslab/nSTAT StimulusDecode2D decode issue.
+Q=.12;
 r =  Q.*randn(2,length(time));
 vx = cumsum(r(1,:))';
 vy = cumsum(r(2,:))';
@@ -18,6 +23,10 @@ posSig = velSig.integral;
 posData = posSig.data;
 px = posData(:,1);
 py = posData(:,2);
+% Keep the trajectory inside the tiled-field arena so every visited point is
+% covered by nearby place fields.
+px = max(min(px, 1.8), -1.8);
+py = max(min(py, 1.8), -1.8);
 % N=100; A=1; B=ones(1,N)./N;
 % px = filtfilt(B,A,px);
 % py = filtfilt(B,A,py);
@@ -31,8 +40,25 @@ xlabel('x'); ylabel('y');
 clear lambdaCIF lambda tempSpikeColl n spikeColl
 numRealizations=80;
 
-coeffs = -abs(1*randn(numRealizations,5));
-coeffs = [-2*abs(randn(numRealizations,1)) coeffs];
+% Tiled Gaussian place fields: centres on a 10x8 grid spanning the arena
+% (plus a little jitter) give a well-posed population code, unlike the
+% original coeffs = -abs(randn(...)) fields, which were broad, similarly
+% oriented negative-quadratic blobs whose centres did not tile space -- so
+% the ensemble could not disambiguate position even over a full-arena path.
+% Each Gaussian bump exp(-||p-mu||^2/(2 sigma^2)) with peak firing p_peak is
+% written in the same quadratic-logistic log-rate the CIF below consumes:
+%   logit(lambdaDelta) = c0 + c1 x + c2 y + c3 x^2 + c4 y^2 + c5 xy
+% with c3=c4=-1/(2 sigma^2), c5=0, c1=mu_x/sigma^2, c2=mu_y/sigma^2,
+%      c0 = logit(p_peak) - (mu_x^2 + mu_y^2)/(2 sigma^2).
+[cx,cy] = meshgrid(linspace(-1.6,1.6,10), linspace(-1.6,1.6,8));
+centers = [cx(:) cy(:)] + 0.08*randn(numRealizations,2);
+sigma = 0.6; p_peak = 0.7; s2 = sigma^2;
+coeffs = zeros(numRealizations,6);
+for i=1:numRealizations
+    mx = centers(i,1); my = centers(i,2);
+    coeffs(i,:) = [log(p_peak/(1-p_peak)) - (mx^2+my^2)/(2*s2), ...
+                   mx/s2, my/s2, -1/(2*s2), -1/(2*s2), 0];
+end
 dataMat = [ones(length(time),1) px py px.^2 py.^2 px.*py];
  for i=1:numRealizations
      tempData  = exp(dataMat*coeffs(i,:)');

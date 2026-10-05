@@ -1060,6 +1060,11 @@ classdef PPLFP
  if(numel(gammahat)==1)
  if(gammahat==0)
  n10=0;
+ else
+ % FIX (F2): a single nonzero history coefficient (one cell, one
+ % window) left n10 unassigned ("Unrecognized function or
+ % variable"); it is one parameter, as in the EM's own IC count.
+ n10=1;
  end
  else
  n10=size(IGammaComp,1);

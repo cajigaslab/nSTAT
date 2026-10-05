@@ -563,6 +563,11 @@ classdef PointProcessEM
  if(numel(gammahat)==1)
  if(gammahat==0)
  n7=0;
+ else
+ % FIX (F2): a single nonzero history coefficient (one cell, one
+ % window) left n7 unassigned ("Unrecognized function or
+ % variable"); it is one parameter, as in the EM's own IC count.
+ n7=1;
  end
  else
  n7=size(IGammaComp,1);

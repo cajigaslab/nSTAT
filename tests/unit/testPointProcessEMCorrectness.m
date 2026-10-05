@@ -62,6 +62,10 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % failed. SEs must match the finite-difference information.
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson', 1);
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial', 1);
+            % One cell AND one window: gamma is a nonzero scalar and the SE
+            % routine left its gamma parameter count unassigned (F2).
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson', 1, 1);
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial', 1, 1);
         end
 
         function testGLMMStepRestoresWarningState(tc)
@@ -269,7 +273,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
     end
 
     methods (Static)
-        function checkStandardErrorsAgainstFD(tc, fitType, C)
+        function checkStandardErrorsAgainstFD(tc, fitType, C, nW)
             % Construct a case where PP_ComputeParamStandardErrors' missing
             % information vanishes -- W_K ~ 0 (states known) and every
             % parameter at its complete-data MLE, so every score is ~0 --
@@ -281,6 +285,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % so the expected SE is sqrt(diag(inv(-H_block))).
             rng(5);
             if nargin < 3 || isempty(C), C = 2; end
+            if nargin < 4 || isempty(nW), nW = 3; end
             % K = 1500: the comparison is exact up to the finite-difference
             % error and the ~1e-12 posterior noise, neither of which depends
             % on K; K only has to give every history window spikes.
@@ -289,7 +294,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             x = zeros(dx, K); xp = zeros(dx,1);
             for k = 1:K, xp = Atrue*xp + chol(Qtrue,'lower')*randn(dx,1); x(:,k) = xp; end
             muT = log(0.05)*ones(C,1); betaT = [1 -0.8; 0.5 0.7]; betaT = betaT(:, 1:C);
-            wt = [0 0.004 0.010 0.025]; nW = numel(wt)-1;
+            wtAll = [0 0.004 0.010 0.025]; wt = wtAll(1:nW+1);
             dN = zeros(C,K);
             for k = 1:K
                 eta = muT + betaT'*x(:,k);

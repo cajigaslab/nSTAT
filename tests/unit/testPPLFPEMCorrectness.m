@@ -168,6 +168,10 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             % PPLFP_ComputeParamStandardErrors transposed the 1 x W row.
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'poisson', true, {'mu','beta','gamma'}, 1, 2, 1);
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 2, 1);
+            % One cell AND one window (scalar nonzero gamma): the gamma
+            % parameter count was left unassigned (F2).
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'poisson', true, {'mu','beta','gamma'}, 1, 1, 1);
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 1, 1);
         end
 
         function testNewDefaults(tc)

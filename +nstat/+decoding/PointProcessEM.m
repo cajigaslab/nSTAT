@@ -347,8 +347,13 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: the cubic coefficient was -3. For
+ % log L = sum dN*log(p) - p, p = logistic(eta), the mu score is
+ % (dN-p)(1-p) and d/dmu of it is -p(1-p)(1+dN-2p) =
+ % -(dN+1)p + (dN+3)p^2 - 2p^3 (as in the M-step's mu update and
+ % the beta/gamma blocks); -3*E[p^3] overstated the information.
  HessianTerm = HessianTerm -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -HessianTerm;
@@ -396,8 +401,9 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: cubic coefficient -3 -> -2 (see the serial branch above).
  HessianTerm(k) = -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -sum(HessianTerm);

@@ -125,12 +125,16 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % must equal the explicit call with W = size(gamma,1) windows
             % 0:delta:W*delta and the shared column replicated per cell.
             [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
-            dN = dN(:, 1:300); C = size(dN,1);
+            C = size(dN,1);
+            % Default (NewtonRaphson) M-step on the 1000-bin problem, where EM
+            % stops after ~3 iterations (the equivalence holds per iteration).
             cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
-            cases = { -0.5*[1;0.6;0.3],            -0.5*repmat([1;0.6;0.3],1,C), 0:delta:3*delta; ...
-                      -0.5,                        -0.5*ones(1,C),               0:delta:1*delta; ...
-                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
-                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                     0:delta:2*delta};
+            % Two cases: a scalar (one shared window; the old rule built 2 and
+            % never expanded it) and a 2 x 4 matrix (W < C: length() = 4).
+            % Small coefficients keep each EM run to ~3 iterations.
+            cases = { -0.05,                       -0.05*ones(1,C),              0:delta:1*delta; ...
+                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
+                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                    0:delta:2*delta};
             for i = 1:size(cases,1)
                 r1 = cell(1,7); r2 = cell(1,7);
                 rng(3);

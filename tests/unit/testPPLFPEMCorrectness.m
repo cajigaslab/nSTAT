@@ -231,12 +231,16 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             % shared gamma column was never expanded, so every
             % default-window call failed. Same equivalences as the PP_EM
             % test: W = size(gamma,1) windows, edges 0:delta:W*delta.
-            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 300);
+            % Default (NewtonRaphson) M-step on the 600-bin problem, where EM
+            % stops after ~3 iterations (the equivalence holds per iteration).
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
             C = P.nC; d = P.delta;
-            cases = { -0.5*[1;0.6;0.3],            -0.5*repmat([1;0.6;0.3],1,C), 0:d:3*d; ...
-                      -0.5,                        -0.5*ones(1,C),               0:d:1*d; ...
-                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
-                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                     0:d:2*d};
+            % Two cases: a scalar (one shared window; the old rule built 2 and
+            % never expanded it) and a 2 x 4 matrix (W < C: length() = 4).
+            % Small coefficients keep each EM run to ~3 iterations.
+            cases = { -0.05,                       -0.05*ones(1,C),              0:d:1*d; ...
+                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
+                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                    0:d:2*d};
             for i = 1:size(cases,1)
                 r1 = cell(1,12); r2 = cell(1,12);
                 rng(3);

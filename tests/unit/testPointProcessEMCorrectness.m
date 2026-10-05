@@ -292,9 +292,12 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % and compare SE.beta / SE.gamma with the inverse of the
             % finite-difference Hessian of the per-cell complete-data
             % log-likelihood (poisson: sum dN*eta - exp(eta); binomial:
-            % sum dN*log(p) - p, p = logistic(eta)). The function's
-            % complete information is block diagonal (mu | beta | gamma),
-            % so the expected SE is sqrt(diag(inv(-H_block))).
+            % sum dN*log(p) - p, p = logistic(eta)). The model's
+            % information is NOT block diagonal; PP_ComputeParamStandardErrors
+            % assembles only the mu, beta and gamma diagonal blocks (cross
+            % blocks are dropped), so its SEs are per-block conditional SEs
+            % and the expected value is sqrt(diag(inv(-H_block))) of the
+            % matching block of the FD Hessian.
             rng(5);
             if nargin < 3 || isempty(C), C = 2; end
             if nargin < 4 || isempty(nW), nW = 3; end

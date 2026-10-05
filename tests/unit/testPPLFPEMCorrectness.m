@@ -412,9 +412,12 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             % information: W_K ~ 0 (states known) and EVERY parameter at
             % its complete-data MLE given x (A, Q, C, alpha, R in closed
             % form; mu, beta, gamma by Newton), so every score is ~0. The
-            % complete information is block diagonal, so each SE must equal
-            % sqrt(diag(inv(-H_block))) of a finite-difference Hessian of
-            % the per-cell point-process log-likelihood.
+            % model's information is not block diagonal, but the routine
+            % keeps only the mu / beta / gamma diagonal blocks (cross blocks
+            % dropped), so its SEs are per-block conditional SEs: each must
+            % equal sqrt(diag(inv(-H_block))) of the matching block of a
+            % finite-difference Hessian of the per-cell point-process
+            % log-likelihood.
             % Optional: dx (state dim, default 1), nW (history windows,
             % default 1), nC (cells, default 2). dx = nW = 1 makes the
             % check independent of the SE.beta/SE.gamma reshape.

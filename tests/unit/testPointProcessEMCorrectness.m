@@ -55,6 +55,24 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial');
         end
 
+        function testGLMMStepRestoresWarningState(tc)
+            %TESTGLMMSTEPRESTORESWARNINGSTATE PP_MStep's GLM branch called
+            % warning('OFF') and never restored the caller's state.
+            S = testPointProcessEMCorrectness.squareHistoryProblem('poisson');
+            H0 = zeros(size(S.dN,2), 1, size(S.dN,1));
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(' ...
+                'S.A,S.Q,S.dN,S.mu,S.beta,''poisson'',0,H0,S.x0,S.Px0);']);
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            warning('on', 'all');
+            warning('off', 'nstat:test:sentinelOff');
+            before = warning;
+            evalc(['nstat.decoding.PointProcessEM.PP_MStep(S.dN,xK,WK,S.x0,S.Px0,ES,' ...
+                '''poisson'',S.mu,S.beta,0,[],H0,cons,''GLM'');']);
+            tc.verifyEqual(warning, before, ...
+                'PP_MStep(GLM) must leave the caller''s warning state unchanged');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows

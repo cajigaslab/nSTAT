@@ -2225,6 +2225,13 @@ classdef PointProcessEM
  end
  c{1}.setName('Baseline');
  cfgColl= ConfigColl(c);
+ % FIX: `warning('OFF')` switched off every warning globally and never
+ % restored it, so after one GLM M-step the CALLER's warnings (incl.
+ % verifyWarning-based tests) stayed silenced. Keep the original
+ % suppression during the fit but restore the caller's warning state
+ % when this function returns.
+ callerWarnState = warning;
+ restoreCallerWarnings = onCleanup(@() warning(callerWarnState)); %#ok<NASGU>
  warning('OFF');
 
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);

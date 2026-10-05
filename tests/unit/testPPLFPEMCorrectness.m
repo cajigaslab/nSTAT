@@ -38,6 +38,20 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testGLMMStepRestoresWarningState(tc)
+            %TESTGLMMSTEPRESTORESWARNINGSTATE PPLFP_MStep's GLM branch called
+            % warning('OFF') and never restored the caller's state.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false);
+            [xK, WK, ES] = testPPLFPEMCorrectness.eStep(P, P.mu, P.beta, 0);
+            warning('on', 'all');
+            warning('off', 'nstat:test:sentinelOff');
+            before = warning;
+            evalc(['nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,' ...
+                '''poisson'',P.mu,P.beta,0,[],P.HkAll,P.cons,''GLM'');']);
+            tc.verifyEqual(warning, before, ...
+                'PPLFP_MStep(GLM) must leave the caller''s warning state unchanged');
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

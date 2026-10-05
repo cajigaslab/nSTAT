@@ -2319,7 +2319,14 @@ classdef PPLFP
  % Estimate params via GLM
 
  if(strcmp(MstepMethod,'GLM'))
- clear c; close all;
+ % FIX: removed `close all`. PPLFP_EM creates its progress figure
+ % `h` after the first M-step; on iteration 2 this `close all`
+ % deleted it and PPLFP_EM's `figure(h)` threw "Argument must be a
+ % Figure object or a positive integer", so the default (GLM)
+ % M-step could never get past iteration 2. RunAnalysisForAllNeurons
+ % is called with makePlot=0 below; nothing here needs closing.
+ % (Same defect and fix as PointProcessEM.PP_MStep.)
+ clear c;
  time=(0:length(x_K)-1)*.001;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);

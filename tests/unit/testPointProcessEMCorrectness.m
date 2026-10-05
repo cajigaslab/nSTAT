@@ -120,35 +120,6 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyLessThan(max(abs(r{5} - mu)), 0.5, 'default PP_EM must recover mu');
         end
 
-        function testDefaultHistoryWindows(tc)
-            %TESTDEFAULTHISTORYWINDOWS with windowTimes = [] and a nonzero
-            % gamma, PP_EM built 0:delta:(length(gamma)+1)*delta -- one
-            % window too many (and length() of a W x C matrix is max(W,C))
-            % -- and could not use a shared gamma column, so every
-            % default-window call failed with MATLAB:innerdim. The default
-            % must equal the explicit call with W = size(gamma,1) windows
-            % 0:delta:W*delta and the shared column replicated per cell.
-            [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
-            C = size(dN,1);
-            % Default (NewtonRaphson) M-step on the 1000-bin problem, where EM
-            % stops after ~3 iterations (the equivalence holds per iteration).
-            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
-            % Two cases: a scalar (one shared window; the old rule built 2 and
-            % never expanded it) and a 2 x 4 matrix (W < C: length() = 4).
-            % Small coefficients keep each EM run to ~3 iterations.
-            cases = { -0.05,                       -0.05*ones(1,C),              0:delta:1*delta; ...
-                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
-                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                    0:delta:2*delta};
-            for i = 1:size(cases,1)
-                r1 = cell(1,7); r2 = cell(1,7);
-                rng(3);
-                evalc('[r1{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,cases{i,1},[],[],[],cons);');
-                rng(3);
-                evalc('[r2{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,cases{i,2},cases{i,3},[],[],cons);');
-                tc.verifyEqual(r1, r2, sprintf('case %d: default windows must equal explicit 0:delta:W*delta', i));
-            end
-        end
-
         function testZeroGammaWithExplicitWindowsUnchanged(tc)
             %TESTZEROGAMMAWITHEXPLICITWINDOWSUNCHANGED gamma = 0 means "no
             % history coefficients" (M-step gammahat==0, IC parameter count,
@@ -255,33 +226,6 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PP', 2, 3, 2);
         end
 
-        function testTimeBaseEquivalence(tc)
-            %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
-            % spike matrix analysed at delta = 2 ms with history windows
-            % [0 4 10 20] ms covers exactly the same bin lags as at
-            % delta = 1 ms with windows [0 2 5 10] ms, so every output
-            % must agree. Before the fix PP_EM built its history spike
-            % trains at 1 kHz regardless of delta and the GLM M-step
-            % hardcoded a 1 ms grid / sampleRate 1000.
-            S = testPointProcessEMCorrectness.squareHistoryProblem('poisson');
-            dN = S.dN(:, 1:300);
-            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
-            g0 = -0.5*ones(3, size(dN,1));
-            for m = {'GLM', 'NewtonRaphson'}
-                r1 = cell(1,7); r2 = cell(1,7);
-                rng(3);
-                evalc(['[r1{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,S.A,S.Q,S.mu,S.beta,' ...
-                    '''poisson'',0.001,g0,[0 0.002 0.005 0.010],S.x0,S.Px0,cons,m{1});']);
-                rng(3);
-                evalc(['[r2{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,S.A,S.Q,S.mu,S.beta,' ...
-                    '''poisson'',0.002,g0,[0 0.004 0.010 0.020],S.x0,S.Px0,cons,m{1});']);
-                names = {'xK','WK','Ahat','Qhat','muhat','betahat','gammahat'};
-                for i = 1:7
-                    tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, ...
-                        sprintf('%s: %s at delta=2 ms must equal the 1 ms analysis', m{1}, names{i}));
-                end
-            end
-        end
     end
 
     methods (Static)

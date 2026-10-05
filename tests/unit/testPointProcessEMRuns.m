@@ -31,14 +31,13 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
     % that PP_EM now stops cleanly there instead of crashing. The parity
     % export recipe for the sibling PPLFP_EM disables x0/Px0 estimation
     % for the same reason.
+    %
+    % The 8-combination convergence test (testPPEMRunsAndConverges) now
+    % lives in tests/integration/testPointProcessEMIntegration.m (run with
+    % `tools/run_unit_tests.sh --integration`); its helpers below are
+    % public for that reason.
 
-    properties (TestParameter)
-        fitType = {'poisson', 'binomial'};
-        method = {'GLM', 'NewtonRaphson'};
-        useHist = struct('noHistory', false, 'history', true);
-    end
-
-    properties (Constant, Access = private)
+    properties (Constant)
         WindowTimes = [0 0.005 0.010 0.020];
         GammaTrue = -0.5;
         Gamma0 = -0.5;   % initial history coefficients passed to PP_EM
@@ -60,76 +59,6 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
     end
 
     methods (Test)
-        function testPPEMRunsAndConverges(tc, fitType, method, useHist)
-            %TESTPPEMRUNSANDCONVERGES all fitType x MstepMethod x history
-            % combinations run past iteration 2, return finite real
-            % parameters, increase the log-likelihood until the stopping
-            % iteration, and return the best iterate.
-            P = testPointProcessEMRuns.makeProblem(fitType, useHist);
-            [R, emLog] = testPointProcessEMRuns.runEM(P, method, ...
-                nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0));
-
-            % Ran past iteration 2 (exercises the figure(h) path that the
-            % M-step's `close all` used to break).
-            nIter = numel(regexp(emLog, 'Iteration #\d+', 'match'));
-            tc.verifyGreaterThanOrEqual(nIter, 2, 'PP_EM must run at least 2 EM iterations');
-
-            % Finite, real outputs.
-            outs = {R.xK, R.WK, R.A, R.Q, R.mu, R.beta, R.gamma, R.x0, R.Px0};
-            names = {'xK','WK','Ahat','Qhat','muhat','betahat','gammahat','x0hat','Px0hat'};
-            for i = 1:numel(outs)
-                tc.verifyTrue(isreal(outs{i}) && all(isfinite(outs{i}(:))), ...
-                    sprintf('%s must be finite and real', names{i}));
-            end
-
-            % Log-likelihood: increases at least once and is non-decreasing
-            % up to the iteration that triggered the stop (EM stops on the
-            % first decrease / non-finite value by design).
-            ll = testPointProcessEMRuns.parseLogLL(emLog);
-            tc.assertGreaterThanOrEqual(numel(ll), 2);
-            llPre = ll(1:end-1);
-            tc.verifyTrue(all(isfinite(llPre)) && all(imag(llPre)==0), ...
-                'every log-likelihood before the stopping iteration must be finite and real');
-            llPre = real(llPre);
-            tc.verifyGreaterThan(real(ll(2)), real(ll(1)), 'EM must improve the log-likelihood');
-            if numel(llPre) > 1
-                tc.verifyGreaterThanOrEqual(diff(llPre), 0, ...
-                    'log-likelihood must be non-decreasing before the stop');
-            end
-            % The returned iterate is the best one seen (the trace is
-            % parsed from num2str output, ~8 significant digits).
-            tc.verifyEqual(real(R.IC.llcomp), testPointProcessEMRuns.bestLL(ll), 'RelTol', 1e-7, ...
-                'PP_EM must return the max-log-likelihood iterate');
-
-            % Sane ranges.
-            tc.verifyLessThan(max(abs(eig(R.A))), 1.05, 'Ahat must stay (near-)stable');
-            tc.verifyGreaterThan(diag(R.Q), 0);
-            tc.verifyLessThan(diag(R.Q), 1);
-            tc.verifyLessThan(max(abs(R.mu - P.mu)), 1.5, 'muhat must stay near the generating baseline');
-            tc.verifyLessThan(max(abs(R.beta(:))), 15, 'betahat must stay bounded');
-
-            if strcmp(method, 'NewtonRaphson')
-                % The NR M-step is a proper (Monte Carlo) EM step: it
-                % recovers the generating parameters to within the noise
-                % of ~35 spikes/cell.
-                tc.verifyLessThan(max(abs(R.mu - P.mu)), 0.5);
-                tc.verifyLessThan(max(abs(R.beta(:) - P.beta(:))), 0.8);
-            end
-
-            if useHist
-                nW = numel(testPointProcessEMRuns.WindowTimes) - 1;
-                tc.verifySize(R.gamma, [nW, P.C]);
-                tc.verifyGreaterThan(max(abs(R.gamma(:) - testPointProcessEMRuns.Gamma0)), 0.05, ...
-                    'gammahat must be genuinely estimated (moved from its initial value)');
-                if strcmp(method, 'NewtonRaphson')
-                    tc.verifyLessThan(mean(R.gamma(:)), 0, ...
-                        'NR gammahat must recover the inhibitory (negative) history effect');
-                end
-            else
-                tc.verifyEqual(R.gamma, 0, 'no-history fits keep gamma = 0');
-            end
-        end
-
         function testScalarZeroGammaMeansNoHistory(tc)
             %TESTSCALARZEROGAMMAMEANSNOHISTORY gamma=0 with empty
             % windowTimes must be treated like gamma=[] (mirrors PPLFP_EM
@@ -252,7 +181,7 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
         end
     end
 
-    methods (Static, Access = private)
+    methods (Static)
         function P = makeProblem(fitType, useHist)
             rng(42);
             P.C = 4; P.N = 1000; P.delta = 0.001; dx = 2;

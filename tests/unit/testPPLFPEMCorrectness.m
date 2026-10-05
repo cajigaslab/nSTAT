@@ -229,32 +229,6 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             tc.verifyLessThan(max(abs(o{7}(:) - P.alpha(:))), 0.1, 'alpha recovery');
         end
 
-        function testDefaultHistoryWindows(tc)
-            %TESTDEFAULTHISTORYWINDOWS PPLFP_EM's default windowTimes rule
-            % 0:delta:(length(gamma)+1)*delta had one window too many and a
-            % shared gamma column was never expanded, so every
-            % default-window call failed. Same equivalences as the PP_EM
-            % test: W = size(gamma,1) windows, edges 0:delta:W*delta.
-            % Default (NewtonRaphson) M-step on the 600-bin problem, where EM
-            % stops after ~3 iterations (the equivalence holds per iteration).
-            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
-            C = P.nC; d = P.delta;
-            % Two cases: a scalar (one shared window; the old rule built 2 and
-            % never expanded it) and a 2 x 4 matrix (W < C: length() = 4).
-            % Small coefficients keep each EM run to ~3 iterations.
-            cases = { -0.05,                       -0.05*ones(1,C),              0:d:1*d; ...
-                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
-                      -0.04*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                    0:d:2*d};
-            for i = 1:size(cases,1)
-                r1 = cell(1,12); r2 = cell(1,12);
-                rng(3);
-                evalc('[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,''poisson'',d,cases{i,1},[]);');
-                rng(3);
-                evalc('[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,''poisson'',d,cases{i,2},cases{i,3});');
-                tc.verifyEqual(r1, r2, sprintf('case %d: default windows must equal explicit 0:delta:W*delta', i));
-            end
-        end
-
         function testGLMHistoryUnestimableWindowKeepsPrevious(tc)
             %TESTGLMHISTORYUNESTIMABLEWINDOWKEEPSPREVIOUS see the PP_MStep
             % test of the same name: hard-refractory spiking makes the
@@ -280,59 +254,6 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             tc.verifyEqual(gN(1,:), g0(1,:), 'the unestimable (0,1] ms window must keep its previous gamma');
             tc.verifyTrue(all(isfinite(gN(:))));
             tc.verifyTrue(all(abs(gN(2:3,:) - g0(2:3,:)) > 1e-6, 'all'), 'the estimable windows must be updated');
-        end
-
-        function testTimeBaseEquivalence(tc)
-            %TESTTIMEBASEEQUIVALENCE PPLFP_EM is a per-bin model: the same
-            % data at delta = 2 ms with history windows [0 4 10 20] ms
-            % cover the same bin lags as at 1 ms with [0 2 5 10] ms, so
-            % every output must agree. PPLFP_EM built its history spike
-            % trains at 1 kHz regardless of delta (R4b). NewtonRaphson
-            % M-step (default), so PPLFP_MStep's GLM time base is not
-            % involved (see testGLMTimeBaseEquivalence).
-            P = testPPLFPEMCorrectness.makeProblem('poisson', true, 400);
-            g0 = -0.3*ones(3, P.nC);
-            r1 = cell(1,12); r2 = cell(1,12);
-            rng(3);
-            evalc(['[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
-                '''poisson'',0.001,g0,[0 0.002 0.005 0.010]);']);
-            rng(3);
-            evalc(['[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
-                '''poisson'',0.002,g0,[0 0.004 0.010 0.020]);']);
-            for i = 1:12
-                tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, sprintf('output %d at delta=2 ms must equal the 1 ms analysis', i));
-            end
-        end
-
-        function testGLMTimeBaseEquivalence(tc)
-            %TESTGLMTIMEBASEEQUIVALENCE the PPLFP_MStep GLM branch hardcoded
-            % a 1 ms time grid / sampleRate 1000 (R4c). One GLM M-step on the
-            % same E-step output at delta = 2 ms with windows [0 4 10 20] ms
-            % must equal the 1 ms analysis with [0 2 5 10] ms (same bin
-            % lags), and PPLFP_EM with the GLM M-step must agree likewise.
-            P = testPPLFPEMCorrectness.makeProblem('poisson', true, 400);
-            g0 = -0.3*ones(3, P.nC);
-            wt1 = [0 0.002 0.005 0.010]; wt2 = [0 0.004 0.010 0.020];
-            H1 = testPointProcessEMCorrectness.historyTensor(P.dN, wt1, 0.001);
-            [xK, WK, ES] = testPPLFPEMCorrectness.eStepH(P, g0, H1);
-            m1 = cell(1,10); m2 = cell(1,10);
-            evalc(['[m1{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,' ...
-                '''poisson'',P.mu,P.beta,g0,wt1,H1,P.cons,''GLM'',0.001);']);
-            evalc(['[m2{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,' ...
-                '''poisson'',P.mu,P.beta,g0,wt2,H1,P.cons,''GLM'',0.002);']);
-            for i = 1:10
-                tc.verifyEqual(m2{i}, m1{i}, 'AbsTol', 1e-9, sprintf('PPLFP_MStep output %d', i));
-            end
-            r1 = cell(1,12); r2 = cell(1,12);
-            rng(3);
-            evalc(['[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
-                '''poisson'',0.001,g0,wt1,[],[],[],''GLM'');']);
-            rng(3);
-            evalc(['[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
-                '''poisson'',0.002,g0,wt2,[],[],[],''GLM'');']);
-            for i = 1:12
-                tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, sprintf('PPLFP_EM (GLM) output %d', i));
-            end
         end
 
         function testMStepNumBinsEqualsNumCells(tc)

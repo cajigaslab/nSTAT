@@ -37,6 +37,27 @@ From the shell:
 
 ## Current tests
 
+### `testPointProcessEMIntegration.m`
+
+Slow end-to-end EM regression tests for `nstat.decoding.PointProcessEM.PP_EM`
+and `nstat.decoding.PPLFP.PPLFP_EM` (fix/pp-em), moved out of `tests/unit` so
+the per-push gate stays fast. Each test runs several complete EM fits:
+
+- `testPPEMRunsAndConverges` -- all 8 fitType x MstepMethod x history
+  combinations converge (finite outputs, non-decreasing log-likelihood,
+  best iterate returned, NewtonRaphson recovers the generating parameters).
+- `testDefaultHistoryWindowsPP` / `...PPLFP` -- with `windowTimes = []` the
+  default windows are `0:delta:W*delta` (W = size(gamma,1)) and a shared
+  gamma column is expanded per cell.
+- `testTimeBaseEquivalencePP` / `...PPLFP`, `testGLMTimeBaseEquivalencePPLFP`
+  -- the same data at delta = 2 ms with windows [0 4 10 20] ms equals the
+  1 ms analysis with [0 2 5 10] ms.
+
+Helpers live in the unit classes `testPointProcessEMRuns`,
+`testPointProcessEMCorrectness` and `testPPLFPEMCorrectness`, so run with
+`addpath(genpath(pwd))` (as `tools/run_unit_tests.sh --integration` does).
+Runtime ~1 minute.
+
 ### `testKsAgainstReferenceZoo.m`
 
 Locks the `the published reference` chapter-04 §4.C.1 Cor. 2 numerical claim:

@@ -170,6 +170,61 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 2, 1);
         end
 
+        function testNewDefaults(tc)
+            %TESTNEWDEFAULTS PPLFP_EMCreateConstraints() no longer estimates
+            % x0/Px0 (Px0 collapse); every other default unchanged. The
+            % mPPCO_EMCreateConstraints forwarder returns the same struct.
+            C = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints();
+            tc.verifyEqual([C.EstimateA C.AhatDiag C.QhatDiag C.QhatIsotropic C.RhatDiag ...
+                C.RhatIsotropic C.Estimatex0 C.EstimatePx0 C.Px0Isotropic C.mcIter C.EnableIkeda], ...
+                [1 0 1 0 1 0 0 0 0 1000 0]);
+            tc.verifyEqual(DecodingAlgorithms.mPPCO_EMCreateConstraints(), C);
+        end
+
+        function testMStepDefaultsApply(tc)
+            %TESTMSTEPDEFAULTSAPPLY PPLFP_MStep's nargin tests were off by one
+            % (constraints are input 14, MstepMethod input 15), so omitting
+            % them errored. Omitted, they must default to
+            % PPLFP_EMCreateConstraints() and 'NewtonRaphson'.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
+            [xK, WK, ES] = testPPLFPEMCorrectness.eStep(P, P.mu, P.beta, 0);
+            r1 = cell(1,10); r2 = cell(1,10);
+            rng(9);
+            evalc('[r1{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,''poisson'',P.mu,P.beta,0,[],P.HkAll);');
+            rng(9);
+            evalc(['[r2{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,''poisson'',P.mu,P.beta,0,[],P.HkAll,' ...
+                'nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(),''NewtonRaphson'');']);
+            tc.verifyEqual(r1, r2, 'omitted constraints/MstepMethod must equal the explicit defaults');
+        end
+
+        function testBareDefaultCallConverges(tc)
+            %TESTBAREDEFAULTCALLCONVERGES PPLFP_EM(y,dN,A,Q,C,R,alpha,mu,beta)
+            % used to error (gamma read before it was defaulted); with the
+            % old GLM + x0/Px0-estimating defaults the logll went to +Inf at
+            % iteration 4. With the new defaults the bare call -- and the
+            % DecodingAlgorithms.mPPCO_EM forwarder, identically -- must run
+            % > 2 iterations with a finite, increasing logll and recover the
+            % generating parameters.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
+            o = cell(1,13); f = cell(1,13);
+            rng(42);
+            emLog = evalc('[o{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta);');
+            rng(42);
+            evalc('[f{1:13}] = DecodingAlgorithms.mPPCO_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta);');
+            tc.verifyEqual(f, o, 'mPPCO_EM must forward the bare call unchanged');
+            nIt = numel(regexp(emLog, 'Iteration #\d+', 'match'));
+            tc.verifyGreaterThan(nIt, 2, 'bare PPLFP_EM must run more than 2 EM iterations');
+            tok = regexp(emLog, 'logll: (\S+)', 'tokens');
+            ll = cellfun(@(t) str2double(t{1}), tok);
+            tc.verifyTrue(all(isfinite(ll)) && isreal(ll), 'every logll must be finite and real');
+            tc.verifyGreaterThan(ll(2), ll(1), 'EM must improve the log-likelihood');
+            tc.verifyGreaterThanOrEqual(diff(ll(1:end-1)), 0, 'logll non-decreasing before the stop');
+            tc.verifyLessThan(max(abs(o{8} - P.mu)), 0.5, 'mu recovery');
+            tc.verifyLessThan(max(abs(o{9}(:) - P.beta(:))), 0.8, 'beta recovery');
+            tc.verifyLessThan(max(abs(o{5}(:) - P.Cm(:))), 0.1, 'C recovery');
+            tc.verifyLessThan(max(abs(o{7}(:) - P.alpha(:))), 0.1, 'alpha recovery');
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step
@@ -297,9 +352,10 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
-        function P = makeProblem(fitType, useHist)
+        function P = makeProblem(fitType, useHist, N)
+            if nargin < 3 || isempty(N), N = 1000; end
             rng(21);
-            P.nC = 4; N = 1000; P.delta = 0.001; dx = 2; dy = 2;
+            P.nC = 4; P.delta = 0.001; dx = 2; dy = 2;
             P.A = 0.98*eye(dx); P.Q = 0.01*eye(dx);
             P.Cm = [1 0.5; -0.3 1]; P.R = 0.05*eye(dy); P.alpha = [0.1; -0.1];
             P.x0 = zeros(dx,1); P.Px0 = 1e-6*eye(dx);

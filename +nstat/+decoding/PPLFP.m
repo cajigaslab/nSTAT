@@ -409,9 +409,22 @@ classdef PPLFP
 
  end
  function C = PPLFP_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,RhatDiag,RhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter,EnableIkeda)
- %By default, all parameters are estimated. To empose diagonal
- %structure on the EM parameter results must pass in the
- %constraints element
+ %PPLFP_EMCREATECONSTRAINTS constraint/option struct for PPLFP_EM.
+ % C = PPLFP_EMCreateConstraints(EstimateA, AhatDiag, QhatDiag,
+ % QhatIsotropic, RhatDiag, RhatIsotropic, Estimatex0, EstimatePx0,
+ % Px0Isotropic, mcIter, EnableIkeda); every argument is optional.
+ %
+ % Defaults (changed in fix/pp-em round 3, matching PP_EMCreateConstraints):
+ % EstimateA=1, AhatDiag=0 (full A), QhatDiag=1, QhatIsotropic=0,
+ % RhatDiag=1, RhatIsotropic=0, Estimatex0=0, EstimatePx0=0,
+ % Px0Isotropic=0, mcIter=1000, EnableIkeda=0.
+ % x0 and Px0 are NOT estimated by default (previously 1 and 1): the
+ % Px0 M-step, Px0hat = (x0hat-x0)(x0hat-x0)'.*I, is a single-sample
+ % estimate that collapses to ~0 (or slightly negative) after one
+ % iteration, sending the E-step log-likelihood to +Inf/NaN; EM then
+ % stops after ~3 iterations (NewtonRaphson crashed before the
+ % non-finite guard). Pass Estimatex0/EstimatePx0 = 1 explicitly to
+ % restore the old behaviour.
  if(nargin<11 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -422,10 +435,10 @@ classdef PPLFP
  Px0Isotropic=0;
  end
  if(nargin<8 || isempty(EstimatePx0))
- EstimatePx0=1;
+ EstimatePx0=0; % FIX: default was 1 (degenerate Px0 collapse; see help)
  end
  if(nargin<7 || isempty(Estimatex0))
- Estimatex0=1;
+ Estimatex0=0; % FIX: default was 1 (see help)
  end
  if(nargin<6 || isempty(RhatIsotropic))
  RhatIsotropic=0;
@@ -1638,9 +1651,22 @@ classdef PPLFP
 
  end
  function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals]=PPLFP_EM(y,dN, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,PPLFP_EM_Constraints,MstepMethod)
+ %PPLFP_EM EM for a linear-Gaussian state observed through point
+ % processes (dN) and Gaussian LFP channels (y = C x + alpha + noise).
+ % Defaults: fitType 'poisson', delta 0.001 s, no history, x0 = 0,
+ % Px0 = 1e-9*I, PPLFP_EM_Constraints = PPLFP_EMCreateConstraints()
+ % (x0/Px0 not estimated), MstepMethod = 'NewtonRaphson'.
+ %
+ % MstepMethod default changed from 'GLM' to 'NewtonRaphson' (fix/pp-em
+ % round 3, as for PP_EM). The NewtonRaphson M-step maximises the
+ % expected complete-data log-likelihood by Monte Carlo over the
+ % smoothed state posterior; the 'GLM' M-step is a plug-in fit on the
+ % smoothed MEANS x_K that ignores W_K, inflates beta and drifts. 'GLM'
+ % remains available by passing it explicitly. SE/Pvals are computed
+ % only when more than 13 outputs are requested.
  numStates = size(Ahat0,1);
  if(nargin<17 || isempty(MstepMethod))
- MstepMethod='GLM'; %or NewtonRaphson 
+ MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
  if(nargin<16 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
@@ -1660,7 +1686,10 @@ classdef PPLFP
  % length(scalar)+1 and built HkAll with hist_cols=2. The scalar
  % gamma was then broadcast to (1, numCells) in Decode_update and
  % failed the matmul against a (numCells, 2) Histterm.
- if(isempty(gamma) || (isscalar(gamma) && gamma == 0))
+ % FIX: `nargin<12 ||` -- gamma is only defaulted below, so a call
+ % that omitted it (e.g. the bare PPLFP_EM(y,dN,A,Q,C,R,alpha,mu,beta))
+ % errored with "Not enough input arguments" here.
+ if(nargin<12 || isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
  % numWindows =length(gamma0)+1;
@@ -2307,10 +2336,16 @@ classdef PPLFP
 
  end
  function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod)
- if(nargin<14 || isempty(MstepMethod))
- MstepMethod = 'GLM'; %GLM or NewtonRaphson
+ %PPLFP_MSTEP M-step of PPLFP_EM.
+ % MstepMethod: 'NewtonRaphson' (default since fix/pp-em round 3; was
+ % 'GLM') or 'GLM' (plug-in fit on the smoothed means; see PPLFP_EM).
+ % FIX: the nargin tests were off by one (MstepMethod is input 15 and
+ % PPLFP_EM_Constraints input 14, not 14 and 13), so omitting either
+ % argument errored on an undefined variable instead of defaulting.
+ if(nargin<15 || isempty(MstepMethod))
+ MstepMethod = 'NewtonRaphson'; % FIX: default was 'GLM' (see PPLFP_EM help)
  end
- if(nargin<13 || isempty(PPLFP_EM_Constraints))
+ if(nargin<14 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
  end
  

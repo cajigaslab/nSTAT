@@ -410,6 +410,77 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
             tc.verifyEqual(l{13}.llobs, ESE.sumPPll + llyE, 'RelTol', 1e-9, 'PPLFP_EM IC.llobs vs sumPPll + E[log p(y|x)]');
         end
 
+        function testScaledSystemIdentitiesNonDiagonal(tc)
+            %TESTSCALEDSYSTEMIDENTITIESNONDIAGONAL (G3) pins the matrix
+            % orientation of the F8 / F10 maps back from the scaled system,
+            % S = Tq \ S_s / Tq', with dx = dy = 2 and NON-diagonal Q0, R0
+            % (so Tq, Tr are full; the dx = 1 tests cannot tell (Tq\S)/Tq'
+            % from Tq'\S/Tq). Both drivers:
+            %   F10: IC.llcomp equals the E-step log-likelihood run in the
+            %        original coordinates at the returned estimates, and
+            %        IC.llobs its observation part;
+            %   F8:  the SEs equal a direct SE call with the original y and
+            %        the original-coordinate expectation sums, started from
+            %        the same random state as the drivers' own SE call (the
+            %        state after the EM loop, taken from a run without SEs).
+            % The test checks that the wrong orientation would change the
+            % sums by > 5%, so it can tell the two apart.
+            P = testPointProcessEMIntegration.nonDiagonalProblem();
+            K = size(P.dN, 2); C = size(P.dN, 1); dy = size(P.y, 1);
+            H0 = zeros(K, 1, C);
+            Tq = eye(2)/chol(P.Q0, 'lower');
+            % ---- PP_EM
+            p10 = cell(1,10); p13 = cell(1,13);
+            rng(42);
+            evalc(['[p10{1:10}] = nstat.decoding.PointProcessEM.PP_EM(P.dN,P.A,P.Q0,P.mu,P.beta,' ...
+                '''poisson'',P.delta,[],[],P.x0,P.Px0,P.consP);']);
+            sAfter = rng;
+            rng(42);
+            evalc(['[p13{1:13}] = nstat.decoding.PointProcessEM.PP_EM(P.dN,P.A,P.Q0,P.mu,P.beta,' ...
+                '''poisson'',P.delta,[],[],P.x0,P.Px0,P.consP);']);
+            tc.assertEqual(p13(1:10), p10, 'PP_EM: requesting SEs must not change the EM path');
+            tc.assertGreaterThan(p13{13}, 2, 'PP_EM must iterate (non-diagonal Q0, G1)');
+            llE = []; ESo = [];
+            evalc(['[~,~,llE,ESo] = nstat.decoding.PointProcessEM.PP_EStep(p13{3},p13{4},P.dN,p13{5},p13{6},' ...
+                '''poisson'',p13{7},H0,p13{8},p13{9});']);
+            tc.verifyEqual(p13{10}.llcomp, llE, 'RelTol', 1e-10, 'PP_EM IC.llcomp (dx = 2)');
+            tc.verifyEqual(p13{10}.llobs, ESo.sumPPll, 'RelTol', 1e-10, 'PP_EM IC.llobs (dx = 2)');
+            Ss = Tq*ESo.Sxkm1xkm1*Tq';
+            tc.assertGreaterThan(norm((Tq'\Ss)/Tq - ESo.Sxkm1xkm1)/norm(ESo.Sxkm1xkm1), 0.05);
+            SEd = [];
+            rng(sAfter);
+            evalc(['SEd = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(P.dN,p13{1},p13{2},' ...
+                'p13{3},p13{4},p13{8},p13{9},ESo,''poisson'',p13{5},p13{6},p13{7},[],H0,P.consP);']);
+            for f = fieldnames(SEd)'
+                tc.verifyEqual(p13{11}.(f{1}), SEd.(f{1}), 'RelTol', 1e-6, ['PP_EM SE.' f{1} ' (dx = 2)']);
+            end
+            % ---- PPLFP_EM
+            l13 = cell(1,13); l15 = cell(1,15);
+            rng(42);
+            evalc(['[l13{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q0,P.Cm,P.R0,P.alpha,' ...
+                'P.mu,P.beta,''poisson'',P.delta,[],[],P.x0,P.Px0,P.consL);']);
+            sAfter = rng;
+            rng(42);
+            evalc(['[l15{1:15}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q0,P.Cm,P.R0,P.alpha,' ...
+                'P.mu,P.beta,''poisson'',P.delta,[],[],P.x0,P.Px0,P.consL);']);
+            tc.assertEqual(l15(1:13), l13, 'PPLFP_EM: requesting SEs must not change the EM path');
+            evalc(['[~,~,llE,ESo] = nstat.decoding.PPLFP.PPLFP_EStep(l15{3},l15{4},l15{5},l15{6},P.y,l15{7},' ...
+                'P.dN,l15{8},l15{9},''poisson'',P.delta,l15{10},H0,l15{11},l15{12});']);
+            Rh = l15{6};
+            llyE = -dy*K/2*log(2*pi) - K/2*log(det(Rh)) - 1/2*trace(Rh\ESo.sumYkTerms);
+            tc.verifyEqual(l15{13}.llcomp, llE, 'RelTol', 1e-10, 'PPLFP_EM IC.llcomp (dx = 2)');
+            tc.verifyEqual(l15{13}.llobs, ESo.sumPPll + llyE, 'RelTol', 1e-10, 'PPLFP_EM IC.llobs (dx = 2)');
+            Ss = Tq*ESo.Sxkxk*Tq';
+            tc.assertGreaterThan(norm((Tq'\Ss)/Tq - ESo.Sxkxk)/norm(ESo.Sxkxk), 0.05);
+            rng(sAfter);
+            evalc(['SEd = nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(P.y,P.dN,l15{1},l15{2},' ...
+                'l15{3},l15{4},l15{5},l15{6},l15{7},l15{11},l15{12},ESo,''poisson'',l15{8},l15{9},' ...
+                'l15{10},[],H0,P.consL);']);
+            for f = fieldnames(SEd)'
+                tc.verifyEqual(l15{14}.(f{1}), SEd.(f{1}), 'RelTol', 1e-6, ['PPLFP_EM SE.' f{1} ' (dx = 2)']);
+            end
+        end
+
         function testInformationCriteriaCountRWithRFlags(tc)
             %TESTINFORMATIONCRITERIACOUNTRWITHRFLAGS (F11) PPLFP_EM's IC
             % parameter count for R tested Q's flags. The count is
@@ -491,6 +562,21 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
     end
 
     methods (Static, Access = private)
+        function P = nonDiagonalProblem()
+            % dx = dy = 2 with non-diagonal Q0 and R0 (the re-review's probe3).
+            rng(7); P.delta = 0.001; N = 400; C = 3; dx = 2;
+            P.A = [0.95 0.10; -0.05 0.90]; P.Q0 = [0.010 0.006; 0.006 0.020];
+            x = zeros(dx,N); xp = zeros(dx,1);
+            for k = 1:N, xp = P.A*xp + chol(P.Q0,'lower')*randn(dx,1); x(:,k) = xp; end
+            P.mu = log(40*P.delta)*ones(C,1); P.beta = [1.0 -0.6 0.8; 0.4 0.9 -0.7];
+            P.dN = double(rand(C,N) < min(exp(P.mu + P.beta'*x),1));
+            P.Cm = [1 0.5; -0.3 1]; P.R0 = [0.05 0.02; 0.02 0.08]; P.alpha = [0.1; -0.1];
+            P.y = P.Cm*x + P.alpha + chol(P.R0,'lower')*randn(2,N);
+            P.x0 = [0.05; -0.02]; P.Px0 = [2e-3 5e-4; 5e-4 1e-3];
+            P.consP = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(); P.consP.mcIter = 50;
+            P.consL = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(); P.consL.mcIter = 50;
+        end
+
         function P = scalingProblem()
             % The F8 / F10 problem: dx = 1, Q = 0.01, 3 poisson cells, dy = 2.
             rng(21); P.delta = 0.001; N = 400; C = 3;

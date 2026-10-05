@@ -1750,6 +1750,20 @@ classdef PPLFP
  [x_K{storeInd},W_K{storeInd},ll(cnt),ExpectationSums{storeInd}]=...
  nstat.decoding.PPLFP.PPLFP_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, y, alphahat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
  
+ % FIX: stop before the M-step when the E-step log-likelihood is not
+ % a finite real number (same guard as PointProcessEM.PP_EM, 10cce2a).
+ % A degenerate iterate -- e.g. Px0hat collapsing to ~0 (or negative)
+ % under EstimatePx0=1 -- gives logll = +/-Inf, NaN or a complex value
+ % with NaN/non-PD smoothed states; the old loop fed those into
+ % PPLFP_MStep (NewtonRaphson then crashed in chol) or, because NaN
+ % comparisons are false, kept iterating on NaN. The best valid
+ % iterate is returned below.
+ if(~isfinite(ll(cnt)) || imag(ll(cnt))~=0)
+ display([' EM stopped at iteration# ' num2str(cnt) ' b/c the E-step log-likelihood was not a finite real number (' num2str(ll(cnt)) ')']);
+ negLL=1;
+ break;
+ end
+ 
  [Ahat{storeIndP1}, Qhat{storeIndP1}, Chat{storeIndP1}, Rhat{storeIndP1}, alphahat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
  = nstat.decoding.PPLFP.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
  
@@ -1916,7 +1930,12 @@ classdef PPLFP
  
  disp('--------------------------------------------------------------------------------------------------------');
 
- maxLLIndex = find(ll == max(ll),1,'first');
+ % FIX: choose the best FINITE, REAL log-likelihood (max() skips NaN
+ % but not +Inf, and compares magnitudes on a complex array).
+ % Identical to the old selection whenever every ll is finite and real.
+ llSel = ll; llSel(~isfinite(llSel) | imag(llSel)~=0) = NaN;
+ llSel = real(llSel);
+ maxLLIndex = find(llSel == max(llSel),1,'first');
  maxLLIndMod = mod(maxLLIndex-1,numToKeep)+1;
  if(maxLLIndex==1)
 % maxLLIndex=cnt-1;

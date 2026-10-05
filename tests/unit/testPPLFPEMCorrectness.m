@@ -135,6 +135,33 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'poisson', true, {'mu','beta','gamma'}, 2, 3, 2);
         end
 
+        function testEMStopsOnNonFiniteLogLikelihood(tc)
+            %TESTEMSTOPSONNONFINITELOGLIKELIHOOD with x0/Px0 estimation the
+            % Px0 M-step collapses Px0hat (to ~0 or below) and the E-step
+            % logll becomes +Inf / NaN / complex. PPLFP_EM used to feed that
+            % into PPLFP_MStep (NewtonRaphson crashed in chol) or iterate on
+            % NaN and select the +Inf iterate. It must now stop and return
+            % the best finite, real iterate. (Constraints passed explicitly,
+            % independent of PPLFP_EMCreateConstraints' defaults.)
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false);
+            cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(1,0,1,0,1,0,1,1);
+            for m = {'NewtonRaphson', 'GLM'}
+                o = cell(1,13);
+                rng(42);
+                emLog = evalc(['[o{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,' ...
+                    'P.mu,P.beta,''poisson'',P.delta,0,[],P.x0,P.Px0,cons,m{1});']);
+                for i = [1 3 4 5 6 7 8 9]
+                    tc.verifyTrue(isreal(o{i}) && all(isfinite(o{i}(:))), ...
+                        sprintf('%s: output %d must be finite and real', m{1}, i));
+                end
+                tok = regexp(emLog, 'logll: (\S+)', 'tokens');
+                ll = cellfun(@(t) str2double(t{1}), tok);
+                ok = isfinite(ll) & imag(ll) == 0;
+                tc.verifyEqual(real(o{13}.llcomp), max(real(ll(ok))), 'RelTol', 1e-7, ...
+                    sprintf('%s: must return the best finite log-likelihood iterate', m{1}));
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

@@ -1,5 +1,43 @@
 # nSTAT Release Notes
 
+## Unreleased — point-process EM (`fix/pp-em`)
+
+Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configuration) and fixes a series of correctness defects in the point-process EM / PPLFP / decoder cluster found while doing so. Two **default changes** (`PP_EM` and `PPLFP_EM` now use the NewtonRaphson M-step and do not estimate x0/Px0) and one **SE output-layout change** — see *Breaking changes*. The binomial likelihood throughout is the toolbox's point-process form `log L = Σ dN·log p − p`, `p = logistic(η)`.
+
+### Correctness fixes
+
+| PR / commit | Class | Site | Effect |
+|---|---|---|---|
+| `4d201c8` | crash | `PP_EM` / `PP_MStep` | No-history `HkAll` is now `zeros(N,1,numCells)` (was 1×1×C → index error at time 2); removed `close all` from the GLM M-step (deleted PP_EM's progress figure → `figure(h)` error at iteration 2); NewtonRaphson M-step used an undefined `xKDraw`. |
+| `a80aae2`, `9f540c5` | logic | `PP_MStep`, `PPLFP_MStep` GLM branch | The GLM fit was written to the input variables, so μ/β/γ were returned unchanged. |
+| `d37a07a` | logic | `FitResSummary.getHistIndex` / `getHistCoeffs` / `getCoeffs` | `bAct(:,fitNum)` on a 3-D array read neuron 1 only; history labels were dropped whenever neuron 1's were NaN (crash on undefined `baseStrings`, history terms misreported as covariates). Empty cases now return empty. |
+| `7a2b87f`, `9f540c5` | numerical | binomial NewtonRaphson β step (PP, PPLFP) | Hessian had the wrong sign (`(p+p²−2p³)xx'`); now `(−(dN+1)p + (dN+3)p² − 2p³)xx'` (finite-difference verified). The NR M-step diverged before. |
+| `74b8096`, `b26f535` | crash | binomial γ SE block (PP, PPLFP) | `Hk(k,:)'*Hk(:,k)` → `Hk(k,:)'*Hk(k,:)`. |
+| `8321271`, `c44b293`, `7c8f3c1` | numerical | binomial β and μ SE information (PP, PPLFP) | β block had the wrong sign (negative-definite information); μ block used `−3E[p³]` instead of `−2E[p³]`. |
+| `03c48ad`, `04413d8` | layout | `SE.beta` / `SE.gamma` (PP, PPLFP) | `reshape(v,C,dx)'` scrambled entries for dx>1 and C>1; now `reshape(v,dx,C)` / `reshape(v,W,C)`. |
+| `10cce2a`, `849c68b` | guard | `PP_EM`, `PPLFP_EM` | Stop before the M-step on a non-finite / complex E-step log-likelihood; return the best finite real iterate. |
+| `2403a97`, `d436fe1` | numerical | `PP_EStep`, `PPLFP_EStep`, `PPLFP_Decode_update` | Square history (numWindows == numCells) was transposed (logll, and the PPLFP filter). |
+| `913af29`, `e8c5d2e`, `3338eed` | numerical | `PP_EM`, `PPLFP_EM`, both GLM M-steps | History spike trains and the GLM time grid now use `delta` (were hardcoded 1 ms). |
+| `7bfcf7f` | numerical | `PPAF.PPDecodeFilterLinear` | A correctly oriented square β (ns == C) was transposed. |
+| `10fc00e`, `7835a4e` | crash / logic | `PPHybridFilterLinear`, `PPLFP_DecodeLinear`, `PPLFP_fixedIntervalSmoother` | History windows used an undefined `delta`; a shared γ column reached only the last cell (#20 pattern). |
+| `2219ee0`, `a457b54` | crash | `PP_EM`, `PPLFP_EM` default windows | `windowTimes = []` with nonzero γ now gives `0:delta:size(gamma,1)*delta` (was one window too many) and expands a shared nonzero γ column per cell. |
+| `ef7bb22`, `605d9bc` | crash | SE routines and M-steps | Removed `size(Hk,1)==numCells` re-orientations of history slices (broke one cell with W>1, and N == numCells). |
+| `cfb47d1`, `1b6132d`, `4c3beac` | crash / logic | GLM M-steps (PP, PPLFP) | γ, μ and β are mapped from the GLM fit **by label**; an unestimable coefficient keeps its previous value (crashes for dropped labels, dx ≥ 10 mis-mapping, single cell). |
+| `4512384` | crash | SE routines | One cell with one nonzero history coefficient left the γ parameter count unassigned. |
+| `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
+
+### Breaking changes
+
+- **`PP_EM` / `PP_MStep` (`b0d83fd`) and `PPLFP_EM` / `PPLFP_MStep` (`7cea336`): default `MstepMethod` is now `'NewtonRaphson'`** (was `'GLM'`, a plug-in fit on the smoothed means that inflates β and drifts). Pass `'GLM'` explicitly for the old behaviour.
+- **`PP_EMCreateConstraints` / `PPLFP_EMCreateConstraints`: `Estimatex0` and `EstimatePx0` now default to 0** (were 1; the single-sample Px0 update collapses Px0 to ~0 and sends the log-likelihood to +Inf after ~2 iterations). All other constraint defaults are unchanged. Pass them as 1 for the old behaviour.
+- **`SE.beta` / `SE.gamma` (and `Pvals.beta` / `Pvals.gamma`) layout** from `PP_ComputeParamStandardErrors` / `PPLFP_ComputeParamStandardErrors` (and `PP_EM` / `PPLFP_EM` when SEs are requested) is now `dx × C` / `W × C` with each entry in its own position (previously scrambled; transposed when dx == C).
+- `PPAF.PPDecodeFilterLinear` output changes for square problems (ns == C) only.
+
+### New capabilities
+
+- **Optional `delta` inputs**: `PP_MStep(…, MstepMethod, delta)` (15th input) and `PPLFP_MStep(…, MstepMethod, delta)` (16th input), default 0.001 s; `PP_EM` / `PPLFP_EM` pass their `delta`. Existing positional arguments are unchanged.
+- Tests: `tests/unit/testPointProcessEMRuns.m`, `testPointProcessEMCorrectness.m`, `testPPLFPEMCorrectness.m`, `testDecoderCorrectness.m`, `testFitResSummaryHistIndex.m`; slow full-EM tests in `tests/integration/testPointProcessEMIntegration.m` (`tools/run_unit_tests.sh --integration`).
+
 ## v1.5.2 — 22-Jun-2026
 
 Patch release focused on the publish pipeline (substantial performance work + two distinct orphan-figure fixes), a paper-example RNG-fragility fix that was breaking the README parity gate, restoration of the deferred pedagogical figures from v1.5.1, and docs-tree hygiene. No API changes; no breaking changes. End users on v1.5.1 should upgrade — the orphan-figure fixes silently improve every shipped helpfile HTML.

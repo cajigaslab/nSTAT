@@ -55,6 +55,15 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial');
         end
 
+        function testSingleCellHistoryStandardErrors(tc)
+            %TESTSINGLECELLHISTORYSTANDARDERRORS with one cell and several
+            % history windows the SE code's `size(Hk,1)==numCells` guard
+            % transposed the 1 x W history row and the information blocks
+            % failed. SEs must match the finite-difference information.
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson', 1);
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial', 1);
+        end
+
         function testGLMMStepRestoresWarningState(tc)
             %TESTGLMMSTEPRESTORESWARNINGSTATE PP_MStep's GLM branch called
             % warning('OFF') and never restored the caller's state.
@@ -134,7 +143,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
     end
 
     methods (Static)
-        function checkStandardErrorsAgainstFD(tc, fitType)
+        function checkStandardErrorsAgainstFD(tc, fitType, C)
             % Construct a case where PP_ComputeParamStandardErrors' missing
             % information vanishes -- W_K ~ 0 (states known) and every
             % parameter at its complete-data MLE, so every score is ~0 --
@@ -145,11 +154,12 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % complete information is block diagonal (mu | beta | gamma),
             % so the expected SE is sqrt(diag(inv(-H_block))).
             rng(5);
-            dx = 2; C = 2; K = 3000; delta = 0.001;
+            if nargin < 3 || isempty(C), C = 2; end
+            dx = 2; K = 3000; delta = 0.001;
             Atrue = 0.99*eye(dx); Qtrue = 0.02*eye(dx);
             x = zeros(dx, K); xp = zeros(dx,1);
             for k = 1:K, xp = Atrue*xp + chol(Qtrue,'lower')*randn(dx,1); x(:,k) = xp; end
-            muT = log(0.05)*ones(C,1); betaT = [1 -0.8; 0.5 0.7];
+            muT = log(0.05)*ones(C,1); betaT = [1 -0.8; 0.5 0.7]; betaT = betaT(:, 1:C);
             wt = [0 0.004 0.010 0.025]; nW = numel(wt)-1;
             dN = zeros(C,K);
             for k = 1:K

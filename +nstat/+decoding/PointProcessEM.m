@@ -234,9 +234,10 @@ classdef PointProcessEM
  
 % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -262,9 +263,10 @@ classdef PointProcessEM
  Wk = WKFinal(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -311,9 +313,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -331,9 +334,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -365,9 +369,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -385,9 +390,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -422,9 +428,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -442,9 +449,10 @@ classdef PointProcessEM
  HessianTerm = zeros(size(HkAll,2),size(HkAll,2));
  for k=1:K
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -480,9 +488,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -501,9 +510,10 @@ classdef PointProcessEM
 
  for k=1:K
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);

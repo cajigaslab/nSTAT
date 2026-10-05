@@ -662,9 +662,10 @@ classdef PPLFP
 
  % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -690,9 +691,10 @@ classdef PPLFP
  Wk = WKFinal(:,:,k);
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -728,9 +730,10 @@ classdef PPLFP
 
  % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -756,9 +759,10 @@ classdef PPLFP
  Wk = WKFinal(:,:,k);
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -793,9 +797,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -813,9 +818,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -847,9 +853,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -867,9 +874,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -904,9 +912,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -924,9 +933,10 @@ classdef PPLFP
  HessianTerm = zeros(size(HkAll,2),size(HkAll,2));
  for k=1:K
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -962,9 +972,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -983,9 +994,10 @@ classdef PPLFP
 
  for k=1:K
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -1189,9 +1201,10 @@ classdef PPLFP
  for nc=1:numCells
  if(strcmp(fitType,'poisson'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -1205,9 +1218,10 @@ classdef PPLFP
  ScoreGammaMc= [ScoreGammaMc;sum(repmat(dN(nc,:)-ld,[nHist 1]).*Hk',2)];
  elseif(strcmp(fitType,'binomial'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  
  if(numel(gammahat)==1)
@@ -1331,9 +1345,10 @@ classdef PPLFP
  for nc=1:numCells
  if(strcmp(fitType,'poisson'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -1347,9 +1362,10 @@ classdef PPLFP
  ScoreGammaMc= [ScoreGammaMc;sum(repmat(dN(nc,:)-ld,[nHist 1]).*Hk',2)];
  elseif(strcmp(fitType,'binomial'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  
  if(numel(gammahat)==1)

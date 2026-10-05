@@ -162,6 +162,14 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testSingleCellHistoryStandardErrors(tc)
+            %TESTSINGLECELLHISTORYSTANDARDERRORS one cell, two history
+            % windows: the `size(Hk,1)==numCells` guards in
+            % PPLFP_ComputeParamStandardErrors transposed the 1 x W row.
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'poisson', true, {'mu','beta','gamma'}, 1, 2, 1);
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 2, 1);
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

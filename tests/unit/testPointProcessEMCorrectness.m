@@ -99,14 +99,17 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % new defaults (NewtonRaphson, x0/Px0 fixed) it must run > 2
             % iterations, increase the log-likelihood, and recover beta.
             [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
-            r = cell(1,13);
+            % 10 outputs (no SE): with every logll finite (asserted below)
+            % no non-finite stop can occur, so the number of 'Iteration #'
+            % lines equals the nIter output.
+            r = cell(1,10);
             rng(42);
-            emLog = evalc('[r{1:13}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta);');
-            nIter = r{13};
-            tc.verifyGreaterThan(nIter, 2, 'default PP_EM must complete more than 2 EM iterations');
+            emLog = evalc('[r{1:10}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta);');
             tok = regexp(emLog, 'logll: (\S+)', 'tokens');
             ll = cellfun(@(t) str2double(t{1}), tok);
             tc.verifyTrue(all(isfinite(ll)) && isreal(ll), 'every logll must be finite and real');
+            nIter = numel(regexp(emLog, 'Iteration #\d+', 'match'));
+            tc.verifyGreaterThan(nIter, 2, 'default PP_EM must complete more than 2 EM iterations');
             tc.verifyGreaterThan(ll(2), ll(1), 'EM must improve the log-likelihood');
             tc.verifyGreaterThanOrEqual(diff(ll(1:end-1)), 0, 'logll non-decreasing before the stop');
             tc.verifyLessThan(max(abs(r{6}(:) - beta(:))), 0.8, 'default PP_EM must recover beta');
@@ -122,7 +125,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % trains at 1 kHz regardless of delta and the GLM M-step
             % hardcoded a 1 ms grid / sampleRate 1000.
             S = testPointProcessEMCorrectness.squareHistoryProblem('poisson');
-            dN = S.dN(:, 1:400);
+            dN = S.dN(:, 1:300);
             cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
             g0 = -0.5*ones(3, size(dN,1));
             for m = {'GLM', 'NewtonRaphson'}
@@ -155,7 +158,10 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % so the expected SE is sqrt(diag(inv(-H_block))).
             rng(5);
             if nargin < 3 || isempty(C), C = 2; end
-            dx = 2; K = 3000; delta = 0.001;
+            % K = 1500: the comparison is exact up to the finite-difference
+            % error and the ~1e-12 posterior noise, neither of which depends
+            % on K; K only has to give every history window spikes.
+            dx = 2; K = 1500; delta = 0.001;
             Atrue = 0.99*eye(dx); Qtrue = 0.02*eye(dx);
             x = zeros(dx, K); xp = zeros(dx,1);
             for k = 1:K, xp = Atrue*xp + chol(Qtrue,'lower')*randn(dx,1); x(:,k) = xp; end

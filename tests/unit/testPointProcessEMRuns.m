@@ -233,6 +233,7 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
             % asserted; the SE values themselves are checked against a
             % finite-difference Hessian in testPointProcessEMCorrectness.
             cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            cons.mcIter = 100;   % SE Monte Carlo size; only "runs/finite" is asserted here
             for ft = {'poisson', 'binomial'}
                 P = testPointProcessEMRuns.makeProblem(ft{1}, true);
                 g0 = testPointProcessEMRuns.Gamma0*ones(numel(P.wt)-1, P.C);

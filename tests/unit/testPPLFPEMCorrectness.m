@@ -143,7 +143,7 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             % NaN and select the +Inf iterate. It must now stop and return
             % the best finite, real iterate. (Constraints passed explicitly,
             % independent of PPLFP_EMCreateConstraints' defaults.)
-            P = testPPLFPEMCorrectness.makeProblem('poisson', false);
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
             cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(1,0,1,0,1,0,1,1);
             for m = {'NewtonRaphson', 'GLM'}
                 o = cell(1,13);

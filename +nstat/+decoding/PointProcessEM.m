@@ -986,7 +986,12 @@ classdef PointProcessEM
  end
  
  if(nargin<9 || isempty(windowTimes))
- if(isempty(gamma))
+ % FIX: mirror PPLFP_EM FIX (#98) -- a scalar gamma==0 means "no
+ % history", same as isempty(gamma). The previous guard only checked
+ % isempty(), so gamma=0 + windowTimes=[] inferred 2 history windows
+ % from length(scalar)+1 and built a (N, 2, numCells) HkAll that the
+ % scalar-gamma broadcast in PPDecode_updateLinear cannot multiply.
+ if(nargin<8 || isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
  % numWindows =length(gamma0)+1; 
@@ -1016,10 +1021,17 @@ classdef PointProcessEM
  HkAll(:,:,k) = histObj.computeHistory(nst{k}).dataToMatrix;
  end
  else
- for k=1:K
-% HkAll{k} = 0;
- HkAll(:,:,k) = 0;
- end
+ % FIX: same defect as PPLFP_EM FIX (#98). The original
+ % `for k=1:K, HkAll(:,:,k) = 0; end` loop sized HkAll as
+ % (1, 1, numCells). PP_EStep permutes it [2 3 1] to
+ % (1, numCells, 1) -- a single time slice -- so
+ % PPAF.PPDecode_updateLinear's HkAll(:,:,time_index) went out of
+ % bounds at time_index=2 ("Index in position 3 exceeds array
+ % bounds") and PP_EM could never run without history. Size HkAll
+ % like the with-history branch, (numTimeSteps, 1, numCells), the
+ % same layout PPAF.PPDecodeFilterLinear builds for its no-history
+ % case. gamma=0 still zeroes the history contribution.
+ HkAll = zeros(size(dN,2), 1, K);
  gamma=0;
  end
 
@@ -2107,7 +2119,14 @@ classdef PointProcessEM
  
  % Estimate params via GLM
  if(strcmp(MstepMethod,'GLM'))
- clear c; close all;
+ % FIX: removed `close all`. PP_EM creates its progress figure `h`
+ % after the first M-step; on iteration 2 this `close all` deleted
+ % it and PP_EM's `figure(h)` then threw "Argument must be a Figure
+ % object or a positive integer", so a GLM M-step EM could never
+ % get past iteration 2. RunAnalysisForAllNeurons is called with
+ % makePlot=0 below, so there is nothing for this step to close --
+ % it only destroyed the caller's (and the user's) figures.
+ clear c;
  time=(0:length(x_K)-1)*.001;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);
@@ -2189,7 +2208,13 @@ classdef PointProcessEM
  if(strcmp(fitType,'poisson'))
  HessianTerm = zeros(size(x_K,1),size(x_K,1));
  GradTerm = zeros(size(x_K,1),1);
- xkPerm = permute(xKDraw,[2 3 1]);
+ % FIX: was permute(xKDraw,[2 3 1]) -- `xKDraw` is undefined in
+ % PP_MStep (the MC draws are xKDrawExp, dx x K x McExp), so the
+ % serial (no parallel pool) NewtonRaphson M-step always errored,
+ % and [2 3 1] would have sliced a K x McExp matrix instead of
+ % the dx x McExp draws used below. Use the same permutation as
+ % every other branch here and PPLFP_MStep: dx x McExp x K.
+ xkPerm = permute(xKDrawExp,[1 3 2]);
  for k=1:K
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);
@@ -2218,7 +2243,9 @@ classdef PointProcessEM
  elseif(strcmp(fitType,'binomial'))
  HessianTerm = zeros(size(x_K,1),size(x_K,1));
  GradTerm = zeros(size(x_K,1),1);
- xkPerm = permute(xKDraw,[1 3 2]);
+ % FIX: was permute(xKDraw,...) -- undefined variable; see the
+ % poisson branch above.
+ xkPerm = permute(xKDrawExp,[1 3 2]);
  for k=1:K
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);

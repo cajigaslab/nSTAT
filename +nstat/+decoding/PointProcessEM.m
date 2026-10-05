@@ -2365,8 +2365,17 @@ classdef PointProcessEM
  gPrev = repmat(gPrev, 1, numCells);
  end
  histTemp = gPrev;
+ % FIX (F1): getHistCoeffs returns labels = cell(0,0) when NO window is
+ % estimable for any cell; histLabels(:,1) then threw
+ % MATLAB:badsubscript. Treat that as "no fitted label" (every window
+ % keeps its previous gamma).
+ if(isempty(histLabels))
+ histLabCol = {};
+ else
+ histLabCol = histLabels(:,1);
+ end
  for w=1:nWin
- j = find(strcmp(histLabels(:,1), winLabels{w}), 1);
+ j = find(strcmp(histLabCol, winLabels{w}), 1);
  if(~isempty(j))
  for c=1:numCells
  v = histMat(j,1,c);

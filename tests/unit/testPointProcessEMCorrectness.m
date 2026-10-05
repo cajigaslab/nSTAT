@@ -217,6 +217,28 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyEqual(r2{1}, r1{1}, 'AbsTol', 1e-12, 'Ahat');
         end
 
+        function testGLMHistoryAllWindowsUnestimable(tc)
+            %TESTGLMHISTORYALLWINDOWSUNESTIMABLE single (0,1] ms window with
+            % hard-refractory spiking: NO history window is estimable for
+            % any cell, getHistCoeffs returns empty labels, and the GLM
+            % M-step crashed on histLabels(:,1) (F1). gamma must keep its
+            % previous value, in PP_MStep and end to end in PP_EM.
+            [dN, A, Q, mu, beta] = testPointProcessEMCorrectness.refractoryProblem();
+            C = size(dN,1); delta = 0.001; wt = [0 0.001];
+            HkAll = testPointProcessEMCorrectness.historyTensor(dN, wt, delta);
+            g0 = -0.3*ones(1, C);
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                '''poisson'',g0,HkAll,zeros(2,1),1e-9*eye(2));']);
+            gN = []; cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            evalc(['[~,~,~,~,gN] = nstat.decoding.PointProcessEM.PP_MStep(dN,xK,WK,zeros(2,1),' ...
+                '1e-9*eye(2),ES,''poisson'',mu,beta,g0,wt,HkAll,cons,''GLM'');']);
+            tc.verifyEqual(gN, g0, 'every unestimable window must keep its previous gamma');
+            o = cell(1,7); rng(1);
+            evalc('[o{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,g0,wt,[],[],cons,''GLM'');');
+            tc.verifyEqual(o{7}, g0, 'PP_EM (GLM): gammahat must stay at its initial value');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows

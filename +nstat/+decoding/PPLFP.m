@@ -1816,8 +1816,19 @@ classdef PPLFP
  scaledSystem=1;
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
- Tr = eye(size(Rhat{1}))/(chol(Rhat{1}));
+ % FIX (G1): whiten with the LOWER Cholesky factor. Tq = inv(L),
+ % L = chol(Q0,'lower') (Q0 = L*L'), gives Tq*Q0*Tq' = I (and the
+ % same for Tr and R0, so RhatDiag acts on a whitened R). The upper
+ % factor R (Q0 = R'*R) gave Tq*Q0*Tq' = inv(R)*R'*R*inv(R)' ~= I for
+ % a non-diagonal Q0, so the default QhatDiag=1 M-step was applied to a
+ % scaled Q that the starting point did not satisfy: the first M-step
+ % lowered the likelihood and EM returned the initial parameters (e.g.
+ % Q0 = [.01 .006; .006 .02]: logll -1332.92 -> -1345.34, stop). For a
+ % diagonal Q0, L = R' = R: unchanged. Any invertible Tq is a valid
+ % change of variables, and |det L| = |det R|, so F8's (Tq\S)/Tq' and
+ % F10's log|det Tq| Jacobian are unaffected.
+ Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
+ Tr = eye(size(Rhat{1}))/(chol(Rhat{1},'lower'));
  Ahat{1}= Tq*Ahat{1}/Tq;
  Chat{1}= Tr*Chat{1}/Tq;
  Qhat{1}= Tq*Qhat{1}*Tq';
@@ -2066,8 +2077,9 @@ classdef PPLFP
  Px0hat=Px0hat{maxLLIndMod};
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat))/(chol(Q0));
- Tr = eye(size(Rhat))/(chol(R0));
+ % FIX (G1): same lower factor as at the start (see there).
+ Tq = eye(size(Qhat))/(chol(Q0,'lower'));
+ Tr = eye(size(Rhat))/(chol(R0,'lower'));
  Ahat=Tq\Ahat*Tq;
  Qhat=(Tq\Qhat)/Tq';
  Chat=Tr\Chat*Tq;
@@ -2089,7 +2101,7 @@ classdef PPLFP
 % AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new
  if(nargout>13)
  % FIX (F8): PPLFP_EM runs EM on an internally SCALED system
- % (x_s = Tq*x, y_s = Tr*y, Tq = inv(chol(Q0)), Tr = inv(chol(R0)))
+ % (x_s = Tq*x, y_s = Tr*y, Tq = inv(chol(Q0,'lower')), Tr = inv(chol(R0,'lower')))
  % and maps every returned estimate back to the original scale, but
  % the SE call passed the SCALED y and the SCALED expectation sums
  % together with the UNSCALED xKFinal/WKFinal/A/Q/C/R/alpha/x0/Px0/
@@ -2175,8 +2187,8 @@ classdef PPLFP
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
  % FIX (F10): ll (the best E-step's expected complete-data
  % log-likelihood) and sumXkTerms come from the internally SCALED
- % system x_s = Tq*x, y_s = Tr*y (Tq = inv(chol(Q0)),
- % Tr = inv(chol(R0))), while Qhat and Px0hat have been mapped back to
+ % system x_s = Tq*x, y_s = Tr*y (Tq = inv(chol(Q0,'lower')),
+ % Tr = inv(chol(R0,'lower'))), while Qhat and Px0hat have been mapped back to
  % the original scale, so llobs (= ll minus the expected state
  % log-density) mixed scales and AIC/BIC depended on the units of x
  % (llobs 19013 -> 337 when the state was rescaled by 3) and of y.

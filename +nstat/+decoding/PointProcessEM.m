@@ -1184,7 +1184,17 @@ classdef PointProcessEM
  scaledSystem=1;
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
+ % FIX (G1): whiten with the LOWER Cholesky factor. Tq = inv(L),
+ % L = chol(Q0,'lower') (Q0 = L*L'), gives Tq*Q0*Tq' = I. The upper
+ % factor R (Q0 = R'*R) gave Tq*Q0*Tq' = inv(R)*R'*R*inv(R)' ~= I for
+ % a non-diagonal Q0, so the default QhatDiag=1 M-step was applied to a
+ % scaled Q that the starting point did not satisfy: the first M-step
+ % lowered the likelihood and EM returned the initial parameters (e.g.
+ % Q0 = [.01 .006; .006 .02]: logll -1332.92 -> -1345.34, stop). For a
+ % diagonal Q0, L = R' = R: unchanged. Any invertible Tq is a valid
+ % change of variables, and |det L| = |det R|, so F8's (Tq\S)/Tq' and
+ % F10's log|det Tq| Jacobian are unaffected.
+ Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
  Ahat{1}= Tq*Ahat{1}/Tq;
  Qhat{1}= Tq*Qhat{1}*Tq';
  x0hat{1} = Tq*x0;
@@ -1413,7 +1423,8 @@ classdef PointProcessEM
  Px0hat=Px0hat{maxLLIndMod};
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat))/(chol(Q0));
+ % FIX (G1): same lower factor as at the start (see there).
+ Tq = eye(size(Qhat))/(chol(Q0,'lower'));
  Ahat=Tq\Ahat*Tq;
  Qhat=(Tq\Qhat)/Tq';
  xKFinal = Tq\xKFinal;
@@ -1431,7 +1442,7 @@ classdef PointProcessEM
  ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
  if(nargout>10)
  % FIX (F8): the expectation sums come from the E-step of the
- % internally SCALED system (x_s = Tq*x, Tq = inv(chol(Q0))), while
+ % internally SCALED system (x_s = Tq*x, Tq = inv(chol(Q0,'lower'))), while
  % xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat and betahat passed
  % here are back on the ORIGINAL scale. PP_ComputeParamStandardErrors
  % reads ES.Sxkm1xkm1 (A information Q^-1 (x) Sxkm1xkm1) with the
@@ -1496,7 +1507,7 @@ classdef PointProcessEM
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
  % FIX (F10): ll (the best E-step's expected complete-data
  % log-likelihood) and sumXkTerms come from the internally SCALED
- % system x_s = Tq*x (Tq = inv(chol(Q0))), while Qhat and Px0hat
+ % system x_s = Tq*x (Tq = inv(chol(Q0,'lower'))), while Qhat and Px0hat
  % have been mapped back to the original scale, so llobs (= ll minus
  % the expected state log-density) mixed scales and AIC/BIC depended
  % on the units of x (llobs 18680 -> 1342 when the state was rescaled

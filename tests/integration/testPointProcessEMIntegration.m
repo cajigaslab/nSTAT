@@ -442,6 +442,52 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
                 tc.verifyEqual(IC.BIC, -2*IC.llobs + (base + cases{i,4})*log(K), 'RelTol', 1e-12);
             end
         end
+
+        function testNonDiagonalInitialCovarianceIsWhitened(tc)
+            %TESTNONDIAGONALINITIALCOVARIANCEISWHITENED (G1) the EM drivers
+            % scale the state by Tq = inv(chol(Q0)) (and y by Tr). With the
+            % upper Cholesky factor Tq*Q0*Tq' ~= I for a non-diagonal Q0, so
+            % the default QhatDiag=1 (RhatDiag=1) M-step was applied to a
+            % scaled covariance the starting point did not satisfy: the first
+            % M-step lowered the log-likelihood and EM returned the initial
+            % parameters unchanged. With the lower factor (Tq*Q0*Tq' = I) EM
+            % must improve the log-likelihood and move the estimates, here
+            % started from the true (non-diagonal) Q0 / R0.
+            rng(7); delta = 0.001; N = 400; C = 3; dx = 2;
+            A = [0.95 0.10; -0.05 0.90]; Qt = [0.010 0.006; 0.006 0.020];
+            x = zeros(dx,N); xp = zeros(dx,1);
+            for k = 1:N, xp = A*xp + chol(Qt,'lower')*randn(dx,1); x(:,k) = xp; end
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.6 0.8; 0.4 0.9 -0.7];
+            dN = double(rand(C,N) < min(exp(mu + beta'*x),1));
+            x0 = [0.05; -0.02]; Px0 = [2e-3 5e-4; 5e-4 1e-3];
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            for A0 = {A, 0.8*A}
+                p = cell(1,10);
+                rng(42);
+                lg = evalc(['[p{1:10}] = nstat.decoding.PointProcessEM.PP_EM(dN,A0{1},Qt,mu,beta,' ...
+                    '''poisson'',delta,[],[],x0,Px0,cons);']);
+                ll = testPointProcessEMRuns.parseLogLL(lg);
+                tc.verifyGreaterThan(ll(2), ll(1), 'PP_EM: the first M-step must not lower the log-likelihood');
+                tc.verifyGreaterThan(max(abs(p{3}(:) - A0{1}(:))), 1e-4, 'PP_EM must move Ahat');
+                tc.verifyGreaterThan(max(abs(p{6}(:) - beta(:))), 1e-2, 'PP_EM must move betahat');
+            end
+            % PPLFP_EM, non-diagonal Q0 and R0 (default constraints).
+            rng(21); N = 600; C = 4; dy = 2;
+            A = 0.98*eye(dx); Cm = [1 0.5; -0.3 1]; Rt = [0.05 0.02; 0.02 0.08]; alpha = [0.1; -0.1];
+            x = zeros(dx,N); xp = zeros(dx,1);
+            for k = 1:N, xp = A*xp + chol(Qt,'lower')*randn(dx,1); x(:,k) = xp; end
+            y = Cm*x + alpha + chol(Rt,'lower')*randn(dy,N);
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.5; 0.3 0.8; -0.7 0.4; 0.6 0.6]';
+            dN = double(rand(C,N) < min(exp(mu + beta'*x),1));
+            consL = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(); consL.mcIter = 50;
+            l = cell(1,13);
+            rng(42);
+            lg = evalc(['[l{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(y,dN,A,Qt,Cm,Rt,alpha,mu,beta,' ...
+                '''poisson'',delta,[],[],zeros(dx,1),1e-6*eye(dx),consL);']);
+            ll = testPointProcessEMRuns.parseLogLL(lg);
+            tc.verifyGreaterThan(ll(2), ll(1), 'PPLFP_EM: the first M-step must not lower the log-likelihood');
+            tc.verifyGreaterThan(max(abs(l{5}(:) - Cm(:))), 1e-3, 'PPLFP_EM must move Chat');
+        end
     end
 
     methods (Static, Access = private)

@@ -46,6 +46,14 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % checkStandardErrorsAgainstFD.
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson');
         end
+
+        function testBinomialStandardErrorsMatchFiniteDifference(tc)
+            %TESTBINOMIALSTANDARDERRORSMATCHFINITEDIFFERENCE the binomial
+            % beta information block used (E[p]+E[p^2]-2E[p^3])xx', which
+            % is negative definite (wrong sign), so SE.beta was
+            % meaningless. Same FD construction as the poisson test.
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial');
+        end
     end
 
     methods (Static)

@@ -225,9 +225,9 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
             %TESTSTANDARDERROROUTPUTSRUN requesting SE/Pvals/nIter
             % (nargout > 10) runs PP_ComputeParamStandardErrors. The
             % binomial + history gamma block used Hk(k,:)'*Hk(:,k) and
-            % always errored. Only "runs" is asserted for binomial: its
-            % beta information block still uses the known-wrong Hessian
-            % (reported, not changed here). Poisson SEs must be finite.
+            % always errored. Here only "runs" (and finite poisson SEs) is
+            % asserted; the SE values themselves are checked against a
+            % finite-difference Hessian in testPointProcessEMCorrectness.
             cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
             for ft = {'poisson', 'binomial'}
                 P = testPointProcessEMRuns.makeProblem(ft{1}, true);

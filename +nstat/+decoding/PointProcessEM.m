@@ -271,7 +271,16 @@ classdef PointProcessEM
  % effectively all-zero. Parallel structure to the poisson branch a
  % few lines above which does `HessianTerm(:,:,k) = -1/McExp*(...)`.
  % Surfaced by checkcode VUNUS finding 2026-06-22.
- HessianTerm(:,:,k) = ExplambdaDeltaXkXk + ExplambdaDeltaSqXkXkT - 2*ExplambdaDeltaCubeXkXkT;
+ % FIX: the expression itself had the wrong sign/form (same
+ % defect as PP_MStep's binomial beta step). For
+ % log L = sum dN*log(p) - p, p = logistic(eta), the beta
+ % Hessian is -p(1-p)(1+dN-2p)xx' =
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx', the form the mu and gamma
+ % information blocks below already use. The old
+ % (E[p]+E[p^2]-2E[p^3])xx' made IBetaComp = -sum(Hessian)
+ % negative definite, so binomial beta SEs were meaningless
+ % (nearestSPD then masked the sign).
+ HessianTerm(:,:,k) = -(dN(c,k)+1)*ExplambdaDeltaXkXk + (dN(c,k)+3)*ExplambdaDeltaSqXkXkT - 2*ExplambdaDeltaCubeXkXkT;
  
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;

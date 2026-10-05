@@ -1441,12 +1441,17 @@ classdef PPLFP
  end
  
  SEMu = SEMuTerms;
- SEBeta=reshape(SEBetaTerms,size(betahat,2),size(betahat,1))';
+ % FIX: SEBetaTerms is ordered cell by cell (dx entries per cell),
+ % i.e. column-major for a dx x C matrix; reshape(...,C,dx)' scrambled
+ % the entries whenever dx>1 and C>1 (the transpose when dx == C).
+ % Same fix as PointProcessEM.PP_ComputeParamStandardErrors (03c48ad).
+ SEBeta=reshape(SEBetaTerms,size(betahat,1),size(betahat,2));
 
  SE.mu = SEMu;
  SE.beta = SEBeta;
  if((numel(gammahat)==1 && gammahat~=0) || numel(gammahat)>1)
- SEGamma=reshape(SEGammaTerms,size(gammahat,2),size(gammahat,1))';
+ % FIX: cell-by-cell ordering -> numWindows x C (see SEBeta).
+ SEGamma=reshape(SEGammaTerms,size(gammahat,1),size(gammahat,2));
  SE.gamma = SEGamma;
  end
  % Compute parameter p-values

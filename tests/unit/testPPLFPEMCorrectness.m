@@ -126,6 +126,15 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testStandardErrorLayoutMultiStateMultiWindow(tc)
+            %TESTSTANDARDERRORLAYOUTMULTISTATEMULTIWINDOW SE.beta / SE.gamma
+            % were built with reshape(v,C,dx)' / reshape(v,C,W)' from
+            % cell-ordered terms, scrambling entries for dx>1 / W>1 with
+            % C>1. dx = 2, 3 windows, 2 cells: every entry must match the
+            % finite-difference information in its own position.
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'poisson', true, {'mu','beta','gamma'}, 2, 3, 2);
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step
@@ -144,37 +153,49 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
     end
 
     methods (Static)
-        function checkSEAgainstFD(tc, fitType, withHistory, fields)
+        function checkSEAgainstFD(tc, fitType, withHistory, fields, dx, nW, nC)
             % PPLFP_ComputeParamStandardErrors with vanishing missing
             % information: W_K ~ 0 (states known) and EVERY parameter at
             % its complete-data MLE given x (A, Q, C, alpha, R in closed
             % form; mu, beta, gamma by Newton), so every score is ~0. The
             % complete information is block diagonal, so each SE must equal
             % sqrt(diag(inv(-H_block))) of a finite-difference Hessian of
-            % the per-cell point-process log-likelihood. dx = 1 and one
-            % history window keep the comparison independent of the
-            % (unchanged) SE.beta/SE.gamma reshape in this function.
+            % the per-cell point-process log-likelihood.
+            % Optional: dx (state dim, default 1), nW (history windows,
+            % default 1), nC (cells, default 2). dx = nW = 1 makes the
+            % check independent of the SE.beta/SE.gamma reshape.
+            if nargin < 5 || isempty(dx), dx = 1; end
+            if nargin < 6 || isempty(nW), nW = 1; end
+            if nargin < 7 || isempty(nC), nC = 2; end
             rng(5);
-            dx = 1; nC = 2; K = 3000; delta = 0.001;
-            x = zeros(dx, K); xp = 0;
-            for k = 1:K, xp = 0.99*xp + sqrt(0.02)*randn; x(:,k) = xp; end
-            Cm = [1; -0.5]; alphaT = [0.1; -0.1]; Rt = diag([0.05 0.08]);
+            K = 3000; delta = 0.001;
+            x = zeros(dx, K); xp = zeros(dx,1);
+            for k = 1:K, xp = 0.99*xp + sqrt(0.02)*randn(dx,1); x(:,k) = xp; end
+            CmAll = [1 0.3; -0.5 0.8]; Cm = CmAll(:, 1:dx);
+            alphaT = [0.1; -0.1]; Rt = diag([0.05 0.08]);
             y = Cm*x + alphaT + chol(Rt,'lower')*randn(2, K);
-            muT = log(0.05)*ones(nC,1); betaT = [1 -0.8];
-            if withHistory, wt = [0 0.010]; else, wt = []; end
+            muT = log(0.05)*ones(nC,1);
+            betaAll = [1 -0.8 0.6; 0.5 0.7 -0.4]; betaT = betaAll(1:dx, 1:nC);
+            if withHistory
+                wtAll = [0 0.004 0.012 0.025]; wt = wtAll(1:nW+1);
+            else
+                wt = [];
+            end
             dN = zeros(nC, K);
             for k = 1:K
                 eta = muT + betaT'*x(:,k);
                 if withHistory
-                    lo = max(k - round(wt(2)/delta), 1); hi = k-1;
-                    if hi >= lo, eta = eta - 0.5*sum(dN(:,lo:hi),2); end
+                    for w = 1:nW
+                        lo = max(k - round(wt(w+1)/delta), 1); hi = min(k - round(wt(w)/delta) - 1, k-1);
+                        if hi >= lo, eta = eta - 0.5*sum(dN(:,lo:hi),2); end
+                    end
                 end
                 if strcmp(fitType,'poisson'), p = min(exp(eta),1); else, p = exp(eta)./(1+exp(eta)); end
                 dN(:,k) = rand(nC,1) < p;
             end
             if withHistory
                 histObj = History(wt, 0, (K-1)*delta);
-                HkAll = zeros(K, 1, nC);
+                HkAll = zeros(K, nW, nC);
                 for c = 1:nC
                     nst = nspikeTrain((find(dN(c,:)==1)-1)*delta);
                     nst.setMinTime(0); nst.setMaxTime((K-1)*delta);
@@ -183,20 +204,21 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             else
                 HkAll = zeros(K, 1, nC);
             end
-            x0 = 0; Px0 = 1e-6;
-            np = 1 + dx + withHistory;
-            mu = zeros(nC,1); beta = zeros(dx,nC); gamma = zeros(1,nC); Hfull = cell(1,nC);
+            x0 = zeros(dx,1); Px0 = 1e-6*eye(dx);
+            nG = withHistory*nW;
+            np = 1 + dx + nG;
+            mu = zeros(nC,1); beta = zeros(dx,nC); gamma = zeros(max(nG,1),nC); Hfull = cell(1,nC);
             for c = 1:nC
                 Z = [ones(1,K); x];
                 th = [muT(c); betaT(:,c)];
-                if withHistory, Z = [Z; HkAll(:,1,c)']; th = [th; -0.5]; end %#ok<AGROW>
+                if withHistory, Z = [Z; HkAll(:,:,c)']; th = [th; -0.5*ones(nW,1)]; end %#ok<AGROW>
                 score = @(t) testPointProcessEMCorrectness.ppScore(t, Z, dN(c,:), fitType);
                 for it = 1:100
                     [g, H] = score(th); step = H\g; th = th - step;
                     if max(abs(step)) < 1e-12, break; end
                 end
                 mu(c) = th(1); beta(:,c) = th(2:1+dx);
-                if withHistory, gamma(c) = th(end); end
+                if withHistory, gamma(:,c) = th(2+dx:end); end
                 h = 1e-6; Hfd = zeros(np);
                 for i = 1:np
                     e = zeros(np,1); e(i) = h;
@@ -233,7 +255,8 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
                         sprintf('%s cell %d: SE.beta must match the finite-difference information', fitType, c));
                 end
                 if any(strcmp(fields, 'gamma'))
-                    tc.verifyEqual(SE.gamma(:,c), sqrt(1/(-Hc(end,end))), 'RelTol', 1e-3, ...
+                    Hg = Hc(2+dx:end, 2+dx:end);
+                    tc.verifyEqual(SE.gamma(:,c), sqrt(diag(inv(-Hg))), 'RelTol', 1e-3, ...
                         sprintf('%s cell %d: SE.gamma must match the finite-difference information', fitType, c));
                 end
             end

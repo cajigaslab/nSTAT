@@ -409,6 +409,39 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
             tc.verifyEqual(l{13}.llcomp, llE, 'RelTol', 1e-9, 'PPLFP_EM IC.llcomp vs PPLFP_EStep at the estimates');
             tc.verifyEqual(l{13}.llobs, ESE.sumPPll + llyE, 'RelTol', 1e-9, 'PPLFP_EM IC.llobs vs sumPPll + E[log p(y|x)]');
         end
+
+        function testInformationCriteriaCountRWithRFlags(tc)
+            %TESTINFORMATIONCRITERIACOUNTRWITHRFLAGS (F11) PPLFP_EM's IC
+            % parameter count for R tested Q's flags. The count is
+            % recovered exactly from IC as nTerms = (AIC + 2*llobs)/2 and
+            % compared with the count implied by the constraints:
+            % A (full, dx^2) + Q (dx) + C (dy*dx) + R + alpha (dy) + mu (C)
+            % + beta (dx*C), with R counted as dy (diagonal), numel(R)
+            % (full) or 1 (isotropic). Before the fix the two mixed-flag
+            % cases were swapped (16 <-> 14 here).
+            P = testPointProcessEMIntegration.scalingProblem();
+            dx = 1; dy = size(P.y, 1); C = size(P.dN, 1);
+            base = dx^2 + dx + dy*dx + dy + C + dx*C;
+            %         QhatDiag RhatDiag RhatIsotropic  expected R count
+            cases = {1, 0, 0, dy^2;
+                     0, 1, 0, dy;
+                     1, 1, 0, dy;
+                     1, 1, 1, 1};
+            for i = 1:size(cases, 1)
+                cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(1, 0, cases{i,1}, 0, cases{i,2}, cases{i,3});
+                cons.mcIter = 50;
+                l = cell(1,13);
+                rng(42);
+                evalc(['[l{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,' ...
+                    'P.alpha,P.mu,P.beta,''poisson'',P.delta,[],[],0,1e-6,cons);']);
+                IC = l{13};
+                nTerms = (IC.AIC + 2*IC.llobs)/2;
+                tc.verifyEqual(nTerms, base + cases{i,4}, 'AbsTol', 1e-6, ...
+                    sprintf('nTerms with QhatDiag=%d RhatDiag=%d RhatIsotropic=%d', cases{i,1:3}));
+                K = size(P.dN, 2);
+                tc.verifyEqual(IC.BIC, -2*IC.llobs + (base + cases{i,4})*log(K), 'RelTol', 1e-12);
+            end
+        end
     end
 
     methods (Static, Access = private)

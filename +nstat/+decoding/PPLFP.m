@@ -2114,7 +2114,13 @@ classdef PPLFP
  n3=numel(Chat); 
  if(PPLFP_EM_Constraints.RhatDiag==1 && PPLFP_EM_Constraints.RhatIsotropic==1)
  n4=1;
- elseif(PPLFP_EM_Constraints.QhatDiag==1 && PPLFP_EM_Constraints.QhatIsotropic==0)
+ % FIX (F11): the diagonal-R count tested Q's flags (QhatDiag /
+ % QhatIsotropic), so R's parameter count followed Q's constraint:
+ % RhatDiag=0 with QhatDiag=1 counted dy instead of numel(Rhat), and
+ % RhatDiag=1 with QhatDiag=0 counted numel(Rhat) instead of dy. Only
+ % IC (AIC/AICc/BIC) used it; the defaults (both diagonal, not
+ % isotropic) were unaffected.
+ elseif(PPLFP_EM_Constraints.RhatDiag==1 && PPLFP_EM_Constraints.RhatIsotropic==0)
  n4=size(Rhat,1);
  else
  n4=numel(Rhat);

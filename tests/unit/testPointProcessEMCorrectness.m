@@ -68,6 +68,49 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial', 1, 1);
         end
 
+        function testStandardErrorsHonourConstraints(tc)
+            %TESTSTANDARDERRORSHONOURCONSTRAINTS (G2) the arity check
+            % nargin<19 in a 15-input function replaced the caller's
+            % constraints with the defaults on every call (nTerms was 18
+            % here for every constraint set). With them honoured the
+            % parameter count, the SE fields and the Monte Carlo size follow
+            % the constraints; EstimateA=0, QhatIsotropic=1 and
+            % Px0Isotropic=1 also run (they used undefined N / dx).
+            % nTerms = A + Q + Px0 + x0 + mu (C) + beta (dx*C).
+            [dN, A, Q, mu, beta] = testPointProcessEMCorrectness.emProblem();
+            dN = dN(:, 1:300); C = size(dN, 1); dx = size(A, 1); H = zeros(300, 1, C);
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                '''poisson'',0,H,zeros(dx,1),1e-6*eye(dx));']);
+            base = C + dx*C;
+            % EstimateA AhatDiag QhatDiag QhatIso Estx0 EstPx0 Px0Iso | expected nTerms, SE fields
+            cases = {[1 0 1 0 0 0 0], dx^2 + dx + base,     {'A','Q','mu','beta'};
+                     [0 0 1 0 0 0 0], dx + base,            {'Q','mu','beta'};
+                     [1 1 1 0 0 0 0], dx + dx + base,       {'A','Q','mu','beta'};
+                     [1 0 0 0 0 0 0], dx^2 + dx^2 + base,   {'A','Q','mu','beta'};
+                     [1 0 1 1 0 0 0], dx^2 + 1 + base,      {'A','Q','mu','beta'};
+                     [1 0 1 0 1 0 0], dx^2 + dx + dx + base, {'A','Q','x0','mu','beta'};
+                     [1 0 1 0 0 1 0], dx^2 + dx + dx + base, {'A','Q','Px0','mu','beta'};
+                     [1 0 1 0 0 1 1], dx^2 + dx + 1 + base,  {'A','Q','Px0','mu','beta'}};
+            for i = 1:size(cases, 1)
+                v = cases{i,1};
+                cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(v(1),v(2),v(3),v(4),v(5),v(6),v(7));
+                cons.mcIter = 20;
+                [S, n] = testPointProcessEMCorrectness.ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons);
+                label = sprintf('constraints %s', mat2str(v));
+                tc.verifyEqual(n, cases{i,2}, [label ': nTerms']);
+                tc.verifyEqual(sort(fieldnames(S)), sort(cases{i,3}(:)), [label ': SE fields']);
+                if v(1) == 1 && v(2) == 1
+                    tc.verifyTrue(isdiag(S.A), [label ': SE.A must be diagonal']);
+                end
+            end
+            cons5 = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0); cons5.mcIter = 5;
+            cons7 = cons5; cons7.mcIter = 7;
+            S5 = testPointProcessEMCorrectness.ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons5);
+            S7 = testPointProcessEMCorrectness.ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons7);
+            tc.verifyNotEqual(S5.mu, S7.mu, 'mcIter must set the Monte Carlo sample size');
+        end
+
         function testSharedGammaColumnStandardErrors(tc)
             %TESTSHAREDGAMMACOLUMNSTANDARDERRORS (F12) a direct SE call with
             % a shared history column (a nonzero scalar for one window, or a
@@ -363,6 +406,14 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                 g = Z*((dNc - p).*(1 - p))';
                 H = -(Z.*(p.*(1-p).*(1+dNc-2*p)))*Z';
             end
+        end
+
+        function [SE, nTerms] = ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons)
+            % Direct PP_ComputeParamStandardErrors call (no history), rng(3).
+            dx = size(A, 1); SE = []; nTerms = [];
+            rng(3);
+            evalc(['[SE,~,nTerms] = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,xK,WK,' ...
+                'A,Q,zeros(dx,1),1e-6*eye(dx),ES,''poisson'',mu,beta,0,[],H,cons);']);
         end
 
         function [dN, A, Q, mu, beta, delta] = emProblem()

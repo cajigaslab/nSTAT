@@ -111,9 +111,26 @@ classdef PointProcessEM
  % approximate the covariance term using Monte Carlo approximation
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- if(nargin<19 || isempty(PPEM_Constraints))
+ % FIX (G2): this function has 15 inputs, so the old test nargin<19 was
+ % always true and the caller's constraints were ALWAYS replaced by the
+ % PP_EMCreateConstraints() defaults: mcIter was always 1000, AhatDiag=1
+ % still produced a full SE.A (SEs for off-diagonal entries that were
+ % never estimated), EstimateA=0 still reported SE.A, and the missing
+ % information (which couples every block) was built for the wrong
+ % parameter vector. (Copied from PPLFP_ComputeParamStandardErrors,
+ % which has 19 inputs.) Use the defaults only when the argument is
+ % absent or empty.
+ if(nargin<15 || isempty(PPEM_Constraints))
  PPEM_Constraints=nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
  end
+ % FIX (G2): with the constraints honoured, three non-default paths
+ % became reachable that used variables this routine never defined
+ % (only the always-default path had been exercised): EstimateA=0 left
+ % N undefined (it was set inside the A block), and QhatIsotropic=1 /
+ % Px0Isotropic=1 used an undefined dx. Define both up front, as
+ % PPLFP_ComputeParamStandardErrors does.
+ N=size(xKFinal,2);
+ dx=size(xKFinal,1);
  % FIX (F12): a shared history-coefficient column (numWindows x 1,
  % including a scalar for one window) with several cells is expanded
  % to numWindows x numCells (gamma(w,c) = gamma_shared(w)), the rule

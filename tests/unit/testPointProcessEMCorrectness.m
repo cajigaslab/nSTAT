@@ -68,6 +68,39 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial', 1, 1);
         end
 
+        function testSharedGammaColumnStandardErrors(tc)
+            %TESTSHAREDGAMMACOLUMNSTANDARDERRORS (F12) a direct SE call with
+            % a shared history column (a nonzero scalar for one window, or a
+            % numWindows x 1 column) and several cells failed: one gamma
+            % parameter was counted against per-cell information blocks /
+            % scores, and gammahat(:,c) was indexed for c > 1. It is now
+            % expanded per cell as PP_EM does (B9), so the call must equal
+            % the call with the expanded gamma, entry for entry.
+            [dN, A, Q, mu, beta] = testPointProcessEMCorrectness.refractoryProblem();
+            dN = dN(:, 1:600); C = size(dN, 1); dx = size(A, 1);
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            cases = {[0 0.002], -0.3; [0 0.002 0.005], [-0.3; -0.1]};
+            for i = 1:size(cases, 1)
+                wt = cases{i,1}; g = cases{i,2}; gC = repmat(g, 1, C);
+                H = testPointProcessEMCorrectness.historyTensor(dN, wt, 0.001);
+                xK = []; WK = []; ES = [];
+                evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                    '''poisson'',gC,H,zeros(dx,1),1e-6*eye(dx));']);
+                out1 = cell(1,3); out2 = cell(1,3);
+                rng(7);
+                evalc(['[out1{1:3}] = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,xK,WK,' ...
+                    'A,Q,zeros(dx,1),1e-6*eye(dx),ES,''poisson'',mu,beta,g,wt,H,cons);']);
+                rng(7);
+                evalc(['[out2{1:3}] = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,xK,WK,' ...
+                    'A,Q,zeros(dx,1),1e-6*eye(dx),ES,''poisson'',mu,beta,gC,wt,H,cons);']);
+                label = sprintf('shared gamma %s', mat2str(g));
+                tc.verifySize(out1{1}.gamma, [numel(wt)-1, C], label);
+                tc.verifyEqual(out1{1}, out2{1}, [label ': SE']);
+                tc.verifyEqual(out1{2}, out2{2}, [label ': Pvals']);
+                tc.verifyEqual(out1{3}, out2{3}, [label ': nTerms']);
+            end
+        end
+
         function testGLMMStepRestoresWarningState(tc)
             %TESTGLMMSTEPRESTORESWARNINGSTATE PP_MStep's GLM branch called
             % warning('OFF') and never restored the caller's state.

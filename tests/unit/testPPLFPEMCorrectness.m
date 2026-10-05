@@ -181,6 +181,33 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 1, 1);
         end
 
+        function testSharedGammaColumnStandardErrors(tc)
+            %TESTSHAREDGAMMACOLUMNSTANDARDERRORS (F12) a direct
+            % PPLFP_ComputeParamStandardErrors call with a shared history
+            % column (nonzero scalar for one window, or numWindows x 1) and
+            % several cells failed; it is now expanded per cell as PPLFP_EM
+            % does (B9), so it must equal the call with the expanded gamma.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
+            cases = {[0 0.002], -0.3; [0 0.002 0.005], [-0.3; -0.1]};
+            for i = 1:size(cases, 1)
+                wt = cases{i,1}; g = cases{i,2}; gC = repmat(g, 1, P.nC);
+                H = testPointProcessEMCorrectness.historyTensor(P.dN, wt, P.delta);
+                [xK, WK, ES] = testPPLFPEMCorrectness.eStepH(P, gC, H);
+                out1 = cell(1,3); out2 = cell(1,3);
+                rng(7);
+                evalc(['[out1{1:3}] = nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(P.y,P.dN,xK,WK,' ...
+                    'P.A,P.Q,P.Cm,P.R,P.alpha,P.x0,P.Px0,ES,''poisson'',P.mu,P.beta,g,wt,H,P.cons);']);
+                rng(7);
+                evalc(['[out2{1:3}] = nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(P.y,P.dN,xK,WK,' ...
+                    'P.A,P.Q,P.Cm,P.R,P.alpha,P.x0,P.Px0,ES,''poisson'',P.mu,P.beta,gC,wt,H,P.cons);']);
+                label = sprintf('shared gamma %s', mat2str(g));
+                tc.verifySize(out1{1}.gamma, [numel(wt)-1, P.nC], label);
+                tc.verifyEqual(out1{1}, out2{1}, [label ': SE']);
+                tc.verifyEqual(out1{2}, out2{2}, [label ': Pvals']);
+                tc.verifyEqual(out1{3}, out2{3}, [label ': nTerms']);
+            end
+        end
+
         function testNewDefaults(tc)
             %TESTNEWDEFAULTS PPLFP_EMCreateConstraints() no longer estimates
             % x0/Px0 (Px0 collapse); every other default unchanged. The

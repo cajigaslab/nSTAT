@@ -114,6 +114,22 @@ classdef PointProcessEM
  if(nargin<19 || isempty(PPEM_Constraints))
  PPEM_Constraints=nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
  end
+ % FIX (F12): a shared history-coefficient column (numWindows x 1,
+ % including a scalar for one window) with several cells is expanded
+ % to numWindows x numCells (gamma(w,c) = gamma_shared(w)), the rule
+ % PP_EM applies before it calls this routine (B9). The gamma
+ % information blocks and scores below are built per cell (numWindows
+ % rows each) and index gammahat(:,c), so a scalar gamma with C > 1
+ % counted one gamma parameter against C per-cell blocks (dimension
+ % error) and a numWindows x 1 column failed on gammahat(:,c), c > 1.
+ % After the expansion every cell has its own coefficients and SE.gamma
+ % / Pvals.gamma are numWindows x numCells, exactly as for the
+ % expanded input; the count matches PP_EM's IC count (one
+ % parameter per coefficient). An all-zero gamma is left as passed.
+ if(~isempty(windowTimes) && size(gammahat,2)==1 && size(dN,1)>1 ...
+ && size(gammahat,1)==numel(windowTimes)-1 && any(gammahat(:)~=0))
+ gammahat = repmat(gammahat,1,size(dN,1));
+ end
 
  
  if(PPEM_Constraints.EstimateA==1)

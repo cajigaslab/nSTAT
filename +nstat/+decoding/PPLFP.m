@@ -331,7 +331,14 @@ classdef PPLFP
  % cells. The original slice was correct; #90's "fix" was made at the
  % wrong end of the call chain and is reverted.
  Histterm = HkAll(:,:,time_index);
- if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
+ % FIX: make Histterm (numCells x numWindows). The slice of the
+ % permuted HkAll is (numWindows x numCells); the old test
+ % size(Histterm,1)~=numCells did not transpose it when
+ % numWindows == numCells, so diag(gamma'*Histterm') paired
+ % gamma(w,c) with H(c,w) -- square history gave different math.
+ % Transposing whenever the COLUMNS are the cells is identical for
+ % numWindows ~= numCells.
+ if(size(Histterm,2)==numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
 
@@ -356,7 +363,8 @@ classdef PPLFP
  elseif(strcmp(fitType,'poisson'))
  % NB (#95 — reverted #90 here): see the binomial branch above.
  Histterm = HkAll(:,:,time_index);
- if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
+ % FIX: column-based orientation check; see the binomial branch.
+ if(size(Histterm,2)==numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
 
@@ -2132,7 +2140,11 @@ classdef PPLFP
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk = HkPerm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: orient Hk (numWindows x numCells) by its COLUMNS; the old
+ % size(Hk,1)==numCells also fired for numWindows == numCells
+ % and paired gamma(w,c) with Hk(c,w) in the logll. Identical for
+ % numWindows ~= numCells. (Same fix as PointProcessEM.PP_EStep.)
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -2165,7 +2177,8 @@ classdef PPLFP
  % unassigned `Hk` on the next size check. The poisson branch
  % above has the correct form.
  Hk = HkPerm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: column-based orientation check; see the poisson branch.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);

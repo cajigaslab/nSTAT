@@ -52,6 +52,26 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
                 'PPLFP_MStep(GLM) must leave the caller''s warning state unchanged');
         end
 
+        function testSquareHistoryInvariance(tc)
+            %TESTSQUAREHISTORYINVARIANCE numWindows == numCells used to
+            % mis-orient the history slice in PPLFP_Decode_update (filter)
+            % and PPLFP_EStep (logll). Appending an all-zero history window
+            % with a zero gamma row is the same model but non-square;
+            % x_K, W_K and logll must not change.
+            for ft = {'poisson', 'binomial'}
+                P = testPPLFPEMCorrectness.squareProblem(ft{1});
+                tc.assertEqual(size(P.HkAll,2), size(P.dN,1), 'scenario must be square (nW == C)');
+                [xK1, WK1, ~, ll1] = testPPLFPEMCorrectness.eStep(P, P.mu, P.beta, P.gamma0);
+                P2 = P;
+                P2.HkAll = cat(2, P.HkAll, zeros(size(P.HkAll,1), 1, size(P.HkAll,3)));
+                g2 = [P.gamma0; zeros(1, size(P.gamma0,2))];
+                [xK2, WK2, ~, ll2] = testPPLFPEMCorrectness.eStep(P2, P.mu, P.beta, g2);
+                tc.verifyEqual(xK1, xK2, 'AbsTol', 1e-12, [ft{1} ': x_K must be invariant']);
+                tc.verifyEqual(WK1, WK2, 'AbsTol', 1e-12, [ft{1} ': W_K must be invariant']);
+                tc.verifyEqual(ll1, ll2, 'RelTol', 1e-12, [ft{1} ': logll must be invariant']);
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step
@@ -110,6 +130,23 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
             P.cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(1,0,1,0,1,0,0,0);
             P.cons.mcIter = 50;
+        end
+
+        function P = squareProblem(fitType)
+            % 3 cells, 3 history windows, non-symmetric gamma.
+            P = testPPLFPEMCorrectness.makeProblem(fitType, false);
+            keep = 1:3;
+            P.nC = 3; P.dN = P.dN(keep,:); P.mu = P.mu(keep); P.beta = P.beta(:,keep);
+            wt = [0 0.002 0.005 0.010]; N = size(P.dN,2);
+            histObj = History(wt, 0, (N-1)*P.delta);
+            P.HkAll = zeros(N, numel(wt)-1, P.nC);
+            for c = 1:P.nC
+                nst = nspikeTrain((find(P.dN(c,:)==1)-1)*P.delta);
+                nst.setMinTime(0); nst.setMaxTime((N-1)*P.delta);
+                P.HkAll(:,:,c) = histObj.computeHistory(nst).dataToMatrix;
+            end
+            P.wt = wt;
+            P.gamma0 = [-0.9 -0.2 -0.5; -0.4 -1.1 0.3; 0.2 -0.6 -0.8];
         end
 
         function [xK, WK, ES, ll] = eStep(P, mu, beta, gamma)

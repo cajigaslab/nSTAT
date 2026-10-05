@@ -2362,16 +2362,28 @@ classdef PPLFP
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);
  temp = FitResSummary(results);
  tempCoeffs = squeeze(temp.getCoeffs);
+ % FIX: same defect as PointProcessEM.PP_MStep (a80aae2). The GLM
+ % fit was written to the INPUT variables (betahat, muhat,
+ % gammahat) while the function returns betahat_new / muhat_new /
+ % gammahat_new, which were set to the inputs above -- so the GLM
+ % M-step returned mu, beta and gamma unchanged. Write the fit into
+ % the returned variables; a coefficient FitResSummary reports as
+ % NaN (se>=100, not identifiable) keeps its previous value, and
+ % history keeps the original NaN->0 convention.
+ betaFit = tempCoeffs(2:(dx+1),:);
+ muFit = tempCoeffs(1,:)';
+ betaPrev = betahat_new(1:dx,:);
+ betaFit(isnan(betaFit)) = betaPrev(isnan(betaFit));
+ muFit(isnan(muFit)) = muhat_new(isnan(muFit));
+ betahat_new(1:dx,:) = betaFit;
+ muhat_new = muFit;
  if(gammahat==0)
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
+ % no history terms in this fit; gammahat_new stays as input
  else
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
  histTemp = squeeze(temp.getHistCoeffs);
  histTemp = reshape(histTemp, [length(windowTimes)-1 numCells]);
  histTemp(isnan(histTemp))=0;
- gammahat=histTemp;
+ gammahat_new=histTemp;
  end
  else
  
@@ -2462,7 +2474,13 @@ classdef PPLFP
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  GradTerm = GradTerm+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: binomial beta Hessian had the wrong sign/form (same
+ % defect as PointProcessEM.PP_MStep, 7a2b87f): for
+ % log L = sum dN*log(p) - p, p = logistic(eta), the Hessian is
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' (the form the mu and gamma
+ % steps here already use); the old (p + p^2 - 2p^3)xx' is
+ % positive definite, so Newton stepped downhill.
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
 
@@ -2561,10 +2579,11 @@ classdef PPLFP
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  if(k==1)
  GradTerm(:,c) = dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: same wrong-sign binomial beta Hessian as the serial branch.
+ HessianTerm(:,:,c)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  else
  GradTerm(:,c) = GradTerm(:,c)+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=HessianTerm(:,:,c)+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=HessianTerm(:,:,c)-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  end
  end
 
@@ -2956,7 +2975,10 @@ classdef PPLFP
  gammaC=gammahat_newTemp;
  iter=iter+1;
  end
- gamma_new(:,c) =gammaC;
+ % FIX: was `gamma_new(:,c) = gammaC;` -- never returned, so the
+ % parallel-pool branch discarded the history update (as in
+ % PointProcessEM.PP_MStep).
+ gammahat_new(:,c) =gammaC;
  % fprintf('\n'); 
  end 
  end

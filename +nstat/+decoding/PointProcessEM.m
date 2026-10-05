@@ -2285,7 +2285,18 @@ classdef PointProcessEM
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  GradTerm = GradTerm+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: the beta Hessian was
+ % +E[p]xx' + E[p^2]xx' - 2E[p^3]xx' (positive definite), so the
+ % Newton step beta - H\g moved DOWNHILL and the binomial NR
+ % M-step diverged (scaled beta 0.1 -> 200 in one M-step, then
+ % non-PD smoothed covariances and NaN logll). For
+ % log L = sum dN*log(p) - p, p = logistic(eta), whose gradient
+ % (dN-p)(1-p)x is the GradTerm above, the Hessian is
+ % -p(1-p)(1+dN-2p)xx' = (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' --
+ % the same expression the mu and gamma steps below already use.
+ % Verified against a central finite difference of GradTerm
+ % (max rel. error 3.5e-11; old form: wrong sign and magnitude).
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
 
@@ -2361,7 +2372,11 @@ classdef PointProcessEM
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
- xk=xKDrawExp(:,:,k);
+ % FIX: was xKDrawExp(:,:,k) -- the k-th MC draw of the whole
+ % trajectory (dx x K), which errors for k > McExp. The draws
+ % for time k are xkPerm(:,:,k) (dx x McExp), as in the poisson
+ % branch above.
+ xk=xkPerm(:,:,k);
  if(size(Hk,1)==numCells)
  Hk = Hk';
  end
@@ -2380,12 +2395,14 @@ classdef PointProcessEM
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
+ % FIX: same wrong-sign binomial beta Hessian as the serial
+ % branch above; use (-(dN+1)p + (dN+3)p^2 - 2p^3)xx'.
  if(k==1)
  GradTerm(:,c) = dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  else
  GradTerm(:,c) = GradTerm(:,c)+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=HessianTerm(:,:,c)+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=HessianTerm(:,:,c)-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  end
  end
 

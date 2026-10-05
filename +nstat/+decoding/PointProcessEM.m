@@ -1751,7 +1751,15 @@ classdef PointProcessEM
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk= Histtermperm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: orient Hk as (numWindows x numCells) by checking its
+ % COLUMNS. The slice of permute(HkAll,[2 3 1]) is already
+ % numWindows x numCells; the old test `size(Hk,1)==numCells`
+ % also fired when numWindows == numCells and transposed it, so
+ % diag(gammaC'*Hk) paired gamma(w,c) with Hk(c,w) and logll was
+ % wrong for square history (the filter, PPDecode_updateLinear,
+ % already checks columns and was unaffected). Identical for
+ % numWindows ~= numCells.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -1777,7 +1785,8 @@ classdef PointProcessEM
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk= Histtermperm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: column-based orientation check; see the poisson branch.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);

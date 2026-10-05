@@ -500,17 +500,17 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             for c = 1:nC
                 Hc = Hfull{c};
                 if any(strcmp(fields, 'mu'))
-                    tc.verifyEqual(SE.mu(c), sqrt(1/(-Hc(1,1))), 'RelTol', 1e-3, ...
+                    tc.verifyEqual(SE.mu(c), sqrt(1/(-Hc(1,1))), 'RelTol', 1e-6, ...
                         sprintf('%s cell %d: SE.mu must match the finite-difference information', fitType, c));
                 end
                 if any(strcmp(fields, 'beta'))
                     Hb = Hc(2:1+dx, 2:1+dx);
-                    tc.verifyEqual(SE.beta(:,c), sqrt(diag(inv(-Hb))), 'RelTol', 1e-3, ...
+                    tc.verifyEqual(SE.beta(:,c), sqrt(diag(inv(-Hb))), 'RelTol', 1e-6, ...
                         sprintf('%s cell %d: SE.beta must match the finite-difference information', fitType, c));
                 end
                 if any(strcmp(fields, 'gamma'))
                     Hg = Hc(2+dx:end, 2+dx:end);
-                    tc.verifyEqual(SE.gamma(:,c), sqrt(diag(inv(-Hg))), 'RelTol', 1e-3, ...
+                    tc.verifyEqual(SE.gamma(:,c), sqrt(diag(inv(-Hg))), 'RelTol', 1e-6, ...
                         sprintf('%s cell %d: SE.gamma must match the finite-difference information', fitType, c));
                 end
             end

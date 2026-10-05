@@ -181,6 +181,41 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','beta','gamma'}, 1, 1, 1);
         end
 
+        function testCovarianceInformationFormsAgree(tc)
+            %TESTCOVARIANCEINFORMATIONFORMSAGREE (H1) with one state and one
+            % continuous channel the diagonal, full and isotropic forms of
+            % Q and of R, and the diagonal and isotropic forms of Px0, each
+            % describe a single parameter, so the SEs must be identical
+            % (same inputs, same random state). The isotropic forms were
+            % always right; the diagonal / full forms had the operator-
+            % precedence error (Q, R information N^2/4 too small, Px0
+            % information 4x too large).
+            rng(12); K = 300; C = 3; delta = 0.001;
+            x = zeros(1,K); xp = 0;
+            for k = 1:K, xp = 0.98*xp + 0.1*randn; x(k) = xp; end
+            Cm = 1.2; alpha = 0.1; R = 0.05;
+            y = Cm*x + alpha + sqrt(R)*randn(1,K);
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.6 0.8];
+            dN = double(rand(C,K) < min(exp(mu + beta'*x),1));
+            H = zeros(K,1,C); A = 0.98; Q = 0.01; x0 = 0.05; Px0 = 1e-2;
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PPLFP.PPLFP_EStep(A,Q,Cm,R,y,alpha,dN,mu,beta,' ...
+                '''poisson'',delta,0,H,x0,Px0);']);
+            %       EstA AhatDiag QhatDiag QhatIso RhatDiag RhatIso Estx0 EstPx0 Px0Iso
+            base  = [1 0 1 0 1 0 0 1 0];
+            forms = {[1 0 0 0 1 0 0 1 0], 'full Q'; [1 0 1 1 1 0 0 1 0], 'isotropic Q';
+                     [1 0 1 0 0 0 0 1 0], 'full R'; [1 0 1 0 1 1 0 1 0], 'isotropic R';
+                     [1 0 1 0 1 0 0 1 1], 'isotropic Px0'};
+            se = @(v) testPPLFPEMCorrectness.lfpSE1(y, dN, xK, WK, A, Q, Cm, R, alpha, x0, Px0, ES, mu, beta, H, v);
+            S0 = se(base);
+            for i = 1:size(forms, 1)
+                S = se(forms{i,1});
+                for f = fieldnames(S0)'
+                    tc.verifyEqual(S.(f{1}), S0.(f{1}), 'RelTol', 1e-10, sprintf('%s: SE.%s', forms{i,2}, f{1}));
+                end
+            end
+        end
+
         function testSharedGammaColumnStandardErrors(tc)
             %TESTSHAREDGAMMACOLUMNSTANDARDERRORS (F12) a direct
             % PPLFP_ComputeParamStandardErrors call with a shared history
@@ -472,6 +507,32 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
                         sprintf('%s cell %d: SE.gamma must match the finite-difference information', fitType, c));
                 end
             end
+            % Gaussian blocks (H1): states known, A, Q, C, alpha, R at their
+            % complete-data MLEs, so each per-block complete information is
+            % analytic: SE(q_l) = q_l*sqrt(2/K), SE(r_i) = r_i*sqrt(2/K),
+            % SE(A_lm) = sqrt(Q_ll*inv(Sxkm1xkm1)_mm),
+            % SE(C_ij) = sqrt(R_ii*inv(Sxkxk)_jj), SE(alpha_i) = sqrt(R_ii/K).
+            % Operator precedence made the Q and R information N^2/4 too
+            % small (SE.Q, SE.R ~K/2 too large).
+            tc.verifyEqual(diag(SE.Q), diag(Q)*sqrt(2/K), 'RelTol', 1e-6, ...
+                sprintf('%s: SE.Q must match the analytic complete information', fitType));
+            tc.verifyEqual(diag(SE.R), diag(Rhat)*sqrt(2/K), 'RelTol', 1e-6, ...
+                sprintf('%s: SE.R must match the analytic complete information', fitType));
+            tc.verifyEqual(SE.A, sqrt(diag(Q)*diag(inv(Sx1))'), 'RelTol', 1e-6, ...
+                sprintf('%s: SE.A must match the analytic complete information', fitType));
+            tc.verifyEqual(SE.C, sqrt(diag(Rhat)*diag(inv(ES.Sxkxk))'), 'RelTol', 1e-6, ...
+                sprintf('%s: SE.C must match the analytic complete information', fitType));
+            tc.verifyEqual(SE.alpha, sqrt(diag(Rhat)/K), 'RelTol', 1e-6, ...
+                sprintf('%s: SE.alpha must match the analytic complete information', fitType));
+        end
+
+        function SE = lfpSE1(y, dN, xK, WK, A, Q, Cm, R, alpha, x0, Px0, ES, mu, beta, H, v)
+            % Direct PPLFP SE call with constraint vector v (9 flags), rng(3).
+            cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(v(1),v(2),v(3),v(4),v(5),v(6),v(7),v(8),v(9));
+            cons.mcIter = 20; SE = [];
+            rng(3);
+            evalc(['SE = nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(y,dN,xK,WK,A,Q,Cm,R,' ...
+                'alpha,x0,Px0,ES,''poisson'',mu,beta,0,[],H,cons);']);
         end
 
         function P = makeProblem(fitType, useHist, N)

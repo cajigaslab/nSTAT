@@ -109,6 +109,43 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             S5 = testPointProcessEMCorrectness.ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons5);
             S7 = testPointProcessEMCorrectness.ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons7);
             tc.verifyNotEqual(S5.mu, S7.mu, 'mcIter must set the Monte Carlo sample size');
+            % Values (H1), not just structure: in the vanishing-missing-
+            % information harness the SEs under QhatIsotropic=1 and under
+            % EstimateA=0 must equal the analytic complete information
+            % (SE.Q, SE.A) and the finite-difference information (mu, beta,
+            % gamma).
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson', [], [], 'isoQ');
+            testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'poisson', [], [], 'noA');
+        end
+
+        function testCovarianceInformationFormsAgree(tc)
+            %TESTCOVARIANCEINFORMATIONFORMSAGREE (H1) with one state the
+            % diagonal, full and isotropic parameterisations of Q describe
+            % the same single parameter, and so do the diagonal and
+            % isotropic forms of Px0, so the SEs must be identical (same
+            % inputs, same random state). The isotropic forms
+            % (0.5*N*dx/q^2, 0.5*dx/p^2) were always right; the diagonal /
+            % full forms had the operator-precedence error (Q information
+            % N^2/4 too small, Px0 information 4x too large).
+            rng(11); K = 300; C = 3; delta = 0.001;
+            x = zeros(1,K); xp = 0;
+            for k = 1:K, xp = 0.98*xp + 0.1*randn; x(k) = xp; end
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.6 0.8];
+            dN = double(rand(C,K) < min(exp(mu + beta'*x),1));
+            H = zeros(K,1,C); A = 0.98; Q = 0.01; x0 = 0.05; Px0 = 1e-2;
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                '''poisson'',0,H,x0,Px0);']);
+            %       EstimateA AhatDiag QhatDiag QhatIso Estx0 EstPx0 Px0Iso
+            base  = [1 0 1 0 0 1 0];
+            forms = {[1 0 0 0 0 1 0], 'full Q'; [1 0 1 1 0 1 0], 'isotropic Q'; [1 0 1 0 0 1 1], 'isotropic Px0'};
+            S0 = testPointProcessEMCorrectness.ppSE1(dN, xK, WK, A, Q, x0, Px0, ES, mu, beta, H, base);
+            for i = 1:size(forms, 1)
+                S = testPointProcessEMCorrectness.ppSE1(dN, xK, WK, A, Q, x0, Px0, ES, mu, beta, H, forms{i,1});
+                for f = fieldnames(S0)'
+                    tc.verifyEqual(S.(f{1}), S0.(f{1}), 'RelTol', 1e-10, sprintf('%s: SE.%s', forms{i,2}, f{1}));
+                end
+            end
         end
 
         function testSharedGammaColumnStandardErrors(tc)
@@ -305,7 +342,7 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
     end
 
     methods (Static)
-        function checkStandardErrorsAgainstFD(tc, fitType, C, nW)
+        function checkStandardErrorsAgainstFD(tc, fitType, C, nW, mode)
             % Construct a case where PP_ComputeParamStandardErrors' missing
             % information vanishes -- W_K ~ 0 (states known) and every
             % parameter at its complete-data MLE, so every score is ~0 --
@@ -321,6 +358,10 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             rng(5);
             if nargin < 3 || isempty(C), C = 2; end
             if nargin < 4 || isempty(nW), nW = 3; end
+            % mode (H1/G2): 'default' (diagonal Q, A estimated), 'isoQ'
+            % (QhatIsotropic=1, Q at its isotropic MLE) or 'noA'
+            % (EstimateA=0: no SE.A).
+            if nargin < 5 || isempty(mode), mode = 'default'; end
             % K = 1500: the comparison is exact up to the finite-difference
             % error and the ~1e-12 posterior noise, neither of which depends
             % on K; K only has to give every history window spikes.
@@ -376,7 +417,15 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             Q = diag(diag(sumX))/K;
             ES.Sxkm1xkm1 = Sx1;
             WK = repmat(1e-12*eye(dx), [1 1 K]);
-            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            switch mode
+                case 'isoQ'
+                    Q = trace(sumX)/(K*dx)*eye(dx);
+                    cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,1,0,0);
+                case 'noA'
+                    cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(0,0,1,0,0,0);
+                otherwise
+                    cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            end
             cons.mcIter = 20;
             SE = [];
             evalc(['SE = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(' ...
@@ -389,6 +438,27 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                     sprintf('%s cell %d: SE.beta must match the finite-difference information', fitType, c));
                 tc.verifyEqual(SE.gamma(:,c), sqrt(diag(inv(-Hg))), 'RelTol', 1e-6, ...
                     sprintf('%s cell %d: SE.gamma must match the finite-difference information', fitType, c));
+            end
+            % State-equation blocks (H1): with the states known and A, Q at
+            % their complete-data MLEs the per-block complete information is
+            % analytic: diagonal Q, I(q_l) = K/(2*q_l^2), so
+            % SE(q_l) = q_l*sqrt(2/K); vec(A) has information
+            % inv(Q) (x) Sxkm1xkm1, so SE(A_lm) = sqrt(Q_ll*inv(Sxkm1xkm1)_mm).
+            % Operator precedence made the Q information N^2/4 too small
+            % (SE.Q ~K/2 too large).
+            if strcmp(mode, 'isoQ')
+                % One parameter q: I(q) = K*dx/(2*q^2).
+                tc.verifyEqual(SE.Q, Q(1,1)*sqrt(2/(K*dx)), 'RelTol', 1e-6, ...
+                    sprintf('%s: isotropic SE.Q must match the analytic complete information', fitType));
+            else
+                tc.verifyEqual(diag(SE.Q), diag(Q)*sqrt(2/K), 'RelTol', 1e-6, ...
+                    sprintf('%s: SE.Q must match the analytic complete information', fitType));
+            end
+            if strcmp(mode, 'noA')
+                tc.verifyFalse(isfield(SE, 'A'), 'EstimateA=0: no SE.A');
+            else
+                tc.verifyEqual(SE.A, sqrt(diag(Q)*diag(inv(Sx1))'), 'RelTol', 1e-6, ...
+                    sprintf('%s: SE.A must match the analytic complete information', fitType));
             end
         end
 
@@ -406,6 +476,15 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                 g = Z*((dNc - p).*(1 - p))';
                 H = -(Z.*(p.*(1-p).*(1+dNc-2*p)))*Z';
             end
+        end
+
+        function SE = ppSE1(dN, xK, WK, A, Q, x0, Px0, ES, mu, beta, H, v)
+            % Direct PP SE call with constraint vector v (7 flags), rng(3).
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(v(1),v(2),v(3),v(4),v(5),v(6),v(7));
+            cons.mcIter = 20; SE = [];
+            rng(3);
+            evalc(['SE = nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,xK,WK,' ...
+                'A,Q,x0,Px0,ES,''poisson'',mu,beta,0,[],H,cons);']);
         end
 
         function [SE, nTerms] = ppSE(dN, xK, WK, A, Q, ES, mu, beta, H, cons)

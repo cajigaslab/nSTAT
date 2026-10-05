@@ -583,7 +583,14 @@ classdef PPLFP
  IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
  for l=1:n1
  for m=l
- termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+ % FIX (H1): operator precedence. MATLAB evaluates *, / and \ left
+ % to right, so N/2*(Qhat)\e*e'/(Qhat) was ((N/2)*Qhat)\e*e'/Qhat =
+ % (2/N)*inv(Q)*e*e'*inv(Q), not the intended (N/2)*inv(Q)*e*e'*inv(Q)
+ % (information of a covariance entry, K/(2*q^2) on the diagonal): the
+ % Q / R information was N^2/4 too small (SEs ~K/2 too large) and the
+ % single-sample Px0 information (1/2)*inv(P)*e*e'*inv(P) 4x too large.
+ % Parenthesised at every such site of this routine.
+ termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
  termvec=diag(termMat);
  IRComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -594,7 +601,8 @@ classdef PPLFP
  IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
  for l=1:n1
  for m=1:n2
- termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
  termvec=reshape(termMat',1,numel(Rhat));
  IRComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -615,7 +623,8 @@ classdef PPLFP
  IQComp=zeros(numel(diag(Qhat)),numel(diag(Qhat)));
  for l=1:n1
  for m=l
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=diag(termMat);
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -626,7 +635,8 @@ classdef PPLFP
  IQComp=zeros(numel(Qhat),numel(Qhat));
  for l=1:n1
  for m=1:n2
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=reshape(termMat',1,numel(Qhat));
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -645,7 +655,8 @@ classdef PPLFP
  cnt=1;
  for l=1:n1
  for m=l
- termMat= 1/2*(Px0hat)\em(:,m)*el(:,l)'/(Px0hat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= 1/2*((Px0hat)\em(:,m)*el(:,l)'/(Px0hat));
  termvec=diag(termMat);
  ISComp(:,cnt)=termvec;
  cnt=cnt+1;

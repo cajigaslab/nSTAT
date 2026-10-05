@@ -926,9 +926,14 @@ classdef PPLFP
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
+ % FIX: was `...*Hk(k,:)'*Hk(:,k)` -- Hk(:,k) is column k of the
+ % (numTimeSteps x numWindows) history matrix, so this always
+ % errored for binomial fits with history. Use the time-k outer
+ % product Hk(k,:)'*Hk(k,:), as the poisson branch does (same fix
+ % as PointProcessEM.PP_ComputeParamStandardErrors, 74b8096).
  HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
  +ExplambdaDeltaSquare*(dN(c,k)+3)...
- -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
+ -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(k,:);
  end
  end
  startInd=size(HkAll,2)*(c-1)+1; endInd = size(HkAll,2)*c;

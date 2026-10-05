@@ -2162,16 +2162,31 @@ classdef PointProcessEM
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);
  temp = FitResSummary(results);
  tempCoeffs = squeeze(temp.getCoeffs);
+ % FIX: the GLM estimates were written to the INPUT variables
+ % (betahat, muhat, gammahat) while this function returns
+ % betahat_new / muhat_new / gammahat_new, which were set to the
+ % inputs above and never updated -- so the GLM M-step silently
+ % returned mu, beta and gamma unchanged and PP_EM never estimated
+ % the CIF parameters. Write the fit into the returned variables.
+ % A coefficient that FitResSummary reports as NaN (dropped by its
+ % se<100 filter in computePlotParams, i.e. not identifiable from
+ % these data) keeps its previous value instead of propagating NaN
+ % into the next E-step; history coefficients keep the original
+ % NaN->0 convention below.
+ betaFit = tempCoeffs(2:(dx+1),:);
+ muFit = tempCoeffs(1,:)';
+ betaPrev = betahat_new(1:dx,:);
+ betaFit(isnan(betaFit)) = betaPrev(isnan(betaFit));
+ muFit(isnan(muFit)) = muhat_new(isnan(muFit));
+ betahat_new(1:dx,:) = betaFit;
+ muhat_new = muFit;
  if(gammahat==0)
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
+ % no history terms in this fit; gammahat_new stays as input
  else
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
  histTemp = squeeze(temp.getHistCoeffs);
  histTemp = reshape(histTemp, [length(windowTimes)-1 numCells]);
  histTemp(isnan(histTemp))=0;
- gammahat=histTemp;
+ gammahat_new=histTemp;
  end
  else
  
@@ -2762,7 +2777,11 @@ classdef PointProcessEM
  gammaC=gammahat_newTemp;
  iter=iter+1;
  end
- gamma_new(:,c) =gammaC;
+ % FIX: was `gamma_new(:,c) = gammaC;` -- a variable that is
+ % never returned, so the parallel-pool branch discarded the
+ % history-coefficient update (the serial branch above writes
+ % gammahat_new(:,c)).
+ gammahat_new(:,c) =gammaC;
  % fprintf('\n'); 
  end 
  end

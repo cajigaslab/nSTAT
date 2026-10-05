@@ -11,7 +11,9 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
     %   - testDefaultHistoryWindowsPP / PPLFP: B9 default windows
     %     0:delta:W*delta and shared-gamma expansion;
     %   - testTimeBaseEquivalencePP / PPLFP, testGLMTimeBaseEquivalencePPLFP:
-    %     delta = 2 ms vs 1 ms with equivalent windows (C6, R4b, R4c).
+    %     delta = 2 ms vs 1 ms with equivalent windows (C6, R4b, R4c);
+    %   - testStandardErrorsInvariantToStateScaling / ObservationScaling:
+    %     the EM drivers' SEs are on the scale of the returned estimates (F8).
     % Helpers live in the unit test classes testPointProcessEMRuns,
     % testPointProcessEMCorrectness and testPPLFPEMCorrectness.
 
@@ -34,6 +36,96 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
     end
 
     methods (Test)
+        function testStandardErrorsInvariantToStateScaling(tc)
+            %TESTSTANDARDERRORSINVARIANTTOSTATESCALING PP_EM and PPLFP_EM run
+            % EM on an internally scaled system (x_s = Tq*x, y_s = Tr*y,
+            % Tq = inv(chol(Q0)), Tr = inv(chol(R0))) and return estimates on
+            % the original scale, but passed the SCALED expectation sums
+            % (and, in PPLFP_EM, the scaled y) to the SE routine with the
+            % unscaled estimates (F8). Rescaling the latent state by t
+            % (Q0 -> t^2 Q0, C -> C/t, beta -> beta/t, x0 -> t x0,
+            % Px0 -> t^2 Px0) leaves the internal scaled problem, the EM path
+            % and the MC draws identical, so consistent SEs must satisfy
+            % SE(A) = SE(A), SE(Q) = t^2 SE(Q), SE(C) = SE(C)/t,
+            % SE(beta) = SE(beta)/t, SE(mu) = SE(mu). Before the fix SE.A
+            % scaled by t. PPLFP's C / Q blocks are checked loosely: its
+            % nearestSPD() projection of an indefinite inverse information
+            % is not scale-equivariant (a property of the SE routine, not of
+            % the EM call site). RelTol 1e-3 for the exact relations: the
+            % two scaled problems agree only to rounding, which the EM
+            % iterations and that projection carry to ~1e-6..2e-5; the
+            % defect was a factor t (= 3) in SE.A.
+            t = 3;
+            rng(21); delta = 0.001; N = 400; C = 3;
+            A = 0.98; Q = 0.01; Cm = [1; -0.5]; R = diag([0.05 0.08]); alpha = [0.1; -0.1];
+            x = zeros(1,N); xp = 0;
+            for k = 1:N, xp = A*xp + sqrt(Q)*randn; x(k) = xp; end
+            y = Cm*x + alpha + chol(R,'lower')*randn(2,N);
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.6 0.8];
+            dN = double(rand(C,N) < min(exp(mu + beta'*x),1));
+            consP = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(); consP.mcIter = 50;
+            consL = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(); consL.mcIter = 50;
+            p = cell(2,13); l = cell(2,15); ts = [1 t];
+            for i = 1:2
+                s = ts(i);
+                rng(42);
+                evalc(['[p{i,1:13}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,s^2*Q,mu,beta/s,' ...
+                    '''poisson'',delta,[],[],0,s^2*1e-6,consP);']);
+                rng(42);
+                evalc(['[l{i,1:15}] = nstat.decoding.PPLFP.PPLFP_EM(y,dN,A,s^2*Q,Cm/s,R,alpha,mu,beta/s,' ...
+                    '''poisson'',delta,[],[],0,s^2*1e-6,consL);']);
+            end
+            SP1 = p{1,11}; SP3 = p{2,11}; SL1 = l{1,14}; SL3 = l{2,14};
+            tc.verifyEqual(SP3.A, SP1.A, 'RelTol', 1e-3, 'PP_EM SE.A must not depend on the state scale');
+            tc.verifyEqual(SP3.Q, t^2*SP1.Q, 'RelTol', 1e-3, 'PP_EM SE.Q');
+            tc.verifyEqual(SP3.beta, SP1.beta/t, 'RelTol', 1e-3, 'PP_EM SE.beta');
+            tc.verifyEqual(SP3.mu, SP1.mu, 'RelTol', 1e-3, 'PP_EM SE.mu');
+            tc.verifyEqual(SL3.A, SL1.A, 'RelTol', 1e-3, 'PPLFP_EM SE.A must not depend on the state scale');
+            tc.verifyEqual(SL3.beta, SL1.beta/t, 'RelTol', 1e-3, 'PPLFP_EM SE.beta');
+            tc.verifyEqual(SL3.mu, SL1.mu, 'RelTol', 1e-3, 'PPLFP_EM SE.mu');
+            tc.verifyEqual(SL3.C, SL1.C/t, 'RelTol', 2e-2, 'PPLFP_EM SE.C (nearestSPD tolerance)');
+            tc.verifyEqual(SL3.Q, t^2*SL1.Q, 'RelTol', 1e-1, 'PPLFP_EM SE.Q (nearestSPD tolerance)');
+        end
+
+        function testStandardErrorsInvariantToObservationScaling(tc)
+            %TESTSTANDARDERRORSINVARIANTTOOBSERVATIONSCALING the y half of F8:
+            % PPLFP_EM passed the SCALED y (Tr*y) to the SE routine with the
+            % unscaled C / R / alpha. Rescaling the continuous observations
+            % by s (y -> s y, C -> s C, R -> s^2 R, alpha -> s alpha, so
+            % R0 -> s^2 R0 and Tr*y is unchanged) leaves the internal scaled
+            % problem, the EM path and the MC draws identical; consistent
+            % SEs satisfy SE(C), SE(alpha) x s, SE(R) x s^2, the rest
+            % unchanged. s = 2 keeps the rescaling exact in floating point:
+            % with nearestSPD() disabled the post-fix ratios are exactly 1,
+            % so the tolerances below only absorb that projection (largest
+            % post-fix deviation: SE.R 14%, SE.Q 0.6%, SE.alpha 0.1%). Before
+            % the fix SE.R was off by 2.86, SE.Q by 0.89, SE.alpha by 1.01.
+            s = 2;
+            rng(21); delta = 0.001; N = 400; C = 3;
+            A = 0.98; Q = 0.01; Cm = [1; -0.5]; R = diag([0.05 0.08]); alpha = [0.1; -0.1];
+            x = zeros(1,N); xp = 0;
+            for k = 1:N, xp = A*xp + sqrt(Q)*randn; x(k) = xp; end
+            y = Cm*x + alpha + chol(R,'lower')*randn(2,N);
+            mu = log(40*delta)*ones(C,1); beta = [1.0 -0.6 0.8];
+            dN = double(rand(C,N) < min(exp(mu + beta'*x),1));
+            cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(); cons.mcIter = 50;
+            l = cell(2,15); ss = [1 s];
+            for i = 1:2
+                si = ss(i);
+                rng(42);
+                evalc(['[l{i,1:15}] = nstat.decoding.PPLFP.PPLFP_EM(si*y,dN,A,Q,si*Cm,si^2*R,si*alpha,' ...
+                    'mu,beta,''poisson'',delta,[],[],0,1e-6,cons);']);
+            end
+            S1 = l{1,14}; S2 = l{2,14};
+            tc.verifyEqual(S2.A, S1.A, 'RelTol', 1e-3, 'PPLFP_EM SE.A must not depend on the observation scale');
+            tc.verifyEqual(S2.mu, S1.mu, 'RelTol', 1e-3, 'PPLFP_EM SE.mu');
+            tc.verifyEqual(S2.beta, S1.beta, 'RelTol', 1e-3, 'PPLFP_EM SE.beta');
+            tc.verifyEqual(S2.alpha, s*S1.alpha, 'RelTol', 5e-3, 'PPLFP_EM SE.alpha');
+            tc.verifyEqual(S2.C, s*S1.C, 'RelTol', 2e-2, 'PPLFP_EM SE.C (nearestSPD tolerance)');
+            tc.verifyEqual(S2.Q, S1.Q, 'RelTol', 5e-2, 'PPLFP_EM SE.Q (nearestSPD tolerance)');
+            tc.verifyEqual(S2.R, s^2*S1.R, 'RelTol', 0.25, 'PPLFP_EM SE.R (nearestSPD tolerance)');
+        end
+
         function testPPEMRunsAndConverges(tc, fitType, method, useHist)
             %TESTPPEMRUNSANDCONVERGES all fitType x MstepMethod x history
             % combinations run past iteration 2, return finite real

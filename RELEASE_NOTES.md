@@ -24,6 +24,7 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 | `ef7bb22`, `605d9bc` | crash | SE routines and M-steps | Removed `size(Hk,1)==numCells` re-orientations of history slices (broke one cell with W>1, and N == numCells). |
 | `cfb47d1`, `1b6132d`, `4c3beac` | crash / logic | GLM M-steps (PP, PPLFP) | γ, μ and β are mapped from the GLM fit **by label**; an unestimable coefficient keeps its previous value (crashes for dropped labels, dx ≥ 10 mis-mapping, single cell). |
 | `4512384` | crash | SE routines | One cell with one nonzero history coefficient left the γ parameter count unassigned. |
+| (F8) | numerical | `PP_EM`, `PPLFP_EM` standard errors | The SE call received the internally rescaled expectation sums (and, in `PPLFP_EM`, the rescaled `y`) together with the original-scale estimates, so SEs were wrong whenever `Q0` or `R0` ≠ I; the sums and `y` are now mapped back to the original scale first. `SE` / `Pvals` from `PP_EM` / `PPLFP_EM` change; direct SE calls do not. |
 | `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
 
 ### Breaking changes

@@ -2075,8 +2075,25 @@ classdef PPLFP
  ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
 % AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new
  if(nargout>13)
- [SE, Pvals]=nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(y, dN,...
- xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal,...
+ % FIX (F8): PPLFP_EM runs EM on an internally SCALED system
+ % (x_s = Tq*x, y_s = Tr*y, Tq = inv(chol(Q0)), Tr = inv(chol(R0)))
+ % and maps every returned estimate back to the original scale, but
+ % the SE call passed the SCALED y and the SCALED expectation sums
+ % together with the UNSCALED xKFinal/WKFinal/A/Q/C/R/alpha/x0/Px0/
+ % beta. PPLFP_ComputeParamStandardErrors reads y (alpha, C and R
+ % scores), ES.Sxkm1xkm1 (A information) and ES.Sxkxk (C information),
+ % so the SEs mixed scales whenever Q0 or R0 ~= I (SE.A and SE.C off
+ % by the Tq factor). Pass the original y and transform the sums it
+ % reads back: S = Tq \ S_s / Tq'.
+ ESforSE = ExpectationSumsFinal;
+ ySE = y;
+ if(scaledSystem==1)
+ ySE = yOrig;
+ ESforSE.Sxkm1xkm1 = (Tq\ESforSE.Sxkm1xkm1)/Tq';
+ ESforSE.Sxkxk = (Tq\ESforSE.Sxkxk)/Tq';
+ end
+ [SE, Pvals]=nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(ySE, dN,...
+ xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ESforSE,...
  fitType, muhat, betahat, gammahat, windowTimes, HkAll,...
  PPLFP_EM_Constraints);
  end

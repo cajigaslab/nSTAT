@@ -1416,8 +1416,20 @@ classdef PointProcessEM
  ll = ll(maxLLIndex);
  ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
  if(nargout>10)
+ % FIX (F8): the expectation sums come from the E-step of the
+ % internally SCALED system (x_s = Tq*x, Tq = inv(chol(Q0))), while
+ % xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat and betahat passed
+ % here are back on the ORIGINAL scale. PP_ComputeParamStandardErrors
+ % reads ES.Sxkm1xkm1 (A information Q^-1 (x) Sxkm1xkm1) with the
+ % unscaled Qhat, so the SEs mixed scales whenever Q0 ~= I (SE.A
+ % off by the Tq factor). Transform the sum it reads back to the
+ % original scale: Sxkm1xkm1 = Tq \ Sxkm1xkm1_s / Tq'.
+ ESforSE = ExpectationSumsFinal;
+ if(scaledSystem==1)
+ ESforSE.Sxkm1xkm1 = (Tq\ESforSE.Sxkm1xkm1)/Tq';
+ end
  [SE, Pvals]=nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,...
- xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat, ExpectationSumsFinal,...
+ xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat, ESforSE,...
  fitType, muhat, betahat, gammahat, windowTimes, HkAll,...
  PPEM_Constraints);
  end

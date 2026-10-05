@@ -73,6 +73,37 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                 'PP_MStep(GLM) must leave the caller''s warning state unchanged');
         end
 
+        function testNewDefaults(tc)
+            %TESTNEWDEFAULTS PP_EMCreateConstraints() no longer estimates
+            % x0/Px0 (Px0 collapse); everything else unchanged.
+            C = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            tc.verifyEqual([C.EstimateA C.AhatDiag C.QhatDiag C.QhatIsotropic ...
+                C.Estimatex0 C.EstimatePx0 C.Px0Isotropic C.mcIter C.EnableIkeda], ...
+                [1 0 1 0 0 0 0 1000 0]);
+        end
+
+        function testBareDefaultCallConverges(tc)
+            %TESTBAREDEFAULTCALLCONVERGES PP_EM(dN,A,Q,mu,beta,'poisson',delta)
+            % with every other argument defaulted used to run the GLM
+            % M-step with x0/Px0 estimation: Px0 collapsed, logll -> +Inf
+            % after 2 iterations, and beta came back inflated. With the
+            % new defaults (NewtonRaphson, x0/Px0 fixed) it must run > 2
+            % iterations, increase the log-likelihood, and recover beta.
+            [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
+            r = cell(1,13);
+            rng(42);
+            emLog = evalc('[r{1:13}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta);');
+            nIter = r{13};
+            tc.verifyGreaterThan(nIter, 2, 'default PP_EM must complete more than 2 EM iterations');
+            tok = regexp(emLog, 'logll: (\S+)', 'tokens');
+            ll = cellfun(@(t) str2double(t{1}), tok);
+            tc.verifyTrue(all(isfinite(ll)) && isreal(ll), 'every logll must be finite and real');
+            tc.verifyGreaterThan(ll(2), ll(1), 'EM must improve the log-likelihood');
+            tc.verifyGreaterThanOrEqual(diff(ll(1:end-1)), 0, 'logll non-decreasing before the stop');
+            tc.verifyLessThan(max(abs(r{6}(:) - beta(:))), 0.8, 'default PP_EM must recover beta');
+            tc.verifyLessThan(max(abs(r{5} - mu)), 0.5, 'default PP_EM must recover mu');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows
@@ -194,6 +225,18 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                 g = Z*((dNc - p).*(1 - p))';
                 H = -(Z.*(p.*(1-p).*(1+dNc-2*p)))*Z';
             end
+        end
+
+        function [dN, A, Q, mu, beta, delta] = emProblem()
+            % Same 4-cell / 1000-bin problem as testPointProcessEMRuns.
+            rng(42);
+            C = 4; N = 1000; delta = 0.001; dx = 2;
+            A = 0.98*eye(dx); Q = 0.01*eye(dx);
+            x = zeros(dx, N);
+            for t = 2:N, x(:,t) = A*x(:,t-1) + chol(Q)'*randn(dx,1); end
+            mu = log(40*delta)*ones(C,1);
+            beta = [1.0 -0.5; 0.3 0.8; -0.7 0.4; 0.6 0.6]';
+            dN = double(rand(C,N) < min(exp(mu + beta'*x), 1));
         end
 
         function S = squareHistoryProblem(fitType)

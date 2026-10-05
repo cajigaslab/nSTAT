@@ -36,9 +36,21 @@ classdef PointProcessEM
 
  methods (Static)
  function C = PP_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter, EnableIkeda)
- %By default, all parameters are estimated. To empose diagonal
- %structure on the EM parameter results must pass in the
- %constraints element
+ %PP_EMCREATECONSTRAINTS constraint/option struct for PP_EM.
+ % C = PP_EMCreateConstraints(EstimateA, AhatDiag, QhatDiag,
+ % QhatIsotropic, Estimatex0, EstimatePx0, Px0Isotropic, mcIter,
+ % EnableIkeda); every argument is optional.
+ %
+ % Defaults (changed in fix/pp-em round 2):
+ % EstimateA=1, AhatDiag=0 (full A), QhatDiag=1, QhatIsotropic=0,
+ % Estimatex0=0, EstimatePx0=0, Px0Isotropic=0, mcIter=1000,
+ % EnableIkeda=0.
+ % x0 and Px0 are NOT estimated by default (previously 1 and 1): the
+ % Px0 M-step, Px0hat = (x0hat-x0)(x0hat-x0)'.*I, is a single-sample
+ % estimate that collapses to ~0 after one iteration, which drives
+ % -1/2*log(det(Px0)) and hence the E-step log-likelihood to +Inf
+ % and stops EM after ~2 iterations. Pass Estimatex0/EstimatePx0 = 1
+ % explicitly to restore the old behaviour.
  if(nargin<9 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -49,10 +61,10 @@ classdef PointProcessEM
  Px0Isotropic=0;
  end
  if(nargin<6 || isempty(EstimatePx0))
- EstimatePx0=1;
+ EstimatePx0=0; % FIX: default was 1 (degenerate Px0 collapse; see help)
  end
  if(nargin<5 || isempty(Estimatex0))
- Estimatex0=1;
+ Estimatex0=0; % FIX: default was 1 (see help)
  end
  if(nargin<4 || isempty(QhatIsotropic))
  QhatIsotropic=0;
@@ -991,9 +1003,30 @@ classdef PointProcessEM
 
  end
  function [xKFinal,WKFinal,Ahat, Qhat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals,nIter]=PP_EM(dN, Ahat0, Qhat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,PPEM_Constraints,MstepMethod)
+ %PP_EM EM for a linear-Gaussian state observed through point processes.
+ % [xKFinal,WKFinal,Ahat,Qhat,muhat,betahat,gammahat,x0hat,Px0hat,IC,SE,Pvals,nIter]
+ % = PP_EM(dN, Ahat0, Qhat0, mu, beta, fitType, delta, gamma,
+ % windowTimes, x0, Px0, PPEM_Constraints, MstepMethod)
+ %
+ % Defaults: fitType 'poisson', delta 0.001 s, no history (gamma=[] or
+ % 0, windowTimes=[]), x0 = 0, Px0 = 1e-9*I,
+ % PPEM_Constraints = PP_EMCreateConstraints() (x0/Px0 not estimated),
+ % MstepMethod = 'NewtonRaphson'.
+ %
+ % MstepMethod default changed from 'GLM' to 'NewtonRaphson' (fix/pp-em
+ % round 2). The NewtonRaphson M-step maximises the expected
+ % complete-data log-likelihood by Monte Carlo over the smoothed state
+ % posterior (a proper EM step). The 'GLM' M-step is a plug-in
+ % approximation: it regresses dN on the smoothed MEANS x_K and
+ % ignores W_K; because the means have shrunk variance it inflates
+ % beta, the next E-step can diverge, and EM stops early. 'GLM' is
+ % still available by passing it explicitly.
+ %
+ % SE, Pvals (and nIter, which follows them) are computed only when
+ % more than 10 outputs are requested.
  numStates = size(Ahat0,1);
  if(nargin<13 || isempty(MstepMethod))
- MstepMethod='GLM'; %or NewtonRaphson 
+ MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
  if(nargin<12 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
@@ -2110,6 +2143,11 @@ classdef PointProcessEM
 % 
 % end
  function [Ahat, Qhat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PP_MStep(dN, x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPEM_Constraints,MstepMethod,delta)
+ %PP_MSTEP M-step of PP_EM.
+ % MstepMethod: 'NewtonRaphson' (default since fix/pp-em round 2; was
+ % 'GLM') or 'GLM' (plug-in fit on the smoothed means; see PP_EM help).
+ % delta: seconds per bin (default 0.001); sets the GLM M-step's time
+ % base.
  % FIX: optional 15th input `delta` (seconds per bin, default 0.001)
  % so the GLM M-step builds its Trial on the same time base as PP_EM
  % (see the GLM block below). PP_EM now passes its delta.
@@ -2117,7 +2155,7 @@ classdef PointProcessEM
  delta = .001;
  end
  if(nargin<14 || isempty(MstepMethod))
- MstepMethod = 'GLM'; %GLM or NewtonRaphson
+ MstepMethod = 'NewtonRaphson'; % FIX: default was 'GLM' (see PP_EM help)
  end
  if(nargin<13 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;

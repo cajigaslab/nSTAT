@@ -199,8 +199,8 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
         end
 
         function testDefaultConstraintsTerminate(tc)
-            %TESTDEFAULTCONSTRAINTSTERMINATE with the default constraints
-            % (Estimatex0 = EstimatePx0 = 1) Px0hat collapses and the
+            %TESTDEFAULTCONSTRAINTSTERMINATE with x0/Px0 estimation (the
+            % defaults before round 2: Estimatex0 = EstimatePx0 = 1) Px0hat collapses and the
             % E-step logll goes non-finite / complex. These three
             % combinations used to crash in the next M-step (chol; bnlrCG
             % undefined `A`) or return a degenerate iterate; PP_EM must
@@ -210,7 +210,11 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
                      'binomial','GLM',true};
             for i = 1:size(cases, 1)
                 P = testPointProcessEMRuns.makeProblem(cases{i,1}, cases{i,3});
-                [R, emLog] = testPointProcessEMRuns.runEM(P, cases{i,2}, []);
+                % The pre-round-2 defaults (x0/Px0 estimated), passed
+                % explicitly now that PP_EMCreateConstraints() no longer
+                % estimates them.
+                [R, emLog] = testPointProcessEMRuns.runEM(P, cases{i,2}, ...
+                    nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,1,1));
                 label = sprintf('%s/%s/hist=%d', cases{i,:});
                 tc.verifyTrue(all(isfinite(R.mu)) && isreal(R.mu) && ...
                     all(isfinite(R.beta(:))) && all(isfinite(R.xK(:))), ...

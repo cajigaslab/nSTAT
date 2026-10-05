@@ -1092,7 +1092,23 @@ classdef PointProcessEM
 
  [x_K{storeInd},W_K{storeInd},ll(cnt),ExpectationSums{storeInd}]=...
  nstat.decoding.PointProcessEM.PP_EStep(Ahat{storeInd},Qhat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
- 
+
+ % FIX: stop before the M-step when the E-step log-likelihood is
+ % not a finite real number. A degenerate iterate (e.g. Px0hat
+ % collapsing to 0 under EstimatePx0=1, or a diverged filter)
+ % gives logll = +/-Inf, NaN, or a complex value (log of a
+ % non-positive determinant) with NaN/non-PD smoothed states; the
+ % old loop fed those into PP_MStep, which then crashed (chol in
+ % the NewtonRaphson MC draws, an undefined `A` inside Analysis'
+ % bnlrCG) or, because NaN comparisons are false, slipped past the
+ % likelihood stopping rule. The best valid iterate is returned
+ % below, exactly as for the existing "likelihood decreased" stop.
+ if(~isfinite(ll(cnt)) || imag(ll(cnt))~=0)
+ display([' EM stopped at iteration# ' num2str(cnt) ' b/c the E-step log-likelihood was not a finite real number (' num2str(ll(cnt)) ')']);
+ negLL=1;
+ break;
+ end
+
  [Ahat{storeIndP1}, Qhat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
  = nstat.decoding.PointProcessEM.PP_MStep(dN,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod);
  
@@ -1242,7 +1258,14 @@ classdef PointProcessEM
  end
  disp('--------------------------------------------------------------------------------------------------------');
 
- maxLLIndex = find(ll == max(ll),1,'first');
+ % FIX: choose the best FINITE, REAL log-likelihood. max() skips
+ % NaN but not +Inf (a degenerate Px0hat -> 0 iterate), and on a
+ % complex array it compares magnitudes, so a degenerate iterate
+ % could be returned as the "best" one. Identical to the old
+ % selection whenever every ll is a finite real number.
+ llSel = ll; llSel(~isfinite(llSel) | imag(llSel)~=0) = NaN;
+ llSel = real(llSel);
+ maxLLIndex = find(llSel == max(llSel),1,'first');
  maxLLIndMod = mod(maxLLIndex-1,numToKeep)+1;
  if(maxLLIndex==1)
 % maxLLIndex=cnt-1;

@@ -1076,6 +1076,13 @@ classdef PointProcessEM
  %
  % SE, Pvals (and nIter, which follows them) are computed only when
  % more than 10 outputs are requested.
+ %
+ % Note (G4): EM runs on an internally whitened state x_s = Tq*x,
+ % Tq = inv(chol(Qhat0,'lower')). The "logll:" value printed at each
+ % iteration is the expected complete-data log-likelihood of that
+ % SCALED system; IC.llcomp is the same quantity on the ORIGINAL scale
+ % (the best printed value + (K+1)*log|det Tq|, K = number of time
+ % bins), and IC.llobs / AIC / AICc / BIC are on the original scale too.
  numStates = size(Ahat0,1);
  if(nargin<13 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)

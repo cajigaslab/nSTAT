@@ -1682,6 +1682,14 @@ classdef PPLFP
  % smoothed MEANS x_K that ignores W_K, inflates beta and drifts. 'GLM'
  % remains available by passing it explicitly. SE/Pvals are computed
  % only when more than 13 outputs are requested.
+ %
+ % Note (G4): EM runs on an internally whitened system x_s = Tq*x,
+ % y_s = Tr*y (Tq = inv(chol(Qhat0,'lower')), Tr = inv(chol(Rhat0,'lower'))).
+ % The "logll:" value printed at each iteration is the expected
+ % complete-data log-likelihood of that SCALED system; IC.llcomp is the
+ % same quantity on the ORIGINAL scale (the best printed value +
+ % (K+1)*log|det Tq| + K*log|det Tr|, K = number of time bins), and
+ % IC.llobs / AIC / AICc / BIC are on the original scale too.
  numStates = size(Ahat0,1);
  if(nargin<17 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)

@@ -431,9 +431,14 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
+ % FIX: was `...*Hk(k,:)'*Hk(:,k)` -- Hk(:,k) is column k of the
+ % (numTimeSteps x numWindows) history matrix, not the time-k row,
+ % so this always errored ("Incorrect dimensions for matrix
+ % multiplication") for binomial fits with history. Use the outer
+ % product of the time-k row, as the poisson branch above does.
  HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
  +ExplambdaDeltaSquare*(dN(c,k)+3)...
- -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
+ -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(k,:);
  end
  end
  startInd=size(HkAll,2)*(c-1)+1; endInd = size(HkAll,2)*c;

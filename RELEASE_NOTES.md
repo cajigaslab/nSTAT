@@ -31,6 +31,7 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 | `1c051a9` | crash | SE routines | A direct SE call with a shared history column (a nonzero scalar or `W × 1`) and several cells errored. The column is now expanded per cell, as the EM drivers already do. |
 | `499690a` | numerical | `PP_EM`, `PPLFP_EM` internal whitening | The internal scaling used `inv(chol(Q0))` / `inv(chol(R0))`, the upper factor, which does not whiten a non-diagonal `Q0` / `R0`. The default diagonal-Q (and R) M-step then acted outside the starting family: the first M-step lowered the likelihood and EM returned the initial parameters. It now uses the lower factor (`Tq·Q0·Tq' = I`). Nothing changes for a diagonal `Q0` / `R0`. |
 | `59f42c9` | logic / crash | `PP_ComputeParamStandardErrors` constraints | The function tested `nargin<19` but has 15 inputs, so the caller's constraints were always replaced by the defaults (`mcIter` 1000; SEs for unestimated A entries). It now uses `nargin<15`. Three paths that became reachable as a result, `EstimateA=0`, `QhatIsotropic=1` and `Px0Isotropic=1`, also crashed on undefined variables; those are fixed too. |
+| `2a858a0` | numerical | Q / R / Px0 information blocks in both SE routines | Operator precedence: `N/2*(Q)\e*e'/(Q)` evaluated as `(N/2·Q)⁻¹·e·eᵀ·Q⁻¹`. As a result the Q and R information was N²/4 too small (SE.Q / SE.R about K/2 too large) and the Px0 information was 4× too large. The expressions are now parenthesised at all 8 sites. Through the joint inversion and `nearestSPD` this moved every SE that `PP_EM` / `PPLFP_EM` report. |
 | `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
 
 ### Breaking changes
@@ -43,6 +44,7 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 - **Monte Carlo SEs and NewtonRaphson M-steps (`c49dc00`)**: results change wherever the smoothed state covariance is not diagonal.
 - **Non-diagonal `Qhat0` / `Rhat0` (`499690a`)**: EM now estimates from such starting values, where it used to return them unchanged. `QhatDiag=1` / `RhatDiag=1` then mean "diagonal in the frame whitened by Q0 / R0".
 - **`PP_ComputeParamStandardErrors` / `PP_EM` SEs with non-default constraints (`59f42c9`)**: SEs now follow the constraints, including `mcIter`; the SE fields and the parameter count change accordingly.
+- **Standard errors (`2a858a0`)**: `SE` / `Pvals` from both SE routines and both EM drivers change. SE.Q and SE.R were about K/2 too large and SE.Px0 2× too small, and through `nearestSPD` every other SE was affected too.
 - The per-iteration `logll:` console line stays on the internal scaled system (see the `PP_EM` / `PPLFP_EM` help); `IC.llcomp` is on the original scale.
 
 ### New capabilities

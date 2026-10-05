@@ -75,7 +75,11 @@ classdef PPLFP
  % HkAll{c} = histObj.computeHistory(nst{c}).dataToMatrix;
  end
  if(size(gamma,2)==1 && numCells>1) % if more than 1 cell but only 1 gamma
- gammaNew(:,c) = gamma;
+ % FIX (#20 pattern, as in PPAF.PPDecodeFilterLinear): was
+ % gammaNew(:,c) = gamma with the post-loop c == numCells, so a
+ % shared gamma column reached only the last cell and every other
+ % cell decoded with zero history coefficients.
+ gammaNew = repmat(gamma,1,numCells);
  else
  gammaNew=gamma;
  end
@@ -243,7 +247,11 @@ classdef PPLFP
  HkAll(:,:,c) = histObj.computeHistory(nst{c}).dataToMatrix;
  end
  if(size(gamma,2)==1 && numCells>1) % if more than 1 cell but only 1 gamma
- gammaNew(:,c) = gamma;
+ % FIX (#20 pattern, as in PPAF.PPDecodeFilterLinear): was
+ % gammaNew(:,c) = gamma with the post-loop c == numCells, so a
+ % shared gamma column reached only the last cell and every other
+ % cell decoded with zero history coefficients.
+ gammaNew = repmat(gamma,1,numCells);
  else
  gammaNew = gamma;
  end

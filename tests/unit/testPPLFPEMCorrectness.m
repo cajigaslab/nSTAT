@@ -101,6 +101,31 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', false, {'mu','beta'});
         end
 
+        function testSharedGammaColumnReachesEveryCell(tc)
+            %TESTSHAREDGAMMACOLUMNREACHESEVERYCELL PPLFP_DecodeLinear and
+            % PPLFP_fixedIntervalSmoother expanded a shared (numWindows x 1)
+            % gamma with the post-loop `c`, so only the last cell got it. A
+            % shared column must decode exactly like the same column
+            % replicated for every cell.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', true);
+            gS = [-0.8; -0.4; -0.2]; gF = repmat(gS, 1, P.nC);
+            out1 = cell(1,4); out2 = cell(1,4);
+            evalc(['[out1{1:4}] = nstat.decoding.PPLFP.PPLFP_DecodeLinear(P.A,P.Q,P.Cm,P.R,P.y,P.alpha,' ...
+                'P.dN,P.mu,P.beta,''poisson'',P.delta,gS,P.wt,P.x0,P.Px0,P.HkAll);']);
+            evalc(['[out2{1:4}] = nstat.decoding.PPLFP.PPLFP_DecodeLinear(P.A,P.Q,P.Cm,P.R,P.y,P.alpha,' ...
+                'P.dN,P.mu,P.beta,''poisson'',P.delta,gF,P.wt,P.x0,P.Px0,P.HkAll);']);
+            for i = 1:4
+                tc.verifyEqual(out1{i}, out2{i}, 'AbsTol', 1e-12, sprintf('PPLFP_DecodeLinear output %d', i));
+            end
+            evalc(['[out1{1:4}] = nstat.decoding.PPLFP.PPLFP_fixedIntervalSmoother(P.A,P.Q,P.Cm,P.R,P.y,P.alpha,' ...
+                'P.dN,2,P.mu,P.beta,''poisson'',P.delta,gS,P.wt,P.x0,P.Px0);']);
+            evalc(['[out2{1:4}] = nstat.decoding.PPLFP.PPLFP_fixedIntervalSmoother(P.A,P.Q,P.Cm,P.R,P.y,P.alpha,' ...
+                'P.dN,2,P.mu,P.beta,''poisson'',P.delta,gF,P.wt,P.x0,P.Px0);']);
+            for i = 1:4
+                tc.verifyEqual(out1{i}, out2{i}, 'AbsTol', 1e-12, sprintf('PPLFP_fixedIntervalSmoother output %d', i));
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

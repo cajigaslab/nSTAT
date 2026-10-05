@@ -1848,7 +1848,7 @@ classdef PPLFP
  end
  
  [Ahat{storeIndP1}, Qhat{storeIndP1}, Chat{storeIndP1}, Rhat{storeIndP1}, alphahat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
- = nstat.decoding.PPLFP.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
+ = nstat.decoding.PPLFP.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod,delta);
  
  if(IkedaAcc==1)
  disp(['****Ikeda Acceleration Step****']);
@@ -1902,7 +1902,7 @@ classdef PPLFP
 
  
  [AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new]...
- = nstat.decoding.PPLFP.PPLFP_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
+ = nstat.decoding.PPLFP.PPLFP_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod,delta);
  
  Ahat{storeIndP1} = 2*Ahat{storeIndP1}-AhatNew;
  Qhat{storeIndP1} = 2*Qhat{storeIndP1}-QhatNew;
@@ -2373,10 +2373,17 @@ classdef PPLFP
  ExpectationSums.Sx0x0 = Px0Gy + Ex0Gy*Ex0Gy';
 
  end
- function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod)
+ function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod,delta)
  %PPLFP_MSTEP M-step of PPLFP_EM.
  % MstepMethod: 'NewtonRaphson' (default since fix/pp-em round 3; was
  % 'GLM') or 'GLM' (plug-in fit on the smoothed means; see PPLFP_EM).
+ % delta: seconds per bin (optional 16th input, default 0.001); sets
+ % the GLM M-step's time base. PPLFP_EM passes its delta.
+ % FIX (R4c): new optional trailing input, as PointProcessEM.PP_MStep's
+ % 15th input (913af29); every existing positional argument unchanged.
+ if(nargin<16 || isempty(delta))
+ delta = .001;
+ end
  % FIX: the nargin tests were off by one (MstepMethod is input 15 and
  % PPLFP_EM_Constraints input 14, not 14 and 13), so omitting either
  % argument errored on an undefined variable instead of defaulting.
@@ -2478,7 +2485,11 @@ classdef PPLFP
  % is called with makePlot=0 below; nothing here needs closing.
  % (Same defect and fix as PointProcessEM.PP_MStep.)
  clear c;
- time=(0:length(x_K)-1)*.001;
+ % FIX (R4c): time grid / Trial sample rate were hardcoded to 1 ms;
+ % for delta ~= 0.001 the history windows (seconds) spanned the wrong
+ % number of bins and no longer matched PPLFP_EM's HkAll. Identical
+ % for delta = 0.001 (1/0.001 == 1000 exactly).
+ time=(0:K-1)*delta;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);
  labels2{1} = 'vel';
@@ -2491,12 +2502,12 @@ classdef PPLFP
  {'constant'});
  for i=1:size(dN,1)
  spikeTimes = time(find(dN(i,:)==1));
- nst{i} = nspikeTrain(spikeTimes);
+ nst{i} = nspikeTrain(spikeTimes, '', delta);
  end
  nspikeColl = nstColl(nst);
  cc = CovColl({vel,baseline});
  trial = Trial(nspikeColl,cc);
- selfHist = windowTimes ; NeighborHist = []; sampleRate = 1000; 
+ selfHist = windowTimes ; NeighborHist = []; sampleRate = 1/delta; 
  clear c;
  
  

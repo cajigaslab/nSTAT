@@ -300,6 +300,37 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testGLMTimeBaseEquivalence(tc)
+            %TESTGLMTIMEBASEEQUIVALENCE the PPLFP_MStep GLM branch hardcoded
+            % a 1 ms time grid / sampleRate 1000 (R4c). One GLM M-step on the
+            % same E-step output at delta = 2 ms with windows [0 4 10 20] ms
+            % must equal the 1 ms analysis with [0 2 5 10] ms (same bin
+            % lags), and PPLFP_EM with the GLM M-step must agree likewise.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', true, 400);
+            g0 = -0.3*ones(3, P.nC);
+            wt1 = [0 0.002 0.005 0.010]; wt2 = [0 0.004 0.010 0.020];
+            H1 = testPointProcessEMCorrectness.historyTensor(P.dN, wt1, 0.001);
+            [xK, WK, ES] = testPPLFPEMCorrectness.eStepH(P, g0, H1);
+            m1 = cell(1,10); m2 = cell(1,10);
+            evalc(['[m1{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,' ...
+                '''poisson'',P.mu,P.beta,g0,wt1,H1,P.cons,''GLM'',0.001);']);
+            evalc(['[m2{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(P.dN,P.y,xK,WK,P.x0,P.Px0,ES,' ...
+                '''poisson'',P.mu,P.beta,g0,wt2,H1,P.cons,''GLM'',0.002);']);
+            for i = 1:10
+                tc.verifyEqual(m2{i}, m1{i}, 'AbsTol', 1e-9, sprintf('PPLFP_MStep output %d', i));
+            end
+            r1 = cell(1,12); r2 = cell(1,12);
+            rng(3);
+            evalc(['[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
+                '''poisson'',0.001,g0,wt1,[],[],[],''GLM'');']);
+            rng(3);
+            evalc(['[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
+                '''poisson'',0.002,g0,wt2,[],[],[],''GLM'');']);
+            for i = 1:12
+                tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, sprintf('PPLFP_EM (GLM) output %d', i));
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step
@@ -485,6 +516,12 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
             P.wt = wt;
             P.gamma0 = [-0.9 -0.2 -0.5; -0.4 -1.1 0.3; 0.2 -0.6 -0.8];
+        end
+
+        function [xK, WK, ES, ll] = eStepH(P, gamma, HkAll)
+            xK = []; WK = []; ll = []; ES = [];
+            evalc(['[xK,WK,ll,ES] = nstat.decoding.PPLFP.PPLFP_EStep(P.A,P.Q,P.Cm,P.R,P.y,P.alpha,' ...
+                'P.dN,P.mu,P.beta,P.fitType,P.delta,gamma,HkAll,P.x0,P.Px0);']);
         end
 
         function [xK, WK, ES, ll] = eStep(P, mu, beta, gamma)

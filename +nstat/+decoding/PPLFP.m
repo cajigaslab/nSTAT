@@ -1745,7 +1745,12 @@ classdef PPLFP
  if(~isempty(windowTimes))
  histObj = History(windowTimes,minTime,maxTime);
  for k=1:K
- nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta);
+ % FIX (R4b): build the spike train on the delta time base (binwidth =
+ % delta), as PointProcessEM.PP_EM does since 913af29. With the default
+ % 1 ms binwidth computeHistory returned the history on a 1 kHz grid
+ % (2N-1 rows at delta = 2 ms) that PPLFP_EStep then indexed as the
+ % delta grid. Identical object for delta = 0.001.
+ nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta, '', delta);
  nst{k}.setMinTime(minTime);
  nst{k}.setMaxTime(maxTime);
 % HkAll{k} = histObj.computeHistory(nst{k}).dataToMatrix;

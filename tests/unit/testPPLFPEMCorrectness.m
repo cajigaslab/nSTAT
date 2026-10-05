@@ -278,6 +278,28 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             tc.verifyTrue(all(abs(gN(2:3,:) - g0(2:3,:)) > 1e-6, 'all'), 'the estimable windows must be updated');
         end
 
+        function testTimeBaseEquivalence(tc)
+            %TESTTIMEBASEEQUIVALENCE PPLFP_EM is a per-bin model: the same
+            % data at delta = 2 ms with history windows [0 4 10 20] ms
+            % cover the same bin lags as at 1 ms with [0 2 5 10] ms, so
+            % every output must agree. PPLFP_EM built its history spike
+            % trains at 1 kHz regardless of delta (R4b). NewtonRaphson
+            % M-step (default), so PPLFP_MStep's GLM time base is not
+            % involved (see testGLMTimeBaseEquivalence).
+            P = testPPLFPEMCorrectness.makeProblem('poisson', true, 400);
+            g0 = -0.3*ones(3, P.nC);
+            r1 = cell(1,12); r2 = cell(1,12);
+            rng(3);
+            evalc(['[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
+                '''poisson'',0.001,g0,[0 0.002 0.005 0.010]);']);
+            rng(3);
+            evalc(['[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,' ...
+                '''poisson'',0.002,g0,[0 0.004 0.010 0.020]);']);
+            for i = 1:12
+                tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, sprintf('output %d at delta=2 ms must equal the 1 ms analysis', i));
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

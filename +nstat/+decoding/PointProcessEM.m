@@ -843,12 +843,18 @@ classdef PointProcessEM
  end
  
  SEMu = SEMuTerms;
- SEBeta=reshape(SEBetaTerms,size(betahat,2),size(betahat,1))';
+ % FIX: SEBetaTerms is ordered cell by cell (IBetaComp/ScoreBetaMc
+ % blocks are dx entries per cell), i.e. column-major for a dx x C
+ % matrix. reshape(...,C,dx)' scrambled the entries whenever dx>1
+ % and C>1 (for dx == C it returned the transpose). Same for gamma.
+ SEBeta=reshape(SEBetaTerms,size(betahat,1),size(betahat,2));
 
  SE.mu = SEMu;
  SE.beta = SEBeta;
  if((numel(gammahat)==1 && gammahat~=0) || numel(gammahat)>1)
- SEGamma=reshape(SEGammaTerms,size(gammahat,2),size(gammahat,1))';
+ % FIX: cell-by-cell ordering -> reshape to numWindows x C (was
+ % reshape(...,C,numWindows)', which scrambled the entries).
+ SEGamma=reshape(SEGammaTerms,size(gammahat,1),size(gammahat,2));
  SE.gamma = SEGamma;
  end
  % Compute parameter p-values

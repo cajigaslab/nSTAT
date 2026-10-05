@@ -2623,9 +2623,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2652,9 +2653,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2724,9 +2726,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2756,9 +2759,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2827,9 +2831,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2854,9 +2859,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2915,9 +2921,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2945,9 +2952,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -3018,9 +3026,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -3045,9 +3054,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -3114,9 +3124,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms);
@@ -3136,9 +3147,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms)./(1+exp(terms));

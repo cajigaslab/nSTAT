@@ -190,6 +190,33 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyTrue(all(abs(gN(2:3,:) - g0(2:3,:)) > 1e-6, 'all'), 'the estimable windows must be updated');
         end
 
+        function testMStepNumBinsEqualsNumCells(tc)
+            %TESTMSTEPNUMBINSEQUALSNUMCELLS PP_MStep's NewtonRaphson branches
+            % re-oriented Hk = HkAll(:,:,c) (N x W) whenever N == numCells,
+            % then indexed Hk(k,:) on the transpose (R4d). Invariance: an
+            % N == C == 6 problem vs the same problem plus a 7th dummy cell
+            % (same E-step output and MC draws) -- cells 1..6 must get the
+            % identical mu / beta / gamma update.
+            [dN, H, mu, beta, g0, wt, A, Q] = testPointProcessEMCorrectness.squareBinsProblem();
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                '''poisson'',g0,H,zeros(2,1),1e-3*eye(2));']);
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            r1 = cell(1,7); r2 = cell(1,7);
+            dN7 = [dN; double(rand(1,size(dN,2)) < 0.5)];
+            H7 = cat(3, H, H(:,:,1)); mu7 = [mu; mu(1)]; b7 = [beta beta(:,1)]; g7 = [g0 g0(:,1)];
+            rng(5);
+            evalc(['[r1{1:7}] = nstat.decoding.PointProcessEM.PP_MStep(dN,xK,WK,zeros(2,1),1e-3*eye(2),ES,' ...
+                '''poisson'',mu,beta,g0,wt,H,cons,''NewtonRaphson'');']);
+            rng(5);
+            evalc(['[r2{1:7}] = nstat.decoding.PointProcessEM.PP_MStep(dN7,xK,WK,zeros(2,1),1e-3*eye(2),ES,' ...
+                '''poisson'',mu7,b7,g7,wt,H7,cons,''NewtonRaphson'');']);
+            tc.verifyEqual(r2{3}(1:6), r1{3}, 'AbsTol', 1e-12, 'mu of cells 1..6');
+            tc.verifyEqual(r2{4}(:,1:6), r1{4}, 'AbsTol', 1e-12, 'beta of cells 1..6');
+            tc.verifyEqual(r2{5}(:,1:6), r1{5}, 'AbsTol', 1e-12, 'gamma of cells 1..6');
+            tc.verifyEqual(r2{1}, r1{1}, 'AbsTol', 1e-12, 'Ahat');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows
@@ -358,6 +385,18 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
                 nst.setMinTime(0); nst.setMaxTime((N-1)*delta);
                 HkAll(:,:,c) = histObj.computeHistory(nst).dataToMatrix;
             end
+        end
+
+        function [dN, H, mu, beta, g0, wt, A, Q] = squareBinsProblem()
+            % N == C == 6 bins/cells, 2 history windows (synthetic counts).
+            rng(31);
+            C = 6; N = 6; dx = 2;
+            A = 0.95*eye(dx); Q = 0.05*eye(dx);
+            mu = log(0.3)*ones(C,1); beta = 0.5*randn(dx, C);
+            dN = double(rand(C, N) < 0.4);
+            H = double(rand(N, 2, C) < 0.4) + double(rand(N, 2, C) < 0.2);
+            g0 = -0.3 - 0.2*rand(2, C);
+            wt = [0 0.001 0.003];
         end
 
         function S = squareHistoryProblem(fitType)

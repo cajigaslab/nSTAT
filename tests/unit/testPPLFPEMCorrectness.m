@@ -331,6 +331,32 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testMStepNumBinsEqualsNumCells(tc)
+            %TESTMSTEPNUMBINSEQUALSNUMCELLS see the PP_MStep test of the same
+            % name: PPLFP_MStep's NewtonRaphson branches re-oriented the
+            % N x W history slice whenever N == numCells (R4d).
+            [dN, H, mu, beta, g0, wt, A, Q] = testPointProcessEMCorrectness.squareBinsProblem();
+            N = size(dN,2); rng(32);
+            Cm = [1 0.5; -0.3 1]; R = 0.05*eye(2); alpha = [0.1; -0.1];
+            y = alpha + chol(R,'lower')*randn(2, N);
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PPLFP.PPLFP_EStep(A,Q,Cm,R,y,alpha,dN,mu,beta,' ...
+                '''poisson'',0.001,g0,H,zeros(2,1),1e-3*eye(2));']);
+            cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints();
+            r1 = cell(1,10); r2 = cell(1,10);
+            dN7 = [dN; double(rand(1,N) < 0.5)];
+            H7 = cat(3, H, H(:,:,1)); mu7 = [mu; mu(1)]; b7 = [beta beta(:,1)]; g7 = [g0 g0(:,1)];
+            rng(5);
+            evalc(['[r1{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(dN,y,xK,WK,zeros(2,1),1e-3*eye(2),ES,' ...
+                '''poisson'',mu,beta,g0,wt,H,cons,''NewtonRaphson'');']);
+            rng(5);
+            evalc(['[r2{1:10}] = nstat.decoding.PPLFP.PPLFP_MStep(dN7,y,xK,WK,zeros(2,1),1e-3*eye(2),ES,' ...
+                '''poisson'',mu7,b7,g7,wt,H7,cons,''NewtonRaphson'');']);
+            tc.verifyEqual(r2{6}(1:6), r1{6}, 'AbsTol', 1e-12, 'mu of cells 1..6');
+            tc.verifyEqual(r2{7}(:,1:6), r1{7}, 'AbsTol', 1e-12, 'beta of cells 1..6');
+            tc.verifyEqual(r2{8}(:,1:6), r1{8}, 'AbsTol', 1e-12, 'gamma of cells 1..6');
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

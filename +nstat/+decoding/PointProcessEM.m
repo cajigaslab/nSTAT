@@ -1063,8 +1063,26 @@ classdef PointProcessEM
  if(nargin<8 || isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
- % numWindows =length(gamma0)+1; 
- windowTimes = 0:delta:(length(gamma)+1)*delta;
+ % FIX: one default history window per history coefficient. The
+ % old rule 0:delta:(length(gamma)+1)*delta has length(gamma)+2
+ % edges, i.e. length(gamma)+1 windows for length(gamma)
+ % coefficients, so every default-window call failed with
+ % MATLAB:innerdim (and length() of a numWindows x numCells
+ % matrix is max(numWindows,numCells)). gamma is
+ % numWindows x numCells (or a shared numWindows x 1 column; a
+ % scalar is one shared window); a row vector whose length is not
+ % the number of cells is the shared coefficient list, so it is
+ % made a column. Edges: 0:delta:numWindows*delta (numWindows+1
+ % edges; window w = (w-1, w] bins before the current bin).
+ if(isrow(gamma) && numel(gamma)~=size(dN,1))
+ gamma = gamma(:);
+ end
+ if(isempty(delta))
+ deltaW = .001;
+ else
+ deltaW = delta;
+ end
+ windowTimes = 0:deltaW:size(gamma,1)*deltaW;
  end
  end
  if(nargin<8)
@@ -1077,6 +1095,16 @@ classdef PointProcessEM
  fitType = 'poisson';
  end
  
+ % FIX: a shared history-coefficient column (numWindows x 1,
+ % incl. a scalar for one window) applies to every cell; expand it to
+ % numWindows x numCells (gamma(w,c) = gamma_shared(w)) as
+ % PPAF.PPDecodeFilterLinear does. The E-step, the M-step
+ % (gammahat(:,c)) and the SEs all index gamma per cell, so a shared
+ % column failed with MATLAB:innerdim / index errors.
+ if(~isempty(windowTimes) && ~isempty(gamma) && size(gamma,2)==1 ...
+ && size(dN,1)>1 && size(gamma,1)==numel(windowTimes)-1)
+ gamma = repmat(gamma,1,size(dN,1));
+ end
  minTime=0;
  maxTime=(size(dN,2)-1)*delta;
  K=size(dN,1);

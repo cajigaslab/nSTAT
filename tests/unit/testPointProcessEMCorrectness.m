@@ -116,6 +116,31 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyLessThan(max(abs(r{5} - mu)), 0.5, 'default PP_EM must recover mu');
         end
 
+        function testDefaultHistoryWindows(tc)
+            %TESTDEFAULTHISTORYWINDOWS with windowTimes = [] and a nonzero
+            % gamma, PP_EM built 0:delta:(length(gamma)+1)*delta -- one
+            % window too many (and length() of a W x C matrix is max(W,C))
+            % -- and could not use a shared gamma column, so every
+            % default-window call failed with MATLAB:innerdim. The default
+            % must equal the explicit call with W = size(gamma,1) windows
+            % 0:delta:W*delta and the shared column replicated per cell.
+            [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
+            dN = dN(:, 1:300); C = size(dN,1);
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            cases = { -0.5*[1;0.6;0.3],            -0.5*repmat([1;0.6;0.3],1,C), 0:delta:3*delta; ...
+                      -0.5,                        -0.5*ones(1,C),               0:delta:1*delta; ...
+                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
+                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                     0:delta:2*delta};
+            for i = 1:size(cases,1)
+                r1 = cell(1,7); r2 = cell(1,7);
+                rng(3);
+                evalc('[r1{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,cases{i,1},[],[],[],cons);');
+                rng(3);
+                evalc('[r2{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,cases{i,2},cases{i,3},[],[],cons);');
+                tc.verifyEqual(r1, r2, sprintf('case %d: default windows must equal explicit 0:delta:W*delta', i));
+            end
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows

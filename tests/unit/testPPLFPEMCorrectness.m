@@ -225,6 +225,28 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             tc.verifyLessThan(max(abs(o{7}(:) - P.alpha(:))), 0.1, 'alpha recovery');
         end
 
+        function testDefaultHistoryWindows(tc)
+            %TESTDEFAULTHISTORYWINDOWS PPLFP_EM's default windowTimes rule
+            % 0:delta:(length(gamma)+1)*delta had one window too many and a
+            % shared gamma column was never expanded, so every
+            % default-window call failed. Same equivalences as the PP_EM
+            % test: W = size(gamma,1) windows, edges 0:delta:W*delta.
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 300);
+            C = P.nC; d = P.delta;
+            cases = { -0.5*[1;0.6;0.3],            -0.5*repmat([1;0.6;0.3],1,C), 0:d:3*d; ...
+                      -0.5,                        -0.5*ones(1,C),               0:d:1*d; ...
+                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9], ...
+                      -0.4*[1 0.5 0.8 0.6; 0.3 0.7 0.2 0.9],                     0:d:2*d};
+            for i = 1:size(cases,1)
+                r1 = cell(1,12); r2 = cell(1,12);
+                rng(3);
+                evalc('[r1{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,''poisson'',d,cases{i,1},[]);');
+                rng(3);
+                evalc('[r2{1:12}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,''poisson'',d,cases{i,2},cases{i,3});');
+                tc.verifyEqual(r1, r2, sprintf('case %d: default windows must equal explicit 0:delta:W*delta', i));
+            end
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

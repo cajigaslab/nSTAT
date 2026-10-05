@@ -697,7 +697,12 @@ classdef PPLFP
  ExplambdaDeltaXkXk=1/McExp*(repmat(ld,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaSqXkXkT=1/McExp*(repmat(ld.^2,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: binomial beta information had the wrong sign/form,
+ % (E[p]+E[p^2]-2E[p^3])xx' (negative definite IBetaComp). For
+ % log L = sum dN*log(p) - p the beta Hessian is
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' (same fix as
+ % PointProcessEM.PP_ComputeParamStandardErrors, 8321271).
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;
@@ -758,7 +763,8 @@ classdef PPLFP
  ExplambdaDeltaXkXk=1/McExp*(repmat(ld,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaSqXkXkT=1/McExp*(repmat(ld.^2,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
- HessianTerm(:,:,k)=+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: same wrong-sign binomial beta information as the serial branch.
+ HessianTerm(:,:,k)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;

@@ -93,6 +93,14 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', true, {'mu','gamma'});
         end
 
+        function testBinomialBetaStandardErrors(tc)
+            %TESTBINOMIALBETASTANDARDERRORS the binomial beta information
+            % block of PPLFP_ComputeParamStandardErrors used
+            % (E[p]+E[p^2]-2E[p^3])xx' (wrong sign). SE.beta must match the
+            % finite-difference information.
+            testPPLFPEMCorrectness.checkSEAgainstFD(tc, 'binomial', false, {'mu','beta'});
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

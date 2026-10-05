@@ -54,6 +54,34 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             % meaningless. Same FD construction as the poisson test.
             testPointProcessEMCorrectness.checkStandardErrorsAgainstFD(tc, 'binomial');
         end
+
+        function testTimeBaseEquivalence(tc)
+            %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
+            % spike matrix analysed at delta = 2 ms with history windows
+            % [0 4 10 20] ms covers exactly the same bin lags as at
+            % delta = 1 ms with windows [0 2 5 10] ms, so every output
+            % must agree. Before the fix PP_EM built its history spike
+            % trains at 1 kHz regardless of delta and the GLM M-step
+            % hardcoded a 1 ms grid / sampleRate 1000.
+            S = testPointProcessEMCorrectness.squareHistoryProblem('poisson');
+            dN = S.dN(:, 1:400);
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(1,0,1,0,0,0);
+            g0 = -0.5*ones(3, size(dN,1));
+            for m = {'GLM', 'NewtonRaphson'}
+                r1 = cell(1,7); r2 = cell(1,7);
+                rng(3);
+                evalc(['[r1{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,S.A,S.Q,S.mu,S.beta,' ...
+                    '''poisson'',0.001,g0,[0 0.002 0.005 0.010],S.x0,S.Px0,cons,m{1});']);
+                rng(3);
+                evalc(['[r2{1:7}] = nstat.decoding.PointProcessEM.PP_EM(dN,S.A,S.Q,S.mu,S.beta,' ...
+                    '''poisson'',0.002,g0,[0 0.004 0.010 0.020],S.x0,S.Px0,cons,m{1});']);
+                names = {'xK','WK','Ahat','Qhat','muhat','betahat','gammahat'};
+                for i = 1:7
+                    tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, ...
+                        sprintf('%s: %s at delta=2 ms must equal the 1 ms analysis', m{1}, names{i}));
+                end
+            end
+        end
     end
 
     methods (Static)

@@ -1034,7 +1034,12 @@ classdef PointProcessEM
  if(~isempty(windowTimes))
  histObj = History(windowTimes,minTime,maxTime);
  for k=1:K
- nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta);
+ % FIX: build the spike train on the delta time base (binwidth =
+ % delta). The default binwidth is 1 ms, so for delta ~= 0.001
+ % computeHistory returned a 1 kHz history matrix (2N-1 rows for
+ % delta = 2 ms) that PP_EStep then indexed as if it were on the
+ % delta grid. Identical object for delta = 0.001 (the default).
+ nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta, '', delta);
  nst{k}.setMinTime(minTime);
  nst{k}.setMaxTime(maxTime);
 % HkAll{k} = histObj.computeHistory(nst{k}).dataToMatrix;
@@ -1125,7 +1130,7 @@ classdef PointProcessEM
  end
 
  [Ahat{storeIndP1}, Qhat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
- = nstat.decoding.PointProcessEM.PP_MStep(dN,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod);
+ = nstat.decoding.PointProcessEM.PP_MStep(dN,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod,delta);
  
  if(IkedaAcc==1)
  disp(['****Ikeda Acceleration Step****']);
@@ -1186,7 +1191,7 @@ classdef PointProcessEM
  nstat.decoding.PointProcessEM.PP_EStep(Ahat{storeInd},Qhat{storeInd},dNNew, muhat{storeInd}, betahat{storeInd},fitType,gammahat{storeInd},HkAll, x0, Px0);
 
  [AhatNew, QhatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new]...
- = nstat.decoding.PointProcessEM.PP_MStep(dNNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod);
+ = nstat.decoding.PointProcessEM.PP_MStep(dNNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod,delta);
  
  Ahat{storeIndP1} = 2*Ahat{storeIndP1}-AhatNew;
  Qhat{storeIndP1} = 2*Qhat{storeIndP1}-QhatNew;
@@ -2104,7 +2109,13 @@ classdef PointProcessEM
 % ExpectationSums.gamma = gamma;
 % 
 % end
- function [Ahat, Qhat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PP_MStep(dN, x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPEM_Constraints,MstepMethod)
+ function [Ahat, Qhat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PP_MStep(dN, x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPEM_Constraints,MstepMethod,delta)
+ % FIX: optional 15th input `delta` (seconds per bin, default 0.001)
+ % so the GLM M-step builds its Trial on the same time base as PP_EM
+ % (see the GLM block below). PP_EM now passes its delta.
+ if(nargin<15 || isempty(delta))
+ delta = .001;
+ end
  if(nargin<14 || isempty(MstepMethod))
  MstepMethod = 'GLM'; %GLM or NewtonRaphson
  end
@@ -2179,7 +2190,12 @@ classdef PointProcessEM
  % makePlot=0 below, so there is nothing for this step to close --
  % it only destroyed the caller's (and the user's) figures.
  clear c;
- time=(0:length(x_K)-1)*.001;
+ % FIX: the time grid and the Trial sample rate were hardcoded
+ % to 1 ms (`(0:length(x_K)-1)*.001`, `sampleRate = 1000`). For
+ % delta ~= 0.001 the history windows (seconds) then covered the
+ % wrong number of bins and no longer matched PP_EM's HkAll, which
+ % the E-step uses. Use delta. Identical for delta = 0.001.
+ time=(0:K-1)*delta;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);
  labels2{1} = 'vel';
@@ -2192,12 +2208,12 @@ classdef PointProcessEM
  {'constant'});
  for i=1:size(dN,1)
  spikeTimes = time(find(dN(i,:)==1));
- nst{i} = nspikeTrain(spikeTimes);
+ nst{i} = nspikeTrain(spikeTimes, '', delta);
  end
  nspikeColl = nstColl(nst);
  cc = CovColl({vel,baseline});
  trial = Trial(nspikeColl,cc);
- selfHist = windowTimes ; NeighborHist = []; sampleRate = 1000; 
+ selfHist = windowTimes ; NeighborHist = []; sampleRate = 1/delta; 
  clear c;
  
  

@@ -886,7 +886,20 @@ classdef FitResSummary < handle
           end
              
                    
-          nonNANIndex = find(sum(~isnan(frsObj.plotParams.bAct(:,fitNum)),2)>=1);
+          % FIX: bAct here is (numLabels x numResults x numNeurons). The
+          % previous `bAct(:,fitNum)` used two subscripts on that 3-D
+          % array, which folds dims 2-3 and so only ever read NEURON 1's
+          % coefficients. Whenever neuron 1's history coefficients were
+          % NaN (computePlotParams drops coefficients with se>=100, e.g. a
+          % neuron with no spikes inside a short history window) every
+          % history index was discarded, even when other neurons had
+          % them -- getHistCoeffs then crashed on an undefined
+          % `baseStrings` and getCoeffIndex/getCoeffs misreported the
+          % history terms as ordinary covariates. Keep a label if it is
+          % non-NaN for ANY requested fit and ANY neuron (the intent of
+          % getCoeffIndex's 3-D-aware filter). Identical to the old
+          % result when numNeurons==1 or when neuron 1 has every label.
+          nonNANIndex = find(any(any(~isnan(frsObj.plotParams.bAct(:,fitNum,:)),2),3));
           histIndex = histIndex(ismember(histIndex, nonNANIndex));
 
           if(nargout>2)
@@ -904,6 +917,26 @@ classdef FitResSummary < handle
             
             
             coeffStrings = frsObj.uniqueCovLabels(coeffIndex);
+            % FIX: same latent defect as getHistCoeffs -- `baseStrings` was
+            % only assigned inside the loop below, so an empty coeffIndex
+            % (every non-history coefficient NaN) crashed with an undefined
+            % variable. Return empty outputs of the usual container type.
+            if(isempty(coeffIndex))
+                labels = cell(0,0);
+                if(length(fitNum)>1)
+                    coeffMat = cell(1,length(fitNum));
+                    seMat = cell(1,length(fitNum));
+                    for i=1:length(fitNum)
+                        coeffMat{i} = nan(0,0,frsObj.numNeurons);
+                        seMat{i} = nan(0,0,frsObj.numNeurons);
+                    end
+                else
+                    coeffMat = nan(0,0,frsObj.numNeurons);
+                    seMat = nan(0,0,frsObj.numNeurons);
+                end
+                return;
+            end
+            baseStrings = cell(1,length(coeffStrings));
             baseStringEndIndex =regexp(coeffStrings,'_\{\d*\}','start');
             for i=1:length(baseStringEndIndex)
                 if(~isempty(baseStringEndIndex{i}))
@@ -1031,6 +1064,23 @@ classdef FitResSummary < handle
             
             
             histcoeffStrings = frsObj.uniqueCovLabels(histIndex);
+            % FIX: `baseStrings` was only assigned inside the loop below,
+            % so a fit with no (non-NaN) history coefficients died with
+            % "Unrecognized function or variable 'baseStrings'". Return
+            % an empty result instead (same container type as below).
+            if(isempty(histIndex))
+                labels = cell(0,0);
+                if(length(fitNum)>1)
+                    histMat = cell(1, length(fitNum));
+                    for i=1:length(fitNum)
+                        histMat{i} = nan(0,0,frsObj.numNeurons);
+                    end
+                else
+                    histMat = nan(0,0,frsObj.numNeurons);
+                end
+                return;
+            end
+            baseStrings = cell(1,length(histcoeffStrings));
             baseStringEndIndex =regexp(histcoeffStrings,'_\{\d\}','start');
             for i=1:length(baseStringEndIndex)
                 if(~isempty(baseStringEndIndex{i}))

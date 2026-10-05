@@ -652,11 +652,9 @@ classdef PPLFP
 
  % Generate the Monte Carlo
  for k=1:K
-% WuTemp=squeeze(WKFinal(:,:,k));
- WuTemp=(WKFinal(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),McExp);
- xKDrawExp(:,k,:)=repmat(xKFinal(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PPLFP.mcStateDraws(xKFinal(:,k),WKFinal(:,:,k),McExp);
  end
  
  IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
@@ -1107,16 +1105,15 @@ classdef PPLFP
 
  % Generate the Monte Carlo samples for the unobserved data
  for n=1:N
- WuTemp=(WKFinal(:,:,n));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- xKDraw(:,n,:)=repmat(xKFinal(:,n),[1 Mc])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDraw(:,n,:)=nstat.decoding.PPLFP.mcStateDraws(xKFinal(:,n),WKFinal(:,:,n),Mc);
  end
 
  if(PPLFP_EM_Constraints.EstimatePx0|| PPLFP_EM_Constraints.Estimatex0)
- [chol_m,p]=chol(Px0hat);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ x0Draw=nstat.decoding.PPLFP.mcStateDraws(x0hat,Px0hat,Mc);
  else
  x0Draw=repmat(x0hat, [1 Mc]);
 
@@ -2647,10 +2644,9 @@ classdef PPLFP
 
  % Generate the Monte Carlo samples
  for k=1:K
- WuTemp=(W_K(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(x_K,1),McExp);
- xKDrawExp(:,k,:)=repmat(x_K(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PPLFP.mcStateDraws(x_K(:,k),W_K(:,:,k),McExp);
  end
  % Stimulus Coefficients
  % FIX (#99): matlabpool was removed in R2017a; see note at line 635.
@@ -3405,6 +3401,29 @@ classdef PPLFP
 % gammahat = gammahat_new;
 % muhat = muhat_new;
  end 
+ end
+ end
+
+ methods (Static, Access = {?nstat.decoding.PPLFP, ?matlab.unittest.TestCase})
+ function X = mcStateDraws(m, W, M)
+ %MCSTATEDRAWS M Monte Carlo draws from N(m, W), returned as dx x M.
+ % X = mcStateDraws(m, W, M) with m (dx x 1), W (dx x dx).
+ % FIX (F9): every Monte Carlo draw in this class was made as
+ % [chol_m,p] = chol(W); z = normrnd(0,1,dx,M); x = m + chol_m*z.
+ % MATLAB's chol returns the UPPER factor R with R'*R = W, so R*z
+ % has covariance R*R', which equals W only for a diagonal W (or
+ % dx == 1): the draws had the wrong covariance whenever the
+ % smoothed state covariance was not diagonal. The draw is
+ % x = m + R'*z (cov R'*R = W). Kept as before: z is drawn with
+ % normrnd(0,1,dx,M) (same random stream; diagonal-W draws are
+ % bit-identical), the factor comes from the two-output chol of the
+ % same (upper) triangle, and a W that is not positive definite
+ % still errors (partial factor -> dimension mismatch) rather than
+ % being silently repaired. Access is limited to this class and
+ % unit tests; it is not part of the public API.
+ [R,~] = chol(W);
+ z = normrnd(0,1,numel(m),M);
+ X = repmat(m(:),[1 M]) + R'*z;
  end
  end
 end

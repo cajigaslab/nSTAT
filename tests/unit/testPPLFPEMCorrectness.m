@@ -251,6 +251,33 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testGLMHistoryUnestimableWindowKeepsPrevious(tc)
+            %TESTGLMHISTORYUNESTIMABLEWINDOWKEEPSPREVIOUS see the PP_MStep
+            % test of the same name: hard-refractory spiking makes the
+            % (0,1] ms window unestimable for every cell; PPLFP_MStep's GLM
+            % branch crashed in the reshape and must now keep that window's
+            % previous gamma.
+            [dN, A, Q, mu, beta] = testPointProcessEMCorrectness.refractoryProblem();
+            C = size(dN,1); N = size(dN,2); delta = 0.001;
+            rng(4);
+            Cm = [1 0.5; -0.3 1]; R = 0.05*eye(2); alpha = [0.1; -0.1];
+            y = alpha + chol(R,'lower')*randn(2, N);
+            wt = [0 0.001 0.005 0.020];
+            HkAll = testPointProcessEMCorrectness.historyTensor(dN, wt, delta);
+            g0 = -0.3*ones(numel(wt)-1, C);
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PPLFP.PPLFP_EStep(A,Q,Cm,R,y,alpha,dN,mu,beta,' ...
+                '''poisson'',delta,g0,HkAll,zeros(2,1),1e-9*eye(2));']);
+            gN = [];
+            cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints();
+            evalc(['[~,~,~,~,~,~,~,gN] = nstat.decoding.PPLFP.PPLFP_MStep(dN,y,xK,WK,zeros(2,1),' ...
+                '1e-9*eye(2),ES,''poisson'',mu,beta,g0,wt,HkAll,cons,''GLM'');']);
+            tc.verifySize(gN, size(g0));
+            tc.verifyEqual(gN(1,:), g0(1,:), 'the unestimable (0,1] ms window must keep its previous gamma');
+            tc.verifyTrue(all(isfinite(gN(:))));
+            tc.verifyTrue(all(abs(gN(2:3,:) - g0(2:3,:)) > 1e-6, 'all'), 'the estimable windows must be updated');
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

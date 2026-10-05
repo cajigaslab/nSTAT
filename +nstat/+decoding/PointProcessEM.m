@@ -2333,8 +2333,8 @@ classdef PointProcessEM
  % A coefficient that FitResSummary reports as NaN (dropped by its
  % se<100 filter in computePlotParams, i.e. not identifiable from
  % these data) keeps its previous value instead of propagating NaN
- % into the next E-step; history coefficients keep the original
- % NaN->0 convention below.
+ % into the next E-step; history coefficients follow the same
+ % keep-previous rule below (by window label).
  betaFit = tempCoeffs(2:(dx+1),:);
  muFit = tempCoeffs(1,:)';
  betaPrev = betahat_new(1:dx,:);
@@ -2345,9 +2345,37 @@ classdef PointProcessEM
  if(gammahat==0)
  % no history terms in this fit; gammahat_new stays as input
  else
- histTemp = squeeze(temp.getHistCoeffs);
- histTemp = reshape(histTemp, [length(windowTimes)-1 numCells]);
- histTemp(isnan(histTemp))=0;
+ % FIX (R4a): map the fitted history coefficients to the windows BY
+ % LABEL. getHistCoeffs only returns labels that are non-NaN for at
+ % least one cell (FitResSummary NaNs coefficients with se>=100), in
+ % sorted label order, so `reshape(histTemp,[nWindows numCells])`
+ % errored whenever a whole window was unestimable for every cell (and
+ % relied on sorted labels matching window order). The window labels
+ % come from the same History object the Trial uses. A window/cell
+ % whose coefficient is missing or NaN keeps its previous gamma (the
+ % rule used for mu/beta above; this replaces the old NaN -> 0).
+ nWin = length(windowTimes)-1;
+ [histMat, histLabels] = temp.getHistCoeffs;
+ winCov = History(windowTimes, min(time), max(time)).computeHistory(nst{1}).getCov(1);
+ winLabels = winCov.dataLabels;
+ gPrev = gammahat;
+ if(isscalar(gPrev))
+ gPrev = gPrev*ones(nWin, numCells);
+ elseif(size(gPrev,2)==1)
+ gPrev = repmat(gPrev, 1, numCells);
+ end
+ histTemp = gPrev;
+ for w=1:nWin
+ j = find(strcmp(histLabels(:,1), winLabels{w}), 1);
+ if(~isempty(j))
+ for c=1:numCells
+ v = histMat(j,1,c);
+ if(~isnan(v))
+ histTemp(w,c) = v;
+ end
+ end
+ end
+ end
  gammahat_new=histTemp;
  end
  else

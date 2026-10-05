@@ -164,6 +164,32 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyEqual(o{10}, 0, 'PPLFP gammahat must stay the scalar 0');
         end
 
+        function testGLMHistoryUnestimableWindowKeepsPrevious(tc)
+            %TESTGLMHISTORYUNESTIMABLEWINDOWKEEPSPREVIOUS hard refractory
+            % spiking (never two spikes in consecutive bins, for any cell)
+            % makes the (0,1] ms history window unestimable for every cell
+            % (complete separation -> se>=100 -> NaN -> label dropped by
+            % FitResSummary). The GLM M-step used to crash in
+            % reshape(getHistCoeffs,[nWindows numCells]); it must keep that
+            % window's previous gamma and estimate the other windows.
+            [dN, A, Q, mu, beta] = testPointProcessEMCorrectness.refractoryProblem();
+            C = size(dN,1); N = size(dN,2); delta = 0.001;
+            wt = [0 0.001 0.005 0.020];
+            HkAll = testPointProcessEMCorrectness.historyTensor(dN, wt, delta);
+            g0 = -0.3*ones(numel(wt)-1, C);
+            xK = []; WK = []; ES = [];
+            evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                '''poisson'',g0,HkAll,zeros(2,1),1e-9*eye(2));']);
+            gN = [];
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            evalc(['[~,~,~,~,gN] = nstat.decoding.PointProcessEM.PP_MStep(dN,xK,WK,zeros(2,1),' ...
+                '1e-9*eye(2),ES,''poisson'',mu,beta,g0,wt,HkAll,cons,''GLM'');']);
+            tc.verifySize(gN, size(g0));
+            tc.verifyEqual(gN(1,:), g0(1,:), 'the unestimable (0,1] ms window must keep its previous gamma');
+            tc.verifyTrue(all(isfinite(gN(:))));
+            tc.verifyTrue(all(abs(gN(2:3,:) - g0(2:3,:)) > 1e-6, 'all'), 'the estimable windows must be updated');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows
@@ -303,6 +329,35 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             mu = log(40*delta)*ones(C,1);
             beta = [1.0 -0.5; 0.3 0.8; -0.7 0.4; 0.6 0.6]';
             dN = double(rand(C,N) < min(exp(mu + beta'*x), 1));
+        end
+
+        function [dN, A, Q, mu, beta] = refractoryProblem()
+            % 4 cells, 1500 bins, ~40 Hz, hard 1-bin refractory period.
+            rng(8);
+            C = 4; N = 1500; delta = 0.001; dx = 2;
+            A = 0.98*eye(dx); Q = 0.01*eye(dx);
+            x = zeros(dx, N);
+            for t = 2:N, x(:,t) = A*x(:,t-1) + chol(Q)'*randn(dx,1); end
+            mu = log(40*delta)*ones(C,1);
+            beta = [1.0 -0.5; 0.3 0.8; -0.7 0.4; 0.6 0.6]';
+            dN = zeros(C, N);
+            for t = 1:N
+                p = min(exp(mu + beta'*x(:,t)), 1);
+                if t > 1, p(dN(:,t-1) == 1) = 0; end
+                dN(:,t) = rand(C,1) < p;
+            end
+        end
+
+        function HkAll = historyTensor(dN, wt, delta)
+            % N x nWindows x C, built as PP_EM builds it.
+            [C, N] = size(dN);
+            histObj = History(wt, 0, (N-1)*delta);
+            HkAll = zeros(N, numel(wt)-1, C);
+            for c = 1:C
+                nst = nspikeTrain((find(dN(c,:)==1)-1)*delta, '', delta);
+                nst.setMinTime(0); nst.setMaxTime((N-1)*delta);
+                HkAll(:,:,c) = histObj.computeHistory(nst).dataToMatrix;
+            end
         end
 
         function S = squareHistoryProblem(fitType)

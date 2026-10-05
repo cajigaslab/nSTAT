@@ -381,6 +381,14 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
             tc.verifyEqual(gN, g0, 'every unestimable window must keep its previous gamma');
         end
 
+        function testGLMMStepMapsCoefficientsByLabel(tc)
+            %TESTGLMMSTEPMAPSCOEFFICIENTSBYLABEL PPLFP_MStep's GLM branch had
+            % the same positional mu/beta read as PP_MStep (F3).
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PPLFP', 10, 2, []);
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PPLFP', 2, 1, []);
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PPLFP', 2, 3, 2);
+        end
+
         function testBinomialNewtonRaphsonBetaStepIsStable(tc)
             %TESTBINOMIALNEWTONRAPHSONBETASTEPISSTABLE the binomial NR beta
             % Hessian was positive definite (wrong sign), so one M-step

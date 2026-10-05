@@ -2535,7 +2535,7 @@ classdef PPLFP
 
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);
  temp = FitResSummary(results);
- tempCoeffs = squeeze(temp.getCoeffs);
+ % (coefficients are read by label below)
  % FIX: same defect as PointProcessEM.PP_MStep (a80aae2). The GLM
  % fit was written to the INPUT variables (betahat, muhat,
  % gammahat) while the function returns betahat_new / muhat_new /
@@ -2544,11 +2544,34 @@ classdef PPLFP
  % the returned variables; a coefficient FitResSummary reports as
  % NaN (se>=100, not identifiable) keeps its previous value, and
  % history follows the same rule below (by window label).
- betaFit = tempCoeffs(2:(dx+1),:);
- muFit = tempCoeffs(1,:)';
- betaPrev = betahat_new(1:dx,:);
- betaFit(isnan(betaFit)) = betaPrev(isnan(betaFit));
- muFit(isnan(muFit)) = muhat_new(isnan(muFit));
+ % FIX (F3): map 'constant' and 'v1'..'vdx' BY LABEL. The old
+ % positional read (mu = row 1, beta = rows 2:dx+1 of getCoeffs)
+ % broke when FitResSummary dropped a label that is NaN (se>=100) for
+ % every cell (index error / wrong rows), mis-mapped for dx >= 10
+ % (labels sort as 'v1','v10','v2',...), and failed for a single cell
+ % (getCoeffs then returns a 1 x nLabels row). A label that is absent,
+ % or NaN for a cell, keeps the previous value (the R4a rule).
+ [coeffMat, coeffLabels] = temp.getCoeffs;
+ if(isempty(coeffLabels))
+ coeffLabCol = {};
+ else
+ coeffLabCol = coeffLabels(:,1);
+ end
+ coeffMat = reshape(coeffMat, numel(coeffLabCol), []); % nLabels x numCells
+ muFit = muhat_new(:);
+ betaFit = betahat_new(1:dx,:);
+ j = find(strcmp(coeffLabCol, 'constant'), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:)';
+ muFit(~isnan(v)) = v(~isnan(v));
+ end
+ for i=1:dx
+ j = find(strcmp(coeffLabCol, labels{i}), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:);
+ betaFit(i,~isnan(v)) = v(~isnan(v));
+ end
+ end
  betahat_new(1:dx,:) = betaFit;
  muhat_new = muFit;
  if(gammahat==0)

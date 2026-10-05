@@ -243,6 +243,18 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             tc.verifyEqual(o{7}, g0, 'PP_EM (GLM): gammahat must stay at its initial value');
         end
 
+        function testGLMMStepMapsCoefficientsByLabel(tc)
+            %TESTGLMMSTEPMAPSCOEFFICIENTSBYLABEL the GLM M-step read mu/beta
+            % positionally from getCoeffs (F3): it crashed when a covariate
+            % label was dropped for every cell, mis-mapped for dx >= 10
+            % ('v10' sorts before 'v2') and crashed for a single cell. The
+            % result must equal glmfit on the same smoothed states, with a
+            % dropped (unestimable) covariate keeping its previous beta.
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PP', 10, 2, []);
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PP', 2, 1, []);
+            testPointProcessEMCorrectness.glmMStepMatchesGlmfit(tc, 'PP', 2, 3, 2);
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows
@@ -424,6 +436,57 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             H = double(rand(N, 2, C) < 0.4) + double(rand(N, 2, C) < 0.2);
             g0 = -0.3 - 0.2*rand(2, C);
             wt = [0 0.001 0.003];
+        end
+
+        function glmMStepMatchesGlmfit(tc, driver, dx, C, dropRow)
+            % One GLM M-step (PP_MStep or PPLFP_MStep) on E-step output vs
+            % glmfit(x_K', dN(c,:)', 'poisson') for every cell. dropRow:
+            % replace that state row of x_K by 1e-5 noise so its
+            % coefficient has se >= 100 for every cell (FitResSummary drops
+            % the label); that beta row must keep its previous value.
+            rng(19); N = 1000; delta = 0.001;
+            A = 0.95*eye(dx); Q = 0.01*eye(dx);
+            x = zeros(dx, N);
+            for t = 2:N, x(:,t) = A*x(:,t-1) + chol(Q)'*randn(dx,1); end
+            mu = log(40*delta)*ones(C,1); beta = 0.8*randn(dx, C);
+            dN = double(rand(C, N) < min(exp(mu + beta'*x), 1));
+            H0 = zeros(N, 1, C); x0 = zeros(dx,1); Px0 = 1e-9*eye(dx);
+            xK = []; WK = []; ES = []; muN = []; betaN = [];
+            if strcmp(driver, 'PP')
+                evalc(['[xK,WK,~,ES] = nstat.decoding.PointProcessEM.PP_EStep(A,Q,dN,mu,beta,' ...
+                    '''poisson'',0,H0,x0,Px0);']);
+            else
+                Cm = randn(2, dx); R = 0.05*eye(2); alpha = [0.1; -0.1];
+                y = Cm*x + alpha + chol(R,'lower')*randn(2, N);
+                evalc(['[xK,WK,~,ES] = nstat.decoding.PPLFP.PPLFP_EStep(A,Q,Cm,R,y,alpha,dN,mu,beta,' ...
+                    '''poisson'',delta,0,H0,x0,Px0);']);
+            end
+            if ~isempty(dropRow)
+                rng(2); xK(dropRow,:) = 1e-5*randn(1, N);
+            end
+            if strcmp(driver, 'PP')
+                cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+                evalc(['[~,~,muN,betaN] = nstat.decoding.PointProcessEM.PP_MStep(dN,xK,WK,x0,Px0,ES,' ...
+                    '''poisson'',mu,beta,0,[],H0,cons,''GLM'');']);
+            else
+                cons = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints();
+                evalc(['[~,~,~,~,~,muN,betaN] = nstat.decoding.PPLFP.PPLFP_MStep(dN,y,xK,WK,x0,Px0,ES,' ...
+                    '''poisson'',mu,beta,0,[],H0,cons,''GLM'');']);
+            end
+            lbl = sprintf('%s dx=%d C=%d drop=%s', driver, dx, C, mat2str(dropRow));
+            tc.verifySize(muN, [C 1], lbl); tc.verifySize(betaN, [dx C], lbl);
+            ws = warning('off', 'all'); restore = onCleanup(@() warning(ws));
+            for c = 1:C
+                b = glmfit(xK', dN(c,:)', 'poisson');
+                tc.verifyEqual(muN(c), b(1), 'AbsTol', 1e-6, [lbl ': mu']);
+                for i = 1:dx
+                    if isequal(i, dropRow)
+                        tc.verifyEqual(betaN(i,c), beta(i,c), [lbl ': dropped covariate keeps previous beta']);
+                    else
+                        tc.verifyEqual(betaN(i,c), b(i+1), 'AbsTol', 1e-6, sprintf('%s: beta(%d,%d)', lbl, i, c));
+                    end
+                end
+            end
         end
 
         function S = squareHistoryProblem(fitType)

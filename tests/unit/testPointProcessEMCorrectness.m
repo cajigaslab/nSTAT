@@ -145,6 +145,25 @@ classdef testPointProcessEMCorrectness < matlab.unittest.TestCase
             end
         end
 
+        function testZeroGammaWithExplicitWindowsUnchanged(tc)
+            %TESTZEROGAMMAWITHEXPLICITWINDOWSUNCHANGED gamma = 0 means "no
+            % history coefficients" (M-step gammahat==0, IC parameter count,
+            % SE gamma block); the B9 shared-gamma expansion must not turn
+            % it into zeros(1,numCells). This is the pplfp_EM gold recipe's
+            % configuration (gamma = 0, one explicit window).
+            [dN, A, Q, mu, beta, delta] = testPointProcessEMCorrectness.emProblem();
+            cons = nstat.decoding.PointProcessEM.PP_EMCreateConstraints();
+            r = cell(1,10);
+            rng(3);
+            evalc('[r{1:10}] = nstat.decoding.PointProcessEM.PP_EM(dN,A,Q,mu,beta,''poisson'',delta,0,[0 0.005],[],[],cons);');
+            tc.verifyEqual(r{7}, 0, 'gammahat must stay the scalar 0');
+            P = testPPLFPEMCorrectness.makeProblem('poisson', false, 600);
+            o = cell(1,13);
+            rng(3);
+            evalc('[o{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,P.mu,P.beta,''poisson'',P.delta,0,[0 0.599]);');
+            tc.verifyEqual(o{10}, 0, 'PPLFP gammahat must stay the scalar 0');
+        end
+
         function testTimeBaseEquivalence(tc)
             %TESTTIMEBASEEQUIVALENCE PP_EM is a per-bin model: the same
             % spike matrix analysed at delta = 2 ms with history windows

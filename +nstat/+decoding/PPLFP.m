@@ -1730,8 +1730,13 @@ classdef PPLFP
  % PPAF.PPDecodeFilterLinear does. The E-step, the M-step
  % (gammahat(:,c)) and the SEs all index gamma per cell, so a shared
  % column failed with MATLAB:innerdim / index errors.
+ % An all-zero gamma is left as passed: gamma = 0 means "no history
+ % coefficients" downstream (M-step `gammahat==0`, the IC parameter
+ % count and the SE gamma block test numel(gammahat)), so expanding
+ % it would change those paths.
  if(~isempty(windowTimes) && ~isempty(gamma) && size(gamma,2)==1 ...
- && size(dN,1)>1 && size(gamma,1)==numel(windowTimes)-1)
+ && size(dN,1)>1 && size(gamma,1)==numel(windowTimes)-1 ...
+ && any(gamma(:)~=0))
  gamma = repmat(gamma,1,size(dN,1));
  end
  minTime=0;

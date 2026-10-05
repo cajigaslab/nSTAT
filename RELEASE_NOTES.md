@@ -24,7 +24,11 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 | `ef7bb22`, `605d9bc` | crash | SE routines and M-steps | Removed `size(Hk,1)==numCells` re-orientations of history slices (broke one cell with W>1, and N == numCells). |
 | `cfb47d1`, `1b6132d`, `4c3beac` | crash / logic | GLM M-steps (PP, PPLFP) | γ, μ and β are mapped from the GLM fit **by label**; an unestimable coefficient keeps its previous value (crashes for dropped labels, dx ≥ 10 mis-mapping, single cell). |
 | `4512384` | crash | SE routines | One cell with one nonzero history coefficient left the γ parameter count unassigned. |
-| (F8) | numerical | `PP_EM`, `PPLFP_EM` standard errors | The SE call received the internally rescaled expectation sums (and, in `PPLFP_EM`, the rescaled `y`) together with the original-scale estimates, so SEs were wrong whenever `Q0` or `R0` ≠ I; the sums and `y` are now mapped back to the original scale first. `SE` / `Pvals` from `PP_EM` / `PPLFP_EM` change; direct SE calls do not. |
+| `bac99f9` | numerical | `PP_EM`, `PPLFP_EM` standard errors | The SE call received the internally rescaled expectation sums (and, in `PPLFP_EM`, the rescaled `y`) together with the original-scale estimates, so SEs were wrong whenever `Q0` or `R0` ≠ I; the sums and `y` are now mapped back to the original scale first. `SE` / `Pvals` from `PP_EM` / `PPLFP_EM` change; direct SE calls do not. |
+| `c49dc00` | numerical | Monte Carlo draws in both SE routines and both NewtonRaphson M-steps | Draws were `m + chol(W)*z`, whose covariance is `chol(W)*chol(W)'` ≠ W for non-diagonal W; now `m + chol(W)'*z`. Same random stream; draws with diagonal W are unchanged. |
+| `8843a94` | numerical | `PP_EM`, `PPLFP_EM` information criteria | `IC.llobs` mixed the scaled-system log-likelihood with original-scale `Qhat` / `Px0hat`, so llobs / AIC / AICc / BIC depended on the units of x. They are now on the original scale: llobs is the expected observation log-likelihood, and `IC.llcomp` is the expected complete-data log-likelihood on the original scale. |
+| `564c207` | logic | `PPLFP_EM` IC parameter count | R's parameter count used Q's diagonal / isotropic flags; it now uses R's. This only matters when `RhatDiag` differs from `QhatDiag`. |
+| `1c051a9` | crash | SE routines | A direct SE call with a shared history column (a nonzero scalar or `W × 1`) and several cells errored. The column is now expanded per cell, as the EM drivers already do. |
 | `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
 
 ### Breaking changes
@@ -33,11 +37,13 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 - **`PP_EMCreateConstraints` / `PPLFP_EMCreateConstraints`: `Estimatex0` and `EstimatePx0` now default to 0** (were 1; the single-sample Px0 update collapses Px0 to ~0 and sends the log-likelihood to +Inf after ~2 iterations). All other constraint defaults are unchanged. Pass them as 1 for the old behaviour.
 - **`SE.beta` / `SE.gamma` (and `Pvals.beta` / `Pvals.gamma`) layout** from `PP_ComputeParamStandardErrors` / `PPLFP_ComputeParamStandardErrors` (and `PP_EM` / `PPLFP_EM` when SEs are requested) is now `dx × C` / `W × C` with each entry in its own position (previously scrambled; transposed when dx == C).
 - `PPAF.PPDecodeFilterLinear` output changes for square problems (ns == C) only.
+- **`IC` from `PP_EM` / `PPLFP_EM` (`8843a94`)**: `llobs`, `AIC`, `AICc` and `BIC` are now on the original scale, and so is `llcomp`. Previously `llcomp` was the scaled-system value, so it shifts by `(K+1)·log|det Tq|` (plus `K·log|det Tr|` for PPLFP).
+- **Monte Carlo SEs and NewtonRaphson M-steps (`c49dc00`)**: results change wherever the smoothed state covariance is not diagonal.
 
 ### New capabilities
 
 - **Optional `delta` inputs**: `PP_MStep(…, MstepMethod, delta)` (15th input) and `PPLFP_MStep(…, MstepMethod, delta)` (16th input), default 0.001 s; `PP_EM` / `PPLFP_EM` pass their `delta`. Existing positional arguments are unchanged.
-- Tests: `tests/unit/testPointProcessEMRuns.m`, `testPointProcessEMCorrectness.m`, `testPPLFPEMCorrectness.m`, `testDecoderCorrectness.m`, `testFitResSummaryHistIndex.m`; slow full-EM tests in `tests/integration/testPointProcessEMIntegration.m` (`tools/run_unit_tests.sh --integration`).
+- Tests: `tests/unit/testPointProcessEMRuns.m`, `testEMMonteCarloDraws.m`, `testPointProcessEMCorrectness.m`, `testPPLFPEMCorrectness.m`, `testDecoderCorrectness.m`, `testFitResSummaryHistIndex.m`; slow full-EM tests in `tests/integration/testPointProcessEMIntegration.m` (`tools/run_unit_tests.sh --integration`).
 
 ## v1.5.2 — 22-Jun-2026
 

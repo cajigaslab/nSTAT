@@ -1478,7 +1478,25 @@ classdef PointProcessEM
  K = size(xKFinal,2); 
  Dx = size(Ahat,2);
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
- llobs = ll + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
+ % FIX (F10): ll (the best E-step's expected complete-data
+ % log-likelihood) and sumXkTerms come from the internally SCALED
+ % system x_s = Tq*x (Tq = inv(chol(Q0))), while Qhat and Px0hat
+ % have been mapped back to the original scale, so llobs (= ll minus
+ % the expected state log-density) mixed scales and AIC/BIC depended
+ % on the units of x (llobs 18680 -> 1342 when the state was rescaled
+ % by 3). Map both to the original scale first:
+ % S = Tq \ S_s / Tq', and each of the K+1 state log-densities
+ % (x_0 .. x_K) gains log|det Tq|, so ll = ll_s + (K+1)*log|det Tq|.
+ % llobs is then E[log p(dN | x)] (the E-step's sumPPll), invariant
+ % to the state's units, and IC.llcomp is the expected complete-data
+ % log-likelihood on the original scale (what PP_EStep returns when
+ % run in the original coordinates at the returned estimates).
+ llcomp = ll;
+ if(scaledSystem==1)
+ sumXkTerms = (Tq\sumXkTerms)/Tq';
+ llcomp = ll + (K+1)*log(abs(det(Tq)));
+ end
+ llobs = llcomp + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
  + 1/2*trace(Qhat\sumXkTerms)...
  + Dx/2*log(2*pi)+1/2*log(det(Px0hat))...
  + 1/2*Dx;
@@ -1489,7 +1507,7 @@ classdef PointProcessEM
  IC.AICc= AICc;
  IC.BIC = BIC;
  IC.llobs = llobs;
- IC.llcomp=ll;
+ IC.llcomp=llcomp;
  
  
  end

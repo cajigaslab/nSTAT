@@ -149,7 +149,13 @@ classdef testPointProcessEMRuns < matlab.unittest.TestCase
                     all(isfinite(R.beta(:))) && all(isfinite(R.xK(:))), ...
                     [label ': returned iterate must be finite and real']);
                 ll = testPointProcessEMRuns.parseLogLL(emLog);
-                tc.verifyEqual(real(R.IC.llcomp), testPointProcessEMRuns.bestLL(ll), 'RelTol', 1e-7, ...
+                % The printed E-step logll values are those of PP_EM's
+                % internally scaled system (x_s = Tq*x, Tq = inv(chol(Q0)));
+                % IC.llcomp is on the original scale (F10), i.e. the best
+                % one plus the Jacobian (K+1)*log|det Tq|.
+                Tq = eye(size(P.Q))/chol(P.Q);
+                jac = (size(P.dN,2)+1)*log(abs(det(Tq)));
+                tc.verifyEqual(real(R.IC.llcomp), testPointProcessEMRuns.bestLL(ll) + jac, 'RelTol', 1e-7, ...
                     [label ': must return the best finite log-likelihood iterate']);
             end
         end

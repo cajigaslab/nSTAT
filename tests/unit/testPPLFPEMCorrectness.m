@@ -157,7 +157,14 @@ classdef testPPLFPEMCorrectness < matlab.unittest.TestCase
                 tok = regexp(emLog, 'logll: (\S+)', 'tokens');
                 ll = cellfun(@(t) str2double(t{1}), tok);
                 ok = isfinite(ll) & imag(ll) == 0;
-                tc.verifyEqual(real(o{13}.llcomp), max(real(ll(ok))), 'RelTol', 1e-7, ...
+                % The printed logll values are those of the internally
+                % scaled system (x_s = Tq*x, y_s = Tr*y); IC.llcomp is on
+                % the original scale (F10): best + (K+1)*log|det Tq| +
+                % K*log|det Tr|.
+                Tq = eye(size(P.Q))/chol(P.Q); Tr = eye(size(P.R))/chol(P.R);
+                K = size(P.dN,2);
+                jac = (K+1)*log(abs(det(Tq))) + K*log(abs(det(Tr)));
+                tc.verifyEqual(real(o{13}.llcomp), max(real(ll(ok))) + jac, 'RelTol', 1e-7, ...
                     sprintf('%s: must return the best finite log-likelihood iterate', m{1}));
             end
         end

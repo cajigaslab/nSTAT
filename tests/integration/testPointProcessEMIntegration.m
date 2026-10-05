@@ -163,8 +163,13 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
                     'log-likelihood must be non-decreasing before the stop');
             end
             % The returned iterate is the best one seen (the trace is
-            % parsed from num2str output, ~8 significant digits).
-            tc.verifyEqual(real(R.IC.llcomp), testPointProcessEMRuns.bestLL(ll), 'RelTol', 1e-7, ...
+            % parsed from num2str output, ~8 significant digits). The
+            % printed logll values are those of PP_EM's internally scaled
+            % system (x_s = Tq*x, Tq = inv(chol(Q0))); IC.llcomp is on the
+            % original scale (F10): the best one plus (K+1)*log|det Tq|.
+            Tq = eye(size(P.Q))/chol(P.Q);
+            jac = (size(P.dN,2)+1)*log(abs(det(Tq)));
+            tc.verifyEqual(real(R.IC.llcomp), testPointProcessEMRuns.bestLL(ll) + jac, 'RelTol', 1e-7, ...
                 'PP_EM must return the max-log-likelihood iterate');
 
             % Sane ranges.
@@ -330,6 +335,94 @@ classdef testPointProcessEMIntegration < matlab.unittest.TestCase
             for i = 1:12
                 tc.verifyEqual(r2{i}, r1{i}, 'AbsTol', 1e-9, sprintf('PPLFP_EM (GLM) output %d', i));
             end
+        end
+
+        function testInformationCriteriaInvariantToStateScaling(tc)
+            %TESTINFORMATIONCRITERIAINVARIANTTOSTATESCALING (F10) IC.llobs
+            % mixed the scaled-system ll / sumXkTerms with the original-scale
+            % Qhat / Px0hat. Rescaling the latent state by t (as in the F8
+            % test) leaves the internal scaled problem identical, so llobs
+            % = E[log p(obs | x)] and AIC / AICc / BIC must not change, and
+            % the expected complete-data log-likelihood on the original
+            % scale must shift by the Jacobian, llcomp -> llcomp -
+            % (K+1)*dx*log(t) (x_0 .. x_K). For PPLFP, rescaling the
+            % continuous observations by s (y -> s y, C -> s C,
+            % R -> s^2 R, alpha -> s alpha) must shift llobs and llcomp by
+            % -K*dy*log(s), the Jacobian of the y density. Before the fix
+            % PP llobs went 18680 -> 1342 under t = 3.
+            t = 3; s2 = 2;
+            P = testPointProcessEMIntegration.scalingProblem();
+            K = size(P.dN, 2); dx = 1; dy = size(P.y, 1);
+            p = cell(2,10); l = cell(3,13); ts = [1 t];
+            for i = 1:2
+                s = ts(i);
+                rng(42);
+                evalc(['[p{i,1:10}] = nstat.decoding.PointProcessEM.PP_EM(P.dN,P.A,s^2*P.Q,P.mu,P.beta/s,' ...
+                    '''poisson'',P.delta,[],[],0,s^2*1e-6,P.consP);']);
+                rng(42);
+                evalc(['[l{i,1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,s^2*P.Q,P.Cm/s,P.R,P.alpha,' ...
+                    'P.mu,P.beta/s,''poisson'',P.delta,[],[],0,s^2*1e-6,P.consL);']);
+            end
+            rng(42);
+            evalc(['[l{3,1:13}] = nstat.decoding.PPLFP.PPLFP_EM(s2*P.y,P.dN,P.A,P.Q,s2*P.Cm,s2^2*P.R,' ...
+                's2*P.alpha,P.mu,P.beta,''poisson'',P.delta,[],[],0,1e-6,P.consL);']);
+            ICp = [p{1,10}, p{2,10}]; ICl = [l{1,13}, l{2,13}, l{3,13}];
+            for f = {'llobs', 'AIC', 'AICc', 'BIC'}
+                tc.verifyEqual(ICp(2).(f{1}), ICp(1).(f{1}), 'RelTol', 1e-8, ...
+                    ['PP_EM IC.' f{1} ' must not depend on the units of x']);
+                tc.verifyEqual(ICl(2).(f{1}), ICl(1).(f{1}), 'RelTol', 1e-8, ...
+                    ['PPLFP_EM IC.' f{1} ' must not depend on the units of x']);
+            end
+            tc.verifyEqual(ICp(2).llcomp, ICp(1).llcomp - (K+1)*dx*log(t), 'RelTol', 1e-8, 'PP_EM IC.llcomp Jacobian');
+            tc.verifyEqual(ICl(2).llcomp, ICl(1).llcomp - (K+1)*dx*log(t), 'RelTol', 1e-8, 'PPLFP_EM IC.llcomp Jacobian');
+            tc.verifyEqual(ICl(3).llobs, ICl(1).llobs - K*dy*log(s2), 'RelTol', 1e-8, 'PPLFP_EM IC.llobs, y rescaled');
+            tc.verifyEqual(ICl(3).llcomp, ICl(1).llcomp - K*dy*log(s2), 'RelTol', 1e-8, 'PPLFP_EM IC.llcomp, y rescaled');
+        end
+
+        function testInformationCriteriaMatchEStepAtEstimates(tc)
+            %TESTINFORMATIONCRITERIAMATCHESTEPATESTIMATES (F10) the returned
+            % estimates are the parameters of the best E-step, so running
+            % the E-step in the ORIGINAL coordinates at those estimates must
+            % reproduce IC.llcomp (its log-likelihood) and IC.llobs (its
+            % observation part: sumPPll for PP; sumPPll + E[log p(y | x)]
+            % for PPLFP). Q0 = 0.01 makes the internal scaling non-trivial
+            % (Tq = 10).
+            P = testPointProcessEMIntegration.scalingProblem();
+            K = size(P.dN, 2); C = size(P.dN, 1); dy = size(P.y, 1);
+            H0 = zeros(K, 1, C);
+            p = cell(1,10); l = cell(1,13);
+            rng(42);
+            evalc(['[p{1:10}] = nstat.decoding.PointProcessEM.PP_EM(P.dN,P.A,P.Q,P.mu,P.beta,' ...
+                '''poisson'',P.delta,[],[],0,1e-6,P.consP);']);
+            rng(42);
+            evalc(['[l{1:13}] = nstat.decoding.PPLFP.PPLFP_EM(P.y,P.dN,P.A,P.Q,P.Cm,P.R,P.alpha,' ...
+                'P.mu,P.beta,''poisson'',P.delta,[],[],0,1e-6,P.consL);']);
+            llE = []; ESE = [];
+            evalc(['[~,~,llE,ESE] = nstat.decoding.PointProcessEM.PP_EStep(p{3},p{4},P.dN,p{5},p{6},' ...
+                '''poisson'',p{7},H0,p{8},p{9});']);
+            tc.verifyEqual(p{10}.llcomp, llE, 'RelTol', 1e-9, 'PP_EM IC.llcomp vs PP_EStep at the estimates');
+            tc.verifyEqual(p{10}.llobs, ESE.sumPPll, 'RelTol', 1e-9, 'PP_EM IC.llobs vs sumPPll');
+            evalc(['[~,~,llE,ESE] = nstat.decoding.PPLFP.PPLFP_EStep(l{3},l{4},l{5},l{6},P.y,l{7},P.dN,' ...
+                'l{8},l{9},''poisson'',P.delta,l{10},H0,l{11},l{12});']);
+            Rh = l{6};
+            llyE = -dy*K/2*log(2*pi) - K/2*log(det(Rh)) - 1/2*trace(Rh\ESE.sumYkTerms);
+            tc.verifyEqual(l{13}.llcomp, llE, 'RelTol', 1e-9, 'PPLFP_EM IC.llcomp vs PPLFP_EStep at the estimates');
+            tc.verifyEqual(l{13}.llobs, ESE.sumPPll + llyE, 'RelTol', 1e-9, 'PPLFP_EM IC.llobs vs sumPPll + E[log p(y|x)]');
+        end
+    end
+
+    methods (Static, Access = private)
+        function P = scalingProblem()
+            % The F8 / F10 problem: dx = 1, Q = 0.01, 3 poisson cells, dy = 2.
+            rng(21); P.delta = 0.001; N = 400; C = 3;
+            P.A = 0.98; P.Q = 0.01; P.Cm = [1; -0.5]; P.R = diag([0.05 0.08]); P.alpha = [0.1; -0.1];
+            x = zeros(1,N); xp = 0;
+            for k = 1:N, xp = P.A*xp + sqrt(P.Q)*randn; x(k) = xp; end
+            P.y = P.Cm*x + P.alpha + chol(P.R,'lower')*randn(2,N);
+            P.mu = log(40*P.delta)*ones(C,1); P.beta = [1.0 -0.6 0.8];
+            P.dN = double(rand(C,N) < min(exp(P.mu + P.beta'*x),1));
+            P.consP = nstat.decoding.PointProcessEM.PP_EMCreateConstraints(); P.consP.mcIter = 50;
+            P.consL = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints(); P.consL.mcIter = 50;
         end
     end
 end

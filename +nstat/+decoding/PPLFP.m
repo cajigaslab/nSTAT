@@ -2151,7 +2151,27 @@ classdef PPLFP
  K = size(y,2); 
  Dx = size(Ahat,2);
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
- llobs = ll + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
+ % FIX (F10): ll (the best E-step's expected complete-data
+ % log-likelihood) and sumXkTerms come from the internally SCALED
+ % system x_s = Tq*x, y_s = Tr*y (Tq = inv(chol(Q0)),
+ % Tr = inv(chol(R0))), while Qhat and Px0hat have been mapped back to
+ % the original scale, so llobs (= ll minus the expected state
+ % log-density) mixed scales and AIC/BIC depended on the units of x
+ % (llobs 19013 -> 337 when the state was rescaled by 3) and of y.
+ % Map both to the original scale first: S = Tq \ S_s / Tq'; each of
+ % the K+1 state log-densities (x_0 .. x_K) gains log|det Tq| and each
+ % of the K observation log-densities gains log|det Tr|, so
+ % ll = ll_s + (K+1)*log|det Tq| + K*log|det Tr|. llobs is then
+ % E[log p(dN, y | x)] on the original scale of y (invariant to the
+ % state's units), and IC.llcomp is the expected complete-data
+ % log-likelihood on the original scale (what PPLFP_EStep returns
+ % when run in the original coordinates at the returned estimates).
+ llcomp = ll;
+ if(scaledSystem==1)
+ sumXkTerms = (Tq\sumXkTerms)/Tq';
+ llcomp = ll + (K+1)*log(abs(det(Tq))) + K*log(abs(det(Tr)));
+ end
+ llobs = llcomp + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
  + 1/2*trace(Qhat\sumXkTerms)...
  + Dx/2*log(2*pi)+1/2*log(det(Px0hat))...
  + 1/2*Dx;
@@ -2162,7 +2182,7 @@ classdef PPLFP
  IC.AICc= AICc;
  IC.BIC = BIC;
  IC.llobs = llobs;
- IC.llcomp=ll;
+ IC.llcomp=llcomp;
  
  
  end

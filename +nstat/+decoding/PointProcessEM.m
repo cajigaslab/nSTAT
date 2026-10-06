@@ -880,11 +880,19 @@ classdef PointProcessEM
  end
  IMissing = 1/Mc*sum(IMc,3);
  IObs = IComp-IMissing; 
- invIObs = eye(size(IObs))/IObs;
-% figure(1); subplot(1,2,1); imagesc(invIObs); subplot(1,2,2); imagesc(nearestSPD(invIObs));
- invIObs = nearestSPD(invIObs); % Find the nearest positive semidefinite approximation for the variance matrix
+ % FIX (#136): an exactly singular IObs made eye/IObs Inf/NaN and
+ % nearestSPD loop forever; see seObservedInfoInverse. Unchanged when
+ % IObs has no zero pivot.
+ seLabels = nstat.decoding.PointProcessEM.seTermLabels({ ...
+ 'A', n1, size(Ahat), 'square'; 'Q', n2, size(Qhat), 'square'; ...
+ 'Px0', n3, size(Px0hat), 'square'; 'x0', n4, size(x0hat), 'vector'; ...
+ 'mu', n5, size(muhat), 'vector'; 'beta', n6, size(betahat), 'cellmajor'; ...
+ 'gamma', n7, size(gammahat), 'cellmajor'});
+ % nearestSPD projection now inside seObservedInfoInverse (unchanged when nonsingular)
+ [invIObs, nonIdentifiable] = nstat.decoding.PointProcessEM.seObservedInfoInverse(IObs, seLabels, 'PP_ComputeParamStandardErrors');
  VarVec = (diag(invIObs));
  SEVec = sqrt(VarVec);
+ SEVec(nonIdentifiable) = NaN; % FIX (#136): not identifiable -> SE (and p-value) NaN
  SEAterms = SEVec(1:n1);
  SEQterms = SEVec(n1+1:(n1+n2));
  SEPx0terms=SEVec(n1+n2+1:(n1+n2+n3));
@@ -3562,6 +3570,120 @@ classdef PointProcessEM
  [R,~] = chol(W);
  z = normrnd(0,1,numel(m),M);
  X = repmat(m(:),[1 M]) + R'*z;
+ end
+ end
+
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.PPLFP, ?matlab.unittest.TestCase})
+ function [invIObs, nonIdentifiable] = seObservedInfoInverse(IObs, labels, routine)
+ %SEOBSERVEDINFOINVERSE Covariance (projected inverse observed information)
+ % for the EM SE routines: nearestSPD of the inverse, as before.
+ % [invIObs, nonIdentifiable] = seObservedInfoInverse(IObs, labels, routine)
+ % FIX (#136): the SE routines computed invIObs = eye(size(IObs))/IObs
+ % and then nearestSPD(invIObs). When IObs is exactly singular (an
+ % LU zero pivot) eye/IObs is Inf/NaN, and nearestSPD's
+ % "while p ~= 0" loop never ends on a NaN matrix (chol keeps
+ % failing, eig returns NaN), so PP_EM / PPLFP_EM never returned when
+ % SEs were requested. The usual cause is a separated history window
+ % (no spike in it is followed by a spike): the Newton steps walk its
+ % coefficient to the exp() underflow, where its information and score
+ % are exactly 0.
+ % Now:
+ % * no zero pivot -> exactly the old eye(size(IObs))/IObs (all
+ % previously returned values are unchanged);
+ % * a zero pivot -> the pseudo-inverse (singular values at or below
+ % 1e-15 x the largest dropped). A parameter whose unit vector has a
+ % component larger than sqrt(eps) in the dropped null space is not
+ % identifiable (the log-likelihood is flat along it): it is flagged
+ % in nonIdentifiable and the caller reports its SE and p-value as
+ % NaN. A warning (nSTAT:EM:singularInformation) names them;
+ % * a non-finite IObs or inverse -> an error
+ % (nSTAT:EM:nonFiniteInformation) instead of looping.
+ % The result is then projected with nearestSPD, as before. In the
+ % singular case only the identifiable block is projected: the
+ % pseudo-inverse is singular there, and nearestSPD does not return on
+ % a singular matrix either (when chol fails while min(eig) is a tiny
+ % positive rounding value, its shift -mineig*k^2 + eps(mineig) is
+ % negative and the loop never ends). The flagged rows and columns
+ % are left as they are; their SEs are reported as NaN.
+ % This matches the Python port (nstat-python
+ % _em_singular_information_inverse). Access is limited to the EM
+ % classes and unit tests; it is not part of the public API.
+ n = size(IObs,1);
+ nonIdentifiable = false(n,1);
+ if ~all(isfinite(IObs(:)))
+ error('nSTAT:EM:nonFiniteInformation', ...
+ '%s: the observed information matrix is not finite; standard errors cannot be computed.', routine);
+ end
+ [~,U] = lu(IObs);
+ if all(diag(U) ~= 0)
+ invIObs = eye(size(IObs))/IObs;
+ else
+ [Us,S,V] = svd(IObs);
+ s = diag(S);
+ keep = s > 1e-15*max(s);
+ invIObs = V(:,keep)*diag(1./s(keep))*Us(:,keep)';
+ weight = sqrt(sum(V(:,~keep).^2,2));
+ nonIdentifiable = weight > sqrt(eps);
+ msg = sprintf(['%s: the observed information matrix is singular; the standard errors ' ...
+ 'come from its pseudo-inverse.'], routine);
+ idx = find(nonIdentifiable);
+ if ~isempty(idx)
+ names = cell(1,numel(idx));
+ for k = 1:numel(idx)
+ if idx(k) <= numel(labels)
+ names{k} = labels{idx(k)};
+ else
+ names{k} = sprintf('term %d', idx(k));
+ end
+ end
+ msg = [msg sprintf([' Not identifiable from the data, SE and p-value set to NaN: %s. ' ...
+ 'The log-likelihood is flat along them; a history coefficient is not identifiable ' ...
+ 'when no spike in its window is followed by a spike (a separated window).'], ...
+ strjoin(names, ', '))];
+ end
+ warning('nSTAT:EM:singularInformation', '%s', msg);
+ end
+ if ~all(isfinite(invIObs(:)))
+ error('nSTAT:EM:nonFiniteInformation', ...
+ '%s: the inverse observed information is not finite; standard errors cannot be computed.', routine);
+ end
+ if any(nonIdentifiable)
+ keep = ~nonIdentifiable;
+ if any(keep)
+ invIObs(keep,keep) = nearestSPD(invIObs(keep,keep));
+ end
+ else
+ invIObs = nearestSPD(invIObs); % Find the nearest positive semidefinite approximation for the variance matrix
+ end
+ end
+
+ function labels = seTermLabels(groups)
+ %SETERMLABELS Names of the entries of an EM routine's stacked SE vector.
+ % groups is an n x 4 cell {name, nTerms, shape, layout} in stacking
+ % order; layout is 'square' (rows*cols row by row, rows = its
+ % diagonal, 1 = isotropic), 'rowmajor', 'cellmajor' (states- or
+ % windows-by-cells, one cell's column after another) or 'vector'.
+ labels = {};
+ for g = 1:size(groups,1)
+ name = groups{g,1}; n = groups{g,2}; shp = [groups{g,3}(:)' 1 1]; layout = groups{g,4};
+ if n <= 0
+ continue;
+ end
+ r = shp(1); c = shp(2);
+ if strcmp(layout,'vector') && n == r
+ for i = 1:r, labels{end+1} = sprintf('%s(%d)',name,i); end %#ok<AGROW>
+ elseif strcmp(layout,'cellmajor') && n == r*c
+ for j = 1:c, for i = 1:r, labels{end+1} = sprintf('%s(%d,%d)',name,i,j); end, end %#ok<AGROW>
+ elseif any(strcmp(layout,{'square','rowmajor'})) && n == r*c
+ for i = 1:r, for j = 1:c, labels{end+1} = sprintf('%s(%d,%d)',name,i,j); end, end %#ok<AGROW>
+ elseif strcmp(layout,'square') && n == r
+ for i = 1:r, labels{end+1} = sprintf('%s(%d,%d)',name,i,i); end %#ok<AGROW>
+ elseif strcmp(layout,'square') && n == 1
+ labels{end+1} = sprintf('%s (isotropic)',name); %#ok<AGROW>
+ else
+ for k = 1:n, labels{end+1} = sprintf('%s term %d',name,k); end %#ok<AGROW>
+ end
+ end
  end
  end
 end

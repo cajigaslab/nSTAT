@@ -1441,11 +1441,20 @@ classdef PPLFP
  end
  IMissing = 1/Mc*sum(IMc,3);
  IObs = IComp-IMissing; 
- invIObs = eye(size(IObs))/IObs;
-% figure(1); subplot(1,2,1); imagesc(invIObs); subplot(1,2,2); imagesc(nearestSPD(invIObs));
- invIObs = nearestSPD(invIObs); % Find the nearest positive semidefinite approximation for the variance matrix
+ % FIX (#136): an exactly singular IObs made eye/IObs Inf/NaN and
+ % nearestSPD loop forever; see seObservedInfoInverse. Unchanged when
+ % IObs has no zero pivot.
+ seLabels = nstat.decoding.PointProcessEM.seTermLabels({ ...
+ 'A', n1, size(Ahat), 'square'; 'Q', n2, size(Qhat), 'square'; ...
+ 'C', n3, size(Chat), 'rowmajor'; 'R', n4, size(Rhat), 'square'; ...
+ 'Px0', n5, size(Px0hat), 'square'; 'x0', n6, size(x0hat), 'vector'; ...
+ 'alpha', n7, [numel(alphahat) 1], 'vector'; 'mu', n8, size(muhat), 'vector'; ...
+ 'beta', n9, size(betahat), 'cellmajor'; 'gamma', n10, size(gammahat), 'cellmajor'});
+ % nearestSPD projection now inside seObservedInfoInverse (unchanged when nonsingular)
+ [invIObs, nonIdentifiable] = nstat.decoding.PointProcessEM.seObservedInfoInverse(IObs, seLabels, 'PPLFP_ComputeParamStandardErrors');
  VarVec = (diag(invIObs));
  SEVec = sqrt(VarVec);
+ SEVec(nonIdentifiable) = NaN; % FIX (#136): not identifiable -> SE (and p-value) NaN
  SEAterms = SEVec(1:n1);
  SEQterms = SEVec(n1+1:(n1+n2));
  SECterms = SEVec(n1+n2+1:(n1+n2+n3));

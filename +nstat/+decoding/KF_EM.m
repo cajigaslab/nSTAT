@@ -415,7 +415,12 @@ classdef KF_EM
             n3=numel(Chat); 
             if(KFEM_Constraints.RhatDiag==1 && KFEM_Constraints.RhatIsotropic==1)
                 n4=1;
-            elseif(KFEM_Constraints.QhatDiag==1 && KFEM_Constraints.QhatIsotropic==0)
+            elseif(KFEM_Constraints.RhatDiag==1 && KFEM_Constraints.RhatIsotropic==0)
+                % FIX (KF track M, item C5 / F11): this branch tested
+                % Q's flags instead of R's, so R's own parameter count
+                % (and therefore IC.nTerms/AIC/AICc/BIC) was wrong
+                % whenever QhatDiag/QhatIsotropic differed from
+                % RhatDiag/RhatIsotropic==0 && RhatDiag==1.
                 n4=size(Rhat,1);
             else
                 n4=numel(Rhat);

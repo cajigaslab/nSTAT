@@ -256,13 +256,17 @@ After the gate passes, stamp the release inside MATLAB:
 
 ```matlab
 addpath(fullfile(pwd,'tools'));
-tools.stamp_release('vX.Y.Z')   % updates Contents.m + manifest + RELEASE_NOTES.md
+stamp_release('vX.Y.Z')   % updates Contents.m + toolboxOptions.m + manifest + RELEASE_NOTES.md
 ```
+
+(`stamp_release` is a plain function, not a `+tools/` package member --
+`tools.stamp_release(...)` never resolved. Call it by its bare name after
+the `addpath` above.)
 
 Then commit and tag:
 
 ```bash
-git add Contents.m docs/figures/manifest.json RELEASE_NOTES.md
+git add Contents.m toolboxOptions.m docs/figures/manifest.json RELEASE_NOTES.md
 git commit -m "release(vX.Y.Z): stamp version + manifest"
 git tag vX.Y.Z
 git push origin master --tags
@@ -275,9 +279,10 @@ git push origin master --tags
 | `docs/figures/exampleNN/*.png` | `build_paper_examples` (auto-invoked by `check_readme_figures.sh`) | Step 3 of `predeploy.sh` |
 | `helpfiles/*.html` | `publish()` via `publish_all_helpfiles` | Step 4 of `predeploy.sh` |
 | `helpfiles/helpsearch-v4_0/` | `builddocsearchdb` (auto-invoked by `publish_all_helpfiles`) | Step 4 of `predeploy.sh` |
-| `Contents.m` version stamp | `tools.stamp_release` | Manual after gate passes |
-| `docs/figures/manifest.json` `generated_at` | `tools.stamp_release` | Manual after gate passes |
-| `RELEASE_NOTES.md` section | `tools.stamp_release` (template; fill in highlights) | Manual after gate passes |
+| `Contents.m` version stamp | `stamp_release` | Manual after gate passes |
+| `toolboxOptions.m` `ToolboxVersion` | `stamp_release` | Manual after gate passes |
+| `docs/figures/manifest.json` `generated_at` | `stamp_release` | Manual after gate passes |
+| `RELEASE_NOTES.md` section | `stamp_release` (template; fill in highlights) | Manual after gate passes |
 
 ### What stays manual (NOT regenerated)
 

@@ -213,11 +213,20 @@ classdef PPHF
  nst{c} = nspikeTrain( (find(dN(c,:)==1)-1)*binwidth);
  nst{c}.setMinTime(minTime);
  nst{c}.setMaxTime(maxTime);
- nst{c}=nst{c}.resample(1/delta);
+ % FIX: was resample(1/delta) -- this function's bin width is
+ % `binwidth`; `delta` is undefined here, so any call with
+ % windowTimes errored.
+ nst{c}=nst{c}.resample(1/binwidth);
  HkAll(:,:,c) = histObj.computeHistory(nst{c}).dataToMatrix;
  end
+ % FIX (#20 pattern, as in PPAF.PPDecodeFilterLinear): the old code
+ % set only gammaNew(:,c) with the post-loop c == C (one shared gamma
+ % column reached only the last cell) and left gammaNew undefined
+ % when gamma already had one column per cell.
  if(size(gamma,2)==1 && C>1) % if more than 1 cell but only 1 gamma
- gammaNew(:,c) = gamma;
+ gammaNew = repmat(gamma,1,C);
+ else
+ gammaNew = gamma;
  end
  gamma = gammaNew;
 

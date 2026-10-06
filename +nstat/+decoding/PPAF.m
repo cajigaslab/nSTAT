@@ -348,7 +348,13 @@ classdef PPAF
  end
  if(isvector(beta) && ns==1 && numel(beta)==C)
  beta = reshape(beta,1,C);
- elseif(size(beta,1)==C && size(beta,2)==ns)
+ elseif(size(beta,1)==C && size(beta,2)==ns && ns~=C)
+ % FIX: beta is documented as ns x C (beta_c = beta(:,c)'). The old
+ % test `size(beta,1)==C && size(beta,2)==ns` also matched a
+ % correctly oriented ns x C beta whenever ns == C and transposed
+ % it, so a square problem decoded with beta' (cell c driven by
+ % beta(c,:) instead of beta(:,c)). Only re-orient when the input
+ % is unambiguously C x ns; identical for ns ~= C.
  beta = beta';
  end
 

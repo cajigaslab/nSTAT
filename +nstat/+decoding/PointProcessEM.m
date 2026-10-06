@@ -36,9 +36,21 @@ classdef PointProcessEM
 
  methods (Static)
  function C = PP_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter, EnableIkeda)
- %By default, all parameters are estimated. To empose diagonal
- %structure on the EM parameter results must pass in the
- %constraints element
+ %PP_EMCREATECONSTRAINTS constraint/option struct for PP_EM.
+ % C = PP_EMCreateConstraints(EstimateA, AhatDiag, QhatDiag,
+ % QhatIsotropic, Estimatex0, EstimatePx0, Px0Isotropic, mcIter,
+ % EnableIkeda); every argument is optional.
+ %
+ % Defaults (changed in fix/pp-em round 2):
+ % EstimateA=1, AhatDiag=0 (full A), QhatDiag=1, QhatIsotropic=0,
+ % Estimatex0=0, EstimatePx0=0, Px0Isotropic=0, mcIter=1000,
+ % EnableIkeda=0.
+ % x0 and Px0 are NOT estimated by default (previously 1 and 1): the
+ % Px0 M-step, Px0hat = (x0hat-x0)(x0hat-x0)'.*I, is a single-sample
+ % estimate that collapses to ~0 after one iteration, which drives
+ % -1/2*log(det(Px0)) and hence the E-step log-likelihood to +Inf
+ % and stops EM after ~2 iterations. Pass Estimatex0/EstimatePx0 = 1
+ % explicitly to restore the old behaviour.
  if(nargin<9 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -49,10 +61,10 @@ classdef PointProcessEM
  Px0Isotropic=0;
  end
  if(nargin<6 || isempty(EstimatePx0))
- EstimatePx0=1;
+ EstimatePx0=0; % FIX: default was 1 (degenerate Px0 collapse; see help)
  end
  if(nargin<5 || isempty(Estimatex0))
- Estimatex0=1;
+ Estimatex0=0; % FIX: default was 1 (see help)
  end
  if(nargin<4 || isempty(QhatIsotropic))
  QhatIsotropic=0;
@@ -99,8 +111,41 @@ classdef PointProcessEM
  % approximate the covariance term using Monte Carlo approximation
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- if(nargin<19 || isempty(PPEM_Constraints))
+ % FIX (G2): this function has 15 inputs, so the old test nargin<19 was
+ % always true and the caller's constraints were ALWAYS replaced by the
+ % PP_EMCreateConstraints() defaults: mcIter was always 1000, AhatDiag=1
+ % still produced a full SE.A (SEs for off-diagonal entries that were
+ % never estimated), EstimateA=0 still reported SE.A, and the missing
+ % information (which couples every block) was built for the wrong
+ % parameter vector. (Copied from PPLFP_ComputeParamStandardErrors,
+ % which has 19 inputs.) Use the defaults only when the argument is
+ % absent or empty.
+ if(nargin<15 || isempty(PPEM_Constraints))
  PPEM_Constraints=nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
+ end
+ % FIX (G2): with the constraints honoured, three non-default paths
+ % became reachable that used variables this routine never defined
+ % (only the always-default path had been exercised): EstimateA=0 left
+ % N undefined (it was set inside the A block), and QhatIsotropic=1 /
+ % Px0Isotropic=1 used an undefined dx. Define both up front, as
+ % PPLFP_ComputeParamStandardErrors does.
+ N=size(xKFinal,2);
+ dx=size(xKFinal,1);
+ % FIX (F12): a shared history-coefficient column (numWindows x 1,
+ % including a scalar for one window) with several cells is expanded
+ % to numWindows x numCells (gamma(w,c) = gamma_shared(w)), the rule
+ % PP_EM applies before it calls this routine (B9). The gamma
+ % information blocks and scores below are built per cell (numWindows
+ % rows each) and index gammahat(:,c), so a scalar gamma with C > 1
+ % counted one gamma parameter against C per-cell blocks (dimension
+ % error) and a numWindows x 1 column failed on gammahat(:,c), c > 1.
+ % After the expansion every cell has its own coefficients and SE.gamma
+ % / Pvals.gamma are numWindows x numCells, exactly as for the
+ % expanded input; the count matches PP_EM's IC count (one
+ % parameter per coefficient). An all-zero gamma is left as passed.
+ if(~isempty(windowTimes) && size(gammahat,2)==1 && size(dN,1)>1 ...
+ && size(gammahat,1)==numel(windowTimes)-1 && any(gammahat(:)~=0))
+ gammahat = repmat(gammahat,1,size(dN,1));
  end
 
  
@@ -150,7 +195,14 @@ classdef PointProcessEM
  IQComp=zeros(numel(diag(Qhat)),numel(diag(Qhat)));
  for l=1:n1
  for m=l
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): operator precedence. MATLAB evaluates *, / and \ left
+ % to right, so N/2*(Qhat)\e*e'/(Qhat) was ((N/2)*Qhat)\e*e'/Qhat =
+ % (2/N)*inv(Q)*e*e'*inv(Q), not the intended (N/2)*inv(Q)*e*e'*inv(Q)
+ % (information of a covariance entry, K/(2*q^2) on the diagonal): the
+ % Q / R information was N^2/4 too small (SEs ~K/2 too large) and the
+ % single-sample Px0 information (1/2)*inv(P)*e*e'*inv(P) 4x too large.
+ % Parenthesised at every such site of this routine.
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=diag(termMat);
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -161,7 +213,8 @@ classdef PointProcessEM
  IQComp=zeros(numel(Qhat),numel(Qhat));
  for l=1:n1
  for m=1:n2
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=reshape(termMat',1,numel(Qhat));
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -180,7 +233,8 @@ classdef PointProcessEM
  cnt=1;
  for l=1:n1
  for m=l
- termMat= 1/2*(Px0hat)\em(:,m)*el(:,l)'/(Px0hat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= 1/2*((Px0hat)\em(:,m)*el(:,l)'/(Px0hat));
  termvec=diag(termMat);
  ISComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -202,10 +256,9 @@ classdef PointProcessEM
 
  % Generate the Monte Carlo
  for k=1:K
- WuTemp=squeeze(WKFinal(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),McExp);
- xKDrawExp(:,k,:)=repmat(xKFinal(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PointProcessEM.mcStateDraws(xKFinal(:,k),WKFinal(:,:,k),McExp);
  end
  
  IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
@@ -222,9 +275,10 @@ classdef PointProcessEM
  
 % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -250,9 +304,10 @@ classdef PointProcessEM
  Wk = WKFinal(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -271,7 +326,16 @@ classdef PointProcessEM
  % effectively all-zero. Parallel structure to the poisson branch a
  % few lines above which does `HessianTerm(:,:,k) = -1/McExp*(...)`.
  % Surfaced by checkcode VUNUS finding 2026-06-22.
- HessianTerm(:,:,k) = ExplambdaDeltaXkXk + ExplambdaDeltaSqXkXkT - 2*ExplambdaDeltaCubeXkXkT;
+ % FIX: the expression itself had the wrong sign/form (same
+ % defect as PP_MStep's binomial beta step). For
+ % log L = sum dN*log(p) - p, p = logistic(eta), the beta
+ % Hessian is -p(1-p)(1+dN-2p)xx' =
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx', the form the mu and gamma
+ % information blocks below already use. The old
+ % (E[p]+E[p^2]-2E[p^3])xx' made IBetaComp = -sum(Hessian)
+ % negative definite, so binomial beta SEs were meaningless
+ % (nearestSPD then masked the sign).
+ HessianTerm(:,:,k) = -(dN(c,k)+1)*ExplambdaDeltaXkXk + (dN(c,k)+3)*ExplambdaDeltaSqXkXkT - 2*ExplambdaDeltaCubeXkXkT;
  
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;
@@ -290,9 +354,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -310,9 +375,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -326,8 +392,13 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: the cubic coefficient was -3. For
+ % log L = sum dN*log(p) - p, p = logistic(eta), the mu score is
+ % (dN-p)(1-p) and d/dmu of it is -p(1-p)(1+dN-2p) =
+ % -(dN+1)p + (dN+3)p^2 - 2p^3 (as in the M-step's mu update and
+ % the beta/gamma blocks); -3*E[p^3] overstated the information.
  HessianTerm = HessianTerm -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -HessianTerm;
@@ -339,9 +410,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -359,9 +431,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -375,8 +448,9 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: cubic coefficient -3 -> -2 (see the serial branch above).
  HessianTerm(k) = -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -sum(HessianTerm);
@@ -395,9 +469,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -415,9 +490,10 @@ classdef PointProcessEM
  HessianTerm = zeros(size(HkAll,2),size(HkAll,2));
  for k=1:K
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -431,9 +507,14 @@ classdef PointProcessEM
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
+ % FIX: was `...*Hk(k,:)'*Hk(:,k)` -- Hk(:,k) is column k of the
+ % (numTimeSteps x numWindows) history matrix, not the time-k row,
+ % so this always errored ("Incorrect dimensions for matrix
+ % multiplication") for binomial fits with history. Use the outer
+ % product of the time-k row, as the poisson branch above does.
  HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
  +ExplambdaDeltaSquare*(dN(c,k)+3)...
- -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
+ -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(k,:);
  end
  end
  startInd=size(HkAll,2)*(c-1)+1; endInd = size(HkAll,2)*c;
@@ -448,9 +529,10 @@ classdef PointProcessEM
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -469,9 +551,10 @@ classdef PointProcessEM
 
  for k=1:K
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -521,6 +604,11 @@ classdef PointProcessEM
  if(numel(gammahat)==1)
  if(gammahat==0)
  n7=0;
+ else
+ % FIX (F2): a single nonzero history coefficient (one cell, one
+ % window) left n7 unassigned ("Unrecognized function or
+ % variable"); it is one parameter, as in the EM's own IC count.
+ n7=1;
  end
  else
  n7=size(IGammaComp,1);
@@ -557,16 +645,15 @@ classdef PointProcessEM
 
  % Generate the Monte Carlo samples for the unobserved data
  for n=1:N
- WuTemp=(WKFinal(:,:,n));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- xKDraw(:,n,:)=repmat(xKFinal(:,n),[1 Mc])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDraw(:,n,:)=nstat.decoding.PointProcessEM.mcStateDraws(xKFinal(:,n),WKFinal(:,:,n),Mc);
  end
 
  if(PPEM_Constraints.EstimatePx0|| PPEM_Constraints.Estimatex0)
- [chol_m,p]=chol(Px0hat);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ x0Draw=nstat.decoding.PointProcessEM.mcStateDraws(x0hat,Px0hat,Mc);
  else
  x0Draw=repmat(x0hat, [1 Mc]);
 
@@ -838,12 +925,18 @@ classdef PointProcessEM
  end
  
  SEMu = SEMuTerms;
- SEBeta=reshape(SEBetaTerms,size(betahat,2),size(betahat,1))';
+ % FIX: SEBetaTerms is ordered cell by cell (IBetaComp/ScoreBetaMc
+ % blocks are dx entries per cell), i.e. column-major for a dx x C
+ % matrix. reshape(...,C,dx)' scrambled the entries whenever dx>1
+ % and C>1 (for dx == C it returned the transpose). Same for gamma.
+ SEBeta=reshape(SEBetaTerms,size(betahat,1),size(betahat,2));
 
  SE.mu = SEMu;
  SE.beta = SEBeta;
  if((numel(gammahat)==1 && gammahat~=0) || numel(gammahat)>1)
- SEGamma=reshape(SEGammaTerms,size(gammahat,2),size(gammahat,1))';
+ % FIX: cell-by-cell ordering -> reshape to numWindows x C (was
+ % reshape(...,C,numWindows)', which scrambled the entries).
+ SEGamma=reshape(SEGammaTerms,size(gammahat,1),size(gammahat,2));
  SE.gamma = SEGamma;
  end
  % Compute parameter p-values
@@ -971,9 +1064,37 @@ classdef PointProcessEM
 
  end
  function [xKFinal,WKFinal,Ahat, Qhat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals,nIter]=PP_EM(dN, Ahat0, Qhat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,PPEM_Constraints,MstepMethod)
+ %PP_EM EM for a linear-Gaussian state observed through point processes.
+ % [xKFinal,WKFinal,Ahat,Qhat,muhat,betahat,gammahat,x0hat,Px0hat,IC,SE,Pvals,nIter]
+ % = PP_EM(dN, Ahat0, Qhat0, mu, beta, fitType, delta, gamma,
+ % windowTimes, x0, Px0, PPEM_Constraints, MstepMethod)
+ %
+ % Defaults: fitType 'poisson', delta 0.001 s, no history (gamma=[] or
+ % 0, windowTimes=[]), x0 = 0, Px0 = 1e-9*I,
+ % PPEM_Constraints = PP_EMCreateConstraints() (x0/Px0 not estimated),
+ % MstepMethod = 'NewtonRaphson'.
+ %
+ % MstepMethod default changed from 'GLM' to 'NewtonRaphson' (fix/pp-em
+ % round 2). The NewtonRaphson M-step maximises the expected
+ % complete-data log-likelihood by Monte Carlo over the smoothed state
+ % posterior (a proper EM step). The 'GLM' M-step is a plug-in
+ % approximation: it regresses dN on the smoothed MEANS x_K and
+ % ignores W_K; because the means have shrunk variance it inflates
+ % beta, the next E-step can diverge, and EM stops early. 'GLM' is
+ % still available by passing it explicitly.
+ %
+ % SE, Pvals (and nIter, which follows them) are computed only when
+ % more than 10 outputs are requested.
+ %
+ % Note (G4): EM runs on an internally whitened state x_s = Tq*x,
+ % Tq = inv(chol(Qhat0,'lower')). The "logll:" value printed at each
+ % iteration is the expected complete-data log-likelihood of that
+ % SCALED system; IC.llcomp is the same quantity on the ORIGINAL scale
+ % (the best printed value + (K+1)*log|det Tq|, K = number of time
+ % bins), and IC.llobs / AIC / AICc / BIC are on the original scale too.
  numStates = size(Ahat0,1);
  if(nargin<13 || isempty(MstepMethod))
- MstepMethod='GLM'; %or NewtonRaphson 
+ MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
  if(nargin<12 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
@@ -986,11 +1107,34 @@ classdef PointProcessEM
  end
  
  if(nargin<9 || isempty(windowTimes))
- if(isempty(gamma))
+ % FIX: mirror PPLFP_EM FIX (#98) -- a scalar gamma==0 means "no
+ % history", same as isempty(gamma). The previous guard only checked
+ % isempty(), so gamma=0 + windowTimes=[] inferred 2 history windows
+ % from length(scalar)+1 and built a (N, 2, numCells) HkAll that the
+ % scalar-gamma broadcast in PPDecode_updateLinear cannot multiply.
+ if(nargin<8 || isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
- % numWindows =length(gamma0)+1; 
- windowTimes = 0:delta:(length(gamma)+1)*delta;
+ % FIX: one default history window per history coefficient. The
+ % old rule 0:delta:(length(gamma)+1)*delta has length(gamma)+2
+ % edges, i.e. length(gamma)+1 windows for length(gamma)
+ % coefficients, so every default-window call failed with
+ % MATLAB:innerdim (and length() of a numWindows x numCells
+ % matrix is max(numWindows,numCells)). gamma is
+ % numWindows x numCells (or a shared numWindows x 1 column; a
+ % scalar is one shared window); a row vector whose length is not
+ % the number of cells is the shared coefficient list, so it is
+ % made a column. Edges: 0:delta:numWindows*delta (numWindows+1
+ % edges; window w = (w-1, w] bins before the current bin).
+ if(isrow(gamma) && numel(gamma)~=size(dN,1))
+ gamma = gamma(:);
+ end
+ if(isempty(delta))
+ deltaW = .001;
+ else
+ deltaW = delta;
+ end
+ windowTimes = 0:deltaW:size(gamma,1)*deltaW;
  end
  end
  if(nargin<8)
@@ -1003,23 +1147,50 @@ classdef PointProcessEM
  fitType = 'poisson';
  end
  
+ % FIX: a shared history-coefficient column (numWindows x 1,
+ % incl. a scalar for one window) applies to every cell; expand it to
+ % numWindows x numCells (gamma(w,c) = gamma_shared(w)) as
+ % PPAF.PPDecodeFilterLinear does. The E-step, the M-step
+ % (gammahat(:,c)) and the SEs all index gamma per cell, so a shared
+ % column failed with MATLAB:innerdim / index errors.
+ % An all-zero gamma is left as passed: gamma = 0 means "no history
+ % coefficients" downstream (M-step `gammahat==0`, the IC parameter
+ % count and the SE gamma block test numel(gammahat)), so expanding
+ % it would change those paths.
+ if(~isempty(windowTimes) && ~isempty(gamma) && size(gamma,2)==1 ...
+ && size(dN,1)>1 && size(gamma,1)==numel(windowTimes)-1 ...
+ && any(gamma(:)~=0))
+ gamma = repmat(gamma,1,size(dN,1));
+ end
  minTime=0;
  maxTime=(size(dN,2)-1)*delta;
  K=size(dN,1);
  if(~isempty(windowTimes))
  histObj = History(windowTimes,minTime,maxTime);
  for k=1:K
- nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta);
+ % FIX: build the spike train on the delta time base (binwidth =
+ % delta). The default binwidth is 1 ms, so for delta ~= 0.001
+ % computeHistory returned a 1 kHz history matrix (2N-1 rows for
+ % delta = 2 ms) that PP_EStep then indexed as if it were on the
+ % delta grid. Identical object for delta = 0.001 (the default).
+ nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta, '', delta);
  nst{k}.setMinTime(minTime);
  nst{k}.setMaxTime(maxTime);
 % HkAll{k} = histObj.computeHistory(nst{k}).dataToMatrix;
  HkAll(:,:,k) = histObj.computeHistory(nst{k}).dataToMatrix;
  end
  else
- for k=1:K
-% HkAll{k} = 0;
- HkAll(:,:,k) = 0;
- end
+ % FIX: same defect as PPLFP_EM FIX (#98). The original
+ % `for k=1:K, HkAll(:,:,k) = 0; end` loop sized HkAll as
+ % (1, 1, numCells). PP_EStep permutes it [2 3 1] to
+ % (1, numCells, 1) -- a single time slice -- so
+ % PPAF.PPDecode_updateLinear's HkAll(:,:,time_index) went out of
+ % bounds at time_index=2 ("Index in position 3 exceeds array
+ % bounds") and PP_EM could never run without history. Size HkAll
+ % like the with-history branch, (numTimeSteps, 1, numCells), the
+ % same layout PPAF.PPDecodeFilterLinear builds for its no-history
+ % case. gamma=0 still zeroes the history contribution.
+ HkAll = zeros(size(dN,2), 1, K);
  gamma=0;
  end
 
@@ -1046,7 +1217,17 @@ classdef PointProcessEM
  scaledSystem=1;
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
+ % FIX (G1): whiten with the LOWER Cholesky factor. Tq = inv(L),
+ % L = chol(Q0,'lower') (Q0 = L*L'), gives Tq*Q0*Tq' = I. The upper
+ % factor R (Q0 = R'*R) gave Tq*Q0*Tq' = inv(R)*R'*R*inv(R)' ~= I for
+ % a non-diagonal Q0, so the default QhatDiag=1 M-step was applied to a
+ % scaled Q that the starting point did not satisfy: the first M-step
+ % lowered the likelihood and EM returned the initial parameters (e.g.
+ % Q0 = [.01 .006; .006 .02]: logll -1332.92 -> -1345.34, stop). For a
+ % diagonal Q0, L = R' = R: unchanged. Any invertible Tq is a valid
+ % change of variables, and |det L| = |det R|, so F8's (Tq\S)/Tq' and
+ % F10's log|det Tq| Jacobian are unaffected.
+ Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
  Ahat{1}= Tq*Ahat{1}/Tq;
  Qhat{1}= Tq*Qhat{1}*Tq';
  x0hat{1} = Tq*x0;
@@ -1075,9 +1256,25 @@ classdef PointProcessEM
 
  [x_K{storeInd},W_K{storeInd},ll(cnt),ExpectationSums{storeInd}]=...
  nstat.decoding.PointProcessEM.PP_EStep(Ahat{storeInd},Qhat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
- 
+
+ % FIX: stop before the M-step when the E-step log-likelihood is
+ % not a finite real number. A degenerate iterate (e.g. Px0hat
+ % collapsing to 0 under EstimatePx0=1, or a diverged filter)
+ % gives logll = +/-Inf, NaN, or a complex value (log of a
+ % non-positive determinant) with NaN/non-PD smoothed states; the
+ % old loop fed those into PP_MStep, which then crashed (chol in
+ % the NewtonRaphson MC draws, an undefined `A` inside Analysis'
+ % bnlrCG) or, because NaN comparisons are false, slipped past the
+ % likelihood stopping rule. The best valid iterate is returned
+ % below, exactly as for the existing "likelihood decreased" stop.
+ if(~isfinite(ll(cnt)) || imag(ll(cnt))~=0)
+ display([' EM stopped at iteration# ' num2str(cnt) ' b/c the E-step log-likelihood was not a finite real number (' num2str(ll(cnt)) ')']);
+ negLL=1;
+ break;
+ end
+
  [Ahat{storeIndP1}, Qhat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
- = nstat.decoding.PointProcessEM.PP_MStep(dN,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod);
+ = nstat.decoding.PointProcessEM.PP_MStep(dN,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod,delta);
  
  if(IkedaAcc==1)
  disp(['****Ikeda Acceleration Step****']);
@@ -1138,7 +1335,7 @@ classdef PointProcessEM
  nstat.decoding.PointProcessEM.PP_EStep(Ahat{storeInd},Qhat{storeInd},dNNew, muhat{storeInd}, betahat{storeInd},fitType,gammahat{storeInd},HkAll, x0, Px0);
 
  [AhatNew, QhatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new]...
- = nstat.decoding.PointProcessEM.PP_MStep(dNNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod);
+ = nstat.decoding.PointProcessEM.PP_MStep(dNNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPEM_Constraints,MstepMethod,delta);
  
  Ahat{storeIndP1} = 2*Ahat{storeIndP1}-AhatNew;
  Qhat{storeIndP1} = 2*Qhat{storeIndP1}-QhatNew;
@@ -1225,7 +1422,14 @@ classdef PointProcessEM
  end
  disp('--------------------------------------------------------------------------------------------------------');
 
- maxLLIndex = find(ll == max(ll),1,'first');
+ % FIX: choose the best FINITE, REAL log-likelihood. max() skips
+ % NaN but not +Inf (a degenerate Px0hat -> 0 iterate), and on a
+ % complex array it compares magnitudes, so a degenerate iterate
+ % could be returned as the "best" one. Identical to the old
+ % selection whenever every ll is a finite real number.
+ llSel = ll; llSel(~isfinite(llSel) | imag(llSel)~=0) = NaN;
+ llSel = real(llSel);
+ maxLLIndex = find(llSel == max(llSel),1,'first');
  maxLLIndMod = mod(maxLLIndex-1,numToKeep)+1;
  if(maxLLIndex==1)
 % maxLLIndex=cnt-1;
@@ -1252,7 +1456,8 @@ classdef PointProcessEM
  Px0hat=Px0hat{maxLLIndMod};
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat))/(chol(Q0));
+ % FIX (G1): same lower factor as at the start (see there).
+ Tq = eye(size(Qhat))/(chol(Q0,'lower'));
  Ahat=Tq\Ahat*Tq;
  Qhat=(Tq\Qhat)/Tq';
  xKFinal = Tq\xKFinal;
@@ -1269,8 +1474,20 @@ classdef PointProcessEM
  ll = ll(maxLLIndex);
  ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
  if(nargout>10)
+ % FIX (F8): the expectation sums come from the E-step of the
+ % internally SCALED system (x_s = Tq*x, Tq = inv(chol(Q0,'lower'))), while
+ % xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat and betahat passed
+ % here are back on the ORIGINAL scale. PP_ComputeParamStandardErrors
+ % reads ES.Sxkm1xkm1 (A information Q^-1 (x) Sxkm1xkm1) with the
+ % unscaled Qhat, so the SEs mixed scales whenever Q0 ~= I (SE.A
+ % off by the Tq factor). Transform the sum it reads back to the
+ % original scale: Sxkm1xkm1 = Tq \ Sxkm1xkm1_s / Tq'.
+ ESforSE = ExpectationSumsFinal;
+ if(scaledSystem==1)
+ ESforSE.Sxkm1xkm1 = (Tq\ESforSE.Sxkm1xkm1)/Tq';
+ end
  [SE, Pvals]=nstat.decoding.PointProcessEM.PP_ComputeParamStandardErrors(dN,...
- xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat, ExpectationSumsFinal,...
+ xKFinal, WKFinal, Ahat, Qhat, x0hat, Px0hat, ESforSE,...
  fitType, muhat, betahat, gammahat, windowTimes, HkAll,...
  PPEM_Constraints);
  end
@@ -1321,7 +1538,25 @@ classdef PointProcessEM
  K = size(xKFinal,2); 
  Dx = size(Ahat,2);
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
- llobs = ll + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
+ % FIX (F10): ll (the best E-step's expected complete-data
+ % log-likelihood) and sumXkTerms come from the internally SCALED
+ % system x_s = Tq*x (Tq = inv(chol(Q0,'lower'))), while Qhat and Px0hat
+ % have been mapped back to the original scale, so llobs (= ll minus
+ % the expected state log-density) mixed scales and AIC/BIC depended
+ % on the units of x (llobs 18680 -> 1342 when the state was rescaled
+ % by 3). Map both to the original scale first:
+ % S = Tq \ S_s / Tq', and each of the K+1 state log-densities
+ % (x_0 .. x_K) gains log|det Tq|, so ll = ll_s + (K+1)*log|det Tq|.
+ % llobs is then E[log p(dN | x)] (the E-step's sumPPll), invariant
+ % to the state's units, and IC.llcomp is the expected complete-data
+ % log-likelihood on the original scale (what PP_EStep returns when
+ % run in the original coordinates at the returned estimates).
+ llcomp = ll;
+ if(scaledSystem==1)
+ sumXkTerms = (Tq\sumXkTerms)/Tq';
+ llcomp = ll + (K+1)*log(abs(det(Tq)));
+ end
+ llobs = llcomp + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
  + 1/2*trace(Qhat\sumXkTerms)...
  + Dx/2*log(2*pi)+1/2*log(det(Px0hat))...
  + 1/2*Dx;
@@ -1332,7 +1567,7 @@ classdef PointProcessEM
  IC.AICc= AICc;
  IC.BIC = BIC;
  IC.llobs = llobs;
- IC.llcomp=ll;
+ IC.llcomp=llcomp;
  
  
  end
@@ -1711,7 +1946,15 @@ classdef PointProcessEM
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk= Histtermperm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: orient Hk as (numWindows x numCells) by checking its
+ % COLUMNS. The slice of permute(HkAll,[2 3 1]) is already
+ % numWindows x numCells; the old test `size(Hk,1)==numCells`
+ % also fired when numWindows == numCells and transposed it, so
+ % diag(gammaC'*Hk) paired gamma(w,c) with Hk(c,w) and logll was
+ % wrong for square history (the filter, PPDecode_updateLinear,
+ % already checks columns and was unaffected). Identical for
+ % numWindows ~= numCells.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -1737,7 +1980,8 @@ classdef PointProcessEM
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk= Histtermperm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: column-based orientation check; see the poisson branch.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -2040,9 +2284,20 @@ classdef PointProcessEM
 % ExpectationSums.gamma = gamma;
 % 
 % end
- function [Ahat, Qhat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PP_MStep(dN, x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPEM_Constraints,MstepMethod)
+ function [Ahat, Qhat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PP_MStep(dN, x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPEM_Constraints,MstepMethod,delta)
+ %PP_MSTEP M-step of PP_EM.
+ % MstepMethod: 'NewtonRaphson' (default since fix/pp-em round 2; was
+ % 'GLM') or 'GLM' (plug-in fit on the smoothed means; see PP_EM help).
+ % delta: seconds per bin (default 0.001); sets the GLM M-step's time
+ % base.
+ % FIX: optional 15th input `delta` (seconds per bin, default 0.001)
+ % so the GLM M-step builds its Trial on the same time base as PP_EM
+ % (see the GLM block below). PP_EM now passes its delta.
+ if(nargin<15 || isempty(delta))
+ delta = .001;
+ end
  if(nargin<14 || isempty(MstepMethod))
- MstepMethod = 'GLM'; %GLM or NewtonRaphson
+ MstepMethod = 'NewtonRaphson'; % FIX: default was 'GLM' (see PP_EM help)
  end
  if(nargin<13 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
@@ -2107,8 +2362,20 @@ classdef PointProcessEM
  
  % Estimate params via GLM
  if(strcmp(MstepMethod,'GLM'))
- clear c; close all;
- time=(0:length(x_K)-1)*.001;
+ % FIX: removed `close all`. PP_EM creates its progress figure `h`
+ % after the first M-step; on iteration 2 this `close all` deleted
+ % it and PP_EM's `figure(h)` then threw "Argument must be a Figure
+ % object or a positive integer", so a GLM M-step EM could never
+ % get past iteration 2. RunAnalysisForAllNeurons is called with
+ % makePlot=0 below, so there is nothing for this step to close --
+ % it only destroyed the caller's (and the user's) figures.
+ clear c;
+ % FIX: the time grid and the Trial sample rate were hardcoded
+ % to 1 ms (`(0:length(x_K)-1)*.001`, `sampleRate = 1000`). For
+ % delta ~= 0.001 the history windows (seconds) then covered the
+ % wrong number of bins and no longer matched PP_EM's HkAll, which
+ % the E-step uses. Use delta. Identical for delta = 0.001.
+ time=(0:K-1)*delta;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);
  labels2{1} = 'vel';
@@ -2121,12 +2388,12 @@ classdef PointProcessEM
  {'constant'});
  for i=1:size(dN,1)
  spikeTimes = time(find(dN(i,:)==1));
- nst{i} = nspikeTrain(spikeTimes);
+ nst{i} = nspikeTrain(spikeTimes, '', delta);
  end
  nspikeColl = nstColl(nst);
  cc = CovColl({vel,baseline});
  trial = Trial(nspikeColl,cc);
- selfHist = windowTimes ; NeighborHist = []; sampleRate = 1000; 
+ selfHist = windowTimes ; NeighborHist = []; sampleRate = 1/delta; 
  clear c;
  
  
@@ -2138,21 +2405,103 @@ classdef PointProcessEM
  end
  c{1}.setName('Baseline');
  cfgColl= ConfigColl(c);
+ % FIX: `warning('OFF')` switched off every warning globally and never
+ % restored it, so after one GLM M-step the CALLER's warnings (incl.
+ % verifyWarning-based tests) stayed silenced. Keep the original
+ % suppression during the fit but restore the caller's warning state
+ % when this function returns.
+ callerWarnState = warning;
+ restoreCallerWarnings = onCleanup(@() warning(callerWarnState)); %#ok<NASGU>
  warning('OFF');
 
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);
  temp = FitResSummary(results);
- tempCoeffs = squeeze(temp.getCoeffs);
- if(gammahat==0)
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
+ % (coefficients are read by label below)
+ % FIX: the GLM estimates were written to the INPUT variables
+ % (betahat, muhat, gammahat) while this function returns
+ % betahat_new / muhat_new / gammahat_new, which were set to the
+ % inputs above and never updated -- so the GLM M-step silently
+ % returned mu, beta and gamma unchanged and PP_EM never estimated
+ % the CIF parameters. Write the fit into the returned variables.
+ % A coefficient that FitResSummary reports as NaN (dropped by its
+ % se<100 filter in computePlotParams, i.e. not identifiable from
+ % these data) keeps its previous value instead of propagating NaN
+ % into the next E-step; history coefficients follow the same
+ % keep-previous rule below (by window label).
+ % FIX (F3): map 'constant' and 'v1'..'vdx' BY LABEL. The old
+ % positional read (mu = row 1, beta = rows 2:dx+1 of getCoeffs)
+ % broke when FitResSummary dropped a label that is NaN (se>=100) for
+ % every cell (index error / wrong rows), mis-mapped for dx >= 10
+ % (labels sort as 'v1','v10','v2',...), and failed for a single cell
+ % (getCoeffs then returns a 1 x nLabels row). A label that is absent,
+ % or NaN for a cell, keeps the previous value (the R4a rule).
+ [coeffMat, coeffLabels] = temp.getCoeffs;
+ if(isempty(coeffLabels))
+ coeffLabCol = {};
  else
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
- histTemp = squeeze(temp.getHistCoeffs);
- histTemp = reshape(histTemp, [length(windowTimes)-1 numCells]);
- histTemp(isnan(histTemp))=0;
- gammahat=histTemp;
+ coeffLabCol = coeffLabels(:,1);
+ end
+ coeffMat = reshape(coeffMat, numel(coeffLabCol), []); % nLabels x numCells
+ muFit = muhat_new(:);
+ betaFit = betahat_new(1:dx,:);
+ j = find(strcmp(coeffLabCol, 'constant'), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:)';
+ muFit(~isnan(v)) = v(~isnan(v));
+ end
+ for i=1:dx
+ j = find(strcmp(coeffLabCol, labels{i}), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:);
+ betaFit(i,~isnan(v)) = v(~isnan(v));
+ end
+ end
+ betahat_new(1:dx,:) = betaFit;
+ muhat_new = muFit;
+ if(gammahat==0)
+ % no history terms in this fit; gammahat_new stays as input
+ else
+ % FIX (R4a): map the fitted history coefficients to the windows BY
+ % LABEL. getHistCoeffs only returns labels that are non-NaN for at
+ % least one cell (FitResSummary NaNs coefficients with se>=100), in
+ % sorted label order, so `reshape(histTemp,[nWindows numCells])`
+ % errored whenever a whole window was unestimable for every cell (and
+ % relied on sorted labels matching window order). The window labels
+ % come from the same History object the Trial uses. A window/cell
+ % whose coefficient is missing or NaN keeps its previous gamma (the
+ % rule used for mu/beta above; this replaces the old NaN -> 0).
+ nWin = length(windowTimes)-1;
+ [histMat, histLabels] = temp.getHistCoeffs;
+ winCov = History(windowTimes, min(time), max(time)).computeHistory(nst{1}).getCov(1);
+ winLabels = winCov.dataLabels;
+ gPrev = gammahat;
+ if(isscalar(gPrev))
+ gPrev = gPrev*ones(nWin, numCells);
+ elseif(size(gPrev,2)==1)
+ gPrev = repmat(gPrev, 1, numCells);
+ end
+ histTemp = gPrev;
+ % FIX (F1): getHistCoeffs returns labels = cell(0,0) when NO window is
+ % estimable for any cell; histLabels(:,1) then threw
+ % MATLAB:badsubscript. Treat that as "no fitted label" (every window
+ % keeps its previous gamma).
+ if(isempty(histLabels))
+ histLabCol = {};
+ else
+ histLabCol = histLabels(:,1);
+ end
+ for w=1:nWin
+ j = find(strcmp(histLabCol, winLabels{w}), 1);
+ if(~isempty(j))
+ for c=1:numCells
+ v = histMat(j,1,c);
+ if(~isnan(v))
+ histTemp(w,c) = v;
+ end
+ end
+ end
+ end
+ gammahat_new=histTemp;
  end
  else
  
@@ -2165,10 +2514,9 @@ classdef PointProcessEM
 
  % Generate the Monte Carlo samples
  for k=1:K
- WuTemp=(W_K(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(x_K,1),McExp);
- xKDrawExp(:,k,:)=repmat(x_K(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PointProcessEM.mcStateDraws(x_K(:,k),W_K(:,:,k),McExp);
  end
  
  % Stimulus Coefficients
@@ -2189,15 +2537,22 @@ classdef PointProcessEM
  if(strcmp(fitType,'poisson'))
  HessianTerm = zeros(size(x_K,1),size(x_K,1));
  GradTerm = zeros(size(x_K,1),1);
- xkPerm = permute(xKDraw,[2 3 1]);
+ % FIX: was permute(xKDraw,[2 3 1]) -- `xKDraw` is undefined in
+ % PP_MStep (the MC draws are xKDrawExp, dx x K x McExp), so the
+ % serial (no parallel pool) NewtonRaphson M-step always errored,
+ % and [2 3 1] would have sliced a K x McExp matrix instead of
+ % the dx x McExp draws used below. Use the same permutation as
+ % every other branch here and PPLFP_MStep: dx x McExp x K.
+ xkPerm = permute(xKDrawExp,[1 3 2]);
  for k=1:K
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2218,15 +2573,18 @@ classdef PointProcessEM
  elseif(strcmp(fitType,'binomial'))
  HessianTerm = zeros(size(x_K,1),size(x_K,1));
  GradTerm = zeros(size(x_K,1),1);
- xkPerm = permute(xKDraw,[1 3 2]);
+ % FIX: was permute(xKDraw,...) -- undefined variable; see the
+ % poisson branch above.
+ xkPerm = permute(xKDrawExp,[1 3 2]);
  for k=1:K
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2243,7 +2601,18 @@ classdef PointProcessEM
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  GradTerm = GradTerm+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: the beta Hessian was
+ % +E[p]xx' + E[p^2]xx' - 2E[p^3]xx' (positive definite), so the
+ % Newton step beta - H\g moved DOWNHILL and the binomial NR
+ % M-step diverged (scaled beta 0.1 -> 200 in one M-step, then
+ % non-PD smoothed covariances and NaN logll). For
+ % log L = sum dN*log(p) - p, p = logistic(eta), whose gradient
+ % (dN-p)(1-p)x is the GradTerm above, the Hessian is
+ % -p(1-p)(1+dN-2p)xx' = (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' --
+ % the same expression the mu and gamma steps below already use.
+ % Verified against a central finite difference of GradTerm
+ % (max rel. error 3.5e-11; old form: wrong sign and magnitude).
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
 
@@ -2288,9 +2657,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2319,10 +2689,15 @@ classdef PointProcessEM
  Hk = (HkAll(:,:,c));
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
- xk=xKDrawExp(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: was xKDrawExp(:,:,k) -- the k-th MC draw of the whole
+ % trajectory (dx x K), which errors for k > McExp. The draws
+ % for time k are xkPerm(:,:,k) (dx x McExp), as in the poisson
+ % branch above.
+ xk=xkPerm(:,:,k);
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2338,12 +2713,14 @@ classdef PointProcessEM
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
+ % FIX: same wrong-sign binomial beta Hessian as the serial
+ % branch above; use (-(dN+1)p + (dN+3)p^2 - 2p^3)xx'.
  if(k==1)
  GradTerm(:,c) = dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  else
  GradTerm(:,c) = GradTerm(:,c)+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=HessianTerm(:,:,c)+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=HessianTerm(:,:,c)-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  end
  end
 
@@ -2390,9 +2767,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2418,9 +2796,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2479,9 +2858,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2510,9 +2890,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2582,9 +2963,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -2610,9 +2992,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -2677,9 +3060,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms);
@@ -2699,9 +3083,10 @@ classdef PointProcessEM
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms)./(1+exp(terms));
@@ -2735,7 +3120,11 @@ classdef PointProcessEM
  gammaC=gammahat_newTemp;
  iter=iter+1;
  end
- gamma_new(:,c) =gammaC;
+ % FIX: was `gamma_new(:,c) = gammaC;` -- a variable that is
+ % never returned, so the parallel-pool branch discarded the
+ % history-coefficient update (the serial branch above writes
+ % gammahat_new(:,c)).
+ gammahat_new(:,c) =gammaC;
  % fprintf('\n'); 
  end 
  end
@@ -3151,5 +3540,28 @@ classdef PointProcessEM
 % % muhat = muhat_new;
 % end
 % end
+ end
+
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?matlab.unittest.TestCase})
+ function X = mcStateDraws(m, W, M)
+ %MCSTATEDRAWS M Monte Carlo draws from N(m, W), returned as dx x M.
+ % X = mcStateDraws(m, W, M) with m (dx x 1), W (dx x dx).
+ % FIX (F9): every Monte Carlo draw in this class was made as
+ % [chol_m,p] = chol(W); z = normrnd(0,1,dx,M); x = m + chol_m*z.
+ % MATLAB's chol returns the UPPER factor R with R'*R = W, so R*z
+ % has covariance R*R', which equals W only for a diagonal W (or
+ % dx == 1): the draws had the wrong covariance whenever the
+ % smoothed state covariance was not diagonal. The draw is
+ % x = m + R'*z (cov R'*R = W). Kept as before: z is drawn with
+ % normrnd(0,1,dx,M) (same random stream; diagonal-W draws are
+ % bit-identical), the factor comes from the two-output chol of the
+ % same (upper) triangle, and a W that is not positive definite
+ % still errors (partial factor -> dimension mismatch) rather than
+ % being silently repaired. Access is limited to this class and
+ % unit tests; it is not part of the public API.
+ [R,~] = chol(W);
+ z = normrnd(0,1,numel(m),M);
+ X = repmat(m(:),[1 M]) + R'*z;
+ end
  end
 end

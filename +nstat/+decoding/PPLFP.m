@@ -75,7 +75,11 @@ classdef PPLFP
  % HkAll{c} = histObj.computeHistory(nst{c}).dataToMatrix;
  end
  if(size(gamma,2)==1 && numCells>1) % if more than 1 cell but only 1 gamma
- gammaNew(:,c) = gamma;
+ % FIX (#20 pattern, as in PPAF.PPDecodeFilterLinear): was
+ % gammaNew(:,c) = gamma with the post-loop c == numCells, so a
+ % shared gamma column reached only the last cell and every other
+ % cell decoded with zero history coefficients.
+ gammaNew = repmat(gamma,1,numCells);
  else
  gammaNew=gamma;
  end
@@ -243,7 +247,11 @@ classdef PPLFP
  HkAll(:,:,c) = histObj.computeHistory(nst{c}).dataToMatrix;
  end
  if(size(gamma,2)==1 && numCells>1) % if more than 1 cell but only 1 gamma
- gammaNew(:,c) = gamma;
+ % FIX (#20 pattern, as in PPAF.PPDecodeFilterLinear): was
+ % gammaNew(:,c) = gamma with the post-loop c == numCells, so a
+ % shared gamma column reached only the last cell and every other
+ % cell decoded with zero history coefficients.
+ gammaNew = repmat(gamma,1,numCells);
  else
  gammaNew = gamma;
  end
@@ -331,7 +339,14 @@ classdef PPLFP
  % cells. The original slice was correct; #90's "fix" was made at the
  % wrong end of the call chain and is reverted.
  Histterm = HkAll(:,:,time_index);
- if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
+ % FIX: make Histterm (numCells x numWindows). The slice of the
+ % permuted HkAll is (numWindows x numCells); the old test
+ % size(Histterm,1)~=numCells did not transpose it when
+ % numWindows == numCells, so diag(gamma'*Histterm') paired
+ % gamma(w,c) with H(c,w) -- square history gave different math.
+ % Transposing whenever the COLUMNS are the cells is identical for
+ % numWindows ~= numCells.
+ if(size(Histterm,2)==numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
 
@@ -356,7 +371,8 @@ classdef PPLFP
  elseif(strcmp(fitType,'poisson'))
  % NB (#95 — reverted #90 here): see the binomial branch above.
  Histterm = HkAll(:,:,time_index);
- if(size(Histterm,1)~=numCells) %make sure Histterm has proper orientation
+ % FIX: column-based orientation check; see the binomial branch.
+ if(size(Histterm,2)==numCells) %make sure Histterm has proper orientation
  Histterm = Histterm';
  end
 
@@ -393,9 +409,22 @@ classdef PPLFP
 
  end
  function C = PPLFP_EMCreateConstraints(EstimateA, AhatDiag,QhatDiag,QhatIsotropic,RhatDiag,RhatIsotropic,Estimatex0,EstimatePx0, Px0Isotropic,mcIter,EnableIkeda)
- %By default, all parameters are estimated. To empose diagonal
- %structure on the EM parameter results must pass in the
- %constraints element
+ %PPLFP_EMCREATECONSTRAINTS constraint/option struct for PPLFP_EM.
+ % C = PPLFP_EMCreateConstraints(EstimateA, AhatDiag, QhatDiag,
+ % QhatIsotropic, RhatDiag, RhatIsotropic, Estimatex0, EstimatePx0,
+ % Px0Isotropic, mcIter, EnableIkeda); every argument is optional.
+ %
+ % Defaults (changed in fix/pp-em round 3, matching PP_EMCreateConstraints):
+ % EstimateA=1, AhatDiag=0 (full A), QhatDiag=1, QhatIsotropic=0,
+ % RhatDiag=1, RhatIsotropic=0, Estimatex0=0, EstimatePx0=0,
+ % Px0Isotropic=0, mcIter=1000, EnableIkeda=0.
+ % x0 and Px0 are NOT estimated by default (previously 1 and 1): the
+ % Px0 M-step, Px0hat = (x0hat-x0)(x0hat-x0)'.*I, is a single-sample
+ % estimate that collapses to ~0 (or slightly negative) after one
+ % iteration, sending the E-step log-likelihood to +Inf/NaN; EM then
+ % stops after ~3 iterations (NewtonRaphson crashed before the
+ % non-finite guard). Pass Estimatex0/EstimatePx0 = 1 explicitly to
+ % restore the old behaviour.
  if(nargin<11 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -406,10 +435,10 @@ classdef PPLFP
  Px0Isotropic=0;
  end
  if(nargin<8 || isempty(EstimatePx0))
- EstimatePx0=1;
+ EstimatePx0=0; % FIX: default was 1 (degenerate Px0 collapse; see help)
  end
  if(nargin<7 || isempty(Estimatex0))
- Estimatex0=1;
+ Estimatex0=0; % FIX: default was 1 (see help)
  end
  if(nargin<6 || isempty(RhatIsotropic))
  RhatIsotropic=0;
@@ -470,6 +499,22 @@ classdef PPLFP
 
  if(nargin<19 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints=nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
+ end
+ % FIX (F12): a shared history-coefficient column (numWindows x 1,
+ % including a scalar for one window) with several cells is expanded
+ % to numWindows x numCells (gamma(w,c) = gamma_shared(w)), the rule
+ % PPLFP_EM applies before it calls this routine (B9). The gamma
+ % information blocks and scores below are built per cell (numWindows
+ % rows each) and index gammahat(:,c), so a scalar gamma with C > 1
+ % counted one gamma parameter against C per-cell blocks (dimension
+ % error) and a numWindows x 1 column failed on gammahat(:,c), c > 1.
+ % After the expansion every cell has its own coefficients and SE.gamma
+ % / Pvals.gamma are numWindows x numCells, exactly as for the
+ % expanded input; the count matches PPLFP_EM's IC count (one
+ % parameter per coefficient). An all-zero gamma is left as passed.
+ if(~isempty(windowTimes) && size(gammahat,2)==1 && size(dN,1)>1 ...
+ && size(gammahat,1)==numel(windowTimes)-1 && any(gammahat(:)~=0))
+ gammahat = repmat(gammahat,1,size(dN,1));
  end
 
  if(PPLFP_EM_Constraints.EstimateA==1)
@@ -538,7 +583,14 @@ classdef PPLFP
  IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
  for l=1:n1
  for m=l
- termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+ % FIX (H1): operator precedence. MATLAB evaluates *, / and \ left
+ % to right, so N/2*(Qhat)\e*e'/(Qhat) was ((N/2)*Qhat)\e*e'/Qhat =
+ % (2/N)*inv(Q)*e*e'*inv(Q), not the intended (N/2)*inv(Q)*e*e'*inv(Q)
+ % (information of a covariance entry, K/(2*q^2) on the diagonal): the
+ % Q / R information was N^2/4 too small (SEs ~K/2 too large) and the
+ % single-sample Px0 information (1/2)*inv(P)*e*e'*inv(P) 4x too large.
+ % Parenthesised at every such site of this routine.
+ termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
  termvec=diag(termMat);
  IRComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -549,7 +601,8 @@ classdef PPLFP
  IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
  for l=1:n1
  for m=1:n2
- termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
  termvec=reshape(termMat',1,numel(Rhat));
  IRComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -570,7 +623,8 @@ classdef PPLFP
  IQComp=zeros(numel(diag(Qhat)),numel(diag(Qhat)));
  for l=1:n1
  for m=l
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=diag(termMat);
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -581,7 +635,8 @@ classdef PPLFP
  IQComp=zeros(numel(Qhat),numel(Qhat));
  for l=1:n1
  for m=1:n2
- termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
  termvec=reshape(termMat',1,numel(Qhat));
  IQComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -600,7 +655,8 @@ classdef PPLFP
  cnt=1;
  for l=1:n1
  for m=l
- termMat= 1/2*(Px0hat)\em(:,m)*el(:,l)'/(Px0hat);
+ % FIX (H1): parenthesised (operator precedence; see the first H1 note).
+ termMat= 1/2*((Px0hat)\em(:,m)*el(:,l)'/(Px0hat));
  termvec=diag(termMat);
  ISComp(:,cnt)=termvec;
  cnt=cnt+1;
@@ -623,11 +679,9 @@ classdef PPLFP
 
  % Generate the Monte Carlo
  for k=1:K
-% WuTemp=squeeze(WKFinal(:,:,k));
- WuTemp=(WKFinal(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),McExp);
- xKDrawExp(:,k,:)=repmat(xKFinal(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PPLFP.mcStateDraws(xKFinal(:,k),WKFinal(:,:,k),McExp);
  end
  
  IBetaComp =zeros(size(xKFinal,1)*numCells,size(xKFinal,1)*numCells);
@@ -646,9 +700,10 @@ classdef PPLFP
 
  % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -674,9 +729,10 @@ classdef PPLFP
  Wk = WKFinal(:,:,k);
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -689,7 +745,12 @@ classdef PPLFP
  ExplambdaDeltaXkXk=1/McExp*(repmat(ld,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaSqXkXkT=1/McExp*(repmat(ld.^2,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: binomial beta information had the wrong sign/form,
+ % (E[p]+E[p^2]-2E[p^3])xx' (negative definite IBetaComp). For
+ % log L = sum dN*log(p) - p the beta Hessian is
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' (same fix as
+ % PointProcessEM.PP_ComputeParamStandardErrors, 8321271).
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;
@@ -707,9 +768,10 @@ classdef PPLFP
 
  % xk = squeeze(xKDrawExp(:,k,:));
  xk=xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -735,9 +797,10 @@ classdef PPLFP
  Wk = WKFinal(:,:,k);
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = (xkPerm(:,:,k));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -750,7 +813,8 @@ classdef PPLFP
  ExplambdaDeltaXkXk=1/McExp*(repmat(ld,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaSqXkXkT=1/McExp*(repmat(ld.^2,[size(xk,1),1]).*xk)*xk';
  ExplambdaDeltaCubeXkXkT=1/McExp*(repmat(ld.^3,[size(xk,1),1]).*xk)*xk';
- HessianTerm(:,:,k)=+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: same wrong-sign binomial beta information as the serial branch.
+ HessianTerm(:,:,k)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
  startInd = size(betahat,1)*(c-1)+1; endInd = size(betahat,1)*c;
@@ -771,9 +835,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -791,9 +856,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -807,8 +873,13 @@ classdef PPLFP
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: the cubic coefficient was -3. For
+ % log L = sum dN*log(p) - p, p = logistic(eta), the mu score is
+ % (dN-p)(1-p) and d/dmu of it is -p(1-p)(1+dN-2p) =
+ % -(dN+1)p + (dN+3)p^2 - 2p^3 (as in the M-step's mu update and
+ % the beta/gamma blocks); -3*E[p^3] overstated the information.
  HessianTerm = HessianTerm -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -HessianTerm;
@@ -820,9 +891,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -840,9 +912,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -856,8 +929,9 @@ classdef PPLFP
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2);
+ % FIX: cubic coefficient -3 -> -2 (see the serial branch above).
  HessianTerm(k) = -(dN(c,k)+1)*ExplambdaDelta...
- +(dN(c,k)+3)*ExplambdaDeltaSquare-3*ExplambdaDeltaCubed;
+ +(dN(c,k)+3)*ExplambdaDeltaSquare-2*ExplambdaDeltaCubed;
  end
  end
  IMuComp(c,c) = -sum(HessianTerm);
@@ -876,9 +950,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -896,9 +971,10 @@ classdef PPLFP
  HessianTerm = zeros(size(HkAll,2),size(HkAll,2));
  for k=1:K
  Hk = (HkAll(:,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -912,9 +988,14 @@ classdef PPLFP
  ExplambdaDelta = 1/McExp*sum(ld,2);
  ExplambdaDeltaSquare = 1/McExp*sum(ld.^2,2);
  ExplambdaDeltaCubed = 1/McExp*sum(ld.^3,2); % FIX: was ld.^2 (copy-paste); should be ld.^3 for cubic moment
+ % FIX: was `...*Hk(k,:)'*Hk(:,k)` -- Hk(:,k) is column k of the
+ % (numTimeSteps x numWindows) history matrix, so this always
+ % errored for binomial fits with history. Use the time-k outer
+ % product Hk(k,:)'*Hk(k,:), as the poisson branch does (same fix
+ % as PointProcessEM.PP_ComputeParamStandardErrors, 74b8096).
  HessianTerm=HessianTerm+(-ExplambdaDelta*(dN(c,k)+1)...
  +ExplambdaDeltaSquare*(dN(c,k)+3)...
- -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(:,k);
+ -2*ExplambdaDeltaCubed)*Hk(k,:)'*Hk(k,:);
  end
  end
  startInd=size(HkAll,2)*(c-1)+1; endInd = size(HkAll,2)*c;
@@ -929,9 +1010,10 @@ classdef PPLFP
  for k=1:K
  % Hk = squeeze(HkAll(:,:,c));
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -950,9 +1032,10 @@ classdef PPLFP
 
  for k=1:K
  Hk = (HkAll(k,:,c));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
  Wk = WKFinal(:,:,k);
@@ -1002,6 +1085,11 @@ classdef PPLFP
  if(numel(gammahat)==1)
  if(gammahat==0)
  n10=0;
+ else
+ % FIX (F2): a single nonzero history coefficient (one cell, one
+ % window) left n10 unassigned ("Unrecognized function or
+ % variable"); it is one parameter, as in the EM's own IC count.
+ n10=1;
  end
  else
  n10=size(IGammaComp,1);
@@ -1044,16 +1132,15 @@ classdef PPLFP
 
  % Generate the Monte Carlo samples for the unobserved data
  for n=1:N
- WuTemp=(WKFinal(:,:,n));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- xKDraw(:,n,:)=repmat(xKFinal(:,n),[1 Mc])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDraw(:,n,:)=nstat.decoding.PPLFP.mcStateDraws(xKFinal(:,n),WKFinal(:,:,n),Mc);
  end
 
  if(PPLFP_EM_Constraints.EstimatePx0|| PPLFP_EM_Constraints.Estimatex0)
- [chol_m,p]=chol(Px0hat);
- z=normrnd(0,1,size(xKFinal,1),Mc);
- x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ x0Draw=nstat.decoding.PPLFP.mcStateDraws(x0hat,Px0hat,Mc);
  else
  x0Draw=repmat(x0hat, [1 Mc]);
 
@@ -1156,9 +1243,10 @@ classdef PPLFP
  for nc=1:numCells
  if(strcmp(fitType,'poisson'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -1172,9 +1260,10 @@ classdef PPLFP
  ScoreGammaMc= [ScoreGammaMc;sum(repmat(dN(nc,:)-ld,[nHist 1]).*Hk',2)];
  elseif(strcmp(fitType,'binomial'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  
  if(numel(gammahat)==1)
@@ -1298,9 +1387,10 @@ classdef PPLFP
  for nc=1:numCells
  if(strcmp(fitType,'poisson'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -1314,9 +1404,10 @@ classdef PPLFP
  ScoreGammaMc= [ScoreGammaMc;sum(repmat(dN(nc,:)-ld,[nHist 1]).*Hk',2)];
  elseif(strcmp(fitType,'binomial'))
  Hk = (HkAll(:,:,nc));
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX: no re-orientation. HkAll is (numTimeSteps x numWindows x
+ % numCells) by construction, so this slice is already 1 x W (or
+ % N x W). The old `size(Hk,1)==numCells` test fired for a single
+ % cell (and for N == numCells) and broke the history terms.
  nHist = size(Hk,2);
  
  if(numel(gammahat)==1)
@@ -1408,12 +1499,17 @@ classdef PPLFP
  end
  
  SEMu = SEMuTerms;
- SEBeta=reshape(SEBetaTerms,size(betahat,2),size(betahat,1))';
+ % FIX: SEBetaTerms is ordered cell by cell (dx entries per cell),
+ % i.e. column-major for a dx x C matrix; reshape(...,C,dx)' scrambled
+ % the entries whenever dx>1 and C>1 (the transpose when dx == C).
+ % Same fix as PointProcessEM.PP_ComputeParamStandardErrors (03c48ad).
+ SEBeta=reshape(SEBetaTerms,size(betahat,1),size(betahat,2));
 
  SE.mu = SEMu;
  SE.beta = SEBeta;
  if((numel(gammahat)==1 && gammahat~=0) || numel(gammahat)>1)
- SEGamma=reshape(SEGammaTerms,size(gammahat,2),size(gammahat,1))';
+ % FIX: cell-by-cell ordering -> numWindows x C (see SEBeta).
+ SEGamma=reshape(SEGammaTerms,size(gammahat,1),size(gammahat,2));
  SE.gamma = SEGamma;
  end
  % Compute parameter p-values
@@ -1584,9 +1680,30 @@ classdef PPLFP
 
  end
  function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, muhat, betahat, gammahat, x0hat, Px0hat, IC, SE, Pvals]=PPLFP_EM(y,dN, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, mu, beta, fitType,delta, gamma, windowTimes, x0, Px0,PPLFP_EM_Constraints,MstepMethod)
+ %PPLFP_EM EM for a linear-Gaussian state observed through point
+ % processes (dN) and Gaussian LFP channels (y = C x + alpha + noise).
+ % Defaults: fitType 'poisson', delta 0.001 s, no history, x0 = 0,
+ % Px0 = 1e-9*I, PPLFP_EM_Constraints = PPLFP_EMCreateConstraints()
+ % (x0/Px0 not estimated), MstepMethod = 'NewtonRaphson'.
+ %
+ % MstepMethod default changed from 'GLM' to 'NewtonRaphson' (fix/pp-em
+ % round 3, as for PP_EM). The NewtonRaphson M-step maximises the
+ % expected complete-data log-likelihood by Monte Carlo over the
+ % smoothed state posterior; the 'GLM' M-step is a plug-in fit on the
+ % smoothed MEANS x_K that ignores W_K, inflates beta and drifts. 'GLM'
+ % remains available by passing it explicitly. SE/Pvals are computed
+ % only when more than 13 outputs are requested.
+ %
+ % Note (G4): EM runs on an internally whitened system x_s = Tq*x,
+ % y_s = Tr*y (Tq = inv(chol(Qhat0,'lower')), Tr = inv(chol(Rhat0,'lower'))).
+ % The "logll:" value printed at each iteration is the expected
+ % complete-data log-likelihood of that SCALED system; IC.llcomp is the
+ % same quantity on the ORIGINAL scale (the best printed value +
+ % (K+1)*log|det Tq| + K*log|det Tr|, K = number of time bins), and
+ % IC.llobs / AIC / AICc / BIC are on the original scale too.
  numStates = size(Ahat0,1);
  if(nargin<17 || isempty(MstepMethod))
- MstepMethod='GLM'; %or NewtonRaphson 
+ MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
  if(nargin<16 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
@@ -1606,11 +1723,32 @@ classdef PPLFP
  % length(scalar)+1 and built HkAll with hist_cols=2. The scalar
  % gamma was then broadcast to (1, numCells) in Decode_update and
  % failed the matmul against a (numCells, 2) Histterm.
- if(isempty(gamma) || (isscalar(gamma) && gamma == 0))
+ % FIX: `nargin<12 ||` -- gamma is only defaulted below, so a call
+ % that omitted it (e.g. the bare PPLFP_EM(y,dN,A,Q,C,R,alpha,mu,beta))
+ % errored with "Not enough input arguments" here.
+ if(nargin<12 || isempty(gamma) || (isscalar(gamma) && gamma == 0))
  windowTimes =[];
  else
- % numWindows =length(gamma0)+1;
- windowTimes = 0:delta:(length(gamma)+1)*delta;
+ % FIX: one default history window per history coefficient. The
+ % old rule 0:delta:(length(gamma)+1)*delta has length(gamma)+2
+ % edges, i.e. length(gamma)+1 windows for length(gamma)
+ % coefficients, so every default-window call failed with
+ % MATLAB:innerdim (and length() of a numWindows x numCells
+ % matrix is max(numWindows,numCells)). gamma is
+ % numWindows x numCells (or a shared numWindows x 1 column; a
+ % scalar is one shared window); a row vector whose length is not
+ % the number of cells is the shared coefficient list, so it is
+ % made a column. Edges: 0:delta:numWindows*delta (numWindows+1
+ % edges; window w = (w-1, w] bins before the current bin).
+ if(isrow(gamma) && numel(gamma)~=size(dN,1))
+ gamma = gamma(:);
+ end
+ if(isempty(delta))
+ deltaW = .001;
+ else
+ deltaW = delta;
+ end
+ windowTimes = 0:deltaW:size(gamma,1)*deltaW;
  end
  end
  if(nargin<12)
@@ -1623,13 +1761,33 @@ classdef PPLFP
  fitType = 'poisson';
  end
  
+ % FIX: a shared history-coefficient column (numWindows x 1,
+ % incl. a scalar for one window) applies to every cell; expand it to
+ % numWindows x numCells (gamma(w,c) = gamma_shared(w)) as
+ % PPAF.PPDecodeFilterLinear does. The E-step, the M-step
+ % (gammahat(:,c)) and the SEs all index gamma per cell, so a shared
+ % column failed with MATLAB:innerdim / index errors.
+ % An all-zero gamma is left as passed: gamma = 0 means "no history
+ % coefficients" downstream (M-step `gammahat==0`, the IC parameter
+ % count and the SE gamma block test numel(gammahat)), so expanding
+ % it would change those paths.
+ if(~isempty(windowTimes) && ~isempty(gamma) && size(gamma,2)==1 ...
+ && size(dN,1)>1 && size(gamma,1)==numel(windowTimes)-1 ...
+ && any(gamma(:)~=0))
+ gamma = repmat(gamma,1,size(dN,1));
+ end
  minTime=0;
  maxTime=(size(dN,2)-1)*delta;
  K=size(dN,1);
  if(~isempty(windowTimes))
  histObj = History(windowTimes,minTime,maxTime);
  for k=1:K
- nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta);
+ % FIX (R4b): build the spike train on the delta time base (binwidth =
+ % delta), as PointProcessEM.PP_EM does since 913af29. With the default
+ % 1 ms binwidth computeHistory returned the history on a 1 kHz grid
+ % (2N-1 rows at delta = 2 ms) that PPLFP_EStep then indexed as the
+ % delta grid. Identical object for delta = 0.001.
+ nst{k} = nspikeTrain( (find(dN(k,:)==1)-1)*delta, '', delta);
  nst{k}.setMinTime(minTime);
  nst{k}.setMaxTime(maxTime);
 % HkAll{k} = histObj.computeHistory(nst{k}).dataToMatrix;
@@ -1677,8 +1835,19 @@ classdef PPLFP
  scaledSystem=1;
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
- Tr = eye(size(Rhat{1}))/(chol(Rhat{1}));
+ % FIX (G1): whiten with the LOWER Cholesky factor. Tq = inv(L),
+ % L = chol(Q0,'lower') (Q0 = L*L'), gives Tq*Q0*Tq' = I (and the
+ % same for Tr and R0, so RhatDiag acts on a whitened R). The upper
+ % factor R (Q0 = R'*R) gave Tq*Q0*Tq' = inv(R)*R'*R*inv(R)' ~= I for
+ % a non-diagonal Q0, so the default QhatDiag=1 M-step was applied to a
+ % scaled Q that the starting point did not satisfy: the first M-step
+ % lowered the likelihood and EM returned the initial parameters (e.g.
+ % Q0 = [.01 .006; .006 .02]: logll -1332.92 -> -1345.34, stop). For a
+ % diagonal Q0, L = R' = R: unchanged. Any invertible Tq is a valid
+ % change of variables, and |det L| = |det R|, so F8's (Tq\S)/Tq' and
+ % F10's log|det Tq| Jacobian are unaffected.
+ Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
+ Tr = eye(size(Rhat{1}))/(chol(Rhat{1},'lower'));
  Ahat{1}= Tq*Ahat{1}/Tq;
  Chat{1}= Tr*Chat{1}/Tq;
  Qhat{1}= Tq*Qhat{1}*Tq';
@@ -1712,8 +1881,22 @@ classdef PPLFP
  [x_K{storeInd},W_K{storeInd},ll(cnt),ExpectationSums{storeInd}]=...
  nstat.decoding.PPLFP.PPLFP_EStep(Ahat{storeInd},Qhat{storeInd},Chat{storeInd},Rhat{storeInd}, y, alphahat{storeInd},dN, muhat{storeInd}, betahat{storeInd},fitType,delta,gammahat{storeInd},HkAll, x0hat{storeInd}, Px0hat{storeInd});
  
+ % FIX: stop before the M-step when the E-step log-likelihood is not
+ % a finite real number (same guard as PointProcessEM.PP_EM, 10cce2a).
+ % A degenerate iterate -- e.g. Px0hat collapsing to ~0 (or negative)
+ % under EstimatePx0=1 -- gives logll = +/-Inf, NaN or a complex value
+ % with NaN/non-PD smoothed states; the old loop fed those into
+ % PPLFP_MStep (NewtonRaphson then crashed in chol) or, because NaN
+ % comparisons are false, kept iterating on NaN. The best valid
+ % iterate is returned below.
+ if(~isfinite(ll(cnt)) || imag(ll(cnt))~=0)
+ display([' EM stopped at iteration# ' num2str(cnt) ' b/c the E-step log-likelihood was not a finite real number (' num2str(ll(cnt)) ')']);
+ negLL=1;
+ break;
+ end
+ 
  [Ahat{storeIndP1}, Qhat{storeIndP1}, Chat{storeIndP1}, Rhat{storeIndP1}, alphahat{storeIndP1}, muhat{storeIndP1}, betahat{storeIndP1}, gammahat{storeIndP1},x0hat{storeIndP1},Px0hat{storeIndP1}]...
- = nstat.decoding.PPLFP.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
+ = nstat.decoding.PPLFP.PPLFP_MStep(dN, y,x_K{storeInd},W_K{storeInd},x0hat{storeInd}, Px0hat{storeInd}, ExpectationSums{storeInd}, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod,delta);
  
  if(IkedaAcc==1)
  disp(['****Ikeda Acceleration Step****']);
@@ -1767,7 +1950,7 @@ classdef PPLFP
 
  
  [AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new]...
- = nstat.decoding.PPLFP.PPLFP_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod);
+ = nstat.decoding.PPLFP.PPLFP_MStep(dNNew, ykNew,x_KNew,W_KNew, x0hat{storeInd}, Px0hat{storeInd}, ExpectationSumsNew, fitType,muhat{storeInd},betahat{storeInd}, gammahat{storeInd},windowTimes,HkAll,PPLFP_EM_Constraints,MstepMethod,delta);
  
  Ahat{storeIndP1} = 2*Ahat{storeIndP1}-AhatNew;
  Qhat{storeIndP1} = 2*Qhat{storeIndP1}-QhatNew;
@@ -1878,7 +2061,12 @@ classdef PPLFP
  
  disp('--------------------------------------------------------------------------------------------------------');
 
- maxLLIndex = find(ll == max(ll),1,'first');
+ % FIX: choose the best FINITE, REAL log-likelihood (max() skips NaN
+ % but not +Inf, and compares magnitudes on a complex array).
+ % Identical to the old selection whenever every ll is finite and real.
+ llSel = ll; llSel(~isfinite(llSel) | imag(llSel)~=0) = NaN;
+ llSel = real(llSel);
+ maxLLIndex = find(llSel == max(llSel),1,'first');
  maxLLIndMod = mod(maxLLIndex-1,numToKeep)+1;
  if(maxLLIndex==1)
 % maxLLIndex=cnt-1;
@@ -1908,8 +2096,9 @@ classdef PPLFP
  Px0hat=Px0hat{maxLLIndMod};
  
  if(scaledSystem==1)
- Tq = eye(size(Qhat))/(chol(Q0));
- Tr = eye(size(Rhat))/(chol(R0));
+ % FIX (G1): same lower factor as at the start (see there).
+ Tq = eye(size(Qhat))/(chol(Q0,'lower'));
+ Tr = eye(size(Rhat))/(chol(R0,'lower'));
  Ahat=Tq\Ahat*Tq;
  Qhat=(Tq\Qhat)/Tq';
  Chat=Tr\Chat*Tq;
@@ -1930,8 +2119,25 @@ classdef PPLFP
  ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
 % AhatNew, QhatNew, ChatNew, RhatNew, alphahatNew, muhatNew, betahatNew, gammahatNew,x0new,Px0new
  if(nargout>13)
- [SE, Pvals]=nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(y, dN,...
- xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal,...
+ % FIX (F8): PPLFP_EM runs EM on an internally SCALED system
+ % (x_s = Tq*x, y_s = Tr*y, Tq = inv(chol(Q0,'lower')), Tr = inv(chol(R0,'lower')))
+ % and maps every returned estimate back to the original scale, but
+ % the SE call passed the SCALED y and the SCALED expectation sums
+ % together with the UNSCALED xKFinal/WKFinal/A/Q/C/R/alpha/x0/Px0/
+ % beta. PPLFP_ComputeParamStandardErrors reads y (alpha, C and R
+ % scores), ES.Sxkm1xkm1 (A information) and ES.Sxkxk (C information),
+ % so the SEs mixed scales whenever Q0 or R0 ~= I (SE.A and SE.C off
+ % by the Tq factor). Pass the original y and transform the sums it
+ % reads back: S = Tq \ S_s / Tq'.
+ ESforSE = ExpectationSumsFinal;
+ ySE = y;
+ if(scaledSystem==1)
+ ySE = yOrig;
+ ESforSE.Sxkm1xkm1 = (Tq\ESforSE.Sxkm1xkm1)/Tq';
+ ESforSE.Sxkxk = (Tq\ESforSE.Sxkxk)/Tq';
+ end
+ [SE, Pvals]=nstat.decoding.PPLFP.PPLFP_ComputeParamStandardErrors(ySE, dN,...
+ xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ESforSE,...
  fitType, muhat, betahat, gammahat, windowTimes, HkAll,...
  PPLFP_EM_Constraints);
  end
@@ -1955,7 +2161,13 @@ classdef PPLFP
  n3=numel(Chat); 
  if(PPLFP_EM_Constraints.RhatDiag==1 && PPLFP_EM_Constraints.RhatIsotropic==1)
  n4=1;
- elseif(PPLFP_EM_Constraints.QhatDiag==1 && PPLFP_EM_Constraints.QhatIsotropic==0)
+ % FIX (F11): the diagonal-R count tested Q's flags (QhatDiag /
+ % QhatIsotropic), so R's parameter count followed Q's constraint:
+ % RhatDiag=0 with QhatDiag=1 counted dy instead of numel(Rhat), and
+ % RhatDiag=1 with QhatDiag=0 counted numel(Rhat) instead of dy. Only
+ % IC (AIC/AICc/BIC) used it; the defaults (both diagonal, not
+ % isotropic) were unaffected.
+ elseif(PPLFP_EM_Constraints.RhatDiag==1 && PPLFP_EM_Constraints.RhatIsotropic==0)
  n4=size(Rhat,1);
  else
  n4=numel(Rhat);
@@ -1992,7 +2204,27 @@ classdef PPLFP
  K = size(y,2); 
  Dx = size(Ahat,2);
  sumXkTerms = ExpectationSums{maxLLIndMod}.sumXkTerms;
- llobs = ll + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
+ % FIX (F10): ll (the best E-step's expected complete-data
+ % log-likelihood) and sumXkTerms come from the internally SCALED
+ % system x_s = Tq*x, y_s = Tr*y (Tq = inv(chol(Q0,'lower')),
+ % Tr = inv(chol(R0,'lower'))), while Qhat and Px0hat have been mapped back to
+ % the original scale, so llobs (= ll minus the expected state
+ % log-density) mixed scales and AIC/BIC depended on the units of x
+ % (llobs 19013 -> 337 when the state was rescaled by 3) and of y.
+ % Map both to the original scale first: S = Tq \ S_s / Tq'; each of
+ % the K+1 state log-densities (x_0 .. x_K) gains log|det Tq| and each
+ % of the K observation log-densities gains log|det Tr|, so
+ % ll = ll_s + (K+1)*log|det Tq| + K*log|det Tr|. llobs is then
+ % E[log p(dN, y | x)] on the original scale of y (invariant to the
+ % state's units), and IC.llcomp is the expected complete-data
+ % log-likelihood on the original scale (what PPLFP_EStep returns
+ % when run in the original coordinates at the returned estimates).
+ llcomp = ll;
+ if(scaledSystem==1)
+ sumXkTerms = (Tq\sumXkTerms)/Tq';
+ llcomp = ll + (K+1)*log(abs(det(Tq))) + K*log(abs(det(Tr)));
+ end
+ llobs = llcomp + Dx*K/2*log(2*pi)+K/2*log(det(Qhat))...
  + 1/2*trace(Qhat\sumXkTerms)...
  + Dx/2*log(2*pi)+1/2*log(det(Px0hat))...
  + 1/2*Dx;
@@ -2003,7 +2235,7 @@ classdef PPLFP
  IC.AICc= AICc;
  IC.BIC = BIC;
  IC.llobs = llobs;
- IC.llcomp=ll;
+ IC.llcomp=llcomp;
  
  
  end
@@ -2132,7 +2364,11 @@ classdef PPLFP
  for k=1:K
 % Hk=squeeze(HkAll(k,:,:)); 
  Hk = HkPerm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: orient Hk (numWindows x numCells) by its COLUMNS; the old
+ % size(Hk,1)==numCells also fired for numWindows == numCells
+ % and paired gamma(w,c) with Hk(c,w) in the logll. Identical for
+ % numWindows ~= numCells. (Same fix as PointProcessEM.PP_EStep.)
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -2165,7 +2401,8 @@ classdef PPLFP
  % unassigned `Hk` on the next size check. The poisson branch
  % above has the correct form.
  Hk = HkPerm(:,:,k);
- if(size(Hk,1)==numCells)
+ % FIX: column-based orientation check; see the poisson branch.
+ if(size(Hk,2)~=numCells)
  Hk = Hk';
  end
  xk = x_K(:,k);
@@ -2228,11 +2465,24 @@ classdef PPLFP
  ExpectationSums.Sx0x0 = Px0Gy + Ex0Gy*Ex0Gy';
 
  end
- function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod)
- if(nargin<14 || isempty(MstepMethod))
- MstepMethod = 'GLM'; %GLM or NewtonRaphson
+ function [Ahat, Qhat, Chat, Rhat, alphahat, muhat_new, betahat_new, gammahat_new, x0hat, Px0hat] = PPLFP_MStep(dN, y,x_K,W_K,x0, Px0, ExpectationSums,fitType, muhat, betahat,gammahat, windowTimes, HkAll,PPLFP_EM_Constraints,MstepMethod,delta)
+ %PPLFP_MSTEP M-step of PPLFP_EM.
+ % MstepMethod: 'NewtonRaphson' (default since fix/pp-em round 3; was
+ % 'GLM') or 'GLM' (plug-in fit on the smoothed means; see PPLFP_EM).
+ % delta: seconds per bin (optional 16th input, default 0.001); sets
+ % the GLM M-step's time base. PPLFP_EM passes its delta.
+ % FIX (R4c): new optional trailing input, as PointProcessEM.PP_MStep's
+ % 15th input (913af29); every existing positional argument unchanged.
+ if(nargin<16 || isempty(delta))
+ delta = .001;
  end
- if(nargin<13 || isempty(PPLFP_EM_Constraints))
+ % FIX: the nargin tests were off by one (MstepMethod is input 15 and
+ % PPLFP_EM_Constraints input 14, not 14 and 13), so omitting either
+ % argument errored on an undefined variable instead of defaulting.
+ if(nargin<15 || isempty(MstepMethod))
+ MstepMethod = 'NewtonRaphson'; % FIX: default was 'GLM' (see PPLFP_EM help)
+ end
+ if(nargin<14 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
  end
  
@@ -2319,8 +2569,19 @@ classdef PPLFP
  % Estimate params via GLM
 
  if(strcmp(MstepMethod,'GLM'))
- clear c; close all;
- time=(0:length(x_K)-1)*.001;
+ % FIX: removed `close all`. PPLFP_EM creates its progress figure
+ % `h` after the first M-step; on iteration 2 this `close all`
+ % deleted it and PPLFP_EM's `figure(h)` threw "Argument must be a
+ % Figure object or a positive integer", so the default (GLM)
+ % M-step could never get past iteration 2. RunAnalysisForAllNeurons
+ % is called with makePlot=0 below; nothing here needs closing.
+ % (Same defect and fix as PointProcessEM.PP_MStep.)
+ clear c;
+ % FIX (R4c): time grid / Trial sample rate were hardcoded to 1 ms;
+ % for delta ~= 0.001 the history windows (seconds) spanned the wrong
+ % number of bins and no longer matched PPLFP_EM's HkAll. Identical
+ % for delta = 0.001 (1/0.001 == 1000 exactly).
+ time=(0:K-1)*delta;
  labels = cell(1,dx);
  labels2 = cell(1,dx+1);
  labels2{1} = 'vel';
@@ -2333,12 +2594,12 @@ classdef PPLFP
  {'constant'});
  for i=1:size(dN,1)
  spikeTimes = time(find(dN(i,:)==1));
- nst{i} = nspikeTrain(spikeTimes);
+ nst{i} = nspikeTrain(spikeTimes, '', delta);
  end
  nspikeColl = nstColl(nst);
  cc = CovColl({vel,baseline});
  trial = Trial(nspikeColl,cc);
- selfHist = windowTimes ; NeighborHist = []; sampleRate = 1000; 
+ selfHist = windowTimes ; NeighborHist = []; sampleRate = 1/delta; 
  clear c;
  
  
@@ -2350,21 +2611,100 @@ classdef PPLFP
  end
  c{1}.setName('Baseline');
  cfgColl= ConfigColl(c);
+ % FIX: `warning('OFF')` switched off every warning globally and never
+ % restored it, so after one GLM M-step the CALLER's warnings (incl.
+ % verifyWarning-based tests) stayed silenced. Keep the original
+ % suppression during the fit but restore the caller's warning state
+ % when this function returns.
+ callerWarnState = warning;
+ restoreCallerWarnings = onCleanup(@() warning(callerWarnState)); %#ok<NASGU>
  warning('OFF');
 
  results = Analysis.RunAnalysisForAllNeurons(trial,cfgColl,0,algorithm);
  temp = FitResSummary(results);
- tempCoeffs = squeeze(temp.getCoeffs);
- if(gammahat==0)
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
+ % (coefficients are read by label below)
+ % FIX: same defect as PointProcessEM.PP_MStep (a80aae2). The GLM
+ % fit was written to the INPUT variables (betahat, muhat,
+ % gammahat) while the function returns betahat_new / muhat_new /
+ % gammahat_new, which were set to the inputs above -- so the GLM
+ % M-step returned mu, beta and gamma unchanged. Write the fit into
+ % the returned variables; a coefficient FitResSummary reports as
+ % NaN (se>=100, not identifiable) keeps its previous value, and
+ % history follows the same rule below (by window label).
+ % FIX (F3): map 'constant' and 'v1'..'vdx' BY LABEL. The old
+ % positional read (mu = row 1, beta = rows 2:dx+1 of getCoeffs)
+ % broke when FitResSummary dropped a label that is NaN (se>=100) for
+ % every cell (index error / wrong rows), mis-mapped for dx >= 10
+ % (labels sort as 'v1','v10','v2',...), and failed for a single cell
+ % (getCoeffs then returns a 1 x nLabels row). A label that is absent,
+ % or NaN for a cell, keeps the previous value (the R4a rule).
+ [coeffMat, coeffLabels] = temp.getCoeffs;
+ if(isempty(coeffLabels))
+ coeffLabCol = {};
  else
- betahat(1:dx,:) = tempCoeffs(2:(dx+1),:);
- muhat = tempCoeffs(1,:)';
- histTemp = squeeze(temp.getHistCoeffs);
- histTemp = reshape(histTemp, [length(windowTimes)-1 numCells]);
- histTemp(isnan(histTemp))=0;
- gammahat=histTemp;
+ coeffLabCol = coeffLabels(:,1);
+ end
+ coeffMat = reshape(coeffMat, numel(coeffLabCol), []); % nLabels x numCells
+ muFit = muhat_new(:);
+ betaFit = betahat_new(1:dx,:);
+ j = find(strcmp(coeffLabCol, 'constant'), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:)';
+ muFit(~isnan(v)) = v(~isnan(v));
+ end
+ for i=1:dx
+ j = find(strcmp(coeffLabCol, labels{i}), 1);
+ if(~isempty(j))
+ v = coeffMat(j,:);
+ betaFit(i,~isnan(v)) = v(~isnan(v));
+ end
+ end
+ betahat_new(1:dx,:) = betaFit;
+ muhat_new = muFit;
+ if(gammahat==0)
+ % no history terms in this fit; gammahat_new stays as input
+ else
+ % FIX (R4a): map the fitted history coefficients to the windows BY
+ % LABEL. getHistCoeffs only returns labels that are non-NaN for at
+ % least one cell (FitResSummary NaNs coefficients with se>=100), in
+ % sorted label order, so `reshape(histTemp,[nWindows numCells])`
+ % errored whenever a whole window was unestimable for every cell (and
+ % relied on sorted labels matching window order). The window labels
+ % come from the same History object the Trial uses. A window/cell
+ % whose coefficient is missing or NaN keeps its previous gamma (the
+ % rule used for mu/beta above; this replaces the old NaN -> 0).
+ nWin = length(windowTimes)-1;
+ [histMat, histLabels] = temp.getHistCoeffs;
+ winCov = History(windowTimes, min(time), max(time)).computeHistory(nst{1}).getCov(1);
+ winLabels = winCov.dataLabels;
+ gPrev = gammahat;
+ if(isscalar(gPrev))
+ gPrev = gPrev*ones(nWin, numCells);
+ elseif(size(gPrev,2)==1)
+ gPrev = repmat(gPrev, 1, numCells);
+ end
+ histTemp = gPrev;
+ % FIX (F1): getHistCoeffs returns labels = cell(0,0) when NO window is
+ % estimable for any cell; histLabels(:,1) then threw
+ % MATLAB:badsubscript. Treat that as "no fitted label" (every window
+ % keeps its previous gamma).
+ if(isempty(histLabels))
+ histLabCol = {};
+ else
+ histLabCol = histLabels(:,1);
+ end
+ for w=1:nWin
+ j = find(strcmp(histLabCol, winLabels{w}), 1);
+ if(~isempty(j))
+ for c=1:numCells
+ v = histMat(j,1,c);
+ if(~isnan(v))
+ histTemp(w,c) = v;
+ end
+ end
+ end
+ end
+ gammahat_new=histTemp;
  end
  else
  
@@ -2377,10 +2717,9 @@ classdef PPLFP
 
  % Generate the Monte Carlo samples
  for k=1:K
- WuTemp=(W_K(:,:,k));
- [chol_m,p]=chol(WuTemp);
- z=normrnd(0,1,size(x_K,1),McExp);
- xKDrawExp(:,k,:)=repmat(x_K(:,k),[1 McExp])+(chol_m*z);
+ % FIX (F9): draw via mcStateDraws (m + chol(W)'*z; was m + chol(W)*z,
+ % whose covariance is chol(W)*chol(W)', not W, for non-diagonal W).
+ xKDrawExp(:,k,:)=nstat.decoding.PPLFP.mcStateDraws(x_K(:,k),W_K(:,:,k),McExp);
  end
  % Stimulus Coefficients
  % FIX (#99): matlabpool was removed in R2017a; see note at line 635.
@@ -2407,9 +2746,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2436,9 +2776,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2455,7 +2796,13 @@ classdef PPLFP
  ExpLambdaXk = 1/McExp*sum(repmat(ld,[size(xk,1),1]).*xk,2);
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  GradTerm = GradTerm+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm=HessianTerm+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: binomial beta Hessian had the wrong sign/form (same
+ % defect as PointProcessEM.PP_MStep, 7a2b87f): for
+ % log L = sum dN*log(p) - p, p = logistic(eta), the Hessian is
+ % (-(dN+1)p + (dN+3)p^2 - 2p^3)xx' (the form the mu and gamma
+ % steps here already use); the old (p + p^2 - 2p^3)xx' is
+ % positive definite, so Newton stepped downhill.
+ HessianTerm=HessianTerm-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
 
  end
 
@@ -2502,9 +2849,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2534,9 +2882,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2554,10 +2903,11 @@ classdef PPLFP
  ExpLambdaSquaredXk = 1/McExp*sum(repmat(ld.^2,[size(xk,1),1]).*xk,2);
  if(k==1)
  GradTerm(:,c) = dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ % FIX: same wrong-sign binomial beta Hessian as the serial branch.
+ HessianTerm(:,:,c)=-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  else
  GradTerm(:,c) = GradTerm(:,c)+dN(c,k)*x_K(:,k) - (dN(c,k)+1)*ExpLambdaXk+ExpLambdaSquaredXk;
- HessianTerm(:,:,c)=HessianTerm(:,:,c)+ExplambdaDeltaXkXk+ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
+ HessianTerm(:,:,c)=HessianTerm(:,:,c)-(dN(c,k)+1)*ExplambdaDeltaXkXk+(dN(c,k)+3)*ExplambdaDeltaSqXkXkT-2*ExplambdaDeltaCubeXkXkT;
  end
  end
 
@@ -2604,9 +2954,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2631,9 +2982,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2692,9 +3044,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2722,9 +3075,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat)==1)
  gammaC=gammahat;
@@ -2795,9 +3149,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -2822,9 +3177,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  if(numel(gammahat_new)==1)
  gammaC=gammahat_new;
@@ -2891,9 +3247,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms);
@@ -2913,9 +3270,10 @@ classdef PPLFP
  Wk = W_K(:,:,k);
 % xk = squeeze(xKDrawExp(:,k,:));
  xk = xkPerm(:,:,k);
- if(size(Hk,1)==numCells)
- Hk = Hk';
- end
+ % FIX (R4d): no re-orientation. Hk = HkAll(:,:,c) is already
+ % (numTimeSteps x numWindows) by construction; the old
+ % `size(Hk,1)==numCells` test fired when numTimeSteps == numCells
+ % and then indexed Hk(k,:) on the transposed matrix.
 
  terms =muhat(c)+betahat(:,c)'*xk+gammaC'*Hk(k,:)';
  ld=exp(terms)./(1+exp(terms));
@@ -2949,7 +3307,10 @@ classdef PPLFP
  gammaC=gammahat_newTemp;
  iter=iter+1;
  end
- gamma_new(:,c) =gammaC;
+ % FIX: was `gamma_new(:,c) = gammaC;` -- never returned, so the
+ % parallel-pool branch discarded the history update (as in
+ % PointProcessEM.PP_MStep).
+ gammahat_new(:,c) =gammaC;
  % fprintf('\n'); 
  end 
  end
@@ -3113,6 +3474,29 @@ classdef PPLFP
 % gammahat = gammahat_new;
 % muhat = muhat_new;
  end 
+ end
+ end
+
+ methods (Static, Access = {?nstat.decoding.PPLFP, ?matlab.unittest.TestCase})
+ function X = mcStateDraws(m, W, M)
+ %MCSTATEDRAWS M Monte Carlo draws from N(m, W), returned as dx x M.
+ % X = mcStateDraws(m, W, M) with m (dx x 1), W (dx x dx).
+ % FIX (F9): every Monte Carlo draw in this class was made as
+ % [chol_m,p] = chol(W); z = normrnd(0,1,dx,M); x = m + chol_m*z.
+ % MATLAB's chol returns the UPPER factor R with R'*R = W, so R*z
+ % has covariance R*R', which equals W only for a diagonal W (or
+ % dx == 1): the draws had the wrong covariance whenever the
+ % smoothed state covariance was not diagonal. The draw is
+ % x = m + R'*z (cov R'*R = W). Kept as before: z is drawn with
+ % normrnd(0,1,dx,M) (same random stream; diagonal-W draws are
+ % bit-identical), the factor comes from the two-output chol of the
+ % same (upper) triangle, and a W that is not positive definite
+ % still errors (partial factor -> dimension mismatch) rather than
+ % being silently repaired. Access is limited to this class and
+ % unit tests; it is not part of the public API.
+ [R,~] = chol(W);
+ z = normrnd(0,1,numel(m),M);
+ X = repmat(m(:),[1 M]) + R'*z;
  end
  end
 end

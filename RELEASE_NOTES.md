@@ -1,5 +1,57 @@
 # nSTAT Release Notes
 
+## Unreleased — point-process EM (`fix/pp-em`)
+
+Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configuration) and fixes a series of correctness defects in the point-process EM / PPLFP / decoder cluster found while doing so. Two **default changes** (`PP_EM` and `PPLFP_EM` now use the NewtonRaphson M-step and do not estimate x0/Px0) and one **SE output-layout change** — see *Breaking changes*. The binomial likelihood throughout is the toolbox's point-process form `log L = Σ dN·log p − p`, `p = logistic(η)`.
+
+### Correctness fixes
+
+| PR / commit | Class | Site | Effect |
+|---|---|---|---|
+| `4d201c8` | crash | `PP_EM` / `PP_MStep` | No-history `HkAll` is now `zeros(N,1,numCells)` (was 1×1×C → index error at time 2); removed `close all` from the GLM M-step (deleted PP_EM's progress figure → `figure(h)` error at iteration 2); NewtonRaphson M-step used an undefined `xKDraw`. |
+| `a80aae2`, `9f540c5` | logic | `PP_MStep`, `PPLFP_MStep` GLM branch | The GLM fit was written to the input variables, so μ/β/γ were returned unchanged. |
+| `d37a07a` | logic | `FitResSummary.getHistIndex` / `getHistCoeffs` / `getCoeffs` | `bAct(:,fitNum)` on a 3-D array read neuron 1 only; history labels were dropped whenever neuron 1's were NaN (crash on undefined `baseStrings`, history terms misreported as covariates). Empty cases now return empty. |
+| `7a2b87f`, `9f540c5` | numerical | binomial NewtonRaphson β step (PP, PPLFP) | Hessian had the wrong sign (`(p+p²−2p³)xx'`); now `(−(dN+1)p + (dN+3)p² − 2p³)xx'` (finite-difference verified). The NR M-step diverged before. |
+| `74b8096`, `b26f535` | crash | binomial γ SE block (PP, PPLFP) | `Hk(k,:)'*Hk(:,k)` → `Hk(k,:)'*Hk(k,:)`. |
+| `8321271`, `c44b293`, `7c8f3c1` | numerical | binomial β and μ SE information (PP, PPLFP) | β block had the wrong sign (negative-definite information); μ block used `−3E[p³]` instead of `−2E[p³]`. |
+| `03c48ad`, `04413d8` | layout | `SE.beta` / `SE.gamma` (PP, PPLFP) | `reshape(v,C,dx)'` scrambled entries for dx>1 and C>1; now `reshape(v,dx,C)` / `reshape(v,W,C)`. |
+| `10cce2a`, `849c68b` | guard | `PP_EM`, `PPLFP_EM` | Stop before the M-step on a non-finite / complex E-step log-likelihood; return the best finite real iterate. |
+| `2403a97`, `d436fe1` | numerical | `PP_EStep`, `PPLFP_EStep`, `PPLFP_Decode_update` | Square history (numWindows == numCells) was transposed (logll, and the PPLFP filter). |
+| `913af29`, `e8c5d2e`, `3338eed` | numerical | `PP_EM`, `PPLFP_EM`, both GLM M-steps | History spike trains and the GLM time grid now use `delta` (were hardcoded 1 ms). |
+| `7bfcf7f` | numerical | `PPAF.PPDecodeFilterLinear` | A correctly oriented square β (ns == C) was transposed. |
+| `10fc00e`, `7835a4e` | crash / logic | `PPHybridFilterLinear`, `PPLFP_DecodeLinear`, `PPLFP_fixedIntervalSmoother` | History windows used an undefined `delta`; a shared γ column reached only the last cell (#20 pattern). |
+| `2219ee0`, `a457b54` | crash | `PP_EM`, `PPLFP_EM` default windows | `windowTimes = []` with nonzero γ now gives `0:delta:size(gamma,1)*delta` (was one window too many) and expands a shared nonzero γ column per cell. |
+| `ef7bb22`, `605d9bc` | crash | SE routines and M-steps | Removed `size(Hk,1)==numCells` re-orientations of history slices (broke one cell with W>1, and N == numCells). |
+| `cfb47d1`, `1b6132d`, `4c3beac` | crash / logic | GLM M-steps (PP, PPLFP) | γ, μ and β are mapped from the GLM fit **by label**; an unestimable coefficient keeps its previous value (crashes for dropped labels, dx ≥ 10 mis-mapping, single cell). |
+| `4512384` | crash | SE routines | One cell with one nonzero history coefficient left the γ parameter count unassigned. |
+| `bac99f9` | numerical | `PP_EM`, `PPLFP_EM` standard errors | The SE call received the internally rescaled expectation sums (and, in `PPLFP_EM`, the rescaled `y`) together with the original-scale estimates, so SEs were wrong whenever `Q0` or `R0` ≠ I; the sums and `y` are now mapped back to the original scale first. `SE` / `Pvals` from `PP_EM` / `PPLFP_EM` change; direct SE calls do not. |
+| `c49dc00` | numerical | Monte Carlo draws in both SE routines and both NewtonRaphson M-steps | Draws were `m + chol(W)*z`, whose covariance is `chol(W)*chol(W)'` ≠ W for non-diagonal W; now `m + chol(W)'*z`. Same random stream; draws with diagonal W are unchanged. |
+| `8843a94` | numerical | `PP_EM`, `PPLFP_EM` information criteria | `IC.llobs` mixed the scaled-system log-likelihood with original-scale `Qhat` / `Px0hat`, so llobs / AIC / AICc / BIC depended on the units of x. They are now on the original scale: llobs is the expected observation log-likelihood, and `IC.llcomp` is the expected complete-data log-likelihood on the original scale. |
+| `564c207` | logic | `PPLFP_EM` IC parameter count | R's parameter count used Q's diagonal / isotropic flags; it now uses R's. This only matters when `RhatDiag` differs from `QhatDiag`. |
+| `1c051a9` | crash | SE routines | A direct SE call with a shared history column (a nonzero scalar or `W × 1`) and several cells errored. The column is now expanded per cell, as the EM drivers already do. |
+| `499690a` | numerical | `PP_EM`, `PPLFP_EM` internal whitening | The internal scaling used `inv(chol(Q0))` / `inv(chol(R0))`, the upper factor, which does not whiten a non-diagonal `Q0` / `R0`. The default diagonal-Q (and R) M-step then acted outside the starting family: the first M-step lowered the likelihood and EM returned the initial parameters. It now uses the lower factor (`Tq·Q0·Tq' = I`). Nothing changes for a diagonal `Q0` / `R0`. |
+| `59f42c9` | logic / crash | `PP_ComputeParamStandardErrors` constraints | The function tested `nargin<19` but has 15 inputs, so the caller's constraints were always replaced by the defaults (`mcIter` 1000; SEs for unestimated A entries). It now uses `nargin<15`. Three paths that became reachable as a result, `EstimateA=0`, `QhatIsotropic=1` and `Px0Isotropic=1`, also crashed on undefined variables; those are fixed too. |
+| `2a858a0` | numerical | Q / R / Px0 information blocks in both SE routines | Operator precedence: `N/2*(Q)\e*e'/(Q)` evaluated as `(N/2·Q)⁻¹·e·eᵀ·Q⁻¹`. As a result the Q and R information was N²/4 too small (SE.Q / SE.R about K/2 too large) and the Px0 information was 4× too large. The expressions are now parenthesised at all 8 sites. Through the joint inversion and `nearestSPD` this moved every SE that `PP_EM` / `PPLFP_EM` report. |
+| `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
+
+### Breaking changes
+
+- **`PP_EM` / `PP_MStep` (`b0d83fd`) and `PPLFP_EM` / `PPLFP_MStep` (`7cea336`): default `MstepMethod` is now `'NewtonRaphson'`** (was `'GLM'`, a plug-in fit on the smoothed means that inflates β and drifts). Pass `'GLM'` explicitly for the old behaviour.
+- **`PP_EMCreateConstraints` / `PPLFP_EMCreateConstraints`: `Estimatex0` and `EstimatePx0` now default to 0** (were 1; the single-sample Px0 update collapses Px0 to ~0 and sends the log-likelihood to +Inf after ~2 iterations). All other constraint defaults are unchanged. Pass them as 1 for the old behaviour.
+- **`SE.beta` / `SE.gamma` (and `Pvals.beta` / `Pvals.gamma`) layout** from `PP_ComputeParamStandardErrors` / `PPLFP_ComputeParamStandardErrors` (and `PP_EM` / `PPLFP_EM` when SEs are requested) is now `dx × C` / `W × C` with each entry in its own position (previously scrambled; transposed when dx == C).
+- `PPAF.PPDecodeFilterLinear` output changes for square problems (ns == C) only.
+- **`IC` from `PP_EM` / `PPLFP_EM` (`8843a94`)**: `llobs`, `AIC`, `AICc` and `BIC` are now on the original scale, and so is `llcomp`. Previously `llcomp` was the scaled-system value, so it shifts by `(K+1)·log|det Tq|` (plus `K·log|det Tr|` for PPLFP).
+- **Monte Carlo SEs and NewtonRaphson M-steps (`c49dc00`)**: results change wherever the smoothed state covariance is not diagonal.
+- **Non-diagonal `Qhat0` / `Rhat0` (`499690a`)**: EM now estimates from such starting values, where it used to return them unchanged. `QhatDiag=1` / `RhatDiag=1` then mean "diagonal in the frame whitened by Q0 / R0".
+- **`PP_ComputeParamStandardErrors` / `PP_EM` SEs with non-default constraints (`59f42c9`)**: SEs now follow the constraints, including `mcIter`; the SE fields and the parameter count change accordingly.
+- **Standard errors (`2a858a0`)**: `SE` / `Pvals` from both SE routines and both EM drivers change. SE.Q and SE.R were about K/2 too large and SE.Px0 2× too small, and through `nearestSPD` every other SE was affected too.
+- The per-iteration `logll:` console line stays on the internal scaled system (see the `PP_EM` / `PPLFP_EM` help); `IC.llcomp` is on the original scale.
+
+### New capabilities
+
+- **Optional `delta` inputs**: `PP_MStep(…, MstepMethod, delta)` (15th input) and `PPLFP_MStep(…, MstepMethod, delta)` (16th input), default 0.001 s; `PP_EM` / `PPLFP_EM` pass their `delta`. Existing positional arguments are unchanged.
+- Tests: `tests/unit/testPointProcessEMRuns.m`, `testEMMonteCarloDraws.m`, `testPointProcessEMCorrectness.m`, `testPPLFPEMCorrectness.m`, `testDecoderCorrectness.m`, `testFitResSummaryHistIndex.m`; slow full-EM tests in `tests/integration/testPointProcessEMIntegration.m` (`tools/run_unit_tests.sh --integration`).
+
 ## v1.5.2 — 22-Jun-2026
 
 Patch release focused on the publish pipeline (substantial performance work + two distinct orphan-figure fixes), a paper-example RNG-fragility fix that was breaking the README parity gate, restoration of the deferred pedagogical figures from v1.5.1, and docs-tree hygiene. No API changes; no breaking changes. End users on v1.5.1 should upgrade — the orphan-figure fixes silently improve every shipped helpfile HTML.

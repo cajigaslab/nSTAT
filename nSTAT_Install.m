@@ -13,6 +13,17 @@ function opts = nSTAT_Install(varargin)
 %   DownloadExampleData (default 'prompt') Prompt, download, or skip the
 %                     external figshare paper-example data package. Accepts
 %                     true/'always', false/'never', or 'prompt'.
+%   SavePath          (default true)  Persist the updated MATLAB search
+%                     path to the system pathdef.m via savepath. Interactive
+%                     installs want this (the whole point is a path that
+%                     survives restart). Automated/non-interactive callers
+%                     (CI, helpfile publishing, smoke tests) MUST pass
+%                     'SavePath', false -- savepath rewrites MATLAB's
+%                     system-wide toolbox/local/pathdef.m, which is not
+%                     something a release gate or test run should ever do
+%                     (fixes #140). When CleanUserPathPrefs is also true,
+%                     this flag is forwarded to cleanup_user_path_prefs so
+%                     its own savepath call is likewise suppressed.
 %
 % This installer excludes non-runtime trees (python, cache folders, hidden
 % folders) from the MATLAB path to avoid shadowing.
@@ -65,11 +76,11 @@ if opts.CleanUserPathPrefs
     cleanupFcn = 'cleanup_user_path_prefs';
     cleanupFile = fullfile(rootDir, 'tools', 'matlab', [cleanupFcn '.m']);
     if exist(cleanupFcn, 'file') == 2
-        feval(cleanupFcn, rootDir);
+        feval(cleanupFcn, rootDir, 'SavePath', opts.SavePath);
     elseif isfile(cleanupFile)
         addpath(fileparts(cleanupFile), '-begin');
         if exist(cleanupFcn, 'file') == 2
-            feval(cleanupFcn, rootDir);
+            feval(cleanupFcn, rootDir, 'SavePath', opts.SavePath);
         else
             warning('nSTAT:CleanupFunctionUnavailable', ...
                 'Could not invoke %s after running %s', cleanupFcn, cleanupFile);
@@ -83,8 +94,17 @@ end
 display('Refreshing MATLAB toolbox cache');
 rehash toolboxcache;
 
-display('Saving path');
-savepath;
+% FIX (#140): the release gate (publish_all_helpfiles.m, run_nstat_smoke.m)
+% calls nSTAT_Install non-interactively and this unconditional savepath
+% rewrote the MACHINE's system toolbox/local/pathdef.m on every run -- not
+% the repo, a developer/CI box-wide file outside version control. Only
+% interactive installs (the default) should persist the path.
+if opts.SavePath
+    display('Saving path');
+    savepath;
+else
+    display('Skipping savepath (SavePath=false)');
+end
 end
 
 function opts = parseInstallOptions(varargin)
@@ -94,11 +114,13 @@ addParameter(parser, 'RebuildDocSearch', true, @(x)islogical(x) || isnumeric(x))
 addParameter(parser, 'CleanUserPathPrefs', false, @(x)islogical(x) || isnumeric(x));
 addParameter(parser, 'DownloadExampleData', 'prompt', ...
     @(x)islogical(x) || isnumeric(x) || ischar(x) || (isstring(x) && isscalar(x)));
+addParameter(parser, 'SavePath', true, @(x)islogical(x) || isnumeric(x));
 parse(parser, varargin{:});
 
 opts.RebuildDocSearch = logical(parser.Results.RebuildDocSearch);
 opts.CleanUserPathPrefs = logical(parser.Results.CleanUserPathPrefs);
 opts.DownloadExampleData = normalizeDownloadMode(parser.Results.DownloadExampleData);
+opts.SavePath = logical(parser.Results.SavePath);
 end
 
 function mode = normalizeDownloadMode(rawMode)

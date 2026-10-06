@@ -22,7 +22,9 @@ removeStagedArtifacts(stagingDir);
 
 restoredefaultpath;
 addpath(rootDir, '-begin');
-nSTAT_Install('RebuildDocSearch', false, 'CleanUserPathPrefs', false);
+% FIX (#140): non-interactive caller -- must not rewrite the system
+% toolbox/local/pathdef.m via savepath.
+nSTAT_Install('RebuildDocSearch', false, 'CleanUserPathPrefs', false, 'SavePath', false);
 addpath(stagingDir, '-begin');
 cd(stagingDir);
 

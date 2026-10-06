@@ -15,7 +15,10 @@ classdef KF_EM
     %
     % Static methods:
     %   KF_EMCreateConstraints        -- EM constraint builder.
-    %   KF_EM                         -- Main EM loop.
+    %   KF_RunEM                      -- Main EM loop (named KF_RunEM, not
+    %                                    KF_EM: a static method cannot
+    %                                    share its class's name -- see the
+    %                                    FIX comment on its declaration).
     %   KF_ComputeParamStandardErrors -- Fisher-info SE calculator (~740 LOC,
     %                                    longest single method in nSTAT).
     %   KF_EStep                      -- Forward-backward E-step (Kalman
@@ -35,6 +38,17 @@ classdef KF_EM
             %By default, all parameters are estimated. To empose diagonal
             %structure on the EM parameter results must pass in the
             %constraints element
+            %
+            % FIX (M4, docs only): QhatDiag=1 / RhatDiag=1 impose
+            % diagonal structure on Qhat / Rhat in the frame KF_RunEM
+            % internally whitens by the STARTING covariances Q0 / R0
+            % (Tq = inv(chol(Q0,'lower')), Tr = inv(chol(R0,'lower'));
+            % see the C3/G1 fix), not in the caller's own state /
+            % observation coordinates. For diagonal Q0 / R0 the two
+            % frames coincide, so this is invisible. For a non-diagonal
+            % Q0 / R0, "Qhat/Rhat is diagonal" means Tq*Qhat*Tq' /
+            % Tr*Rhat*Tr' is diagonal; the returned Qhat / Rhat (mapped
+            % back to the caller's coordinates) generally is not.
             if(nargin<11 || isempty(EnableIkeda))
                 EnableIkeda=0;
             end
@@ -92,7 +106,44 @@ classdef KF_EM
             C.mcIter = mcIter;
             C.EnableIkeda = EnableIkeda;
         end
-        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, x0hat, Px0hat, IC, SE, Pvals, nIter]=KF_EM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, x0, Px0,KFEM_Constraints)
+        % FIX (KF track M, item C0; found during this audit, most severe):
+        % a Static method with the SAME name as its containing class is
+        % always treated as the class constructor (meta.class reports
+        % Static=0 for it regardless of the methods(Static) block it is
+        % textually in), so neither nstat.decoding.KF_EM.KF_EM(...) ("no
+        % Static method named 'KF_EM'") nor nstat.decoding.KF_EM(...)
+        % (runs, then errors: "the constructor must preserve the class of
+        % the returned object") ever worked. KF_EM's only two entry
+        % points -- this method and DecodingAlgorithms.KF_EM, which just
+        % forwarded to it -- were unreachable since the Phase 3 class
+        % extraction; nothing previously relied on a call that always
+        % errored. Renamed to KF_RunEM (DecodingAlgorithms.KF_EM now
+        % forwards to KF_RunEM; the class name nstat.decoding.KF_EM,
+        % KF_EMCreateConstraints, KF_EStep, KF_MStep and
+        % KF_ComputeParamStandardErrors are unchanged).
+        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, x0hat, Px0hat, IC, SE, Pvals, nIter]=KF_RunEM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, x0, Px0,KFEM_Constraints)
+            %KF_RUNEM EM for a linear-Gaussian state-space model (Shumway-Stoffer).
+            % [xKFinal,WKFinal,Ahat,Qhat,Chat,Rhat,alphahat,x0hat,Px0hat,IC,SE,
+            % Pvals,nIter] = KF_RunEM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0,
+            % x0, Px0, KFEM_Constraints). SE/Pvals are computed only when more
+            % than 10 outputs are requested.
+            %
+            % Note (docs only): EM internally whitens the state by
+            % Tq = inv(chol(Qhat0,'lower')) and the observation by
+            % Tr = inv(chol(Rhat0,'lower')) (see the C3 fix). The "logll:"
+            % value printed at each iteration is the expected complete-data
+            % log-likelihood of that SCALED system; IC.llcomp is the same
+            % quantity on the ORIGINAL scale, and IC.llobs / AIC / AICc / BIC
+            % are on the original scale too.
+            %
+            % Note (M4, docs only): EM stops at the FIRST decrease of the
+            % log-likelihood (dLikelihood(cnt)<0), not at convergence --
+            % same stopping rule as PP_EM / PPLFP_EM. Unlike those drivers'
+            % NewtonRaphson M-step, KF_RunEM's E-step (Kalman filter/RTS
+            % smoother) and M-step are both closed-form and deterministic,
+            % so for a given problem the stopping iteration itself is NOT
+            % random run to run; it can still differ between runs started
+            % from different initial parameters.
             numStates = size(Ahat0,1);
             
             if(nargin<9 || isempty(KFEM_Constraints))
@@ -133,8 +184,14 @@ classdef KF_EM
             scaledSystem=1;
             
             if(scaledSystem==1)
-                Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
-                Tr = eye(size(Rhat{1}))/(chol(Rhat{1}));
+                % FIX (KF track M, item C3 / G1): chol(Q) returns the
+                % UPPER factor R (R'*R = Q), so Tq=inv(R) only whitens
+                % a diagonal Q0 (Tq*Q0*Tq' = R^-1*R'*R*R^-T ~= I in
+                % general). Use the LOWER factor L (Q0 = L*L'), so
+                % Tq=inv(L) gives Tq*Q0*Tq' = I exactly. For diagonal
+                % Q0/R0, L = R and nothing changes.
+                Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
+                Tr = eye(size(Rhat{1}))/(chol(Rhat{1},'lower'));
                 Ahat{1}= Tq*Ahat{1}/Tq;
                 Chat{1}= Tr*Chat{1}/Tq;
                 Qhat{1}= Tq*Qhat{1}*Tq';
@@ -311,26 +368,41 @@ classdef KF_EM
             x0hat =x0hat{maxLLIndMod};
             Px0hat=Px0hat{maxLLIndMod};
             
+            ll = ll(maxLLIndex);
+            ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
+
              if(scaledSystem==1)
-               Tq = eye(size(Qhat))/(chol(Q0));
-               Tr = eye(size(Rhat))/(chol(R0));
+               % FIX (KF track M, item C3 / G1): lower factor; see the
+               % scale-in block above for why.
+               Tq = eye(size(Qhat))/(chol(Q0,'lower'));
+               Tr = eye(size(Rhat))/(chol(R0,'lower'));
                Ahat=Tq\Ahat*Tq;
                Qhat=(Tq\Qhat)/Tq';
                Chat=Tr\Chat*Tq;
                Rhat=(Tr\Rhat)/Tr';
                alphahat=Tr\alphahat;
-               xKFinal = Tq\xKFinal;
                x0hat = Tq\x0hat;
                Px0hat= (Tq\Px0hat)/(Tq');
-               tempWK =zeros(size(WKFinal));
-               for kk=1:size(WKFinal,3)
-                tempWK(:,:,kk)=(Tq\WKFinal(:,:,kk))/Tq';
-               end
-               WKFinal = tempWK;
+               % FIX (KF track M, item C4 / #bac99f9+F8+F10): xKFinal,
+               % WKFinal, ll and ExpectationSumsFinal were left on the
+               % internal Tq/Tr-scaled system (the loop's x_K/W_K/ll/
+               % ExpectationSums), while Ahat/Qhat/Chat/Rhat/alphahat/
+               % x0hat/Px0hat are now on the original scale above, and y
+               % (scaled at setup via y=Tr*y) was never restored. The SE
+               % call below and the IC formula further down then mixed
+               % scaled sums/y with original-scale estimates -- the same
+               % defect class as PP_EM/PPLFP_EM's pre-F8/F10 SE and IC
+               % bugs. Recompute the E-step once, from the unscaled
+               % parameters and the original y: the Kalman filter/RTS
+               % smoother is exactly equivariant under this linear change
+               % of variables, so this reproduces (rather than
+               % approximates) the original-coordinate xKFinal, WKFinal,
+               % ll and ExpectationSumsFinal, all mutually consistent on
+               % one scale.
+               [xKFinal,WKFinal,ll,ExpectationSumsFinal] = ...
+                   nstat.decoding.KF_EM.KF_EStep(Ahat,Qhat,Chat,Rhat,yOrig,alphahat,x0hat,Px0hat);
+               y = yOrig;
              end
-            
-            ll = ll(maxLLIndex);
-            ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
 
             if(nargout>10)
                 [SE, Pvals]=nstat.decoding.KF_EM.KF_ComputeParamStandardErrors(y, xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal, KFEM_Constraints);
@@ -354,7 +426,12 @@ classdef KF_EM
             n3=numel(Chat); 
             if(KFEM_Constraints.RhatDiag==1 && KFEM_Constraints.RhatIsotropic==1)
                 n4=1;
-            elseif(KFEM_Constraints.QhatDiag==1 && KFEM_Constraints.QhatIsotropic==0)
+            elseif(KFEM_Constraints.RhatDiag==1 && KFEM_Constraints.RhatIsotropic==0)
+                % FIX (KF track M, item C5 / F11): this branch tested
+                % Q's flags instead of R's, so R's own parameter count
+                % (and therefore IC.nTerms/AIC/AICc/BIC) was wrong
+                % whenever QhatDiag/QhatIsotropic differed from
+                % RhatDiag/RhatIsotropic==0 && RhatDiag==1.
                 n4=size(Rhat,1);
             else
                 n4=numel(Rhat);
@@ -507,7 +584,10 @@ classdef KF_EM
                     IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
                     for l=1:n1
                         for m=l
-                            termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+                            % FIX (KF track M, item C2 / H1): operator
+                            % precedence. N/2*(Rhat)\... evaluated as
+                            % ((N/2)*Rhat)^-1*..., N^2/4 too small.
+                            termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
                             termvec=diag(termMat);
                             IRComp(:,cnt)=termvec;
                             cnt=cnt+1;
@@ -518,7 +598,8 @@ classdef KF_EM
                 IRComp=zeros(numel((Rhat)),numel((Rhat)));
                 for l=1:n1
                     for m=1:n2
-                        termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+                        % FIX (KF track M, item C2 / H1): see above.
+                        termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
                         termvec=reshape(termMat',1,numel(Rhat));
                         IRComp(:,cnt)=termvec;
                         cnt=cnt+1;
@@ -574,7 +655,8 @@ classdef KF_EM
                     IQComp=zeros(numel(diag(Qhat)),numel(diag(Qhat)));
                     for l=1:n1
                         for m=l
-                            termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+                            % FIX (KF track M, item C2 / H1): see the R block above.
+                            termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
                             termvec=diag(termMat);
                             IQComp(:,cnt)=termvec;
                             cnt=cnt+1;
@@ -585,7 +667,8 @@ classdef KF_EM
                 IQComp=zeros(numel(Qhat),numel(Qhat));
                 for l=1:n1
                     for m=1:n2
-                        termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+                        % FIX (KF track M, item C2 / H1): see the R block above.
+                        termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
                         termvec=reshape(termMat',1,numel(Qhat));
                         IQComp(:,cnt)=termvec;
                         cnt=cnt+1;
@@ -620,7 +703,10 @@ classdef KF_EM
                     cnt=1;
                     for l=1:n1
                         for m=l
-                            termMat= 1/2*(Px0hat)\em(:,m)*el(:,l)'/(Px0hat);
+                            % FIX (KF track M, item C2 / H1): operator
+                            % precedence. 1/2*(Px0hat)\... evaluated as
+                            % ((1/2)*Px0hat)^-1*..., 4x too large.
+                            termMat= 1/2*((Px0hat)\em(:,m)*el(:,l)'/(Px0hat));
                             termvec=diag(termMat);
                 %             termvec=reshape(termMat',1,numel(Rhat));
                             ISComp(:,cnt)=termvec;
@@ -727,18 +813,19 @@ classdef KF_EM
         %     ScoreAlphaMc = zeros(numel(alphahat),Mc);
 
             % Generate the Monte Carlo samples for the unobserved data
+            % FIX (KF track M, item C1 / F9): draws were m + chol(W)*z.
+            % MATLAB's chol returns the UPPER factor R (R'*R = W), so
+            % R*z has covariance R*R' ~= W for any non-diagonal W. Now
+            % routed through PointProcessEM.mcStateDraws (x = m + R'*z,
+            % same z stream; bit-identical for diagonal W).
             for n=1:N
                 WuTemp=(WKFinal(:,:,n));
-                [chol_m,p]=chol(WuTemp);
-                z=normrnd(0,1,size(xKFinal,1),Mc);
-                xKDraw(:,n,:)=repmat(xKFinal(:,n),[1 Mc])+(chol_m*z);
+                xKDraw(:,n,:)=nstat.decoding.PointProcessEM.mcStateDraws(xKFinal(:,n),WuTemp,Mc);
             end
 
 
             if(KFEM_Constraints.EstimatePx0|| KFEM_Constraints.Estimatex0)
-                [chol_m,p]=chol(Px0hat);
-                z=normrnd(0,1,size(xKFinal,1),Mc);
-                x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
+                x0Draw=nstat.decoding.PointProcessEM.mcStateDraws(x0hat,Px0hat,Mc);
             else
                x0Draw=repmat(x0hat, [1 Mc]);
 
@@ -953,9 +1040,25 @@ pools=0;
             end
             IMissing = 1/Mc*sum(IMc,3);
             IObs  = IComp-IMissing;  
-            invIObs = eye(size(IObs))/IObs;
-        %     figure(1); subplot(1,2,1); imagesc(invIObs); subplot(1,2,2); imagesc(nearestSPD(invIObs));
-            invIObs = nearestSPD(invIObs); % Find the nearest positive semidefinite approximation for the variance matrix
+            % FIX (KF track M, item C6 / #136): an exactly singular IObs
+            % (e.g. a parameter the data cannot identify) made
+            % eye(size(IObs))/IObs Inf/NaN, and nearestSPD's "while p~=0"
+            % loop never returns on a NaN matrix, so KF_EM/KF_ComputeParamStandardErrors
+            % hung forever whenever SEs were requested. Reuse
+            % PointProcessEM.seObservedInfoInverse (the #136 fix already
+            % applied to PP_EM/PPLFP_EM): no zero pivot -> exactly the
+            % old eye/IObs then nearestSPD (bit-identical); a zero pivot
+            % -> the pseudo-inverse, with the non-identifiable terms
+            % flagged (SE/p-value NaN) via nSTAT:EM:singularInformation,
+            % and only the identifiable block projected by nearestSPD; a
+            % non-finite IObs/inverse raises nSTAT:EM:nonFiniteInformation
+            % instead of looping.
+            seLabels = nstat.decoding.PointProcessEM.seTermLabels({ ...
+                'A', n1, size(Ahat), 'square'; 'Q', n2, size(Qhat), 'square'; ...
+                'C', n3, size(Chat), 'square'; 'R', n4, size(Rhat), 'square'; ...
+                'Px0', n5, size(Px0hat), 'square'; 'x0', n6, size(x0hat), 'vector'; ...
+                'alpha', n7, size(alphahat), 'vector'});
+            [invIObs, nonIdentifiable] = nstat.decoding.PointProcessEM.seObservedInfoInverse(IObs, seLabels, 'KF_ComputeParamStandardErrors'); %#ok<ASGLU>
             VarVec = (diag(invIObs));
             SEVec = sqrt(VarVec);
             SEAterms = SEVec(1:n1);

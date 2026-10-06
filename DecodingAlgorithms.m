@@ -827,15 +827,21 @@ classdef DecodingAlgorithms
  end
 
  function varargout = KF_EM(varargin)
- %KF_EM Deprecated. Use nstat.decoding.KF_EM.KF_EM instead.
+ %KF_EM Deprecated. Use nstat.decoding.KF_EM.KF_RunEM instead.
  %
  % Forwarded as part of Phase 3 Task 3.2 Step G of the
  % 2026-05-19 nSTAT review action plan: the DecodingAlgorithms
  % monolith is being split into the +nstat/+decoding/ package.
+ % FIX (KF track M, item C0): this shim forwarded to
+ % nstat.decoding.KF_EM.KF_EM, a Static method with the same name as
+ % its class, which MATLAB always dispatches as the constructor; the
+ % call always errored ("no Static method named 'KF_EM'"). The target
+ % method is renamed KF_RunEM; this shim's own (deprecated) name is
+ % unchanged.
  warning('nSTAT:deprecated:DecodingAlgorithms',...
  ['DecodingAlgorithms.KF_EM is deprecated; use '...
- 'nstat.decoding.KF_EM.KF_EM instead.']);
- [varargout{1:nargout}] = nstat.decoding.KF_EM.KF_EM(varargin{:});
+ 'nstat.decoding.KF_EM.KF_RunEM instead.']);
+ [varargout{1:nargout}] = nstat.decoding.KF_EM.KF_RunEM(varargin{:});
  end
 
  function varargout = KF_ComputeParamStandardErrors(varargin)

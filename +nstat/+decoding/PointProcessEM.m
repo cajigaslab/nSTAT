@@ -51,6 +51,14 @@ classdef PointProcessEM
  % -1/2*log(det(Px0)) and hence the E-step log-likelihood to +Inf
  % and stops EM after ~2 iterations. Pass Estimatex0/EstimatePx0 = 1
  % explicitly to restore the old behaviour.
+ %
+ % FIX (M4, docs only): QhatDiag=1 imposes diagonal structure on Qhat
+ % in the frame PP_EM internally whitens by the STARTING covariance
+ % Q0 (Tq = inv(chol(Q0,'lower')); see G1), not in the caller's own
+ % state coordinates. For a diagonal Q0 the two frames coincide, so
+ % this is invisible. For a non-diagonal Q0, "Qhat is diagonal" means
+ % Tq*Qhat*Tq' is diagonal; the returned Qhat (mapped back to the
+ % caller's coordinates) generally is not.
  if(nargin<9 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -1100,10 +1108,33 @@ classdef PointProcessEM
  % SCALED system; IC.llcomp is the same quantity on the ORIGINAL scale
  % (the best printed value + (K+1)*log|det Tq|, K = number of time
  % bins), and IC.llobs / AIC / AICc / BIC are on the original scale too.
+ %
+ % Note (M4, docs only): EM stops at the FIRST decrease of the
+ % log-likelihood (dLikelihood(cnt)<0), not at convergence. Under the
+ % NewtonRaphson M-step's Monte Carlo expectation, successive
+ % iterations' log-likelihoods are themselves noisy, so the iteration
+ % at which that first decrease happens -- and hence nIter, and which
+ % iterate xKFinal/Ahat/.../IC come from -- is random (the same
+ % problem, run repeatedly, was observed to stop anywhere from
+ % iteration 6 to 11). This is a property of the stopping rule, not a
+ % bug; lower mcIter increases the noise and the variability.
  numStates = size(Ahat0,1);
  if(nargin<13 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
+ % FIX (M3): warn once per PP_EM call (not once per M-step iteration)
+ % when MstepMethod is 'GLM'. PP_MStep issues the identical warning
+ % when called directly; it is suppressed here for the duration of
+ % the loop (restored to the caller's state on return) so PP_EM's own
+ % internal M-step calls do not re-emit it every iteration.
+ if(strcmp(MstepMethod,'GLM'))
+ warning('nSTAT:EM:glmPlugIn', ['PP_EM: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
+ end
+ glmWarnState = warning('query','nSTAT:EM:glmPlugIn');
+ restoreGlmWarn = onCleanup(@() warning(glmWarnState.state,'nSTAT:EM:glmPlugIn')); %#ok<NASGU>
+ warning('off','nSTAT:EM:glmPlugIn');
  if(nargin<12 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
  end
@@ -2370,6 +2401,13 @@ classdef PointProcessEM
  
  % Estimate params via GLM
  if(strcmp(MstepMethod,'GLM'))
+ % FIX (M3): warn once per top-level call. PP_EM suppresses this
+ % id for the duration of its loop and issues its own single
+ % warning instead, so a direct PP_MStep(...,'GLM') call (not
+ % reached through PP_EM) still warns exactly once.
+ warning('nSTAT:EM:glmPlugIn', ['PP_MStep: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
  % FIX: removed `close all`. PP_EM creates its progress figure `h`
  % after the first M-step; on iteration 2 this `close all` deleted
  % it and PP_EM's `figure(h)` then threw "Argument must be a Figure
@@ -3550,7 +3588,10 @@ classdef PointProcessEM
 % end
  end
 
- methods (Static, Access = {?nstat.decoding.PointProcessEM, ?matlab.unittest.TestCase})
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.KF_EM, ?matlab.unittest.TestCase})
+ % FIX (KF track M, item C1): KF_EM has the identical upper-factor
+ % Monte Carlo draw defect (F9). Access is extended to KF_EM rather
+ % than duplicating the helper.
  function X = mcStateDraws(m, W, M)
  %MCSTATEDRAWS M Monte Carlo draws from N(m, W), returned as dx x M.
  % X = mcStateDraws(m, W, M) with m (dx x 1), W (dx x dx).
@@ -3573,7 +3614,10 @@ classdef PointProcessEM
  end
  end
 
- methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.PPLFP, ?matlab.unittest.TestCase})
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.PPLFP, ?nstat.decoding.KF_EM, ?matlab.unittest.TestCase})
+ % FIX (KF track M, item C6): KF_ComputeParamStandardErrors has the
+ % identical singular-observed-information hang (#136). Access is
+ % extended to KF_EM rather than duplicating the helper.
  function [invIObs, nonIdentifiable] = seObservedInfoInverse(IObs, labels, routine)
  %SEOBSERVEDINFOINVERSE Covariance (projected inverse observed information)
  % for the EM SE routines: nearestSPD of the inverse, as before.

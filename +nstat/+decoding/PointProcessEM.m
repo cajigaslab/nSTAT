@@ -51,6 +51,14 @@ classdef PointProcessEM
  % -1/2*log(det(Px0)) and hence the E-step log-likelihood to +Inf
  % and stops EM after ~2 iterations. Pass Estimatex0/EstimatePx0 = 1
  % explicitly to restore the old behaviour.
+ %
+ % FIX (M4, docs only): QhatDiag=1 imposes diagonal structure on Qhat
+ % in the frame PP_EM internally whitens by the STARTING covariance
+ % Q0 (Tq = inv(chol(Q0,'lower')); see G1), not in the caller's own
+ % state coordinates. For a diagonal Q0 the two frames coincide, so
+ % this is invisible. For a non-diagonal Q0, "Qhat is diagonal" means
+ % Tq*Qhat*Tq' is diagonal; the returned Qhat (mapped back to the
+ % caller's coordinates) generally is not.
  if(nargin<9 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -1100,6 +1108,16 @@ classdef PointProcessEM
  % SCALED system; IC.llcomp is the same quantity on the ORIGINAL scale
  % (the best printed value + (K+1)*log|det Tq|, K = number of time
  % bins), and IC.llobs / AIC / AICc / BIC are on the original scale too.
+ %
+ % Note (M4, docs only): EM stops at the FIRST decrease of the
+ % log-likelihood (dLikelihood(cnt)<0), not at convergence. Under the
+ % NewtonRaphson M-step's Monte Carlo expectation, successive
+ % iterations' log-likelihoods are themselves noisy, so the iteration
+ % at which that first decrease happens -- and hence nIter, and which
+ % iterate xKFinal/Ahat/.../IC come from -- is random (the same
+ % problem, run repeatedly, was observed to stop anywhere from
+ % iteration 6 to 11). This is a property of the stopping rule, not a
+ % bug; lower mcIter increases the noise and the variability.
  numStates = size(Ahat0,1);
  if(nargin<13 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)

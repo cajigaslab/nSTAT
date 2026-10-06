@@ -425,6 +425,16 @@ classdef PPLFP
  % stops after ~3 iterations (NewtonRaphson crashed before the
  % non-finite guard). Pass Estimatex0/EstimatePx0 = 1 explicitly to
  % restore the old behaviour.
+ %
+ % FIX (M4, docs only): QhatDiag=1 / RhatDiag=1 impose diagonal
+ % structure on Qhat / Rhat in the frame PPLFP_EM internally whitens
+ % by the STARTING covariances Q0 / R0 (Tq = inv(chol(Q0,'lower')),
+ % Tr = inv(chol(R0,'lower')); see G1), not in the caller's own state
+ % / observation coordinates. For diagonal Q0 / R0 the two frames
+ % coincide, so this is invisible. For a non-diagonal Q0 / R0,
+ % "Qhat/Rhat is diagonal" means Tq*Qhat*Tq' / Tr*Rhat*Tr' is
+ % diagonal; the returned Qhat / Rhat (mapped back to the caller's
+ % coordinates) generally is not.
  if(nargin<11 || isempty(EnableIkeda))
  EnableIkeda=0;
  end
@@ -1710,6 +1720,12 @@ classdef PPLFP
  % same quantity on the ORIGINAL scale (the best printed value +
  % (K+1)*log|det Tq| + K*log|det Tr|, K = number of time bins), and
  % IC.llobs / AIC / AICc / BIC are on the original scale too.
+ %
+ % Note (M4, docs only): EM stops at the FIRST decrease of the
+ % log-likelihood, not at convergence; see PP_EM's identical note for
+ % why this makes the stopping iteration (and hence nIter and which
+ % iterate the outputs come from) random under the NewtonRaphson
+ % M-step's Monte Carlo expectation.
  numStates = size(Ahat0,1);
  if(nargin<17 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)

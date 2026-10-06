@@ -38,6 +38,17 @@ classdef KF_EM
             %By default, all parameters are estimated. To empose diagonal
             %structure on the EM parameter results must pass in the
             %constraints element
+            %
+            % FIX (M4, docs only): QhatDiag=1 / RhatDiag=1 impose
+            % diagonal structure on Qhat / Rhat in the frame KF_RunEM
+            % internally whitens by the STARTING covariances Q0 / R0
+            % (Tq = inv(chol(Q0,'lower')), Tr = inv(chol(R0,'lower'));
+            % see the C3/G1 fix), not in the caller's own state /
+            % observation coordinates. For diagonal Q0 / R0 the two
+            % frames coincide, so this is invisible. For a non-diagonal
+            % Q0 / R0, "Qhat/Rhat is diagonal" means Tq*Qhat*Tq' /
+            % Tr*Rhat*Tr' is diagonal; the returned Qhat / Rhat (mapped
+            % back to the caller's coordinates) generally is not.
             if(nargin<11 || isempty(EnableIkeda))
                 EnableIkeda=0;
             end

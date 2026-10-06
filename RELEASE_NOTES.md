@@ -1,10 +1,19 @@
 # nSTAT Release Notes
 
-## Unreleased — Kalman-filter EM (`fix/kf-em`)
+## v1.6.0 — 6-Oct-2026
+
+Point-process and Kalman-filter EM release. `PP_EM` could not run in any configuration and `KF_EM`'s main loop was unreachable; both families now run and are numerically correct, and the standard-error routines no longer hang on singular information (#135, #137, #138). Mirrored by nstat-python v0.6.0.
+
+- **Correctness fixes**: see the two subsections below (per-commit tables).
+- **New capabilities**: optional trailing `delta` inputs to `PP_MStep` / `PPLFP_MStep`; the GLM M-step (`MstepMethod='GLM'`) now warns once per call (`nSTAT:EM:glmPlugIn`).
+- **Breaking changes**: EM defaults are now the NewtonRaphson M-step with x0/Px0 not estimated (PP and PPLFP); SE/Pvals layout and values, IC scale, and non-diagonal Q0/R0 behaviour change; `KF_EM`'s internal static method is renamed `KF_RunEM` (the public `DecodingAlgorithms.KF_EM` entry point is unchanged). Details in the subsections.
+- **Paper-example gallery rebaselined under R2026a Update 3** (`build_paper_examples`): example05 fig05/fig06 had drifted (mean |Δ| 0.61 / 1.32) under the current MATLAB release. The v1.5.2 code shows the identical drift, so it is a rendering-environment change, not a code change. `check_readme_figures` now reports 21 identical, 3 allowlisted-nondeterministic, 0 substantive.
+
+### Kalman-filter EM (#138)
 
 Repairs `nstat.decoding.KF_EM` with the same defect classes the point-process EM repair (`fix/pp-em`, above) found and fixed in `PointProcessEM`/`PPLFP`, plus one defect specific to this class: its main EM loop was a Static method named identically to its own class, which MATLAB always dispatches as the constructor, so it was unreachable through either of its two documented entry points. Also adds a GLM-plug-in-M-step warning (`PP_EM`/`PP_MStep`/`PPLFP_EM`/`PPLFP_MStep`) and documentation of two pre-existing, user-decided behaviours (the whitened-frame meaning of `QhatDiag`/`RhatDiag`, and EM's "stop at first decrease" rule).
 
-### Correctness fixes
+#### Correctness fixes
 
 | PR / commit | Class | Site | Effect |
 |---|---|---|---|
@@ -17,21 +26,21 @@ Repairs `nstat.decoding.KF_EM` with the same defect classes the point-process EM
 | `c7d177e` | hang | `KF_ComputeParamStandardErrors` with SEs requested, singular observed information | Same pattern as `#136` (`PointProcessEM`/`PPLFP`): `eye(size(IObs))/IObs` is Inf/NaN on an exactly singular `IObs`, and `nearestSPD`'s `while p ~= 0` loop never returns on a NaN matrix. Now reuses `PointProcessEM.seObservedInfoInverse`: a zero pivot falls back to the pseudo-inverse, flags the non-identifiable terms (SE/p-value NaN) with `nSTAT:EM:singularInformation`, and a non-finite information matrix raises `nSTAT:EM:nonFiniteInformation` instead of looping. Nonsingular information is unchanged (bit-identical). |
 | `3f91924` | new warning | `PP_EM`/`PP_MStep`/`PPLFP_EM`/`PPLFP_MStep` with `MstepMethod='GLM'` | Warns once per top-level call, id `nSTAT:EM:glmPlugIn`: the GLM M-step is a plug-in fit on the smoothed means (ignores `W_K`), which inflates β and can drift; `NewtonRaphson` (the default) is preferred. No numerical output changes. `mPPCO_EM`/`mPPCO_MStep` inherit it via their existing forward to `PPLFP`. |
 
-### Breaking changes
+#### Breaking changes
 
 - **`nstat.decoding.KF_EM.KF_EM` is renamed `KF_RunEM`** (`dd7c7d5`). This is not a behavioural break in practice: the old name never worked (every call errored), so nothing could have depended on it. `DecodingAlgorithms.KF_EM` (the deprecated outward-facing name) is unchanged; it now forwards to `KF_RunEM`.
 - **`KF_RunEM`'s `SE`, `Pvals` and `IC`** move whenever SEs are requested or `Q0`/`R0` is non-diagonal (`6ba92cb`, `dcf03eb`, `5b942b3`, `178917c`) — see the table above. Direct `KF_EStep`/`KF_ComputeParamStandardErrors`/`KF_MStep` calls are unaffected except by the precedence (`5b942b3`), draws (`178917c`) and singular-information (`c7d177e`) fixes, which apply there too.
 
-### Docs only (no numerical change)
+#### Docs only (no numerical change)
 
 - `PP_EMCreateConstraints` / `PPLFP_EMCreateConstraints` / `KF_EMCreateConstraints`: `QhatDiag=1` / `RhatDiag=1` mean "diagonal in the frame whitened by Q0 / R0", not in the caller's own coordinates, whenever Q0 / R0 is non-diagonal.
 - `PP_EM` / `PPLFP_EM` / `KF_EM` (`KF_RunEM`): EM stops at the first decrease of the log-likelihood, not at convergence; for `PP_EM`/`PPLFP_EM` this makes the stopping iteration random under the Monte Carlo M-step (6–11 observed on one problem), while `KF_RunEM`'s closed-form E/M steps make it deterministic for a fixed problem.
 
-## Unreleased — point-process EM (`fix/pp-em`)
+### Point-process EM and SE singular information (#135, #137)
 
 Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configuration) and fixes a series of correctness defects in the point-process EM / PPLFP / decoder cluster found while doing so. Two **default changes** (`PP_EM` and `PPLFP_EM` now use the NewtonRaphson M-step and do not estimate x0/Px0) and one **SE output-layout change** — see *Breaking changes*. The binomial likelihood throughout is the toolbox's point-process form `log L = Σ dN·log p − p`, `p = logistic(η)`.
 
-### Correctness fixes
+#### Correctness fixes
 
 | PR / commit | Class | Site | Effect |
 |---|---|---|---|
@@ -62,7 +71,7 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 | #136 | hang | both SE routines (`PP_EM` / `PPLFP_EM` with SEs requested) | An exactly singular observed information (a separated history window: no spike in it is followed by a spike, so its gamma walks to the `exp()` underflow and its information and score are exactly 0) made `eye/IObs` Inf/NaN, and `nearestSPD` then never returned. Now the pseudo-inverse is used, the parameters in its null space are reported with NaN SE and p-value and named in a `nSTAT:EM:singularInformation` warning, only the identifiable block is projected with `nearestSPD` (which also does not return on a singular matrix), and a non-finite information matrix raises `nSTAT:EM:nonFiniteInformation`. Nonsingular information is unchanged (bit-identical). |
 | `6d42ece` | side effect | GLM M-steps | `warning('OFF')` now restores the caller's warning state on exit. |
 
-### Breaking changes
+#### Breaking changes
 
 - **`PP_EM` / `PP_MStep` (`b0d83fd`) and `PPLFP_EM` / `PPLFP_MStep` (`7cea336`): default `MstepMethod` is now `'NewtonRaphson'`** (was `'GLM'`, a plug-in fit on the smoothed means that inflates β and drifts). Pass `'GLM'` explicitly for the old behaviour.
 - **`PP_EMCreateConstraints` / `PPLFP_EMCreateConstraints`: `Estimatex0` and `EstimatePx0` now default to 0** (were 1; the single-sample Px0 update collapses Px0 to ~0 and sends the log-likelihood to +Inf after ~2 iterations). All other constraint defaults are unchanged. Pass them as 1 for the old behaviour.
@@ -75,7 +84,7 @@ Makes `nstat.decoding.PointProcessEM.PP_EM` run (it could not run in any configu
 - **Standard errors (`2a858a0`)**: `SE` / `Pvals` from both SE routines and both EM drivers change. SE.Q and SE.R were about K/2 too large and SE.Px0 2× too small, and through `nearestSPD` every other SE was affected too.
 - The per-iteration `logll:` console line stays on the internal scaled system (see the `PP_EM` / `PPLFP_EM` help); `IC.llcomp` is on the original scale.
 
-### New capabilities
+#### New capabilities
 
 - **Optional `delta` inputs**: `PP_MStep(…, MstepMethod, delta)` (15th input) and `PPLFP_MStep(…, MstepMethod, delta)` (16th input), default 0.001 s; `PP_EM` / `PPLFP_EM` pass their `delta`. Existing positional arguments are unchanged.
 - Tests: `tests/unit/testPointProcessEMRuns.m`, `testEMMonteCarloDraws.m`, `testPointProcessEMCorrectness.m`, `testPPLFPEMCorrectness.m`, `testDecoderCorrectness.m`, `testFitResSummaryHistIndex.m`; slow full-EM tests in `tests/integration/testPointProcessEMIntegration.m` (`tools/run_unit_tests.sh --integration`).

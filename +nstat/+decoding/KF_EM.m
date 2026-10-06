@@ -15,7 +15,10 @@ classdef KF_EM
     %
     % Static methods:
     %   KF_EMCreateConstraints        -- EM constraint builder.
-    %   KF_EM                         -- Main EM loop.
+    %   KF_RunEM                      -- Main EM loop (named KF_RunEM, not
+    %                                    KF_EM: a static method cannot
+    %                                    share its class's name -- see the
+    %                                    FIX comment on its declaration).
     %   KF_ComputeParamStandardErrors -- Fisher-info SE calculator (~740 LOC,
     %                                    longest single method in nSTAT).
     %   KF_EStep                      -- Forward-backward E-step (Kalman
@@ -92,7 +95,44 @@ classdef KF_EM
             C.mcIter = mcIter;
             C.EnableIkeda = EnableIkeda;
         end
-        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, x0hat, Px0hat, IC, SE, Pvals, nIter]=KF_EM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, x0, Px0,KFEM_Constraints)
+        % FIX (KF track M, item C0; found during this audit, most severe):
+        % a Static method with the SAME name as its containing class is
+        % always treated as the class constructor (meta.class reports
+        % Static=0 for it regardless of the methods(Static) block it is
+        % textually in), so neither nstat.decoding.KF_EM.KF_EM(...) ("no
+        % Static method named 'KF_EM'") nor nstat.decoding.KF_EM(...)
+        % (runs, then errors: "the constructor must preserve the class of
+        % the returned object") ever worked. KF_EM's only two entry
+        % points -- this method and DecodingAlgorithms.KF_EM, which just
+        % forwarded to it -- were unreachable since the Phase 3 class
+        % extraction; nothing previously relied on a call that always
+        % errored. Renamed to KF_RunEM (DecodingAlgorithms.KF_EM now
+        % forwards to KF_RunEM; the class name nstat.decoding.KF_EM,
+        % KF_EMCreateConstraints, KF_EStep, KF_MStep and
+        % KF_ComputeParamStandardErrors are unchanged).
+        function [xKFinal,WKFinal,Ahat, Qhat, Chat, Rhat,alphahat, x0hat, Px0hat, IC, SE, Pvals, nIter]=KF_RunEM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0, x0, Px0,KFEM_Constraints)
+            %KF_RUNEM EM for a linear-Gaussian state-space model (Shumway-Stoffer).
+            % [xKFinal,WKFinal,Ahat,Qhat,Chat,Rhat,alphahat,x0hat,Px0hat,IC,SE,
+            % Pvals,nIter] = KF_RunEM(y, Ahat0, Qhat0, Chat0, Rhat0, alphahat0,
+            % x0, Px0, KFEM_Constraints). SE/Pvals are computed only when more
+            % than 10 outputs are requested.
+            %
+            % Note (docs only): EM internally whitens the state by
+            % Tq = inv(chol(Qhat0,'lower')) and the observation by
+            % Tr = inv(chol(Rhat0,'lower')) (see the C3 fix). The "logll:"
+            % value printed at each iteration is the expected complete-data
+            % log-likelihood of that SCALED system; IC.llcomp is the same
+            % quantity on the ORIGINAL scale, and IC.llobs / AIC / AICc / BIC
+            % are on the original scale too.
+            %
+            % Note (M4, docs only): EM stops at the FIRST decrease of the
+            % log-likelihood (dLikelihood(cnt)<0), not at convergence --
+            % same stopping rule as PP_EM / PPLFP_EM. Unlike those drivers'
+            % NewtonRaphson M-step, KF_RunEM's E-step (Kalman filter/RTS
+            % smoother) and M-step are both closed-form and deterministic,
+            % so for a given problem the stopping iteration itself is NOT
+            % random run to run; it can still differ between runs started
+            % from different initial parameters.
             numStates = size(Ahat0,1);
             
             if(nargin<9 || isempty(KFEM_Constraints))

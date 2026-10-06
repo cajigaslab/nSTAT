@@ -1104,6 +1104,19 @@ classdef PointProcessEM
  if(nargin<13 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
+ % FIX (M3): warn once per PP_EM call (not once per M-step iteration)
+ % when MstepMethod is 'GLM'. PP_MStep issues the identical warning
+ % when called directly; it is suppressed here for the duration of
+ % the loop (restored to the caller's state on return) so PP_EM's own
+ % internal M-step calls do not re-emit it every iteration.
+ if(strcmp(MstepMethod,'GLM'))
+ warning('nSTAT:EM:glmPlugIn', ['PP_EM: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
+ end
+ glmWarnState = warning('query','nSTAT:EM:glmPlugIn');
+ restoreGlmWarn = onCleanup(@() warning(glmWarnState.state,'nSTAT:EM:glmPlugIn')); %#ok<NASGU>
+ warning('off','nSTAT:EM:glmPlugIn');
  if(nargin<12 || isempty(PPEM_Constraints))
  PPEM_Constraints = nstat.decoding.PointProcessEM.PP_EMCreateConstraints;
  end
@@ -2370,6 +2383,13 @@ classdef PointProcessEM
  
  % Estimate params via GLM
  if(strcmp(MstepMethod,'GLM'))
+ % FIX (M3): warn once per top-level call. PP_EM suppresses this
+ % id for the duration of its loop and issues its own single
+ % warning instead, so a direct PP_MStep(...,'GLM') call (not
+ % reached through PP_EM) still warns exactly once.
+ warning('nSTAT:EM:glmPlugIn', ['PP_MStep: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
  % FIX: removed `close all`. PP_EM creates its progress figure `h`
  % after the first M-step; on iteration 2 this `close all` deleted
  % it and PP_EM's `figure(h)` then threw "Argument must be a Figure

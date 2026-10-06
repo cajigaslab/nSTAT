@@ -1714,6 +1714,16 @@ classdef PPLFP
  if(nargin<17 || isempty(MstepMethod))
  MstepMethod='NewtonRaphson'; % FIX: default was 'GLM' (see help)
  end
+ % FIX (M3): warn once per PPLFP_EM call (not once per M-step
+ % iteration) when MstepMethod is 'GLM'; see PP_EM's identical fix.
+ if(strcmp(MstepMethod,'GLM'))
+ warning('nSTAT:EM:glmPlugIn', ['PPLFP_EM: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
+ end
+ glmWarnState = warning('query','nSTAT:EM:glmPlugIn');
+ restoreGlmWarn = onCleanup(@() warning(glmWarnState.state,'nSTAT:EM:glmPlugIn')); %#ok<NASGU>
+ warning('off','nSTAT:EM:glmPlugIn');
  if(nargin<16 || isempty(PPLFP_EM_Constraints))
  PPLFP_EM_Constraints = nstat.decoding.PPLFP.PPLFP_EMCreateConstraints;
  end
@@ -2578,6 +2588,12 @@ classdef PPLFP
  % Estimate params via GLM
 
  if(strcmp(MstepMethod,'GLM'))
+ % FIX (M3): warn once per top-level call; PPLFP_EM suppresses this
+ % id for the duration of its loop and warns once itself, so a
+ % direct PPLFP_MStep(...,'GLM') call still warns exactly once.
+ warning('nSTAT:EM:glmPlugIn', ['PPLFP_MStep: MstepMethod=''GLM'' is a plug-in fit on the smoothed ' ...
+ 'means (ignores W_K), which inflates beta and can drift; ''NewtonRaphson'' (the default) ' ...
+ 'is preferred.']);
  % FIX: removed `close all`. PPLFP_EM creates its progress figure
  % `h` after the first M-step; on iteration 2 this `close all`
  % deleted it and PPLFP_EM's `figure(h)` threw "Argument must be a

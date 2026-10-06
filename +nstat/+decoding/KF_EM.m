@@ -802,18 +802,19 @@ classdef KF_EM
         %     ScoreAlphaMc = zeros(numel(alphahat),Mc);
 
             % Generate the Monte Carlo samples for the unobserved data
+            % FIX (KF track M, item C1 / F9): draws were m + chol(W)*z.
+            % MATLAB's chol returns the UPPER factor R (R'*R = W), so
+            % R*z has covariance R*R' ~= W for any non-diagonal W. Now
+            % routed through PointProcessEM.mcStateDraws (x = m + R'*z,
+            % same z stream; bit-identical for diagonal W).
             for n=1:N
                 WuTemp=(WKFinal(:,:,n));
-                [chol_m,p]=chol(WuTemp);
-                z=normrnd(0,1,size(xKFinal,1),Mc);
-                xKDraw(:,n,:)=repmat(xKFinal(:,n),[1 Mc])+(chol_m*z);
+                xKDraw(:,n,:)=nstat.decoding.PointProcessEM.mcStateDraws(xKFinal(:,n),WuTemp,Mc);
             end
 
 
             if(KFEM_Constraints.EstimatePx0|| KFEM_Constraints.Estimatex0)
-                [chol_m,p]=chol(Px0hat);
-                z=normrnd(0,1,size(xKFinal,1),Mc);
-                x0Draw=repmat(x0hat,[1 Mc])+(chol_m*z); 
+                x0Draw=nstat.decoding.PointProcessEM.mcStateDraws(x0hat,Px0hat,Mc);
             else
                x0Draw=repmat(x0hat, [1 Mc]);
 

@@ -3550,7 +3550,10 @@ classdef PointProcessEM
 % end
  end
 
- methods (Static, Access = {?nstat.decoding.PointProcessEM, ?matlab.unittest.TestCase})
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.KF_EM, ?matlab.unittest.TestCase})
+ % FIX (KF track M, item C1): KF_EM has the identical upper-factor
+ % Monte Carlo draw defect (F9). Access is extended to KF_EM rather
+ % than duplicating the helper.
  function X = mcStateDraws(m, W, M)
  %MCSTATEDRAWS M Monte Carlo draws from N(m, W), returned as dx x M.
  % X = mcStateDraws(m, W, M) with m (dx x 1), W (dx x dx).

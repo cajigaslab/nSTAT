@@ -173,8 +173,14 @@ classdef KF_EM
             scaledSystem=1;
             
             if(scaledSystem==1)
-                Tq = eye(size(Qhat{1}))/(chol(Qhat{1}));
-                Tr = eye(size(Rhat{1}))/(chol(Rhat{1}));
+                % FIX (KF track M, item C3 / G1): chol(Q) returns the
+                % UPPER factor R (R'*R = Q), so Tq=inv(R) only whitens
+                % a diagonal Q0 (Tq*Q0*Tq' = R^-1*R'*R*R^-T ~= I in
+                % general). Use the LOWER factor L (Q0 = L*L'), so
+                % Tq=inv(L) gives Tq*Q0*Tq' = I exactly. For diagonal
+                % Q0/R0, L = R and nothing changes.
+                Tq = eye(size(Qhat{1}))/(chol(Qhat{1},'lower'));
+                Tr = eye(size(Rhat{1}))/(chol(Rhat{1},'lower'));
                 Ahat{1}= Tq*Ahat{1}/Tq;
                 Chat{1}= Tr*Chat{1}/Tq;
                 Qhat{1}= Tq*Qhat{1}*Tq';
@@ -351,26 +357,41 @@ classdef KF_EM
             x0hat =x0hat{maxLLIndMod};
             Px0hat=Px0hat{maxLLIndMod};
             
+            ll = ll(maxLLIndex);
+            ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
+
              if(scaledSystem==1)
-               Tq = eye(size(Qhat))/(chol(Q0));
-               Tr = eye(size(Rhat))/(chol(R0));
+               % FIX (KF track M, item C3 / G1): lower factor; see the
+               % scale-in block above for why.
+               Tq = eye(size(Qhat))/(chol(Q0,'lower'));
+               Tr = eye(size(Rhat))/(chol(R0,'lower'));
                Ahat=Tq\Ahat*Tq;
                Qhat=(Tq\Qhat)/Tq';
                Chat=Tr\Chat*Tq;
                Rhat=(Tr\Rhat)/Tr';
                alphahat=Tr\alphahat;
-               xKFinal = Tq\xKFinal;
                x0hat = Tq\x0hat;
                Px0hat= (Tq\Px0hat)/(Tq');
-               tempWK =zeros(size(WKFinal));
-               for kk=1:size(WKFinal,3)
-                tempWK(:,:,kk)=(Tq\WKFinal(:,:,kk))/Tq';
-               end
-               WKFinal = tempWK;
+               % FIX (KF track M, item C4 / #bac99f9+F8+F10): xKFinal,
+               % WKFinal, ll and ExpectationSumsFinal were left on the
+               % internal Tq/Tr-scaled system (the loop's x_K/W_K/ll/
+               % ExpectationSums), while Ahat/Qhat/Chat/Rhat/alphahat/
+               % x0hat/Px0hat are now on the original scale above, and y
+               % (scaled at setup via y=Tr*y) was never restored. The SE
+               % call below and the IC formula further down then mixed
+               % scaled sums/y with original-scale estimates -- the same
+               % defect class as PP_EM/PPLFP_EM's pre-F8/F10 SE and IC
+               % bugs. Recompute the E-step once, from the unscaled
+               % parameters and the original y: the Kalman filter/RTS
+               % smoother is exactly equivariant under this linear change
+               % of variables, so this reproduces (rather than
+               % approximates) the original-coordinate xKFinal, WKFinal,
+               % ll and ExpectationSumsFinal, all mutually consistent on
+               % one scale.
+               [xKFinal,WKFinal,ll,ExpectationSumsFinal] = ...
+                   nstat.decoding.KF_EM.KF_EStep(Ahat,Qhat,Chat,Rhat,yOrig,alphahat,x0hat,Px0hat);
+               y = yOrig;
              end
-            
-            ll = ll(maxLLIndex);
-            ExpectationSumsFinal = ExpectationSums{maxLLIndMod};
 
             if(nargout>10)
                 [SE, Pvals]=nstat.decoding.KF_EM.KF_ComputeParamStandardErrors(y, xKFinal, WKFinal, Ahat, Qhat, Chat, Rhat, alphahat, x0hat, Px0hat, ExpectationSumsFinal, KFEM_Constraints);

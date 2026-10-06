@@ -67,6 +67,16 @@ if [[ ! -x "$MATLAB_BIN" ]]; then
   exit 2
 fi
 
+# Guard against #140 (the release gate rewriting MATLAB's system-wide
+# toolbox/local/pathdef.m via savepath). nSTAT_Install('SavePath',false)
+# is the real fix; this hashes pathdef.m before/after the whole gate run
+# as a second line of defense that fails loudly if anything -- a bug
+# reintroduced later, or a future gate step we haven't audited -- calls
+# savepath anyway.
+# shellcheck source=tools/pathdef_guard.sh
+source "$REPO_ROOT/tools/pathdef_guard.sh"
+pathdef_guard_snapshot "$MATLAB_BIN"
+
 gate_count=0
 gate_failed=0
 
@@ -105,6 +115,9 @@ run_gate "helptoc.xml lint" \
 
 run_gate "Bug-pattern audit (review report afterwards)" \
   "$REPO_ROOT/tools/check_bug_patterns.sh" "$REPO_ROOT/docs/verification/bug_pattern_audit_latest.md"
+
+run_gate "pathdef.m unchanged (#140 guard)" \
+  pathdef_guard_verify
 
 echo
 echo "============================================================"

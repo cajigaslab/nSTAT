@@ -1029,9 +1029,25 @@ pools=0;
             end
             IMissing = 1/Mc*sum(IMc,3);
             IObs  = IComp-IMissing;  
-            invIObs = eye(size(IObs))/IObs;
-        %     figure(1); subplot(1,2,1); imagesc(invIObs); subplot(1,2,2); imagesc(nearestSPD(invIObs));
-            invIObs = nearestSPD(invIObs); % Find the nearest positive semidefinite approximation for the variance matrix
+            % FIX (KF track M, item C6 / #136): an exactly singular IObs
+            % (e.g. a parameter the data cannot identify) made
+            % eye(size(IObs))/IObs Inf/NaN, and nearestSPD's "while p~=0"
+            % loop never returns on a NaN matrix, so KF_EM/KF_ComputeParamStandardErrors
+            % hung forever whenever SEs were requested. Reuse
+            % PointProcessEM.seObservedInfoInverse (the #136 fix already
+            % applied to PP_EM/PPLFP_EM): no zero pivot -> exactly the
+            % old eye/IObs then nearestSPD (bit-identical); a zero pivot
+            % -> the pseudo-inverse, with the non-identifiable terms
+            % flagged (SE/p-value NaN) via nSTAT:EM:singularInformation,
+            % and only the identifiable block projected by nearestSPD; a
+            % non-finite IObs/inverse raises nSTAT:EM:nonFiniteInformation
+            % instead of looping.
+            seLabels = nstat.decoding.PointProcessEM.seTermLabels({ ...
+                'A', n1, size(Ahat), 'square'; 'Q', n2, size(Qhat), 'square'; ...
+                'C', n3, size(Chat), 'square'; 'R', n4, size(Rhat), 'square'; ...
+                'Px0', n5, size(Px0hat), 'square'; 'x0', n6, size(x0hat), 'vector'; ...
+                'alpha', n7, size(alphahat), 'vector'});
+            [invIObs, nonIdentifiable] = nstat.decoding.PointProcessEM.seObservedInfoInverse(IObs, seLabels, 'KF_ComputeParamStandardErrors'); %#ok<ASGLU>
             VarVec = (diag(invIObs));
             SEVec = sqrt(VarVec);
             SEAterms = SEVec(1:n1);

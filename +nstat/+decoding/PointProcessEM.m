@@ -3576,7 +3576,10 @@ classdef PointProcessEM
  end
  end
 
- methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.PPLFP, ?matlab.unittest.TestCase})
+ methods (Static, Access = {?nstat.decoding.PointProcessEM, ?nstat.decoding.PPLFP, ?nstat.decoding.KF_EM, ?matlab.unittest.TestCase})
+ % FIX (KF track M, item C6): KF_ComputeParamStandardErrors has the
+ % identical singular-observed-information hang (#136). Access is
+ % extended to KF_EM rather than duplicating the helper.
  function [invIObs, nonIdentifiable] = seObservedInfoInverse(IObs, labels, routine)
  %SEOBSERVEDINFOINVERSE Covariance (projected inverse observed information)
  % for the EM SE routines: nearestSPD of the inverse, as before.

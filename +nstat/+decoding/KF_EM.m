@@ -573,7 +573,10 @@ classdef KF_EM
                     IRComp=zeros(numel(diag(Rhat)),numel(diag(Rhat)));
                     for l=1:n1
                         for m=l
-                            termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+                            % FIX (KF track M, item C2 / H1): operator
+                            % precedence. N/2*(Rhat)\... evaluated as
+                            % ((N/2)*Rhat)^-1*..., N^2/4 too small.
+                            termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
                             termvec=diag(termMat);
                             IRComp(:,cnt)=termvec;
                             cnt=cnt+1;
@@ -584,7 +587,8 @@ classdef KF_EM
                 IRComp=zeros(numel((Rhat)),numel((Rhat)));
                 for l=1:n1
                     for m=1:n2
-                        termMat= N/2*(Rhat)\em(:,m)*el(:,l)'/(Rhat);
+                        % FIX (KF track M, item C2 / H1): see above.
+                        termMat= N/2*((Rhat)\em(:,m)*el(:,l)'/(Rhat));
                         termvec=reshape(termMat',1,numel(Rhat));
                         IRComp(:,cnt)=termvec;
                         cnt=cnt+1;
@@ -640,7 +644,8 @@ classdef KF_EM
                     IQComp=zeros(numel(diag(Qhat)),numel(diag(Qhat)));
                     for l=1:n1
                         for m=l
-                            termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+                            % FIX (KF track M, item C2 / H1): see the R block above.
+                            termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
                             termvec=diag(termMat);
                             IQComp(:,cnt)=termvec;
                             cnt=cnt+1;
@@ -651,7 +656,8 @@ classdef KF_EM
                 IQComp=zeros(numel(Qhat),numel(Qhat));
                 for l=1:n1
                     for m=1:n2
-                        termMat= N/2*(Qhat)\em(:,m)*el(:,l)'/(Qhat);
+                        % FIX (KF track M, item C2 / H1): see the R block above.
+                        termMat= N/2*((Qhat)\em(:,m)*el(:,l)'/(Qhat));
                         termvec=reshape(termMat',1,numel(Qhat));
                         IQComp(:,cnt)=termvec;
                         cnt=cnt+1;
@@ -686,7 +692,10 @@ classdef KF_EM
                     cnt=1;
                     for l=1:n1
                         for m=l
-                            termMat= 1/2*(Px0hat)\em(:,m)*el(:,l)'/(Px0hat);
+                            % FIX (KF track M, item C2 / H1): operator
+                            % precedence. 1/2*(Px0hat)\... evaluated as
+                            % ((1/2)*Px0hat)^-1*..., 4x too large.
+                            termMat= 1/2*((Px0hat)\em(:,m)*el(:,l)'/(Px0hat));
                             termvec=diag(termMat);
                 %             termvec=reshape(termMat',1,numel(Rhat));
                             ISComp(:,cnt)=termvec;

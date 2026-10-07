@@ -1,15 +1,29 @@
-function removedEntries = cleanup_user_path_prefs(rootDir)
+function removedEntries = cleanup_user_path_prefs(rootDir, varargin)
 % cleanup_user_path_prefs Remove stale nSTAT path entries from MATLAB path.
 %
 % Usage:
 %   cleanup_user_path_prefs
 %   cleanup_user_path_prefs(rootDir)
+%   cleanup_user_path_prefs(rootDir, 'SavePath', false)
 %   removedEntries = cleanup_user_path_prefs(...)
 %
 % This utility removes stale path entries under the current nSTAT repository.
 % It targets deleted Python-port maintenance trees and missing repo-local
 % folders that can trigger startup warnings such as:
 %   "Name is nonexistent or not a directory: .../tools/matlab"
+%
+% Name-value options:
+%   SavePath (default true) Persist the filtered path via savepath. FIX
+%            (#140): nSTAT_Install forwards its own SavePath option here
+%            so non-interactive callers (nSTAT_Install('SavePath',false,
+%            'CleanUserPathPrefs',true)) don't rewrite the system
+%            toolbox/local/pathdef.m either.
+
+parser = inputParser;
+parser.FunctionName = 'cleanup_user_path_prefs';
+addParameter(parser, 'SavePath', true, @(x)islogical(x) || isnumeric(x));
+parse(parser, varargin{:});
+shouldSavePath = logical(parser.Results.SavePath);
 
 if nargin < 1 || isempty(rootDir)
     installPath = which('nSTAT_Install');
@@ -65,7 +79,9 @@ if ~isempty(removedEntries)
     end
     filteredPath = strjoin(pathEntries(keepMask), pathsep);
     path(filteredPath);
-    savepath;
+    if shouldSavePath
+        savepath;
+    end
     fprintf('Removed %d stale MATLAB path entries.\n', numel(removedEntries));
 else
     fprintf('No stale MATLAB path entries found for cleanup.\n');

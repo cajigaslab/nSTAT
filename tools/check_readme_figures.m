@@ -65,6 +65,20 @@ repoRoot = nstat.docs.getRepoRoot();
 treeRoot = fullfile(repoRoot, 'docs', 'figures');
 assertDirExists(treeRoot);
 
+% FIX: the README figure gate once failed because the committed gallery
+% was generated under an older MATLAB release (a rendering-environment
+% change, not a code change -- see RELEASE_NOTES.md v1.6.0). The recorded
+% matlab_version in manifest.json (written by build_paper_examples) is
+% read here, BEFORE any regeneration, so this reports the version the
+% COMMITTED tree was generated under, not whatever a sandbox regen run
+% would overwrite it with. Purely informational: never fails the gate on
+% its own. versionDrift is kept and re-printed below if the gate ends up
+% failing (FIX: review -- repeat it beside the failure, not just at the
+% top, since the regen in between can take 5-10 minutes of scrolled-past
+% output).
+versionDrift = computeMatlabVersionDrift(treeRoot);
+printMatlabVersionDriftNote(versionDrift);
+
 if isempty(opts.SandboxDir)
     sandboxDir = fullfile(tempdir, ...
         sprintf('nstat_readme_regen_%s', char(java.util.UUID.randomUUID)));
@@ -136,6 +150,12 @@ report.passed = (report.numSubstantive == 0) && (report.numShapeDiffer == 0) && 
                 (report.numMissingInSandbox == 0);
 
 printReport(report);
+
+if ~report.passed
+    % FIX (review): repeat the drift note next to the failure, not just
+    % once at the top before a 5-10 minute regen scrolls it out of view.
+    printMatlabVersionDriftNote(versionDrift);
+end
 
 if opts.FailOnDrift && ~report.passed
     error('nstat:readmeFigures:drift', ...
@@ -247,6 +267,45 @@ if ~report.passed
         end
     end
 end
+end
+
+function drift = computeMatlabVersionDrift(treeRoot)
+% Returns a struct: .hasDrift (logical), .recordedVersion, .currentVersion.
+% .hasDrift is false if there's nothing to compare (no manifest, no
+% recorded field) as well as when the versions simply match.
+drift = struct('hasDrift', false, 'recordedVersion', '', 'currentVersion', version);
+
+manifestPath = fullfile(treeRoot, 'manifest.json');
+if exist(manifestPath, 'file') ~= 2
+    return;
+end
+try
+    manifestText = fileread(manifestPath);
+    m = regexp(manifestText, '"matlab_version"\s*:\s*"([^"]*)"', 'tokens', 'once');
+catch
+    m = {};
+end
+if isempty(m) || isempty(m{1})
+    return;
+end
+drift.recordedVersion = m{1};
+drift.hasDrift = ~strcmp(drift.recordedVersion, drift.currentVersion);
+end
+
+function printMatlabVersionDriftNote(drift)
+if ~drift.hasDrift
+    return;
+end
+fprintf('\n');
+fprintf('################################################################\n');
+fprintf('# NOTE: MATLAB version drift detected (informational only)\n');
+fprintf('#   docs/figures/manifest.json was generated under: %s\n', drift.recordedVersion);
+fprintf('#   this run is executing under                   : %s\n', drift.currentVersion);
+fprintf('#   A different MATLAB release can re-render fonts/anti-aliasing\n');
+fprintf('#   slightly differently, producing figure drift that is an\n');
+fprintf('#   environment change, not a code change (see RELEASE_NOTES.md\n');
+fprintf('#   v1.6.0 for a prior instance of exactly this).\n');
+fprintf('################################################################\n\n');
 end
 
 function assertDirExists(dirPath)

@@ -39,9 +39,18 @@
 
 set -uo pipefail
 
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# Default MATLAB binary: the newest installed /Applications/MATLAB_R*.app
+# (maintainer policy -- test on the latest MATLAB only). Override with
+# the MATLAB_BIN env var.
+# shellcheck source=tools/resolve_latest_matlab.sh
+source "$REPO_ROOT/tools/resolve_latest_matlab.sh"
+if [[ -z "${MATLAB_BIN:-}" ]]; then
+    MATLAB_BIN="$(resolve_latest_matlab_bin)" || MATLAB_BIN="/Applications/MATLAB_R2026a.app/bin/matlab"
+fi
+export MATLAB_BIN
 
 SKIP_README=0
 while [[ $# -gt 0 ]]; do
@@ -64,6 +73,24 @@ done
 if [[ ! -x "$MATLAB_BIN" ]]; then
   echo "ERROR: MATLAB binary not found at $MATLAB_BIN" >&2
   echo "Override with MATLAB_BIN=/Applications/MATLAB_R20XXy.app/bin/matlab" >&2
+  exit 2
+fi
+
+# Guard against #140 (the release gate rewriting MATLAB's system-wide
+# toolbox/local/pathdef.m via savepath). nSTAT_Install('SavePath',false)
+# is the real fix; this hashes pathdef.m before/after the whole gate run
+# as a second line of defense that fails loudly if anything -- a bug
+# reintroduced later, or a future gate step we haven't audited -- calls
+# savepath anyway.
+# shellcheck source=tools/pathdef_guard.sh
+source "$REPO_ROOT/tools/pathdef_guard.sh"
+if ! pathdef_guard_snapshot "$MATLAB_BIN"; then
+  # FIX (review): a failed snapshot (e.g. matlabroot couldn't be resolved)
+  # must abort here, not fall through -- otherwise pathdef_guard_verify
+  # later could silently reload a stale state file left by some earlier,
+  # unrelated run and report a false "unchanged", defeating the guard
+  # exactly when it matters most (right after a failure).
+  echo "ERROR: pathdef guard snapshot failed -- aborting before any gate runs." >&2
   exit 2
 fi
 
@@ -105,6 +132,9 @@ run_gate "helptoc.xml lint" \
 
 run_gate "Bug-pattern audit (review report afterwards)" \
   "$REPO_ROOT/tools/check_bug_patterns.sh" "$REPO_ROOT/docs/verification/bug_pattern_audit_latest.md"
+
+run_gate "pathdef.m unchanged (#140 guard)" \
+  pathdef_guard_verify
 
 echo
 echo "============================================================"

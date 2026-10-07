@@ -2,16 +2,30 @@ function stamp_release(version, varargin)
 %STAMP_RELEASE Stamp Contents.m and the figure manifest for a tagged release.
 %
 % Syntax:
-%   tools.stamp_release('v1.4.0')
-%   tools.stamp_release('v1.4.0', 'DryRun', true)
+%   stamp_release('v1.4.0')
+%   stamp_release('v1.4.0', 'DryRun', true)
+%
+% NOTE: despite this help text historically reading `tools.stamp_release`,
+% this is a plain function, not a package member -- there is no
+% `+tools/` package folder. After `addpath(fullfile(pwd,'tools'))`, call
+% it as `stamp_release(...)`, not `tools.stamp_release(...)` (that
+% dotted form never resolved). FIX: version consistency hardening.
 %
 % Description:
 %   For a target release `vX.Y.Z`, this function:
 %
 %     1. Updates Contents.m line 2 (`% Version X.Y dd-Mmm-yyyy`).
-%     2. Bumps docs/figures/manifest.json `generated_at` field.
-%     3. Creates a RELEASE_NOTES.md entry template (idempotent — does
-%        nothing if the version's header already exists).
+%     2. Updates toolboxOptions.m's `ToolboxVersion` to the full `X.Y.Z`.
+%        FIX: this did not happen through v1.5.2 -- ToolboxVersion stayed
+%        "1.5.1" while Contents.m and RELEASE_NOTES.md moved on, so the
+%        shipped .mltbx reported the wrong version.
+%     3. Bumps docs/figures/manifest.json `generated_at` field.
+%     4. Folds an existing "## Unreleased" section's content into the new
+%        "## vX.Y.Z" section (idempotent -- does nothing if the version's
+%        header already exists), matching how releases actually fold
+%        Unreleased work into the tagged section (see v1.6.0's notes). If
+%        there's no "## Unreleased" section, creates a fresh templated
+%        entry instead.
 %
 %   It does NOT run any tests, does NOT push, and does NOT tag. The
 %   caller is expected to have run `tools/predeploy.sh` and reviewed
@@ -28,7 +42,7 @@ function stamp_release(version, varargin)
 % Introduced for the 2026-05-20 comprehensive codebase audit (Phase D3.2).
 
 parser = inputParser;
-parser.FunctionName = 'tools.stamp_release';
+parser.FunctionName = 'stamp_release';
 addRequired(parser, 'version', @(x) ischar(x) || (isstring(x) && isscalar(x)));
 addParameter(parser, 'DryRun', false, @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
 parse(parser, version, varargin{:});
@@ -68,7 +82,25 @@ if strcmp(contentsText, contentsNew)
         'Contents.m line 2 did not match expected pattern; skipped.');
 end
 
-% 2) Update docs/figures/manifest.json generated_at
+% 2) Update toolboxOptions.m's ToolboxVersion (FIX: this was previously
+% missing -- ToolboxVersion stayed "1.5.1" through v1.5.2).
+toolboxOptionsPath = fullfile(repoRoot, 'toolboxOptions.m');
+if exist(toolboxOptionsPath, 'file') == 2
+    toolboxOptionsText = fileread(toolboxOptionsPath);
+    newToolboxVersionLine = sprintf('opts.ToolboxVersion  = "%s";', bareVersion);
+    toolboxOptionsNew = regexprep(toolboxOptionsText, ...
+        'opts\.ToolboxVersion\s*=\s*"[^"]*";', newToolboxVersionLine, 'once');
+    if strcmp(toolboxOptionsText, toolboxOptionsNew)
+        warning('nstat:stamp_release:ToolboxOptionsUnchanged', ...
+            'toolboxOptions.m ToolboxVersion assignment did not match expected pattern; skipped.');
+    end
+else
+    toolboxOptionsNew = '';
+    warning('nstat:stamp_release:ToolboxOptionsMissing', ...
+        'toolboxOptions.m not found at %s; ToolboxVersion not stamped.', toolboxOptionsPath);
+end
+
+% 3) Update docs/figures/manifest.json generated_at
 manifestPath = fullfile(repoRoot, 'docs', 'figures', 'manifest.json');
 if exist(manifestPath, 'file') == 2
     manifestText = fileread(manifestPath);
@@ -79,7 +111,16 @@ else
     manifestNew = '';
 end
 
-% 3) RELEASE_NOTES.md (create or prepend section)
+% 4) RELEASE_NOTES.md (fold "## Unreleased" into the new section, or
+% create a fresh templated one if there's nothing to fold)
+%
+% FIX (review): releases actually FOLD the accumulated "## Unreleased"
+% content into the new "## vX.Y.Z" section -- compare how v1.6.0's own
+% notes read (it isn't "## Unreleased" followed immediately by
+% "## v1.6.0" with separate, empty bodies; the Unreleased work became the
+% v1.6.0 section's body). Previously this just inserted a brand-new
+% templated section ABOVE any existing "## Unreleased" block, leaving
+% both as separate sections with the Unreleased one now orphaned/stale.
 notesPath = fullfile(repoRoot, 'RELEASE_NOTES.md');
 sectionHeader = sprintf('## %s — %s', opts.version, dateStr);
 if exist(notesPath, 'file') == 2
@@ -88,20 +129,35 @@ if exist(notesPath, 'file') == 2
         % already present; do not duplicate
         notesNew = notesText;
     else
-        % prepend a new section after any preamble
-        preamble = sprintf('# nSTAT Release Notes\n\n');
-        newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\n---\n\n', ...
-            sectionHeader);
-        if startsWith(notesText, '# nSTAT Release Notes')
-            % insert after the preamble
-            firstBreak = regexp(notesText, '\n##', 'once');
-            if isempty(firstBreak)
-                notesNew = [notesText newline newSection];
+        [uStart, uEnd] = regexp(notesText, '(?m)^## Unreleased[ \t]*$', 'start', 'end', 'once');
+        if ~isempty(uStart)
+            afterHeader = notesText(uEnd+1:end);
+            nextHeadingStart = regexp(afterHeader, '\n## ', 'once');
+            if isempty(nextHeadingStart)
+                body = afterHeader;
+                remainder = '';
             else
-                notesNew = [notesText(1:firstBreak-1) newline newSection notesText(firstBreak+1:end)];
+                body = afterHeader(1:nextHeadingStart-1);
+                remainder = afterHeader(nextHeadingStart:end);
             end
+            notesNew = [notesText(1:uStart-1) sectionHeader body remainder];
         else
-            notesNew = [preamble newSection notesText];
+            % No "## Unreleased" section: insert a fresh templated
+            % section after any preamble, same as before.
+            preamble = sprintf('# nSTAT Release Notes\n\n');
+            newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\n---\n\n', ...
+                sectionHeader);
+            if startsWith(notesText, '# nSTAT Release Notes')
+                % insert after the preamble
+                firstBreak = regexp(notesText, '\n##', 'once');
+                if isempty(firstBreak)
+                    notesNew = [notesText newline newSection];
+                else
+                    notesNew = [notesText(1:firstBreak-1) newline newSection notesText(firstBreak+1:end)];
+                end
+            else
+                notesNew = [preamble newSection notesText];
+            end
         end
     end
 else
@@ -114,6 +170,7 @@ end
 % Apply or report
 fprintf('stamp_release: target = %s\n', opts.version);
 fprintf('  Contents.m line: "%s"\n', newContentsLine);
+fprintf('  toolboxOptions.m ToolboxVersion: "%s"\n', bareVersion);
 fprintf('  manifest generated_at: "%s"\n', isoDate);
 fprintf('  release notes header : "%s"\n', sectionHeader);
 if opts.DryRun
@@ -128,6 +185,12 @@ end
 fwrite(fid, contentsNew);
 fclose(fid);
 
+if ~isempty(toolboxOptionsNew)
+    fid = fopen(toolboxOptionsPath, 'w');
+    fwrite(fid, toolboxOptionsNew);
+    fclose(fid);
+end
+
 if ~isempty(manifestNew)
     fid = fopen(manifestPath, 'w');
     fwrite(fid, manifestNew);
@@ -139,10 +202,11 @@ fwrite(fid, notesNew);
 fclose(fid);
 
 fprintf('\nWrote:\n  %s\n', contentsPath);
+if ~isempty(toolboxOptionsNew); fprintf('  %s\n', toolboxOptionsPath); end
 if ~isempty(manifestNew); fprintf('  %s\n', manifestPath); end
 fprintf('  %s\n', notesPath);
 fprintf('\nNow review the RELEASE_NOTES.md entry, then:\n');
-fprintf('  git add Contents.m docs/figures/manifest.json RELEASE_NOTES.md\n');
+fprintf('  git add Contents.m toolboxOptions.m docs/figures/manifest.json RELEASE_NOTES.md\n');
 fprintf('  git commit -m "release(%s): stamp version + manifest"\n', opts.version);
 fprintf('  git tag %s\n', opts.version);
 fprintf('  git push origin master --tags\n');

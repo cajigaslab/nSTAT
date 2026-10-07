@@ -21,8 +21,19 @@
 
 set -euo pipefail
 
-# Default MATLAB binary; override with --matlab-path or MATLAB_BIN env var
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
+# Default MATLAB binary: the newest installed /Applications/MATLAB_R*.app
+# (maintainer policy -- test on the latest MATLAB only). Override with
+# --matlab-path or the MATLAB_BIN env var.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=tools/resolve_latest_matlab.sh
+source "$SCRIPT_DIR/resolve_latest_matlab.sh"
+if [[ -z "${MATLAB_BIN:-}" ]]; then
+    MATLAB_BIN="$(resolve_latest_matlab_bin)" || {
+        echo "ERROR: no /Applications/MATLAB_R*.app found" >&2
+        echo "Override with --matlab-path /Applications/MATLAB_R20XXy.app or MATLAB_BIN=..." >&2
+        exit 2
+    }
+fi
 INCLUDE_INTEGRATION=0
 
 while [[ $# -gt 0 ]]; do

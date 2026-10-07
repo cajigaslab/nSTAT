@@ -64,7 +64,17 @@ _pathdef_guard_resolve_paths() {
 }
 
 _pathdef_guard_state_file() {
-    echo "${PATHDEF_GUARD_STATE_FILE:-${TMPDIR:-/tmp}/nstat_pathdef_guard_state}"
+    # FIX (review): default to a PID-keyed, per-run file rather than a
+    # fixed name. A fixed name left two risks: a crashed run's leftover
+    # snapshot could be silently read by a LATER run's verify (reporting
+    # false success against stale hashes), and two concurrent runs on the
+    # same machine would clobber each other's state. $$ is the PID of the
+    # shell that sourced this file, which is stable across a single
+    # predeploy.sh invocation (snapshot and verify run in the same shell
+    # process there) but distinct per run and per concurrent invocation.
+    # PATHDEF_GUARD_STATE_FILE still overrides, for standalone/demo use
+    # where snapshot and verify are deliberately separate processes.
+    echo "${PATHDEF_GUARD_STATE_FILE:-${TMPDIR:-/tmp}/nstat_pathdef_guard_state.$$}"
 }
 
 # Snapshot the current hashes. Call BEFORE running any gate.
@@ -151,6 +161,13 @@ pathdef_guard_verify() {
         echo "automated run (issue #140) -- investigate before proceeding." >&2
         return 1
     fi
+
+    # Clean up the state file on a successful verify, so a leftover file
+    # from THIS run can't be misread by some later, unrelated run (only
+    # matters when PATHDEF_GUARD_STATE_FILE was explicitly overridden to a
+    # fixed name; the PID-keyed default never collides across runs anyway).
+    rm -f "$(_pathdef_guard_state_file)" 2>/dev/null || true
+
     echo "pathdef guard: OK (unchanged)"
     return 0
 }

@@ -58,6 +58,106 @@ classdef testReleaseVersionConsistency < matlab.unittest.TestCase
             tc.verifyTrue(contains(toolboxOptionsText, 'opts.ToolboxVersion  = "99.98.97";'), ...
                 'stamp_release did not stamp toolboxOptions.m ToolboxVersion to the target version.');
         end
+
+        function testStampReleaseFoldsUnreleasedSection(tc)
+            % Releases fold the accumulated "## Unreleased" content into
+            % the new "## vX.Y.Z" section rather than leaving Unreleased
+            % behind as an orphaned separate block (compare how v1.6.0's
+            % own notes read -- this repo's committed RELEASE_NOTES.md
+            % currently has a real "## Unreleased" section at the top, so
+            % this test exercises the fold against real content, just on
+            % a scratch copy).
+            import matlab.unittest.fixtures.PathFixture
+
+            repoRoot = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+            scratchDir = tempname();
+            mkdir(scratchDir);
+            tc.addTeardown(@() rmdirIfExists(scratchDir));
+
+            toolsScratchDir = fullfile(scratchDir, 'tools');
+            mkdir(toolsScratchDir);
+            copyfile(fullfile(repoRoot, 'tools', 'stamp_release.m'), toolsScratchDir);
+            copyfile(fullfile(repoRoot, 'RELEASE_NOTES.md'), scratchDir);
+            copyfile(fullfile(repoRoot, 'Contents.m'), scratchDir);
+            copyfile(fullfile(repoRoot, 'toolboxOptions.m'), scratchDir);
+            mkdir(fullfile(scratchDir, 'docs', 'figures'));
+            copyfile(fullfile(repoRoot, 'docs', 'figures', 'manifest.json'), ...
+                fullfile(scratchDir, 'docs', 'figures'));
+
+            originalNotes = fileread(fullfile(scratchDir, 'RELEASE_NOTES.md'));
+            tc.assertTrue(contains(originalNotes, sprintf('## Unreleased\n')), ...
+                'Fixture RELEASE_NOTES.md has no "## Unreleased" section to fold -- test setup is stale.');
+            % Grab one line of Unreleased body content to confirm it
+            % survives the fold (not just the header rename).
+            tc.assertTrue(contains(originalNotes, 'Fixes #140'), ...
+                'Fixture RELEASE_NOTES.md Unreleased body is missing the expected #140 line.');
+
+            tc.applyFixture(PathFixture(toolsScratchDir));
+            tc.assertEqual(which('stamp_release'), fullfile(toolsScratchDir, 'stamp_release.m'), ...
+                'stamp_release did not resolve to the scratch copy -- refusing to run.');
+
+            stamp_release('v98.76.54', 'DryRun', false);
+
+            newNotes = fileread(fullfile(scratchDir, 'RELEASE_NOTES.md'));
+            tc.verifyFalse(contains(newNotes, '## Unreleased'), ...
+                'Unreleased header should have been folded away, not left behind.');
+            tc.verifyTrue(contains(newNotes, '## v98.76.54'), ...
+                'Expected the new version header to replace Unreleased.');
+
+            % The folded body must appear BETWEEN the new header and the
+            % next "## " section (i.e. actually became that section's
+            % body, not dropped or relocated elsewhere).
+            newHeaderPos = strfind(newNotes, '## v98.76.54');
+            afterNewHeader = newNotes(newHeaderPos(1):end);
+            nextSectionPos = regexp(afterNewHeader, '\n## ', 'once');
+            bodyChunk = afterNewHeader(1:nextSectionPos);
+            tc.verifyTrue(contains(bodyChunk, 'Fixes #140'), ...
+                'Unreleased body content did not end up inside the new version section.');
+
+            % The section that originally followed Unreleased (v1.6.0)
+            % must still immediately follow, untouched.
+            tc.verifyTrue(contains(newNotes, '## v1.6.0'), ...
+                'The pre-existing ## v1.6.0 section should be unaffected by the fold.');
+        end
+
+        function testStampReleaseTemplatesWhenNoUnreleasedSection(tc)
+            % Without an "## Unreleased" section, stamp_release must fall
+            % back to creating a fresh templated section (the pre-fold
+            % behaviour), not error or silently do nothing.
+            import matlab.unittest.fixtures.PathFixture
+
+            repoRoot = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+            scratchDir = tempname();
+            mkdir(scratchDir);
+            tc.addTeardown(@() rmdirIfExists(scratchDir));
+
+            toolsScratchDir = fullfile(scratchDir, 'tools');
+            mkdir(toolsScratchDir);
+            copyfile(fullfile(repoRoot, 'tools', 'stamp_release.m'), toolsScratchDir);
+            copyfile(fullfile(repoRoot, 'Contents.m'), scratchDir);
+            copyfile(fullfile(repoRoot, 'toolboxOptions.m'), scratchDir);
+            mkdir(fullfile(scratchDir, 'docs', 'figures'));
+            copyfile(fullfile(repoRoot, 'docs', 'figures', 'manifest.json'), ...
+                fullfile(scratchDir, 'docs', 'figures'));
+
+            fid = fopen(fullfile(scratchDir, 'RELEASE_NOTES.md'), 'w');
+            fprintf(fid, '# nSTAT Release Notes\n\n## v1.0.0 — 1-Jan-2020\n\nOld stuff.\n');
+            fclose(fid);
+
+            tc.applyFixture(PathFixture(toolsScratchDir));
+            tc.assertEqual(which('stamp_release'), fullfile(toolsScratchDir, 'stamp_release.m'), ...
+                'stamp_release did not resolve to the scratch copy -- refusing to run.');
+
+            stamp_release('v2.0.0', 'DryRun', false);
+
+            newNotes = fileread(fullfile(scratchDir, 'RELEASE_NOTES.md'));
+            tc.verifyTrue(contains(newNotes, '## v2.0.0'), ...
+                'Expected a new ## v2.0.0 section to be created.');
+            tc.verifyTrue(contains(newNotes, '_Fill in highlights:_'), ...
+                'Expected the fallback template placeholder when there is no Unreleased section to fold.');
+            tc.verifyTrue(contains(newNotes, '## v1.0.0'), ...
+                'The pre-existing ## v1.0.0 section should be unaffected.');
+        end
     end
 end
 

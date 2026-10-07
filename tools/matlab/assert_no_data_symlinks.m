@@ -14,9 +14,14 @@ function assert_no_data_symlinks(repoRoot)
 % Call this BEFORE constructing ToolboxOptions.
 %
 % Checks both: data/ itself being a symlink, and any symlink nested
-% anywhere underneath it. Uses java.nio.file.Files.walk, which (unlike
-% MATLAB's dir()) does NOT follow symlinks by default, so this is safe to
-% run even if a symlink points somewhere enormous or circular.
+% anywhere underneath it. Recurses manually via java.io.File.listFiles()
+% (NOT java.nio.file.Files.walk -- its varargs FileVisitOption... overload
+% is ambiguous through MATLAB's Java bridge and errors with "No method
+% ... with matching signature found", confirmed empirically), checking
+% Files.isSymbolicLink on each child and only descending into real
+% directories. Unlike MATLAB's dir(), this never follows a symlink to
+% recurse into it, so it's safe to run even if a link points somewhere
+% enormous or circular.
 %
 % Introduced for the v1.6.0 release-gate hardening (package sanity check).
 

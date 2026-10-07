@@ -20,8 +20,12 @@ function stamp_release(version, varargin)
 %        "1.5.1" while Contents.m and RELEASE_NOTES.md moved on, so the
 %        shipped .mltbx reported the wrong version.
 %     3. Bumps docs/figures/manifest.json `generated_at` field.
-%     4. Creates a RELEASE_NOTES.md entry template (idempotent — does
-%        nothing if the version's header already exists).
+%     4. Folds an existing "## Unreleased" section's content into the new
+%        "## vX.Y.Z" section (idempotent -- does nothing if the version's
+%        header already exists), matching how releases actually fold
+%        Unreleased work into the tagged section (see v1.6.0's notes). If
+%        there's no "## Unreleased" section, creates a fresh templated
+%        entry instead.
 %
 %   It does NOT run any tests, does NOT push, and does NOT tag. The
 %   caller is expected to have run `tools/predeploy.sh` and reviewed
@@ -107,7 +111,16 @@ else
     manifestNew = '';
 end
 
-% 4) RELEASE_NOTES.md (create or prepend section)
+% 4) RELEASE_NOTES.md (fold "## Unreleased" into the new section, or
+% create a fresh templated one if there's nothing to fold)
+%
+% FIX (review): releases actually FOLD the accumulated "## Unreleased"
+% content into the new "## vX.Y.Z" section -- compare how v1.6.0's own
+% notes read (it isn't "## Unreleased" followed immediately by
+% "## v1.6.0" with separate, empty bodies; the Unreleased work became the
+% v1.6.0 section's body). Previously this just inserted a brand-new
+% templated section ABOVE any existing "## Unreleased" block, leaving
+% both as separate sections with the Unreleased one now orphaned/stale.
 notesPath = fullfile(repoRoot, 'RELEASE_NOTES.md');
 sectionHeader = sprintf('## %s — %s', opts.version, dateStr);
 if exist(notesPath, 'file') == 2
@@ -116,20 +129,35 @@ if exist(notesPath, 'file') == 2
         % already present; do not duplicate
         notesNew = notesText;
     else
-        % prepend a new section after any preamble
-        preamble = sprintf('# nSTAT Release Notes\n\n');
-        newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\n---\n\n', ...
-            sectionHeader);
-        if startsWith(notesText, '# nSTAT Release Notes')
-            % insert after the preamble
-            firstBreak = regexp(notesText, '\n##', 'once');
-            if isempty(firstBreak)
-                notesNew = [notesText newline newSection];
+        [uStart, uEnd] = regexp(notesText, '(?m)^## Unreleased[ \t]*$', 'start', 'end', 'once');
+        if ~isempty(uStart)
+            afterHeader = notesText(uEnd+1:end);
+            nextHeadingStart = regexp(afterHeader, '\n## ', 'once');
+            if isempty(nextHeadingStart)
+                body = afterHeader;
+                remainder = '';
             else
-                notesNew = [notesText(1:firstBreak-1) newline newSection notesText(firstBreak+1:end)];
+                body = afterHeader(1:nextHeadingStart-1);
+                remainder = afterHeader(nextHeadingStart:end);
             end
+            notesNew = [notesText(1:uStart-1) sectionHeader body remainder];
         else
-            notesNew = [preamble newSection notesText];
+            % No "## Unreleased" section: insert a fresh templated
+            % section after any preamble, same as before.
+            preamble = sprintf('# nSTAT Release Notes\n\n');
+            newSection = sprintf('%s\n\n_Fill in highlights:_\n\n- (correctness fixes)\n- (new capabilities)\n- (breaking changes / deprecations)\n\n---\n\n', ...
+                sectionHeader);
+            if startsWith(notesText, '# nSTAT Release Notes')
+                % insert after the preamble
+                firstBreak = regexp(notesText, '\n##', 'once');
+                if isempty(firstBreak)
+                    notesNew = [notesText newline newSection];
+                else
+                    notesNew = [notesText(1:firstBreak-1) newline newSection notesText(firstBreak+1:end)];
+                end
+            else
+                notesNew = [preamble newSection notesText];
+            end
         end
     end
 else

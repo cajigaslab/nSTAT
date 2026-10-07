@@ -84,7 +84,15 @@ fi
 # savepath anyway.
 # shellcheck source=tools/pathdef_guard.sh
 source "$REPO_ROOT/tools/pathdef_guard.sh"
-pathdef_guard_snapshot "$MATLAB_BIN"
+if ! pathdef_guard_snapshot "$MATLAB_BIN"; then
+  # FIX (review): a failed snapshot (e.g. matlabroot couldn't be resolved)
+  # must abort here, not fall through -- otherwise pathdef_guard_verify
+  # later could silently reload a stale state file left by some earlier,
+  # unrelated run and report a false "unchanged", defeating the guard
+  # exactly when it matters most (right after a failure).
+  echo "ERROR: pathdef guard snapshot failed -- aborting before any gate runs." >&2
+  exit 2
+fi
 
 gate_count=0
 gate_failed=0

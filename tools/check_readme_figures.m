@@ -65,6 +65,15 @@ repoRoot = nstat.docs.getRepoRoot();
 treeRoot = fullfile(repoRoot, 'docs', 'figures');
 assertDirExists(treeRoot);
 
+% FIX: the README figure gate once failed because the committed gallery
+% was generated under an older MATLAB release (a rendering-environment
+% change, not a code change -- see RELEASE_NOTES.md v1.6.0). The recorded
+% matlab_version in manifest.json (written by build_paper_examples) is
+% read here, BEFORE any regeneration, so this reports the version the
+% COMMITTED tree was generated under, not whatever a sandbox regen run
+% would overwrite it with. Purely informational: never fails the gate.
+warnOnMatlabVersionDrift(treeRoot);
+
 if isempty(opts.SandboxDir)
     sandboxDir = fullfile(tempdir, ...
         sprintf('nstat_readme_regen_%s', char(java.util.UUID.randomUUID)));
@@ -246,6 +255,36 @@ if ~report.passed
                 report.rows(k).note);
         end
     end
+end
+end
+
+function warnOnMatlabVersionDrift(treeRoot)
+manifestPath = fullfile(treeRoot, 'manifest.json');
+if exist(manifestPath, 'file') ~= 2
+    return;
+end
+try
+    manifestText = fileread(manifestPath);
+    m = regexp(manifestText, '"matlab_version"\s*:\s*"([^"]*)"', 'tokens', 'once');
+catch
+    m = {};
+end
+if isempty(m) || isempty(m{1})
+    return;
+end
+recordedVersion = m{1};
+currentVersion = version;
+if ~strcmp(recordedVersion, currentVersion)
+    fprintf('\n');
+    fprintf('################################################################\n');
+    fprintf('# NOTE: MATLAB version drift detected (informational only)\n');
+    fprintf('#   docs/figures/manifest.json was generated under: %s\n', recordedVersion);
+    fprintf('#   this run is executing under                   : %s\n', currentVersion);
+    fprintf('#   A different MATLAB release can re-render fonts/anti-aliasing\n');
+    fprintf('#   slightly differently, producing figure drift that is an\n');
+    fprintf('#   environment change, not a code change (see RELEASE_NOTES.md\n');
+    fprintf('#   v1.6.0 for a prior instance of exactly this).\n');
+    fprintf('################################################################\n\n');
 end
 end
 

@@ -25,7 +25,12 @@
 
 set -euo pipefail
 
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=tools/resolve_latest_matlab.sh
+source "$SCRIPT_DIR/resolve_latest_matlab.sh"
+if [[ -z "${MATLAB_BIN:-}" ]]; then
+    MATLAB_BIN="$(resolve_latest_matlab_bin)" || MATLAB_BIN="/Applications/MATLAB_R2026a.app/bin/matlab"
+fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in

@@ -39,9 +39,18 @@
 
 set -uo pipefail
 
-MATLAB_BIN="${MATLAB_BIN:-/Applications/MATLAB_R2026a.app/bin/matlab}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# Default MATLAB binary: the newest installed /Applications/MATLAB_R*.app
+# (maintainer policy -- test on the latest MATLAB only). Override with
+# the MATLAB_BIN env var.
+# shellcheck source=tools/resolve_latest_matlab.sh
+source "$REPO_ROOT/tools/resolve_latest_matlab.sh"
+if [[ -z "${MATLAB_BIN:-}" ]]; then
+    MATLAB_BIN="$(resolve_latest_matlab_bin)" || MATLAB_BIN="/Applications/MATLAB_R2026a.app/bin/matlab"
+fi
+export MATLAB_BIN
 
 SKIP_README=0
 while [[ $# -gt 0 ]]; do

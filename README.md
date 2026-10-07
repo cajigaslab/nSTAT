@@ -60,6 +60,7 @@ nSTAT_Install('RebuildDocSearch', true, 'CleanUserPathPrefs', false, 'DownloadEx
 - `RebuildDocSearch` rebuilds the help search database in `helpfiles/`.
 - `CleanUserPathPrefs` removes stale user MATLAB path entries.
 - `DownloadExampleData` accepts `true`/`'always'`, `false`/`'never'`, or `'prompt'`.
+- `SavePath` (default `true`) persists the path with `savepath`. Scripts and automated gates should pass `'SavePath', false` so they only change the current session and never rewrite MATLAB's `pathdef.m`.
 
 Quickstart (MATLAB 2025b):
 

@@ -86,7 +86,9 @@ MATLAB path while excluding `python/`, `.git/`, `tests/python_port_fidelity/`,
 etc.; (2) optionally rebuilds the help search database via
 `builddocsearchdb('helpfiles')`; (3) optionally downloads the 2012 paper
 example dataset from figshare DOI `10.6084/m9.figshare.4834640.v3` into
-`data/`.
+`data/`. It then calls `savepath` unless you pass `'SavePath', false` — do
+that from scripts, tests, and gates so they don't rewrite MATLAB's
+`pathdef.m` (#140).
 
 Paper-example data is NOT in Git — must be downloaded once.
 

@@ -122,6 +122,16 @@ classdef testInstallSavePathGuard < matlab.unittest.TestCase
                 'nSTAT_Install default for SavePath must remain true.');
         end
 
+        function testSavePathRejectsText(tc)
+            % A text value ('no') must be rejected by the input parser,
+            % not coerced to a truthy logical that would call savepath.
+            tc.verifyError(@() nSTAT_Install('SavePath', 'no', ...
+                'RebuildDocSearch', false, 'DownloadExampleData', 'never'), ...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+            tc.verifyEqual(exist(tc.CallCountFile, 'file'), 0, ...
+                'Rejected SavePath value still reached savepath.');
+        end
+
         function testCleanUserPathPrefsForwardsSavePathFalse(tc)
             % nSTAT_Install('SavePath',false,'CleanUserPathPrefs',true)
             % must also suppress cleanup_user_path_prefs's own savepath.

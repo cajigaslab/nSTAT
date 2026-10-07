@@ -161,6 +161,10 @@ classdef testInstallSavePathGuard < matlab.unittest.TestCase
             % function's own contract in isolation.
             tc.injectStaleEntry();
             repoRoot = fileparts(which('nSTAT_Install'));
+            % Resolve the helper the same way nSTAT_Install does, so this
+            % test does not depend on the runner's addpath(genpath(...)).
+            % teardown restores the original path.
+            addpath(fullfile(repoRoot, 'tools', 'matlab'), '-begin');
 
             removed = cleanup_user_path_prefs(repoRoot, 'SavePath', false);
 

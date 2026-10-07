@@ -1,5 +1,51 @@
 # nSTAT Release Notes
 
+## Unreleased
+
+Release-gate hardening, prompted by four separate things that went wrong
+during the v1.6.0 release: the gate rewrote this machine's system MATLAB
+`pathdef.m`, the first `.mltbx` build ballooned to ~500 MB from symlinked
+data, `toolboxOptions.m`'s `ToolboxVersion` never got bumped by
+`stamp_release` (stuck at 1.5.1 through v1.5.2), and the README figure
+gate failed from an unflagged MATLAB-version rendering change. No
+numerical/behavioral change to the toolbox itself -- this is entirely
+release/CI tooling.
+
+- **Fixes #140** (`nSTAT_Install` rewrote the system `pathdef.m`): added a
+  `SavePath` name-value option (default `true`, so interactive installs
+  are unchanged); both non-interactive callers
+  (`helpfiles/publish_all_helpfiles.m`, `tools/matlab/run_nstat_smoke.m`)
+  now pass `'SavePath', false`.
+- **`tools/predeploy.sh` pathdef guard**: a new `tools/pathdef_guard.sh`
+  hashes the system (and per-user) `pathdef.m` before the gate run and
+  fails loudly if either changed afterward -- a second line of defense
+  independent of the #140 fix above.
+- **Package sanity check**: `packageToolbox()` now refuses to proceed if
+  `data/` (or anything under it) is a symlink (`assert_no_data_symlinks`,
+  called *before* `ToolboxOptions`'s tree-walking constructor), and
+  refuses the built `.mltbx` if it exceeds 25 MB, contains an absolute
+  user-path entry, or contains a `data/` payload entry
+  (`validate_packaged_toolbox`).
+- **`stamp_release` now updates `toolboxOptions.m`'s `ToolboxVersion`** to
+  the full `X.Y.Z` target (previously only `Contents.m` and
+  `RELEASE_NOTES.md` were stamped); a new unit test pins all three
+  sources of version truth together. Also fixed `CONTRIBUTING.md` and
+  `stamp_release.m`'s own help text, which referred to the
+  never-resolving `tools.stamp_release(...)` (there is no `+tools/`
+  package folder -- it's a plain function).
+- **MATLAB-version drift note**: `check_readme_figures.m` compares the
+  current session's `version` against the `matlab_version` recorded in
+  the committed `docs/figures/manifest.json` (written by
+  `build_paper_examples`) and prints a prominent, informational-only note
+  when they differ, instead of a bare pixel-diff failure with no
+  explanation.
+- **Gates default to the newest installed MATLAB**: `tools/run_unit_tests.sh`,
+  `tools/predeploy.sh`, and `tools/check_readme_figures.sh` hard-coded
+  `/Applications/MATLAB_R2026a.app`; they now resolve the newest installed
+  `/Applications/MATLAB_R*.app` via a shared `tools/resolve_latest_matlab.sh`
+  (matching the maintainer's test-on-latest-only policy). `MATLAB_BIN` /
+  `--matlab-path` still override.
+
 ## v1.6.0 — 6-Oct-2026
 
 Point-process and Kalman-filter EM release. `PP_EM` could not run in any configuration and `KF_EM`'s main loop was unreachable; both families now run and are numerically correct, and the standard-error routines no longer hang on singular information (#135, #137, #138). Mirrored by nstat-python v0.6.0.

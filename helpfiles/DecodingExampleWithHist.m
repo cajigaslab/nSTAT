@@ -71,7 +71,7 @@ hold all;
 hStim=stim.plot([],{{' ''k'',''Linewidth'',2'}}); 
 legend off;
 legend([hEst(1) hEst(2) hEst(3) hStim],'x_{k|k}(t)',strcat('x_{k|k}(t)-',num2str(zVal),'\sigma_{k|k}'),...
-        strcat('x_{k|k}(t)+',num2str(zVal),'\sigma_{k|k}'),'x_{k|k}(t)','x(t)');
+        strcat('x_{k|k}(t)+',num2str(zVal),'\sigma_{k|k}'),'x(t)');
 title(['Decoded Stimulus +/- 99% confidence intervals using ' num2str(numRealizations) ' cells']);
 
 subplot(2,1,2);
@@ -84,7 +84,7 @@ hold all;
 hStim=stim.plot([],{{' ''k'',''Linewidth'',2'}}); 
 legend off;
 legend([hEst(1) hEst(2) hEst(3) hStim],'x_{k|k}(t)',strcat('x_{k|k}(t)-',num2str(zVal),'\sigma_{k|k}'),...
-        strcat('x_{k|k}(t)+',num2str(zVal),'\sigma_{k|k}'),'x_{k|k}(t)','x(t)');
+        strcat('x_{k|k}(t)+',num2str(zVal),'\sigma_{k|k}'),'x(t)');
 title(['Decoded Stimulus No Hist +/- 99% confidence intervals using ' num2str(numRealizations) ' cells']);
 
 %%

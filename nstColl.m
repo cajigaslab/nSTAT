@@ -1542,7 +1542,7 @@ classdef nstColl < handle
             % rate of nstCollObj, when a trial is formed to obtain the GLM
             % psth, the up-sampled pulses will no longer be square. Better
             % to upsample the spikeTrain instead.
-            if(nargin<5)
+            if(nargin<4 || isempty(sampleRate))
                 sampleRate=1000;
             end
              
